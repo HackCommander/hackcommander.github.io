@@ -1,0 +1,588 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Mini WebSocket CTF - hackcommander.io</title>
+<meta name="description" content="During the holidays, @stackfault (sysop from the BottomlessAbyss BBS) ran a month long CTF with challenges being released every couple of days. Some of challenges were unsolved or partially solved challenges from earlier HackFest editions as well as some new ones. There was also a point depreciation system in place so challenges solved earlier gave more points. This post is a writeup for the Evilconneck challenge, a quick but fun challenge with websockets and a bit of crypto.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Mini WebSocket CTF">
+<meta property="og:url" content="http://localhost:4000/bbsctf-evilconneck/">
+
+
+  <meta property="og:description" content="During the holidays, @stackfault (sysop from the BottomlessAbyss BBS) ran a month long CTF with challenges being released every couple of days. Some of challenges were unsolved or partially solved challenges from earlier HackFest editions as well as some new ones. There was also a point depreciation system in place so challenges solved earlier gave more points. This post is a writeup for the Evilconneck challenge, a quick but fun challenge with websockets and a bit of crypto.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/bbsctf-evilconneck/logo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2020-01-27T00:00:00+01:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/bbsctf-evilconneck/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/" >Home</a>
+            </li><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Mini WebSocket CTF</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iván-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Mini WebSocket CTF">
+    <meta itemprop="description" content="During the holidays, @stackfault (sysop from the BottomlessAbyss BBS) ran a month long CTF with challenges being released every couple of days. Some of challenges were unsolved or partially solved challenges from earlier HackFest editions as well as some new ones. There was also a point depreciation system in place so challenges solved earlier gave more points. This post is a writeup for the Evilconneck challenge, a quick but fun challenge with websockets and a bit of crypto.">
+    <meta itemprop="datePublished" content="January 27, 2020">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Mini WebSocket CTF
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2020-01-27T00:00:00+01:00">January 27, 2020 </time>&emsp;
+          
+          
+        </p>
+        <p>During the holidays, <a href="https://twitter.com/stackfault">@stackfault</a> (sysop from the <a href="https://bbs.bottomlessabyss.net/">BottomlessAbyss BBS</a>) ran a month long CTF with challenges being released every couple of days. Some of challenges were unsolved or partially solved challenges from earlier <a href="https://hackfest.ca/">HackFest</a> editions as well as some new ones. There was also a point depreciation system in place so challenges solved earlier gave more points. This post is a writeup for the Evilconneck challenge by <a href="https://twitter.com/pathetiq">@pathetiq</a>, a quick but fun challenge with websockets and a bit of crypto.</p>
+
+<p>To start with, we have to connect to the BBS and create an account in order to access the challenge description and flag submission panel. We’re given a URL to connect to as well as a bit more information on the other screen.</p>
+
+<p><img src="/assets/images/bbsctf-evilconneck/challenge1.png" alt="" /></p>
+
+<p><img src="/assets/images/bbsctf-evilconneck/objectives.png" alt="" /></p>
+
+<p>On the webpage, there’s not much to see: just a couple of images and a few messages about no vulnerabilities present on a static site.</p>
+
+<p><img src="/assets/images/bbsctf-evilconneck/website1.png" alt="" /></p>
+
+<p><img src="/assets/images/bbsctf-evilconneck/website2.png" alt="" /></p>
+
+<p>Checking the HTML source code, we can see that there are some comments about debug mode being turned off.</p>
+
+<p><img src="/assets/images/bbsctf-evilconneck/debug.png" alt="" /></p>
+
+<h2 id="debug-mode-enabled">Debug mode enabled</h2>
+
+<p>Enabling the “debug mode” is just matter of sending a GET with the debug variable set: <code class="language-plaintext highlighter-rouge">http://18.222.220.65/evilconneck/?debug=1</code></p>
+
+<p>After enabling the debug mode we can see additional javascript being inserted in the page:</p>
+
+<p><img src="/assets/images/bbsctf-evilconneck/websocket1.png" alt="" /></p>
+
+<p>The code is supposed to establish a websocket connection but I’m getting a connection error message when looking at my Firefox console:</p>
+
+<p><img src="/assets/images/bbsctf-evilconneck/websocket2.png" alt="" /></p>
+
+<p>Doing some debugging, I found that the Origin header isn’t accepted by the server.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET / HTTP/1.1
+Host: 18.222.220.65:64480
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101 Firefox/68.0
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Sec-WebSocket-Version: 13
+Origin: http://18.222.220.65
+Sec-WebSocket-Extensions: permessage-deflate
+Sec-WebSocket-Key: 31EYkQq62lBuLoMotKrWZw==
+Connection: keep-alive, Upgrade
+Pragma: no-cache
+Cache-Control: no-cache
+Upgrade: websocket
+
+HTTP/1.1 403 Forbidden
+Date: Tue, 28 Jan 2020 02:25:38 GMT
+Server: Python/3.6 websockets/8.1
+Content-Length: 84
+Content-Type: text/plain
+Connection: close
+
+Failed to open a WebSocket connection: invalid Origin header: http://18.222.220.65.
+</code></pre></div></div>
+
+<p>This will probably work by using a hostname intead of the IP address so I added <code class="language-plaintext highlighter-rouge">evilconneck</code> to my local hostfile and I was able to successfully connect after using the hostname.</p>
+
+<p>Within Burp I can see my client is sending the <code class="language-plaintext highlighter-rouge">uptime</code> string followed by some base64 encoded data.</p>
+
+<p><img src="/assets/images/bbsctf-evilconneck/websocket3.png" alt="" /></p>
+
+<p>And the response is always <code class="language-plaintext highlighter-rouge">49170.12</code> and never changes</p>
+
+<p><img src="/assets/images/bbsctf-evilconneck/websocket4.png" alt="" /></p>
+
+<h2 id="figuring-out-the-hmac-secret-key">Figuring out the HMAC secret key</h2>
+
+<p>The first thing I did next was try to figure what that base64 content is all about and it just decodes to meaningless bytes. Interestingly, the length of the output is 32 bytes so this could be a hash of some sort.</p>
+
+<p><img src="/assets/images/bbsctf-evilconneck/sig1.png" alt="" /></p>
+
+<p>I tried changing the <code class="language-plaintext highlighter-rouge">uptime</code> message to something else or alter the content of the base64 and I got the following signature failure message everytime: <code class="language-plaintext highlighter-rouge">Signature failed! - Expected: 'b64(b85(passwd)),base64(hmac256)'</code></p>
+
+<p>So it’s probably safe to assume at this point that <code class="language-plaintext highlighter-rouge">uptime</code> is the message for which the signature is calculated. Based on the error message, we know that it’s using HMAC with SHA256 for the hash function and that HMAC secret is base85 encoded, then base64 encoded.</p>
+
+<p>To test this theory, I used Python to try to generate the HMAC for the <code class="language-plaintext highlighter-rouge">uptime</code> message using a wordlist so I can bruteforce the HMAC secret key. At first, I made the following script but I wasn’t able to find a match with any wordlist I used, such as <code class="language-plaintext highlighter-rouge">rockyou.txt</code>:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/env python3
+</span>
+<span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">hashlib</span><span class="p">,</span> <span class="n">hmac</span>
+<span class="kn">import</span> <span class="nn">progressbar</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="sa">b</span><span class="s">"Ji/HQqLPH5KpqzZcYFXRdEHnyn2VI1fqU824IzTzAKs="</span>
+
+<span class="n">progressbar</span><span class="p">.</span><span class="n">streams</span><span class="p">.</span><span class="n">flush</span><span class="p">()</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">encoding</span> <span class="o">=</span> <span class="s">"ISO-8859-1"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">passwords</span> <span class="o">=</span> <span class="n">f</span><span class="p">.</span><span class="n">read</span><span class="p">().</span><span class="n">splitlines</span><span class="p">()</span>
+
+<span class="n">message</span> <span class="o">=</span> <span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+<span class="k">with</span> <span class="n">progressbar</span><span class="p">.</span><span class="n">ProgressBar</span><span class="p">(</span><span class="n">max_value</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">passwords</span><span class="p">))</span> <span class="k">as</span> <span class="n">bar</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">passwords</span><span class="p">):</span>        
+        <span class="n">secret</span> <span class="o">=</span> <span class="n">base64</span><span class="p">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">base64</span><span class="p">.</span><span class="n">b85encode</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">strip</span><span class="p">().</span><span class="n">encode</span><span class="p">(</span><span class="s">'utf-8'</span><span class="p">)))</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">hmac</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">secret</span><span class="p">,</span> <span class="n">digestmod</span><span class="o">=</span><span class="n">hashlib</span><span class="p">.</span><span class="n">sha256</span><span class="p">)</span>
+        <span class="n">m</span><span class="p">.</span><span class="n">update</span><span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">strip</span><span class="p">().</span><span class="n">encode</span><span class="p">(</span><span class="s">'utf-8'</span><span class="p">))</span>
+        <span class="n">m_b64</span> <span class="o">=</span> <span class="n">base64</span><span class="p">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="n">digest</span><span class="p">())</span>        
+        <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">m_b64</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Found password: </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">m_b64</span><span class="p">)</span>
+            <span class="n">sys</span><span class="p">.</span><span class="nb">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">bar</span><span class="p">.</span><span class="n">update</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>After double checking my code for a bit, I saw that there’s an option to enable padding before encoding in the <code class="language-plaintext highlighter-rouge">b85encode</code> function. This pads the input with null bytes so to make the length a multiple of 4 bytes. After enabling padding I was able to find the HMAC secret.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">secret</span> <span class="o">=</span> <span class="n">base64</span><span class="p">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">base64</span><span class="p">.</span><span class="n">b85encode</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">strip</span><span class="p">().</span><span class="n">encode</span><span class="p">(</span><span class="s">'utf-8'</span><span class="p">),</span> <span class="n">pad</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p>No need for the full rockyou.txt list afterall, this one is pretty simple: <code class="language-plaintext highlighter-rouge">secret</code></p>
+
+<p><img src="/assets/images/bbsctf-evilconneck/secret.png" alt="" /></p>
+
+<h2 id="getting-access-with-websockets">Getting access with websockets</h2>
+
+<p>Next, I rewrote my script to send commands through the websocket connection with the proper HMAC appended.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/env python3
+</span>
+<span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">hashlib</span><span class="p">,</span> <span class="n">hmac</span>
+<span class="kn">import</span> <span class="nn">readline</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">websockets</span>
+
+<span class="n">secret</span> <span class="o">=</span> <span class="sa">b</span><span class="s">'secret'</span>
+<span class="n">secret</span> <span class="o">=</span> <span class="n">base64</span><span class="p">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">base64</span><span class="p">.</span><span class="n">b85encode</span><span class="p">(</span><span class="n">secret</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">hello</span><span class="p">():</span>
+    <span class="n">uri</span> <span class="o">=</span> <span class="s">"ws://evilconneck:64480"</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">websockets</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s">'http://evilconneck'</span><span class="p">)</span> <span class="k">as</span> <span class="n">websocket</span><span class="p">:</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s">'&gt; '</span><span class="p">)</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">hmac</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">secret</span><span class="p">,</span> <span class="n">digestmod</span><span class="o">=</span><span class="n">hashlib</span><span class="p">.</span><span class="n">sha256</span><span class="p">)</span>
+        <span class="n">m</span><span class="p">.</span><span class="n">update</span><span class="p">(</span><span class="n">cmd</span><span class="p">.</span><span class="n">encode</span><span class="p">(</span><span class="s">'utf-8'</span><span class="p">))</span>
+        <span class="n">m_b64</span> <span class="o">=</span> <span class="n">base64</span><span class="p">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="n">digest</span><span class="p">())</span>        
+        <span class="n">x</span> <span class="o">=</span> <span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">cmd</span><span class="si">}</span><span class="s">,</span><span class="si">{</span><span class="n">m_b64</span><span class="p">.</span><span class="n">decode</span><span class="p">(</span><span class="s">'utf-8'</span><span class="p">)</span><span class="si">}</span><span class="s">"</span>
+        <span class="k">await</span> <span class="n">websocket</span><span class="p">.</span><span class="n">send</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>        
+        <span class="n">r</span> <span class="o">=</span> <span class="k">await</span> <span class="n">websocket</span><span class="p">.</span><span class="n">recv</span><span class="p">()</span>
+        <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">r</span><span class="p">.</span><span class="n">decode</span><span class="p">(</span><span class="s">'utf-8'</span><span class="p">)</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+<span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+    <span class="n">asyncio</span><span class="p">.</span><span class="n">get_event_loop</span><span class="p">().</span><span class="n">run_until_complete</span><span class="p">(</span><span class="n">hello</span><span class="p">())</span>
+</code></pre></div></div>
+
+<p>Once I found the <code class="language-plaintext highlighter-rouge">help</code> command, I was quickly able to get the flag. I just needed to issue <code class="language-plaintext highlighter-rouge">hello</code> command as instructed then <code class="language-plaintext highlighter-rouge">getflag</code> returned out the flag.</p>
+
+<p><img src="/assets/images/bbsctf-evilconneck/flag.png" alt="" /></p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#crypto" class="page__taxonomy-item" rel="tag">crypto</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#websockets" class="page__taxonomy-item" rel="tag">websockets</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#ctf" class="page__taxonomy-item" rel="tag">ctf</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2020-01-27T00:00:00+01:00">January 27, 2020</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb-writeup-ai/" class="pagination--pager" title="AI - Hack The Box
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-re/" class="pagination--pager" title="RE - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

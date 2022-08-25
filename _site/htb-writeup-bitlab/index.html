@@ -1,0 +1,613 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Bitlab - Hack The Box - hackcommander.io</title>
+<meta name="description" content="I solved this gitlab box the unintended way by exploiting the git pull command running as root and using git post-merge hooks to execute code as root. I was able to get a root shell using this method but I still had to get an initial shell by finding the gitlab credentials in some obfuscated javascript and modifying PHP code in the repo to get RCE.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Bitlab - Hack The Box">
+<meta property="og:url" content="http://localhost:4000/htb-writeup-bitlab/">
+
+
+  <meta property="og:description" content="I solved this gitlab box the unintended way by exploiting the git pull command running as root and using git post-merge hooks to execute code as root. I was able to get a root shell using this method but I still had to get an initial shell by finding the gitlab credentials in some obfuscated javascript and modifying PHP code in the repo to get RCE.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb-writeup-bitlab/bitlab_logo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2020-01-11T00:00:00+01:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb-writeup-bitlab/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links">
+<li class="masthead__menu-item">
+              <a href="/">Home</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/year-archive/">Posts</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/categories/">Categories</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/tags/">Tags</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/about/">About</a>
+            </li>
+</ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1">
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Bitlab - Hack The Box</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iv%C3%A1n-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Bitlab - Hack The Box">
+    <meta itemprop="description" content="I solved this gitlab box the unintended way by exploiting the git pull command running as root and using git post-merge hooks to execute code as root. I was able to get a root shell using this method but I still had to get an initial shell by finding the gitlab credentials in some obfuscated javascript and modifying PHP code in the repo to get RCE.">
+    <meta itemprop="datePublished" content="January 11, 2020">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Bitlab - Hack The Box
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2020-01-11T00:00:00+01:00">January 11, 2020 </time> 
+          
+          
+        </p>
+        <p><img src="/assets/images/htb-writeup-bitlab/bitlab_logo.png" alt=""></p>
+
+<p>I solved this gitlab box the unintended way by exploiting the <code class="language-plaintext highlighter-rouge">git pull</code> command running as root and using git post-merge hooks to execute code as root. I was able to get a root shell using this method but I still had to get an initial shell by finding the gitlab credentials in some obfuscated javascript and modifying PHP code in the repo to get RCE.</p>
+
+<h2 id="summary">Summary</h2>
+
+<ul>
+  <li>Find javascript obfuscated credentials in bookmarks.html</li>
+  <li>Use creds to gain access to the profile repo and modify it to get PHP RCE</li>
+  <li>Get root access using the unintended method of git post-merge hooks</li>
+</ul>
+
+<h2 id="portscan">Portscan</h2>
+
+<p>The portscan shows SSH and HTTP ports open along with entries from <code class="language-plaintext highlighter-rouge">robots.txt</code> indicating this is a Gitlab service. I’ll check out a couple of the URIs mentioned below in the next section.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@kali:~/htb/bitlab# nmap -sC -sV -T4 10.10.10.114
+Starting Nmap 7.80 ( https://nmap.org ) at 2019-09-08 09:49 EDT
+Nmap scan report for bitlab.htb (10.10.10.114)
+Host is up (0.022s latency).
+Not shown: 998 filtered ports
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 7.6p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey:
+|   2048 a2:3b:b0:dd:28:91:bf:e8:f9:30:82:31:23:2f:92:18 (RSA)
+|   256 e6:3b:fb:b3:7f:9a:35:a8:bd:d0:27:7b:25:d4:ed:dc (ECDSA)
+|_  256 c9:54:3d:91:01:78:03:ab:16:14:6b:cc:f0:b7:3a:55 (ED25519)
+80/tcp open  http    nginx
+| http-robots.txt: 55 disallowed entries (15 shown)
+| / /autocomplete/users /search /api /admin /profile
+| /dashboard /projects/new /groups/new /groups/*/edit /users /help
+|_/s/ /snippets/new /snippets/*/edit
+| http-title: Sign in \xC2\xB7 GitLab
+|_Requested resource was http://bitlab.htb/users/sign_in
+|_http-trane-info: Problem with XML parsing of /evox/about
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 13.33 seconds
+</code></pre></div></div>
+
+<h2 id="gitlab-enumeration">Gitlab enumeration</h2>
+
+<p>I already knew that the box was going to contain a Gitlab service based on the box name and the logo. The box was originally submitted as Gitlab but was renamed to Bitlab before launch.</p>
+
+<p><img src="/assets/images/htb-writeup-bitlab/Screenshot_1.png" alt=""></p>
+
+<p>I clicked the Explore link at the bottom of the page to look for repos but I didn’t see any repositories that are publicly accessible.</p>
+
+<p><img src="/assets/images/htb-writeup-bitlab/Screenshot_2.png" alt=""></p>
+
+<p><img src="/assets/images/htb-writeup-bitlab/Screenshot_3.png" alt=""></p>
+
+<p>I checked a few links from the <code class="language-plaintext highlighter-rouge">robots.txt</code> file and found a profile page for Clave:</p>
+
+<p><img src="/assets/images/htb-writeup-bitlab/Screenshot_11.png" alt=""></p>
+
+<p>That’s not a default page in Gitlab so I’ll keep that in mind for later.</p>
+
+<h2 id="hardcoded-gitlab-credentials">Hardcoded Gitlab credentials</h2>
+
+<p>I initially skipped the Help section but when I went back and clicked on the link, I got the following page:</p>
+
+<p><img src="/assets/images/htb-writeup-bitlab/Screenshot_4.png" alt=""></p>
+
+<p><img src="/assets/images/htb-writeup-bitlab/Screenshot_5.png" alt=""></p>
+
+<p>The <code class="language-plaintext highlighter-rouge">Gitlab Login</code> link doesn’t link to an HTTP URL but contains obfuscated javascript:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">javascript</span><span class="p">:(</span><span class="kd">function</span><span class="p">(){</span> <span class="kd">var</span> <span class="nx">_0x4b18</span><span class="o">=</span><span class="p">[</span><span class="dl">"</span><span class="se">\</span><span class="s2">x76</span><span class="se">\</span><span class="s2">x61</span><span class="se">\</span><span class="s2">x6C</span><span class="se">\</span><span class="s2">x75</span><span class="se">\</span><span class="s2">x65</span><span class="dl">"</span><span class="p">,</span><span class="dl">"</span><span class="se">\</span><span class="s2">x75</span><span class="se">\</span><span class="s2">x73</span><span class="se">\</span><span class="s2">x65</span><span class="se">\</span><span class="s2">x72</span><span class="se">\</span><span class="s2">x5F</span><span class="se">\</span><span class="s2">x6C</span><span class="se">\</span><span class="s2">x6F</span><span class="se">\</span><span class="s2">x67</span><span class="se">\</span><span class="s2">x69</span><span class="se">\</span><span class="s2">x6E</span><span class="dl">"</span><span class="p">,</span><span class="dl">"</span><span class="se">\</span><span class="s2">x67</span><span class="se">\</span><span class="s2">x65</span><span class="se">\</span><span class="s2">x74</span><span class="se">\</span><span class="s2">x45</span><span class="se">\</span><span class="s2">x6C</span><span class="se">\</span><span class="s2">x65</span><span class="se">\</span><span class="s2">x6D</span><span class="se">\</span><span class="s2">x65</span><span class="se">\</span><span class="s2">x6E</span><span class="se">\</span><span class="s2">x74</span><span class="se">\</span><span class="s2">x42</span><span class="se">\</span><span class="s2">x79</span><span class="se">\</span><span class="s2">x49</span><span class="se">\</span><span class="s2">x64</span><span class="dl">"</span><span class="p">,</span><span class="dl">"</span><span class="se">\</span><span class="s2">x63</span><span class="se">\</span><span class="s2">x6C</span><span class="se">\</span><span class="s2">x61</span><span class="se">\</span><span class="s2">x76</span><span class="se">\</span><span class="s2">x65</span><span class="dl">"</span><span class="p">,</span><span class="dl">"</span><span class="se">\</span><span class="s2">x75</span><span class="se">\</span><span class="s2">x73</span><span class="se">\</span><span class="s2">x65</span><span class="se">\</span><span class="s2">x72</span><span class="se">\</span><span class="s2">x5F</span><span class="se">\</span><span class="s2">x70</span><span class="se">\</span><span class="s2">x61</span><span class="se">\</span><span class="s2">x73</span><span class="se">\</span><span class="s2">x73</span><span class="se">\</span><span class="s2">x77</span><span class="se">\</span><span class="s2">x6F</span><span class="se">\</span><span class="s2">x72</span><span class="se">\</span><span class="s2">x64</span><span class="dl">"</span><span class="p">,</span><span class="dl">"</span><span class="se">\</span><span class="s2">x31</span><span class="se">\</span><span class="s2">x31</span><span class="se">\</span><span class="s2">x64</span><span class="se">\</span><span class="s2">x65</span><span class="se">\</span><span class="s2">x73</span><span class="se">\</span><span class="s2">x30</span><span class="se">\</span><span class="s2">x30</span><span class="se">\</span><span class="s2">x38</span><span class="se">\</span><span class="s2">x31</span><span class="se">\</span><span class="s2">x78</span><span class="dl">"</span><span class="p">];</span><span class="nb">document</span><span class="p">[</span><span class="nx">_0x4b18</span><span class="p">[</span><span class="mi">2</span><span class="p">]](</span><span class="nx">_0x4b18</span><span class="p">[</span><span class="mi">1</span><span class="p">])[</span><span class="nx">_0x4b18</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">=</span> <span class="nx">_0x4b18</span><span class="p">[</span><span class="mi">3</span><span class="p">];</span><span class="nb">document</span><span class="p">[</span><span class="nx">_0x4b18</span><span class="p">[</span><span class="mi">2</span><span class="p">]](</span><span class="nx">_0x4b18</span><span class="p">[</span><span class="mi">4</span><span class="p">])[</span><span class="nx">_0x4b18</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">=</span> <span class="nx">_0x4b18</span><span class="p">[</span><span class="mi">5</span><span class="p">];</span> <span class="p">})()</span>
+</code></pre></div></div>
+
+<p>I executed the Javascript in NodeJS and found credentials for Clave:</p>
+
+<p><img src="/assets/images/htb-writeup-bitlab/Screenshot_8.png" alt=""></p>
+
+<p>Credentials: <code class="language-plaintext highlighter-rouge">clave</code> / <code class="language-plaintext highlighter-rouge">11des0081x</code></p>
+
+<p>Also, if you copy/paste the entire Javascript code snippet in the Firefox dev console when you’re on the Gitlab login page it’ll auto populate both username and password field.</p>
+
+<p>I can now log in to the Gitlab portal and I see two repositories that I have access to:</p>
+
+<p><img src="/assets/images/htb-writeup-bitlab/Screenshot_10.png" alt=""></p>
+
+<p>I have read/write access to the <code class="language-plaintext highlighter-rouge">Profile</code> repo but only read access to <code class="language-plaintext highlighter-rouge">Deployer</code>.</p>
+
+<p>As per Gitlab’s documentation, these are the permissions available:</p>
+<blockquote>
+  <p>Guest - No access to code
+Reporter - Read the repository
+Developer - Read/Write to the repository
+Maintainer - Read/Write to the repository + partial administrative capabilities
+Owner - Read/Write to the repository + full administrative capabilities</p>
+</blockquote>
+
+<h2 id="getting-rce-through-the-profile-page">Getting RCE through the Profile page</h2>
+
+<p>The Profile repository contains the webpage for the Profile page I found earlier. I see that it’s running PHP so if I can modify this page I should be able to gain remote code execution by adding a reverse shell on the page.</p>
+
+<p><img src="/assets/images/htb-writeup-bitlab/Screenshot_12.png" alt=""></p>
+
+<p><img src="/assets/images/htb-writeup-bitlab/Screenshot_13.png" alt=""></p>
+
+<p>The Deployer repo code is a simple PHP script that expects a specific JSON message then does a <code class="language-plaintext highlighter-rouge">git pull</code>. I assume this’ll be used to deploy the Profile page when I commit changes to the repo.</p>
+
+<p><img src="/assets/images/htb-writeup-bitlab/Screenshot_14.png" alt=""></p>
+
+<p>The repo is deployed in the root of the directory and I can access it with <code class="language-plaintext highlighter-rouge">/deployer</code>:</p>
+
+<p><img src="/assets/images/htb-writeup-bitlab/Screenshot_15.png" alt=""></p>
+
+<p>I’ll add a PHP reverse shell in the Profile <code class="language-plaintext highlighter-rouge">index.php</code> page that triggers when I have a <code class="language-plaintext highlighter-rouge">shell</code> parameter present. Then I submit the merge request and merge it after.</p>
+
+<p><img src="/assets/images/htb-writeup-bitlab/Screenshot_16.png" alt=""></p>
+
+<p><img src="/assets/images/htb-writeup-bitlab/Screenshot_17.png" alt=""></p>
+
+<p><img src="/assets/images/htb-writeup-bitlab/Screenshot_18.png" alt=""></p>
+
+<p>I’ll craft the proper POST request with the Repeater function in Burp Suite. The JSON message has to match the exact format from the code I found in the repo.</p>
+
+<p><img src="/assets/images/htb-writeup-bitlab/Screenshot_19.png" alt=""></p>
+
+<p>Now that the profile page has been updated, I can trigger the reverse shell by sending a request with the <code class="language-plaintext highlighter-rouge">shell</code> parameter:</p>
+
+<p><img src="/assets/images/htb-writeup-bitlab/Screenshot_20.png" alt=""></p>
+
+<h2 id="unintended-privilege-escalation-to-root">Unintended privilege escalation to root</h2>
+
+<p>The <code class="language-plaintext highlighter-rouge">www-data</code> user can execute <code class="language-plaintext highlighter-rouge">git pull</code> as root:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ sudo -l
+Matching Defaults entries for www-data on bitlab:
+    env_reset, exempt_group=sudo, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+User www-data may run the following commands on bitlab:
+    (root) NOPASSWD: /usr/bin/git pull
+$
+</code></pre></div></div>
+
+<p>Git has hooks that can be used to execute code after commit, push, merge, etc. I’ll use that to get remote execution as root through the <code class="language-plaintext highlighter-rouge">git pull</code> command. The <a href="https://www.git-scm.com/docs/githooks#_post_merge">https://www.git-scm.com/docs/githooks#_post_merge</a> documentation says:</p>
+
+<blockquote>
+  <p>This hook is invoked by git-merge[1], which happens when a git pull is done on a local repository.</p>
+</blockquote>
+
+<p>First, I’ll create two local repos: <code class="language-plaintext highlighter-rouge">foo</code> will be merged into the <code class="language-plaintext highlighter-rouge">bar</code> repo. I’ll add a reverse shell in the <code class="language-plaintext highlighter-rouge">post-merge</code> hook of the <code class="language-plaintext highlighter-rouge">bar</code> repo where <code class="language-plaintext highlighter-rouge">bar</code> will be merged into.</p>
+
+<p><img src="/assets/images/htb-writeup-bitlab/Screenshot_21.png" alt=""></p>
+
+<p>Then I’ll do an initial commit in the <code class="language-plaintext highlighter-rouge">foo</code> repo and set up <code class="language-plaintext highlighter-rouge">bar</code> to pull from the <code class="language-plaintext highlighter-rouge">foo</code> repo:</p>
+
+<p><img src="/assets/images/htb-writeup-bitlab/Screenshot_22.png" alt=""></p>
+
+<p>And finally I’ll do a new commit in <code class="language-plaintext highlighter-rouge">foo</code> so I can initiate a merge from <code class="language-plaintext highlighter-rouge">foo</code> and trigger the reverse shell:</p>
+
+<p><img src="/assets/images/htb-writeup-bitlab/Screenshot_23.png" alt=""></p>
+
+<p><img src="/assets/images/htb-writeup-bitlab/Screenshot_24.png" alt=""></p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#git" class="page__taxonomy-item" rel="tag">git</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#gitlab" class="page__taxonomy-item" rel="tag">gitlab</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#javascript" class="page__taxonomy-item" rel="tag">javascript</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#obfuscated" class="page__taxonomy-item" rel="tag">obfuscated</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#unintended" class="page__taxonomy-item" rel="tag">unintended</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#hackthebox" class="page__taxonomy-item" rel="tag">hackthebox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2020-01-11T00:00:00+01:00">January 11, 2020</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb-writeup-craft/" class="pagination--pager" title="Craft - Hack The Box
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-player/" class="pagination--pager" title="Player - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">© 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

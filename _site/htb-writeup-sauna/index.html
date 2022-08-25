@@ -1,0 +1,545 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Sauna - Hack The Box - hackcommander.io</title>
+<meta name="description" content="Sauna is a good beginner-friendly AD box that covers a few key Windows exploitation topics like AS-REP roasting, enumeration for credentials, using tools such as Powerview to find attack paths, DCsync and Pass-The-Hash techniques.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Sauna - Hack The Box">
+<meta property="og:url" content="http://localhost:4000/htb-writeup-sauna/">
+
+
+  <meta property="og:description" content="Sauna is a good beginner-friendly AD box that covers a few key Windows exploitation topics like AS-REP roasting, enumeration for credentials, using tools such as Powerview to find attack paths, DCsync and Pass-The-Hash techniques.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb-writeup-sauna/sauna_logo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2020-07-18T00:00:00+02:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb-writeup-sauna/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/" >Home</a>
+            </li><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Sauna - Hack The Box</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iván-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Sauna - Hack The Box">
+    <meta itemprop="description" content="Sauna is a good beginner-friendly AD box that covers a few key Windows exploitation topics like AS-REP roasting, enumeration for credentials, using tools such as Powerview to find attack paths, DCsync and Pass-The-Hash techniques.">
+    <meta itemprop="datePublished" content="July 18, 2020">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Sauna - Hack The Box
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2020-07-18T00:00:00+02:00">July 18, 2020 </time>&emsp;
+          
+          
+        </p>
+        <p><img src="/assets/images/htb-writeup-sauna/sauna_logo.png" alt="" /></p>
+
+<p>Sauna is a good beginner-friendly AD box that covers a few key Windows exploitation topics like AS-REP roasting, enumeration for credentials, using tools such as Powerview to find attack paths, DCsync and Pass-The-Hash techniques.</p>
+
+<h2 id="summary">Summary</h2>
+
+<ul>
+  <li>Find a list of valid users with kerbrute</li>
+  <li>Pre-auth is disabled on the fsmith account so we can get his password hash and crack it offline</li>
+  <li>svc_loanmgr’s credentials are in the WinLogon registry key</li>
+  <li>Using PowerView’s ACL scanner, we find that svc_loanmgr can DCsync</li>
+  <li>Using the administrator hash we can log in with psexec</li>
+</ul>
+
+<h2 id="portscan">Portscan</h2>
+
+<p><img src="/assets/images/htb-writeup-sauna/nmap_scan.png" alt="" /></p>
+
+<h2 id="users-enumeration">Users enumeration</h2>
+
+<p>Crackmapexec is a good tool to do a quick initial recon and find what the domain name is, the operating system and if there are any non-default SMB shares accessible. Aside from the OS version and the domain name, I can’t get any other information yet from CME.</p>
+
+<p><img src="/assets/images/htb-writeup-sauna/cme_recon.png" alt="" /></p>
+
+<p>Some Active Directory machines on Hack the Box are configured so an anonymous bind session can enumerate users and groups from the box. I tried searching with windapsearch.py but I didn’t get any results back so anonymous bind sessions can’t dump the user list here.</p>
+
+<p><img src="/assets/images/htb-writeup-sauna/windapsearch_fail.png" alt="" /></p>
+
+<p>A good way to look for valid users on a domain controller is to use a tool like <a href="https://github.com/ropnop/kerbrute">kerbrute</a> with a wordlist containing popular usernames. This kerbrute github page explains how the user enumeration works:</p>
+
+<blockquote>
+  <p>To enumerate usernames, Kerbrute sends TGT requests with no pre-authentication. If the KDC responds with a PRINCIPAL UNKNOWN error, the username does not exist. However, if the KDC prompts for pre-authentication, we know the username exists and we move on. This does not cause any login failures so it will not lock out any accounts.</p>
+</blockquote>
+
+<p>I used a pretty big username wordlist for this one but kerbrute is very fast and since you don’t do a full authentication with the DC you can enumerate the users in a decent amount of time.</p>
+
+<p><img src="/assets/images/htb-writeup-sauna/kerbrute.png" alt="" /></p>
+
+<p>So we got the default <strong>administrator</strong> user on this machine as well as <strong>fsmith</strong> and <strong>hsmith</strong>.</p>
+
+<p><strong>What I could have done better:</strong> In hindsight I really messed up my enumeration of the users on the box. Instead of running a massive user wordlist I should have built a small list of possible user names based on names found on the website.</p>
+
+<p><img src="/assets/images/htb-writeup-sauna/fail.png" alt="" /></p>
+
+<h2 id="getting-credentials-for-fsmith">Getting credentials for fsmith</h2>
+
+<p>One common way to get password hashes we can crack offline in an Active Directory domain is using the Kerberoasting technique. This requires the users to have an SPN associated with their account. On this box, the two users don’t have any SPNs configured but we can still get password hashes to crack offline using the AS-REP roasting. In a nutshell, if an account has Kerberoast Pre-Authentication disabled we can get the hash (just like kerberoasting).</p>
+
+<p>For more details, check out Harmj0y’s blog post about this topc: <a href="https://www.harmj0y.net/blog/activedirectory/roasting-as-reps/">https://www.harmj0y.net/blog/activedirectory/roasting-as-reps/</a></p>
+
+<p>We can use Impacket to execute this attack and we can see that we’re able to get the password hash for user <strong>fsmith</strong>.</p>
+
+<p><img src="/assets/images/htb-writeup-sauna/asrep.png" alt="" /></p>
+
+<p>Hashcat and John both support this hash format. Here I used hashcat with the following command line options: <code class="language-plaintext highlighter-rouge">hashcat --force -a 0 -m 18200 -w 3 -O hash.txt /usr/share/wordlists/rockyou.txt</code></p>
+
+<p><img src="/assets/images/htb-writeup-sauna/hashcat.png" alt="" /></p>
+
+<p>Now that we have the password, we can try to log in with WinRM.</p>
+
+<p><img src="/assets/images/htb-writeup-sauna/fsmith.png" alt="" /></p>
+
+<h2 id="winlogon-credentials">WinLogon credentials</h2>
+
+<p>To look for priv esc vectors I used the <a href="https://github.com/itm4n/PrivescCheck">https://github.com/itm4n/PrivescCheck</a> Powershell script. With Evil-WinRM you can pass the directory containing the script with the -s flag then load the script in memory by calling the PS1 file, no need to drop anything on disk.</p>
+
+<p><img src="/assets/images/htb-writeup-sauna/privesc1.png" alt="" /></p>
+
+<p>The privesc script found credentials for the <strong>svc_loanmanager</strong> user in the WinLogon registry key.</p>
+
+<p><img src="/assets/images/htb-writeup-sauna/privesc2.png" alt="" /></p>
+
+<h2 id="administrator-access">Administrator access</h2>
+
+<p>After logging in with the <strong>svc_loanmanager</strong> user we can disable AMSI and then load Powerview to do further recon with our new user.</p>
+
+<p><img src="/assets/images/htb-writeup-sauna/powerview1.png" alt="" /></p>
+
+<p>Here, I’ve used the <strong>Invoke-AclScanner</strong> function which checks for interesting rights on objects in the domain. As we can see in the output, the <strong>svc_loanmgr</strong> user has <strong>ExtendedRight</strong> rights on the domain object, which basically allows that user to perform a DCsync on the domain and get a list of all the NTLM hashes. Another way to see the attack path would be to use the Sharphound ingestor then load the data in Bloodhound.</p>
+
+<p><img src="/assets/images/htb-writeup-sauna/powerview2.png" alt="" /></p>
+
+<p>A good easy way to DCsync is to use the secretsdump tool from the Impacket suite.</p>
+
+<p><img src="/assets/images/htb-writeup-sauna/secretsdump.png" alt="" /></p>
+
+<p>Now that we have the administrator hash, we can Pass-The-Hash with psexec and get a SYSTEM shell.</p>
+
+<p><img src="/assets/images/htb-writeup-sauna/root.png" alt="" /></p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#ad" class="page__taxonomy-item" rel="tag">ad</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#asrep" class="page__taxonomy-item" rel="tag">asrep</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#crackmapexec" class="page__taxonomy-item" rel="tag">crackmapexec</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#dcsync" class="page__taxonomy-item" rel="tag">dcsync</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#kerbrute" class="page__taxonomy-item" rel="tag">kerbrute</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#powerview" class="page__taxonomy-item" rel="tag">powerview</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#secretsdump" class="page__taxonomy-item" rel="tag">secretsdump</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#hackthebox" class="page__taxonomy-item" rel="tag">hackthebox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2020-07-18T00:00:00+02:00">July 18, 2020</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb-writeup-book/" class="pagination--pager" title="Book - Hack The Box
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-cascade/" class="pagination--pager" title="Cascade - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

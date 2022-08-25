@@ -1,0 +1,509 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Traverxec - Hack The Box - hackcommander.io</title>
+<meta name="description" content="Sometimes you need a break from the hard boxes that take forever to pwn. Traverxec is an easy box that start with a custom vulnerable webserver with an unauthenticated RCE  that we exploit to land an initial shell. After pivoting to another user by finding his SSH private key and cracking it, we get root through the less pager invoked by journalctl running as root through sudo.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Traverxec - Hack The Box">
+<meta property="og:url" content="http://localhost:4000/htb-writeup-traverxec/">
+
+
+  <meta property="og:description" content="Sometimes you need a break from the hard boxes that take forever to pwn. Traverxec is an easy box that start with a custom vulnerable webserver with an unauthenticated RCE  that we exploit to land an initial shell. After pivoting to another user by finding his SSH private key and cracking it, we get root through the less pager invoked by journalctl running as root through sudo.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb-writeup-traverxec/traverxec_logo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2020-04-11T00:00:00+02:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb-writeup-traverxec/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/" >Home</a>
+            </li><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Traverxec - Hack The Box</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iván-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Traverxec - Hack The Box">
+    <meta itemprop="description" content="Sometimes you need a break from the hard boxes that take forever to pwn. Traverxec is an easy box that start with a custom vulnerable webserver with an unauthenticated RCE  that we exploit to land an initial shell. After pivoting to another user by finding his SSH private key and cracking it, we get root through the less pager invoked by journalctl running as root through sudo.">
+    <meta itemprop="datePublished" content="April 11, 2020">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Traverxec - Hack The Box
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2020-04-11T00:00:00+02:00">April 11, 2020 </time>&emsp;
+          
+          
+        </p>
+        <p><img src="/assets/images/htb-writeup-traverxec/traverxec_logo.png" alt="" /></p>
+
+<p>Sometimes you need a break from the hard boxes that take forever to pwn. Traverxec is an easy box that start with a custom vulnerable webserver with an unauthenticated RCE  that we exploit to land an initial shell. After pivoting to another user by finding his SSH private key and cracking it, we get root through the less pager invoked by journalctl running as root through sudo.</p>
+
+<h2 id="portscan">Portscan</h2>
+
+<p>We start with our basic portscan of the box and the attack surface seems pretty limited as we only have a webserver running and the SSH daemon. Easy boxes often have vulnerabilities that are easily exploited through off-the-self exploit on Exploit-DB. We note here that the Server header returned is <code class="language-plaintext highlighter-rouge">nostromo 1.9.6</code>, not Apache or Nginx.</p>
+
+<p><img src="/assets/images/htb-writeup-traverxec/nmap.png" alt="" /></p>
+
+<h2 id="exploiting-nostromos-webserver">Exploiting Nostromo’s webserver</h2>
+
+<p>The website is a simple static webpage template. There’s a contact form at the bottom of the page but it’s not doing anything.</p>
+
+<p><img src="/assets/images/htb-writeup-traverxec/website1.png" alt="" /></p>
+
+<p>Looking at the Exploit-DB database, we see there’s an exploit matching the exact version we saw earlier on the nmap scan.</p>
+
+<p><img src="/assets/images/htb-writeup-traverxec/searchsploit.png" alt="" /></p>
+
+<p>The box has the netcat version with the -e flag so we can get a reverse shell that way.</p>
+
+<p><img src="/assets/images/htb-writeup-traverxec/revshell.png" alt="" /></p>
+
+<h2 id="obtaining-ssh-keys-for-user-david">Obtaining SSH keys for user David</h2>
+
+<p>Looking at the nostromo configuration, we see that home directories are enabled so local users on the box probably have a <code class="language-plaintext highlighter-rouge">/public_www</code> directory in their home folder.</p>
+
+<p><img src="/assets/images/htb-writeup-traverxec/nostromoconfig.png" alt="" /></p>
+
+<p>Looking at David’s home directory, we can see that we don’t have access to the directory itself but if we go one level deeper to <code class="language-plaintext highlighter-rouge">public_www</code> then we see that the webserver has access to it. Since the webserver is running as the <code class="language-plaintext highlighter-rouge">www-data</code> user, it makes sense that this user would have access to the directory hosting the webpage files for users.</p>
+
+<p><img src="/assets/images/htb-writeup-traverxec/david.png" alt="" /></p>
+
+<p>That backup ssh file looks promising so we’ll copy this to our machine with netcat, extract it and then we see it contains the private and public SSH keys. The private key is encrypted so we’ll have to crack it.</p>
+
+<p><img src="/assets/images/htb-writeup-traverxec/sshkey1.png" alt="" /></p>
+
+<p>Using John and the rockyou wordlists, we’re able to find that the password is <code class="language-plaintext highlighter-rouge">hunter</code></p>
+
+<p><img src="/assets/images/htb-writeup-traverxec/cracking.png" alt="" /></p>
+
+<p>We can now log in to the server as user <code class="language-plaintext highlighter-rouge">david</code> with his RSA private key.</p>
+
+<p><img src="/assets/images/htb-writeup-traverxec/user.png" alt="" /></p>
+
+<h2 id="privesc">Privesc</h2>
+
+<p>There’s a <code class="language-plaintext highlighter-rouge">server-stats.sh</code> file in David’s <code class="language-plaintext highlighter-rouge">bin</code> folder that sudo runs the <code class="language-plaintext highlighter-rouge">journalctl</code> command to view the last 5 log entries for the nostromo service.</p>
+
+<p><img src="/assets/images/htb-writeup-traverxec/journalctl1.png" alt="" /></p>
+
+<p>Looking at <a href="https://gtfobins.github.io/">GTFOBins</a>, we can see that the journalctl command can be used to execute arbitrary commands since it uses the <code class="language-plaintext highlighter-rouge">less</code> pager.</p>
+
+<p><img src="/assets/images/htb-writeup-traverxec/gtfo.png" alt="" /></p>
+
+<p>To exploit this, we must make the pager pause before listing the 5 entries in the log file, so we can type <code class="language-plaintext highlighter-rouge">!/bin/sh</code> and get a root shell. There’s a couple of way to do this.</p>
+
+<p>By resizing with Gnome Terminator windows manually, I can force the stty rows to be updated.</p>
+
+<p><img src="/assets/images/htb-writeup-traverxec/root1.png" alt="" /></p>
+
+<p>Or we can also resize the width of the terminal, this’ll make less pause as well</p>
+
+<p><img src="/assets/images/htb-writeup-traverxec/root2.png" alt="" /></p>
+
+<p>Finally, we can also set the stty rows manually like this:</p>
+
+<p><img src="/assets/images/htb-writeup-traverxec/root3.png" alt="" /></p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#gtfobins" class="page__taxonomy-item" rel="tag">gtfobins</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#journalctl" class="page__taxonomy-item" rel="tag">journalctl</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#nostromo" class="page__taxonomy-item" rel="tag">nostromo</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#hackthebox" class="page__taxonomy-item" rel="tag">hackthebox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2020-04-11T00:00:00+02:00">April 11, 2020</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb-writeup-registry/" class="pagination--pager" title="Registry - Hack The Box
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-mango/" class="pagination--pager" title="Mango - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

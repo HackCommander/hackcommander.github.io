@@ -1,0 +1,641 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Delivery - Hack The Box - hackcommander.io</title>
+<meta name="description" content="Delivery is a quick and fun easy box where we have to create a MatterMost account and validate it by using automatic email accounts created by the OsTicket application. The admins on this platform have very poor security practices and put plaintext credentials in MatterMost. Once we get the initial shell with the creds from MatterMost we’ll poke around MySQL and get a root password bcrypt hash. Using a hint left in the MatterMost channel about the password being a variation of PleaseSubscribe!, we’ll use hashcat combined with rules to crack the password then get the root shell.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Delivery - Hack The Box">
+<meta property="og:url" content="http://localhost:4000/htb-writeup-delivery/">
+
+
+  <meta property="og:description" content="Delivery is a quick and fun easy box where we have to create a MatterMost account and validate it by using automatic email accounts created by the OsTicket application. The admins on this platform have very poor security practices and put plaintext credentials in MatterMost. Once we get the initial shell with the creds from MatterMost we’ll poke around MySQL and get a root password bcrypt hash. Using a hint left in the MatterMost channel about the password being a variation of PleaseSubscribe!, we’ll use hashcat combined with rules to crack the password then get the root shell.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb-writeup-delivery/delivery_logo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2021-05-22T00:00:00+02:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb-writeup-delivery/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/" >Home</a>
+            </li><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Delivery - Hack The Box</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iván-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Delivery - Hack The Box">
+    <meta itemprop="description" content="Delivery is a quick and fun easy box where we have to create a MatterMost account and validate it by using automatic email accounts created by the OsTicket application. The admins on this platform have very poor security practices and put plaintext credentials in MatterMost. Once we get the initial shell with the creds from MatterMost we’ll poke around MySQL and get a root password bcrypt hash. Using a hint left in the MatterMost channel about the password being a variation of PleaseSubscribe!, we’ll use hashcat combined with rules to crack the password then get the root shell.">
+    <meta itemprop="datePublished" content="May 22, 2021">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Delivery - Hack The Box
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2021-05-22T00:00:00+02:00">May 22, 2021 </time>&emsp;
+          
+          
+        </p>
+        <p><img src="/assets/images/htb-writeup-delivery/delivery_logo.png" alt="" /></p>
+
+<p>Delivery is a quick and fun easy box where we have to create a MatterMost account and validate it by using automatic email accounts created by the OsTicket application. The admins on this platform have very poor security practices and put plaintext credentials in MatterMost. Once we get the initial shell with the creds from MatterMost we’ll poke around MySQL and get a root password bcrypt hash. Using a hint left in the MatterMost channel about the password being a variation of PleaseSubscribe!, we’ll use hashcat combined with rules to crack the password then get the root shell.</p>
+
+<h2 id="portscan">Portscan</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Nmap scan report for 10.129.148.141
+Host is up (0.018s latency).
+Not shown: 65532 closed ports
+PORT     STATE SERVICE VERSION
+22/tcp   open  ssh     OpenSSH 7.9p1 Debian 10+deb10u2 (protocol 2.0)
+| ssh-hostkey: 
+|   2048 9c:40:fa:85:9b:01:ac:ac:0e:bc:0c:19:51:8a:ee:27 (RSA)
+|   256 5a:0c:c0:3b:9b:76:55:2e:6e:c4:f4:b9:5d:76:17:09 (ECDSA)
+|_  256 b7:9d:f7:48:9d:a2:f2:76:30:fd:42:d3:35:3a:80:8c (ED25519)
+80/tcp   open  http    nginx 1.14.2
+|_http-server-header: nginx/1.14.2
+|_http-title: Welcome
+8065/tcp open  unknown
+| fingerprint-strings: 
+|   GenericLines, Help, RTSPRequest, SSLSessionReq, TerminalServerCookie: 
+|     HTTP/1.1 400 Bad Request
+|     Content-Type: text/plain; charset=utf-8
+|     Connection: close
+|     Request
+|   GetRequest: 
+|     HTTP/1.0 200 OK
+|     Accept-Ranges: bytes
+|     Cache-Control: no-cache, max-age=31556926, public
+|     Content-Length: 3108
+|     Content-Security-Policy: frame-ancestors 'self'; script-src 'self' cdn.rudderlabs.com
+|     Content-Type: text/html; charset=utf-8
+|     Last-Modified: Sun, 09 May 2021 00:00:02 GMT
+|     X-Frame-Options: SAMEORIGIN
+|     X-Request-Id: fqrpd5m3ftgnzmxkbieezqadxo
+|     X-Version-Id: 5.30.0.5.30.1.57fb31b889bf81d99d8af8176d4bbaaa.false
+|     Date: Sun, 09 May 2021 00:01:31 GMT
+|     &lt;!doctype html&gt;&lt;html lang="en"&gt;&lt;head&gt;&lt;meta charset="utf-8"&gt;&lt;meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0"&gt;&lt;meta name="robots" content="noindex, nofollow"&gt;&lt;meta name="referrer" content="no-referrer"&gt;&lt;title&gt;Mattermost&lt;/title&gt;&lt;meta name="mobile-web-app-capable" content="yes"&gt;&lt;meta name="application-name" content="Mattermost"&gt;&lt;meta name="format-detection" content="telephone=no"&gt;&lt;link re
+|   HTTPOptions: 
+|     HTTP/1.0 405 Method Not Allowed
+|     Date: Sun, 09 May 2021 00:01:31 GMT
+|_    Content-Length: 0
+</code></pre></div></div>
+
+<h2 id="website">Website</h2>
+
+<p>The Delivery website is pretty basic, there’s a link to a vhost called helpdesk.delivery.htb and a contact us section. We’ll add this entry to our local host before proceeding further.</p>
+
+<p><img src="/assets/images/htb-writeup-delivery/website1.png" alt="" /></p>
+
+<p>The contact us section tells us we need an @delivery.htb email address and tells us port 8065 is a MatterMost server. MatterMost is a Slack-like collaboration platform that can be self-hosted.</p>
+
+<p><img src="/assets/images/htb-writeup-delivery/website2.png" alt="" /></p>
+
+<p>Browsing to port 8065 we get the MatterMost login page but we don’t have credentials yet</p>
+
+<p><img src="/assets/images/htb-writeup-delivery/mm1.png" alt="" /></p>
+
+<h2 id="helpdesk">Helpdesk</h2>
+
+<p>The Helpdesk page uses the OsTicket web application. It allows users to create and view the status of ticket.</p>
+
+<p><img src="/assets/images/htb-writeup-delivery/helpdesk3.png" alt="" /></p>
+
+<p>We can still open new tickets even if we only have a guest user.</p>
+
+<p><img src="/assets/images/htb-writeup-delivery/helpdesk1.png" alt="" /></p>
+
+<p>After a ticket has been created, the system generates a random @delivery.htb email account with the ticket ID.</p>
+
+<p><img src="/assets/images/htb-writeup-delivery/helpdesk2.png" alt="" /></p>
+
+<p>Now that we have an email account we can create a MatterMost account.</p>
+
+<p><img src="/assets/images/htb-writeup-delivery/mm2.png" alt="" /></p>
+
+<p>A confirmation email is then sent to our ticket status inbox.</p>
+
+<p><img src="/assets/images/htb-writeup-delivery/mm3.png" alt="" /></p>
+
+<p>We use the check ticket function on the OsTicket application and submit the original email address we used when creating the ticket and the ticket ID.</p>
+
+<p><img src="/assets/images/htb-writeup-delivery/mm4.png" alt="" /></p>
+
+<p>We’re now logged in and we see that the MatterMost confirmation email has been added to the ticket information.</p>
+
+<p><img src="/assets/images/htb-writeup-delivery/mm5.png" alt="" /></p>
+
+<p>To confirm the creation of our account we’ll just copy/paste the included link into a browser new tab.</p>
+
+<p><img src="/assets/images/htb-writeup-delivery/mm6.png" alt="" /></p>
+
+<p>After logging in to MatterMost we have access to the Internal channel where we see that credentials have been posted. There’s also a hint that we’ll have to use a variation of the <code class="language-plaintext highlighter-rouge">PleaseSubscribe!</code> password later.</p>
+
+<p><img src="/assets/images/htb-writeup-delivery/mm7.png" alt="" /></p>
+
+<h2 id="user-shell">User shell</h2>
+
+<p>With the <code class="language-plaintext highlighter-rouge">maildeliverer / Youve_G0t_Mail!</code> credentials we can SSH in and get the user flag.</p>
+
+<p><img src="/assets/images/htb-writeup-delivery/user.png" alt="" /></p>
+
+<h2 id="credentials-in-mysql-database">Credentials in MySQL database</h2>
+
+<p>After doing some recon we find the MatterMost installation directory in <code class="language-plaintext highlighter-rouge">/opt/mattermost</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>maildeliverer@Delivery:/opt/mattermost/config$ ps waux | grep -i mattermost
+matterm+   741  0.2  3.3 1649596 135112 ?      Ssl  20:00   0:07 /opt/mattermost/bin/mattermost
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">config.json</code> file contains the password for the MySQL database:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[...]
+"SqlSettings": {
+        "DriverName": "mysql",
+        "DataSource": "mmuser:Crack_The_MM_Admin_PW@tcp(127.0.0.1:3306)/mattermost?charset=utf8mb4,utf8\u0026readTimeout=30s\u0026writeTimeout=30s",
+[...]
+</code></pre></div></div>
+
+<p>We’ll connect to the database server and poke around.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>maildeliverer@Delivery:/$ mysql -u mmuser --password='Crack_The_MM_Admin_PW'
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 91
+Server version: 10.3.27-MariaDB-0+deb10u1 Debian 10
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [(none)]&gt; show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mattermost         |
++--------------------+
+</code></pre></div></div>
+
+<p>MatterMost user accounts are stored in the <code class="language-plaintext highlighter-rouge">Users</code> table and hashed with bcrypt. We’ll save the hashes then try to crack them offline.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>MariaDB [(none)]&gt; use mattermost;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+MariaDB [mattermost]&gt; select Username,Password from Users;
++----------------------------------+--------------------------------------------------------------+
+| Username                         | Password                                                     |
++----------------------------------+--------------------------------------------------------------+
+| surveybot                        |                                                              |
+| c3ecacacc7b94f909d04dbfd308a9b93 | $2a$10$u5815SIBe2Fq1FZlv9S8I.VjU3zeSPBrIEg9wvpiLaS7ImuiItEiK |
+| 5b785171bfb34762a933e127630c4860 | $2a$10$3m0quqyvCE8Z/R1gFcCOWO6tEj6FtqtBn8fRAXQXmaKmg.HDGpS/G |
+| root                             | $2a$10$VM6EeymRxJ29r8Wjkr8Dtev0O.1STWb4.4ScG.anuu7v0EFJwgjjO |
+| snowscan                         | $2a$10$spHk8ZGr54VWf4kNER/IReO.I63YH9d7WaYp9wjiRswDMR.P/Q9aa |
+| ff0a21fc6fc2488195e16ea854c963ee | $2a$10$RnJsISTLc9W3iUcUggl1KOG9vqADED24CQcQ8zvUm1Ir9pxS.Pduq |
+| channelexport                    |                                                              |
+| 9ecfb4be145d47fda0724f697f35ffaf | $2a$10$s.cLPSjAVgawGOJwB7vrqenPg2lrDtOECRtjwWahOzHfq1CoFyFqm |
++----------------------------------+--------------------------------------------------------------+
+8 rows in set (0.002 sec)
+</code></pre></div></div>
+
+<h2 id="cracking-with-rules">Cracking with rules</h2>
+
+<p>There was a hint earlier that some variation of <code class="language-plaintext highlighter-rouge">PleaseSubscribe!</code> is used.</p>
+
+<p>I’ll use hashcat for this and since I don’t know the hash ID for bcrypt by heart I can find it in the help.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\bin\hashcat&gt;hashcat --help | findstr bcrypt
+   3200 | bcrypt $2*$, Blowfish (Unix)                     | Operating System
+</code></pre></div></div>
+
+<p>My go-to rules is normally one of those two ruleset:</p>
+
+<ul>
+  <li><a href="https://github.com/NSAKEY/nsa-rules/blob/master/_NSAKEY.v2.dive.rule">https://github.com/NSAKEY/nsa-rules/blob/master/_NSAKEY.v2.dive.rule</a></li>
+  <li><a href="https://github.com/NotSoSecure/password_cracking_rules/blob/master/OneRuleToRuleThemAll.rule">https://github.com/NotSoSecure/password_cracking_rules/blob/master/OneRuleToRuleThemAll.rule</a></li>
+</ul>
+
+<p>These will perform all sort of transformations on the wordlist and we can quickly crack the password: <code class="language-plaintext highlighter-rouge">PleaseSubscribe!21</code></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\bin\hashcat&gt;hashcat -a 0 -m 3200 -w 3 -O -r rules\_NSAKEY.v2.dive.rule hash.txt wordlist.txt
+[...]
+$2a$10$VM6EeymRxJ29r8Wjkr8Dtev0O.1STWb4.4ScG.anuu7v0EFJwgjjO:PleaseSubscribe!21
+
+Session..........: hashcat
+Status...........: Cracked
+Hash.Name........: bcrypt $2*$, Blowfish (Unix)
+[...]
+</code></pre></div></div>
+
+<p>The root password from MatterMost is the same as the local root password so we can just su to root and get the system flag.</p>
+
+<p><img src="/assets/images/htb-writeup-delivery/root.png" alt="" /></p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#hashcat" class="page__taxonomy-item" rel="tag">hashcat</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#mattermost" class="page__taxonomy-item" rel="tag">mattermost</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#mysql" class="page__taxonomy-item" rel="tag">mysql</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#osticket" class="page__taxonomy-item" rel="tag">osticket</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#rules" class="page__taxonomy-item" rel="tag">rules</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#hackthebox" class="page__taxonomy-item" rel="tag">hackthebox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2021-05-22T00:00:00+02:00">May 22, 2021</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb-writeup-ready/" class="pagination--pager" title="Ready - Hack The Box
+">Previous</a>
+    
+    
+      <a href="#" class="pagination--pager disabled">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

