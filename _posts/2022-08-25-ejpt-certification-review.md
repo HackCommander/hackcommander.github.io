@@ -160,7 +160,7 @@ Then you should read all 20 questions before answering any questions and after t
 
 but ideally you should be able to analyze it manually.
 
-To answer the question you will have to use discovery and scanning techniques with nmap, web pentesting tools like Burpsuite, Dirb or Sqlmap, exploiting tools like Metasploit, John the Ripper...
+To answer the question you will have to use discovery and scanning techniques with Nmap, web pentesting tools like Burpsuite, Dirb or Sqlmap, exploiting tools like Metasploit, John the Ripper...
 
 In my opinion the machines in the exam are much easier than the most difficult machines of the course so don't be afraid of failing the exam: if you have made the labs and you have understood it, you will pass the exam.
 
