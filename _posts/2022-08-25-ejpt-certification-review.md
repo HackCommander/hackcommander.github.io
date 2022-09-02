@@ -1,7 +1,7 @@
 ---
 layout: single
 title: eJPT certification review
-excerpt: "Review of the eJPT (eLearnSecurity Junior Penetration Tester) certification is a certification of eLearnSecurity intended for students interested in obtaining the necessary training that a junior pentester should have."
+excerpt: "Review of the eJPT (eLearnSecurity Junior Penetration Tester), certification of eLearnSecurity intended for students interested in obtaining the necessary training that a junior pentester should have."
 date: 2021-09-01
 classes: wide
 header:
