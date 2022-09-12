@@ -16,16 +16,32 @@ tags:
   - pentesting
 ---
 
+## Summary 
+
+- [1. What is eJPT?](#section-id-1)
+- [2. What will you learn and what previous knowledge do you need?](#section-id-2)
+- [3. Is it useful for the curriculum?](#section-id-3)
+- [4. Is it affordable?](#section-id-4)
+- [5. How is the content?](#section-id-5)
+  - [5.1. Penetration Testing Prerequisites](#section-id-5-1)
+  - [5.2. Penetration Testing: Preliminary Skills & Programming](#section-id-5-2)
+  - [5.3. Penetration Testing Basics](#section-id-5-3)
+  - [5.4. eJPT Exam Preparation](#section-id-5-4)
+- [6. How is the exam?](#section-id-6)
+- [7. Conclusions](#section-id-7)
+
  <p style="text-align:center;"><img src="/assets/images/2022-09-01-ejpt-certification-review/ejpt-logo.png" alt="Logo"></p>
 
 In this post I am going to review the eLearnSecurity Junior Penetration Tester certification, better known as eJPT.
 
+<div id='section-id-1'/>
 ## 1. What is eJPT?
 
 We can consider eLearnSecurity Junior Penetration Tester (eJPT) certification as the first of multiples certs that the company eLearnSecurity offers to the IT professionals to begin their career in cybersecurity. The course covers the fundamentals about networking devices and protocols, web applications, programming and operative systems, all this from the point of view of offensive security, i.e., studying the most common types of attacks that you can perform. You can see the details in the following link
 
 [eJPT index](https://elearnsecurity.com/product/ejpt-certification/)
 
+<div id='section-id-2'/>
 ## 2. What will you learn and what previous knowledge do you need?
 
 If you click on the above link, you will see that the topics you will learn are
@@ -57,12 +73,14 @@ Also as you can see in the link above, you can see the following prerequisites
 
 and I have to say that I don't agree with it. The link says that the above prerequisites could help you to pass the exam, and that is true, but that long prerequisites list might scare you. If you don't know what a PC is, probably you will have problems taking the course and passing the exam but if you have a basic knowledge about computers and you are determined and motivated to learn, you will not have any problem.
 
+<div id='section-id-3'/>
 ## 3. Is it useful for the curriculum?
 
 First of all, I would like to say that I don't recommend to anyone to get into a certification process only to get a nice small piece of paper to impress the RRHH team. However, I am not a hater of certifications, I think that certs (good certs) are a very good way to start studying cybersecurity in a solid and structured way.
 
 Taking into account the above statement, I think that eJPT could be a **very good cover letter** for IT professionals who want to get his first job in cybersecurity and to aspire to obtain other more advanced certifications like OSCP. If you are a senior pentester or if you have more advanced certifications such as OSCP, eJPT is probably not the best option for you.
 
+<div id='section-id-4'/>
 ## 4. Is it affordable?
 
 The course is free and is provided by INE in the following link
@@ -79,6 +97,7 @@ In my opinion, considering the free course, the price of the voucher and the pos
 
 > :warning: Be careful with the name you use during the registration process on the INE website because that is the name that it will appear on the certificate of completion and you will not be able to change it on your own. In my case, I used only my name and my first surname so I had to contact to INE support to add my second surname to the profile and to the certificate of completion.
 
+<div id='section-id-5'/>
 ## 5. How is the content?
 
 The duration of the course is about 50 hours and it took me approximately three weeks to study all the content. I have to say that, although this is my first certification, it isn't my first contact with cybersecurity. Before passing the eJPT, I already had some experience in offensive cybersecurity as I had already participated in platforms like HackTheBox and TryHackMe, and I had some experience as a Bug Bounty Hunter doing Web Pentesting, topic on which I am going to start publishing posts very soon. At this point, I would like to recommend the TryHackMe Jr Penetration Tester Learning Path
@@ -87,6 +106,7 @@ The duration of the course is about 50 hours and it took me approximately three 
 
 In this learning path you will learn and practice many of the topics that are present in the eJPT content, so it's a good idea to take this learning path before taking the eJPT, but it isn't neccesary. The goal of this section isn't to explain all the details about the course but I think that is a good idea to divide the section in points, one point for each course module.
 
+<div id='section-id-5-1'/>
 ### 5.1. Penetration Testing Prerequisites
 
 In this module you will learn:
@@ -103,6 +123,7 @@ At this point, I would like to comment that the labs of all the modules are very
 
 > :warning: Pay special attention to the lab **Find the Secret Server**. Its seems very simple and naive, and it is, but I advise to you to understand very well all the concepts of this lab because it could be very useful for you in the exam.
 
+<div id='section-id-5-2'/>
 ### 5.2. Penetration Testing: Preliminary Skills & Programming 
 
 In this module you will learn:
@@ -116,6 +137,7 @@ Probably this is the least important of all the modules because you don't need t
 
 However, the section about Bash, CMD and Powershell it is very important, you need those languages to communicate with the operating systems in a non-graphical way. In fact you will need Bash to use in an optimal way your Linux Distribution to do pentesting, in my case Kali Linux, and to be able to launch the pentesting tools that you will see in this course.
 
+<div id='section-id-5-3'/>
 ### 5.3. Penetration Testing Basics
 
 In this module you will learn:
@@ -136,6 +158,7 @@ I only have 2 complaints about this module:
 - Buffer Overflow is in the module but it is not explained how can be exploited and there isn't an associated lab. I would have loved to see some more info about this vulnerability.
 - Pivoting and port forwarding techniques are not explained during the course. You will see directly these techniques in the blackboxes so if you don't know anything about that, you will have to take a look to the solution to see how is done with Metasploit, Meterpreter, Proxychains...
 
+<div id='section-id-5-4'/>
 ### 5.4. eJPT Exam Preparation
 
 In this module you will learn:
@@ -144,6 +167,7 @@ In this module you will learn:
 
 Essentially in this module you will see how to begin the certification process, i.e, how to connect to your exam enviroment. There are two labs but I don't understand the reason for its existence, you will not learn anything new with that labs. 
 
+<div id='section-id-6'/>
 ## 6. How is the exam?
 
 To begin the exam you have to log in Caendra and click on **"Begin certification process"**. After that you will receive a pcap file, a list of user names, a list of passwords and a ovpn file to connect to the exam enviroment. If the name of the ovpn file is ovpn_file.ovpn, I advise to you to use the following command to connect to the enviroment
@@ -178,6 +202,7 @@ and a link to attach in your linkedin profile
 
 [Link to my eJPT certificate](https://verified.elearnsecurity.com/certificates/b38d8ae2-8290-4f92-af3b-2e99336f5f4e)
 
+<div id='section-id-7'/>
 ## 7. Conclusions
 
 From all that we have seen we can say that the eJPT is a certification with the pros and cons:

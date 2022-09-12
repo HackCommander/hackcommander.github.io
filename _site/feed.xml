@@ -1,12 +1,35 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-09-07T00:29:32+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">hackcommander.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>HackCommander</name></author><entry><title type="html">eJPT certification review</title><link href="http://localhost:4000/ejpt-certification-review/" rel="alternate" type="text/html" title="eJPT certification review" /><published>2021-09-01T00:00:00+02:00</published><updated>2021-09-01T00:00:00+02:00</updated><id>http://localhost:4000/ejpt-certification-review</id><content type="html" xml:base="http://localhost:4000/ejpt-certification-review/">&lt;p style=&quot;text-align:center;&quot;&gt;&lt;img src=&quot;/assets/images/2022-09-01-ejpt-certification-review/ejpt-logo.png&quot; alt=&quot;Logo&quot; /&gt;&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.io/" rel="alternate" type="text/html" /><updated>2022-09-12T23:52:01+02:00</updated><id>https://hackcommander.io/feed.xml</id><title type="html">hackcommander.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>HackCommander</name></author><entry><title type="html">eJPT certification review</title><link href="https://hackcommander.io/ejpt-certification-review/" rel="alternate" type="text/html" title="eJPT certification review" /><published>2021-09-01T00:00:00+02:00</published><updated>2021-09-01T00:00:00+02:00</updated><id>https://hackcommander.io/ejpt-certification-review</id><content type="html" xml:base="https://hackcommander.io/ejpt-certification-review/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. What is eJPT?&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-2&quot;&gt;2. What will you learn and what previous knowledge do you need?&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-3&quot;&gt;3. Is it useful for the curriculum?&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-4&quot;&gt;4. Is it affordable?&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-5&quot;&gt;5. How is the content?&lt;/a&gt;
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#section-id-5-1&quot;&gt;5.1. Penetration Testing Prerequisites&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#section-id-5-2&quot;&gt;5.2. Penetration Testing: Preliminary Skills &amp;amp; Programming&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#section-id-5-3&quot;&gt;5.3. Penetration Testing Basics&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#section-id-5-4&quot;&gt;5.4. eJPT Exam Preparation&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-6&quot;&gt;6. How is the exam?&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-7&quot;&gt;7. Conclusions&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p style=&quot;text-align:center;&quot;&gt;&lt;img src=&quot;/assets/images/2022-09-01-ejpt-certification-review/ejpt-logo.png&quot; alt=&quot;Logo&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;In this post I am going to review the eLearnSecurity Junior Penetration Tester certification, better known as eJPT.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-1&quot; /&gt;
 
 &lt;h2 id=&quot;1-what-is-ejpt&quot;&gt;1. What is eJPT?&lt;/h2&gt;
 
 &lt;p&gt;We can consider eLearnSecurity Junior Penetration Tester (eJPT) certification as the first of multiples certs that the company eLearnSecurity offers to the IT professionals to begin their career in cybersecurity. The course covers the fundamentals about networking devices and protocols, web applications, programming and operative systems, all this from the point of view of offensive security, i.e., studying the most common types of attacks that you can perform. You can see the details in the following link&lt;/p&gt;
 
 &lt;p&gt;&lt;a href=&quot;https://elearnsecurity.com/product/ejpt-certification/&quot;&gt;eJPT index&lt;/a&gt;&lt;/p&gt;
+
+&lt;div id=&quot;section-id-2&quot; /&gt;
 
 &lt;h2 id=&quot;2-what-will-you-learn-and-what-previous-knowledge-do-you-need&quot;&gt;2. What will you learn and what previous knowledge do you need?&lt;/h2&gt;
 
@@ -43,11 +66,15 @@
 
 &lt;p&gt;and I have to say that I don’t agree with it. The link says that the above prerequisites could help you to pass the exam, and that is true, but that long prerequisites list might scare you. If you don’t know what a PC is, probably you will have problems taking the course and passing the exam but if you have a basic knowledge about computers and you are determined and motivated to learn, you will not have any problem.&lt;/p&gt;
 
+&lt;div id=&quot;section-id-3&quot; /&gt;
+
 &lt;h2 id=&quot;3-is-it-useful-for-the-curriculum&quot;&gt;3. Is it useful for the curriculum?&lt;/h2&gt;
 
 &lt;p&gt;First of all, I would like to say that I don’t recommend to anyone to get into a certification process only to get a nice small piece of paper to impress the RRHH team. However, I am not a hater of certifications, I think that certs (good certs) are a very good way to start studying cybersecurity in a solid and structured way.&lt;/p&gt;
 
 &lt;p&gt;Taking into account the above statement, I think that eJPT could be a &lt;strong&gt;very good cover letter&lt;/strong&gt; for IT professionals who want to get his first job in cybersecurity and to aspire to obtain other more advanced certifications like OSCP. If you are a senior pentester or if you have more advanced certifications such as OSCP, eJPT is probably not the best option for you.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-4&quot; /&gt;
 
 &lt;h2 id=&quot;4-is-it-affordable&quot;&gt;4. Is it affordable?&lt;/h2&gt;
 
@@ -67,6 +94,8 @@
   &lt;p&gt;:warning: Be careful with the name you use during the registration process on the INE website because that is the name that it will appear on the certificate of completion and you will not be able to change it on your own. In my case, I used only my name and my first surname so I had to contact to INE support to add my second surname to the profile and to the certificate of completion.&lt;/p&gt;
 &lt;/blockquote&gt;
 
+&lt;div id=&quot;section-id-5&quot; /&gt;
+
 &lt;h2 id=&quot;5-how-is-the-content&quot;&gt;5. How is the content?&lt;/h2&gt;
 
 &lt;p&gt;The duration of the course is about 50 hours and it took me approximately three weeks to study all the content. I have to say that, although this is my first certification, it isn’t my first contact with cybersecurity. Before passing the eJPT, I already had some experience in offensive cybersecurity as I had already participated in platforms like HackTheBox and TryHackMe, and I had some experience as a Bug Bounty Hunter doing Web Pentesting, topic on which I am going to start publishing posts very soon. At this point, I would like to recommend the TryHackMe Jr Penetration Tester Learning Path&lt;/p&gt;
@@ -74,6 +103,8 @@
 &lt;p&gt;&lt;a href=&quot;https://tryhackme.com/path/outline/jrpenetrationtester&quot;&gt;TryHackMe Jr Penetration Tester Learning Path&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;In this learning path you will learn and practice many of the topics that are present in the eJPT content, so it’s a good idea to take this learning path before taking the eJPT, but it isn’t neccesary. The goal of this section isn’t to explain all the details about the course but I think that is a good idea to divide the section in points, one point for each course module.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-5-1&quot; /&gt;
 
 &lt;h3 id=&quot;51-penetration-testing-prerequisites&quot;&gt;5.1. Penetration Testing Prerequisites&lt;/h3&gt;
 
@@ -95,6 +126,8 @@
   &lt;p&gt;:warning: Pay special attention to the lab &lt;strong&gt;Find the Secret Server&lt;/strong&gt;. Its seems very simple and naive, and it is, but I advise to you to understand very well all the concepts of this lab because it could be very useful for you in the exam.&lt;/p&gt;
 &lt;/blockquote&gt;
 
+&lt;div id=&quot;section-id-5-2&quot; /&gt;
+
 &lt;h3 id=&quot;52-penetration-testing-preliminary-skills--programming&quot;&gt;5.2. Penetration Testing: Preliminary Skills &amp;amp; Programming&lt;/h3&gt;
 
 &lt;p&gt;In this module you will learn:&lt;/p&gt;
@@ -109,6 +142,8 @@
 &lt;p&gt;Probably this is the least important of all the modules because you don’t need to learn to program in C++ or Python to pass the exam but I think that it is a very important module if you want to improve as a pentester. In my opinion, it is very important to have a solid knowledge about programming to understand the main types of vulnerabilities and so you don’t turn into a script kiddie who only knows how to exploit vulnerabilities with metasploit. Also knowing about programming will give you the possibility to develop your own pentesting tools that you can share with the community.&lt;/p&gt;
 
 &lt;p&gt;However, the section about Bash, CMD and Powershell it is very important, you need those languages to communicate with the operating systems in a non-graphical way. In fact you will need Bash to use in an optimal way your Linux Distribution to do pentesting, in my case Kali Linux, and to be able to launch the pentesting tools that you will see in this course.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-5-3&quot; /&gt;
 
 &lt;h3 id=&quot;53-penetration-testing-basics&quot;&gt;5.3. Penetration Testing Basics&lt;/h3&gt;
 
@@ -134,6 +169,8 @@
   &lt;li&gt;Pivoting and port forwarding techniques are not explained during the course. You will see directly these techniques in the blackboxes so if you don’t know anything about that, you will have to take a look to the solution to see how is done with Metasploit, Meterpreter, Proxychains…&lt;/li&gt;
 &lt;/ul&gt;
 
+&lt;div id=&quot;section-id-5-4&quot; /&gt;
+
 &lt;h3 id=&quot;54-ejpt-exam-preparation&quot;&gt;5.4. eJPT Exam Preparation&lt;/h3&gt;
 
 &lt;p&gt;In this module you will learn:&lt;/p&gt;
@@ -143,6 +180,8 @@
 &lt;/ul&gt;
 
 &lt;p&gt;Essentially in this module you will see how to begin the certification process, i.e, how to connect to your exam enviroment. There are two labs but I don’t understand the reason for its existence, you will not learn anything new with that labs.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-6&quot; /&gt;
 
 &lt;h2 id=&quot;6-how-is-the-exam&quot;&gt;6. How is the exam?&lt;/h2&gt;
 
@@ -176,6 +215,8 @@
 &lt;p&gt;and a link to attach in your linkedin profile&lt;/p&gt;
 
 &lt;p&gt;&lt;a href=&quot;https://verified.elearnsecurity.com/certificates/b38d8ae2-8290-4f92-af3b-2e99336f5f4e&quot;&gt;Link to my eJPT certificate&lt;/a&gt;&lt;/p&gt;
+
+&lt;div id=&quot;section-id-7&quot; /&gt;
 
 &lt;h2 id=&quot;7-conclusions&quot;&gt;7. Conclusions&lt;/h2&gt;
 
