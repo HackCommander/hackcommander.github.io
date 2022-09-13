@@ -93,9 +93,9 @@ but before you have to create a free account in the following link
 
 The price of the voucher is 200$ but I bought it for 100$ during a 50% off promotion on all certifications during July 2022. The voucher includes 1 free retake and a 6 months period time to begin the certification process. It is important to note that you don't need to buy the voucher to have access to the course so you can take a look at the course and then decide if you want to buy the voucher and start the certification process.
 
-In my opinion, considering the free course, the price of the voucher and the possibility of taking the voucher with a discount, the free retake... I think that eJPT is a **very affordable certification**. 
+In my opinion, considering the free course, the price of the voucher and the possibility of taking the voucher with a discount, the free retake... I think that eJPT is a **very affordable certification**.
 
-> :warning: Be careful with the name you use during the registration process on the INE website because that is the name that it will appear on the certificate of completion and you will not be able to change it on your own. In my case, I used only my name and my first surname so I had to contact to INE support to add my second surname to the profile and to the certificate of completion.
+> :warning: Be careful with the name you use during the registration process on the INE website because that is the name that it will appear on the certificate of completion and you will not be able to change it on your own. In my case, I used only my name and my first surname so I had to contact to INE support to add my second surname to the profile and to the certificate of completion. I had to open several tickets and it took about a month to make the change so I recommend that when you create the account you do it with the name you want to appear on your certificate of completion.
 
 <div id='section-id-5'/>
 ## 5. How is the content?
@@ -218,6 +218,5 @@ From all that we have seen we can say that the eJPT is a certification with the 
 - You can't download the videos and the slides in pdf.
 - Sometimes the statements of the labs are not clear, so don't be afraid to take a look to the solution if you are stuck and you don't know what you are being asked to do.
 - Part of the content is studied directly in the labs, such as pivoting and port forwarding. I think that is not good because you could waste a lot of time trying to solve the lab thinking that you have the necessary skills, but you don't have them.
-- I didn't have a good experience with the support team. I asked them to change my account name before the certificate was generated because when I created the account I had only included my first last name. They opened a ticket, closed it a week later and did not change my name even though they told me it would take a maximum of 2 weeks.
 
 Despite the cons, I think that the eJPT certification is a **highly recommended** cert for anyone interested in starting a career in the world of offensive security.
