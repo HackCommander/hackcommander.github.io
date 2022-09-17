@@ -95,7 +95,7 @@ The price of the voucher is 200$ but I bought it for 100$ during a 50% off promo
 
 In my opinion, considering the free course, the price of the voucher and the possibility of taking the voucher with a discount, the free retake... I think that eJPT is a **very affordable certification**.
 
-> :warning: Be careful with the name you use during the registration process on the INE website because that is the name that it will appear on the certificate of completion and you will not be able to change it on your own. In my case, I used only my name and my first surname so I had to contact to INE support to add my second surname to the profile and to the certificate of completion. I had to open several tickets and it took about a month to make the change so I recommend that when you create the account you do it with the name you want to appear on your certificate of completion.
+> :warning: Be careful with the name you use during the registration process on the INE website because that is the name that it will appear on the certificate of completion and you will not be able to change it on your own. In my case, I used only my name and my first surname so I had to contact to INE support to add my second surname to the profile and to the certificate of completion. I had to open several tickets and it took more than a month to make the change so I recommend that when you create the account you do it with the name you want to appear on your certificate of completion.
 
 <div id='section-id-5'/>
 ## 5. How is the content?
@@ -188,7 +188,7 @@ To answer the question you will have to use discovery and scanning techniques wi
 
 In my opinion the machines in the exam are much easier than the most difficult machines of the course so don't be afraid of failing the exam: if you have made the labs and you have understood it, you will pass the exam.
 
-It took me approximately 10 hours to answer all the questions but since I had plenty of time (the duration of the exam is 72 hours), I took the rest of the day off and waited until the next day to check the answers and send the answers. I answered all 20 questions correctly, as you can see in the following capture
+It took me approximately 10 hours to answer all the questions but since I had plenty of time (the duration of the exam is 72 hours), I took the rest of the day off and waited until the next day to check and submit the answers. I answered all 20 questions correctly, as you can see in the following capture
 
 ![](/assets/images/2022-09-01-ejpt-certification-review/ejpt-results.png)
 
@@ -218,5 +218,6 @@ From all that we have seen we can say that the eJPT is a certification with the 
 - You can't download the videos and the slides in pdf.
 - Sometimes the statements of the labs are not clear, so don't be afraid to take a look to the solution if you are stuck and you don't know what you are being asked to do.
 - Part of the content is studied directly in the labs, such as pivoting and port forwarding. I think that is not good because you could waste a lot of time trying to solve the lab thinking that you have the necessary skills, but you don't have them.
+- Not very good technical support from INE. As I mentioned in section 4, something as simple as changing the name of my INE profile was a very time consuming process.
 
 Despite the cons, I think that the eJPT certification is a **highly recommended** cert for anyone interested in starting a career in the world of offensive security.
