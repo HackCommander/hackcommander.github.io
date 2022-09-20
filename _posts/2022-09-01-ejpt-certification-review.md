@@ -9,7 +9,7 @@ header:
   teaser_home_page: true
   icon:
 categories:
-  - certification
+  - Certification
 tags:  
   - eLearnSecurity
   - eJPT
@@ -30,7 +30,7 @@ tags:
 - [6. How is the exam?](#section-id-6)
 - [7. Conclusions](#section-id-7)
 
- <p style="text-align:center;"><img src="/assets/images/2022-09-01-ejpt-certification-review/ejpt-logo.png" alt="Logo"></p>
+<p style="text-align:center;"><img src="/assets/images/2022-09-01-ejpt-certification-review/ejpt-logo.png" alt="Logo"></p>
 
 In this post I am going to review the eLearnSecurity Junior Penetration Tester certification, better known as eJPT.
 
