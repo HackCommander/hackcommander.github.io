@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.io/" rel="alternate" type="text/html" /><updated>2022-10-17T06:05:20+02:00</updated><id>https://hackcommander.io/feed.xml</id><title type="html">hackcommander.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>HackCommander</name></author><entry><title type="html">Time-based SQL injection in a login form</title><link href="https://hackcommander.io/bug-bounty-2/" rel="alternate" type="text/html" title="Time-based SQL injection in a login form" /><published>2022-10-17T00:00:00+02:00</published><updated>2022-10-17T00:00:00+02:00</updated><id>https://hackcommander.io/bug-bounty-2</id><content type="html" xml:base="https://hackcommander.io/bug-bounty-2/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.io/" rel="alternate" type="text/html" /><updated>2022-10-17T06:28:23+02:00</updated><id>https://hackcommander.io/feed.xml</id><title type="html">hackcommander.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>HackCommander</name></author><entry><title type="html">Time-based SQL injection in a login form</title><link href="https://hackcommander.io/bug-bounty-2/" rel="alternate" type="text/html" title="Time-based SQL injection in a login form" /><published>2022-10-17T00:00:00+02:00</published><updated>2022-10-17T00:00:00+02:00</updated><id>https://hackcommander.io/bug-bounty-2</id><content type="html" xml:base="https://hackcommander.io/bug-bounty-2/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
@@ -14,7 +14,9 @@
   &lt;li&gt;&lt;a href=&quot;#section-id-5&quot;&gt;5. Lessons learned&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p style=&quot;text-align:center;&quot;&gt;&lt;img src=&quot;/assets/images/general/bug-bounty.png&quot; alt=&quot;Logo&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/general/bug-bounty.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p style=&quot;text-align:center;&quot;&gt;&lt;img src=&quot;/assets/images/general/bug-bounty.png&quot; alt=&quot;Bug Bounty&quot; /&gt;&lt;/p&gt;
 
 &lt;blockquote&gt;
   &lt;p&gt;:warning: &lt;span style=&quot;color:red&quot;&gt;This bug was reported in a private bug bounty program in which it is not allowed to publish the vulnerabilities found. So this is a partial disclosure, only the essential technical details are exposed.&lt;/span&gt;&lt;/p&gt;
@@ -274,7 +276,7 @@
   &lt;li&gt;&lt;a href=&quot;#section-id-4&quot;&gt;4. Report resolution&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p style=&quot;text-align:center;&quot;&gt;&lt;img src=&quot;/assets/images/general/bug-bounty.png&quot; alt=&quot;Logo&quot; /&gt;&lt;/p&gt;
+&lt;p style=&quot;text-align:center;&quot;&gt;&lt;img src=&quot;/assets/images/general/bug-bounty.png&quot; alt=&quot;Bug Bounty&quot; /&gt;&lt;/p&gt;
 
 &lt;blockquote&gt;
   &lt;p&gt;:warning: &lt;span style=&quot;color:red&quot;&gt;This bug was reported in a private bug bounty program in which it is not allowed to publish the vulnerabilities found. So this is a partial disclosure, only the essential technical details are exposed.&lt;/span&gt;&lt;/p&gt;
