@@ -1,4 +1,264 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.io/" rel="alternate" type="text/html" /><updated>2022-09-20T19:09:13+02:00</updated><id>https://hackcommander.io/feed.xml</id><title type="html">hackcommander.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>HackCommander</name></author><entry><title type="html">Reflected XSS bypassing an HTML tag removal sanitization</title><link href="https://hackcommander.io/bug-bounty-1/" rel="alternate" type="text/html" title="Reflected XSS bypassing an HTML tag removal sanitization" /><published>2021-09-20T00:00:00+02:00</published><updated>2021-09-20T00:00:00+02:00</updated><id>https://hackcommander.io/bug-bounty-1</id><content type="html" xml:base="https://hackcommander.io/bug-bounty-1/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.io/" rel="alternate" type="text/html" /><updated>2022-10-17T04:28:00+02:00</updated><id>https://hackcommander.io/feed.xml</id><title type="html">hackcommander.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>HackCommander</name></author><entry><title type="html">Time-based SQL injection in a login form</title><link href="https://hackcommander.io/bug-bounty-2/" rel="alternate" type="text/html" title="Time-based SQL injection in a login form" /><published>2022-10-17T00:00:00+02:00</published><updated>2022-10-17T00:00:00+02:00</updated><id>https://hackcommander.io/bug-bounty-2</id><content type="html" xml:base="https://hackcommander.io/bug-bounty-2/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-2&quot;&gt;2. Vulnerability discovery&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-3&quot;&gt;3. Vulnerability exploitation&lt;/a&gt;
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#section-id-3-1&quot;&gt;3.1. Steps of exploitation&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#section-id-3-2&quot;&gt;3.2. Why does the payload work?&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#section-id-3-3&quot;&gt;3.3. Is it possible to extract information from the database through this type of SQL injections?&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-4&quot;&gt;4. Report resolution&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-5&quot;&gt;5. Lessons learned&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;:warning: &lt;span style=&quot;color:red&quot;&gt;This bug was reported in a private bug bounty program in which it is not allowed to publish the vulnerabilities found. So this is a partial disclosure, only the essential technical details are exposed.&lt;/span&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;In this post I am going to show the most critical vulnerability I have reported in a bug bounty program so far: a time-based SQL injection in a login form.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-1&quot; /&gt;
+
+&lt;h2 id=&quot;1-asset-discovery&quot;&gt;1. Asset discovery&lt;/h2&gt;
+
+&lt;p&gt;I found this asset through &lt;a href=&quot;https://leakix.net/&quot;&gt;LeakIX&lt;/a&gt;. LeakIX is an OSINT platform that combines a search engine that indexes public information and an open reporting platform linked to the results. I found this asset making a domain query of the type&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;example.com&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;and I got the following results&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-bug-bounty-2/leakix-results.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;where the colours are ofustating the following info:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;span style=&quot;color:red&quot;&gt;Red&lt;/span&gt;: not important info.&lt;/li&gt;
+  &lt;li&gt;&lt;span style=&quot;color:blue&quot;&gt;Blue&lt;/span&gt;: the domain name of the company that I was looking for.&lt;/li&gt;
+  &lt;li&gt;&lt;span style=&quot;color:green&quot;&gt;Green&lt;/span&gt;: the IP of the asset.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The asset that I discovered didn’t have a related domain name, it was just an HTTP service on port 80 of an IP, so… Why did leakix return this IP as one of the results?&lt;/p&gt;
+
+&lt;p&gt;That’s because the PHP info page was present in the website and the PHP variable $_SERVER[‘SERVER_ADMIN’] had assigned an email address whose domain was the domain used in the search. Continuing with the example domain, you can think of it as the e-mail address found is something like &lt;strong&gt;admin@example.com&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;As you can see in the following HackerOne report&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://hackerone.com/reports/1118898&quot;&gt;PHP info page disclosure report in HackerOne&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;PHP info page disclosure is considered a low criticality vulnerability but a vulnerability should not be underestimated by its scoring. For example, the PHP info page can be used to bypass the HttpOnly flag in the cookies during the exploitation of an XSS to get a session hijacking.&lt;/p&gt;
+
+&lt;p&gt;In this case, PHP info page disclosure has been crucial in finding this vulnerable asset because the HTTP service doesn’t have an related domain and naturally doesn’t have a TLS certificate to indicate that this asset belongs to the company in question. In fact, the company asked me how I had found this asset since they didn’t have it in their inventory.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-2&quot; /&gt;
+
+&lt;h2 id=&quot;2-vulnerability-discovery&quot;&gt;2. Vulnerability discovery&lt;/h2&gt;
+
+&lt;p&gt;When I accessed to the website, I saw the following landing page&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-bug-bounty-2/landing-page.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;with the company logo and, when I saw this, I was sure that the asset belonged to the company.&lt;/p&gt;
+
+&lt;p&gt;The website was an operations center for the clients of the company and it looked very simple, in fact Wappalyzer didn’t alert me that any web framework had been used. That’s a very good fact because to not use a web framework is usually less safe than using it.&lt;/p&gt;
+
+&lt;p&gt;As you can see, the website has 2 buttons: one for login and the other one for signing up. The signing up button didn’t work because it was a closed registration website and to sign up on the website it was necessary to send an email to the email address that I have obfuscated with blue color. That was the same email address that appeared in the PHP variable $_SERVER[‘SERVER_ADMIN’] in the results of LeakIX.&lt;/p&gt;
+
+&lt;p&gt;After clicking in the login button I got the following login form&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-bug-bounty-2/login-form.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;but… How did I discover the vulnerability?&lt;/p&gt;
+
+&lt;p&gt;I sent a login request and intercepted it with Burpsuite. Then using the repeater I sent a request with a typical SQL injection payload in the parameter nombre_usuario and I got the following response&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-bug-bounty-2/error-500.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The characters such as single quote, hashtag and others are the typical characters that can lead to break the SQL query (in this case, a SQL query to verify the credentials) in the backend, and getting an HTTP error 500 response is the symptom that there could be a SQL injection.&lt;/p&gt;
+
+&lt;p&gt;You can see more info about how to detect SQL injection vulnerabilities in the following link&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://portswigger.net/web-security/sql-injection&quot;&gt;How to detect SQL injection vulnerabilities&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;An interesting fact is that the parameter password didn’t appear to be vulnerable. We will see why this might be in the section 3.2 but it could be because this parameter is not being entered in the vulnerable query.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-3&quot; /&gt;
+
+&lt;h2 id=&quot;3-vulnerability-exploitation&quot;&gt;3. Vulnerability exploitation&lt;/h2&gt;
+
+&lt;div id=&quot;section-id-3-1&quot; /&gt;
+
+&lt;h2 id=&quot;31-steps-of-exploitation&quot;&gt;3.1. Steps of exploitation&lt;/h2&gt;
+
+&lt;p&gt;First of all, it’s necessary to guess what is the DataBase Management System (DBMS), because each of them uses a different syntax. In the following link&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://portswigger.net/web-security/sql-injection/cheat-sheet&quot;&gt;SQL injection cheat sheet&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;you can see different payloads for different DBMS and purposes.&lt;/p&gt;
+
+&lt;p&gt;This is not a CTF so, to discover the DBMS, it’s always best to examine the website well before fuzzing intensely.&lt;/p&gt;
+
+&lt;p&gt;Do you remember the PHP info page disclosure vulnerability? Yes, this page will be useful in this step too, this is the power of a low criticality vulnerability. As you can see in the following screenshot&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-bug-bounty-2/php-info-page.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;looking at the info.php page I found several references to MySQL. So the DBMS is MySQL.&lt;/p&gt;
+
+&lt;p&gt;After a long time of testing MySQL payloads for different purposes such as login bypass, RCE… Finally the only one that worked was&lt;/p&gt;
+
+&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;user&apos;+OR+(SELECT+SLEEP(0.02))=1#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;which is a time-based SQL injection payload, where the + sign is the URL encoded form of the space character although %20 is valid too. I don’t know why, but there was a change of units in the sleep function, that is, a value of 0.02 in the sleep function produces a delay of approximately 2 seconds (2452 miliseconds) in the response, as you can see in the following screenshot&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-bug-bounty-2/response-delay.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;To make sure that the delay was proportional to the input of the sleep function, I sent the following request to the intruder&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-bug-bounty-2/intruder-positions.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;varying the value of the sleep function from 0.01 to 0.09&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-bug-bounty-2/intruder-payloads.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;and the result was as follows&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-bug-bounty-2/response-delay-intruder.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;where you can see the payloads in the column “Payload” and the delays in the columns “Response received” and “Response completed”, in miliseconds.&lt;/p&gt;
+
+&lt;p&gt;This is the proof that SQL code is being executed.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-3-2&quot; /&gt;
+
+&lt;h2 id=&quot;32--why-does-the-payload-work&quot;&gt;3.2.  Why does the payload work?&lt;/h2&gt;
+
+&lt;p&gt;I don’t have the source code of the website but, I think that in the backend there was a MySQL query similar to this&lt;/p&gt;
+
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;username&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;password&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;users&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;WHERE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;username&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;_POST&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;&quot;nombre_usuario&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;I think this because the parameter password didn’t appear to be vulnerable so probably only the parameter nombre_usuario was used in the vulnerable query, that is, the query to get the data of the user. After that, the password retrieved in the query will be compared with the one entered by the user.&lt;/p&gt;
+
+&lt;p&gt;If we enter a “non-malicious” user, such as&lt;/p&gt;
+
+&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;HackCommander
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;the query that will be executed is&lt;/p&gt;
+
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;username&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;password&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;users&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;WHERE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;username&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&apos;HackCommander&apos;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;but if we enter a “malicious” user such as&lt;/p&gt;
+
+&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;HackCommander&apos; OR (SELECT SLEEP(0.02))=1#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;and &lt;strong&gt;the backend no sanitization is being applied in the input&lt;/strong&gt;, the query that will be executed is&lt;/p&gt;
+
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;username&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;password&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;users&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;WHERE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;username&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&apos;HackCommander&apos;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;OR&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SLEEP&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;02&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Here&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;would&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;be&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;the&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;remaining&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;code&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;and, as you can see, the injected SQL code is executed in the where clause of the query. The reason of the hashtag is that the query could have some code after the evaluation of the parameter username so, to avoid syntax errors, it is a good practice to use the hashtag at the end of the payload, which is the character used in MySQL to write comments.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-3-3&quot; /&gt;
+
+&lt;h2 id=&quot;33-is-it-possible-to-extract-information-from-the-database-through-this-type-of-sql-injections&quot;&gt;3.3. Is it possible to extract information from the database through this type of SQL injections?&lt;/h2&gt;
+
+&lt;p&gt;The answer is &lt;strong&gt;yes&lt;/strong&gt;. But… Where do we get the information if we don’t know the name of any table, attribute…?&lt;/p&gt;
+
+&lt;p&gt;In MySQL, and not only in MySQL, there is an important element to get informacion from the database: the &lt;strong&gt;information schema&lt;/strong&gt;. The information schema (information_schema) is an ANSI-standard set of read-only views that provide information about all of the tables, views, columns, and procedures in a database. You can see more details about information_schema in the following link&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://www.sqlshack.com/learn-sql-the-information_schema-database/&quot;&gt;Learn SQL: The INFORMATION_SCHEMA Database&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;This is one of the resources used by Sqlmap to dump the content of a database in blind SQL injections, but this is not a CTF, it’s not a good practice to use Sqlmap on a production asset. In a bug bounty program it’s usually not necessary to dump all the database to get the bounty, it is enough to give a PoC showing how you can get some information from the database. The most simple PoC that I could find was the following&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-bug-bounty-2/number-of-tables-in-the-database.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;using the following payload&lt;/p&gt;
+
+&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;USER&apos;+OR+(SELECT+IF((select+count(*)+from+information_schema.tables)=341,SLEEP(0.05),&quot;NO&quot;))=1#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;This PoC shows that the number of tables in the database is 341. I am going to explain the payload by breaking it down into several points:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.geeksforgeeks.org/mysql-if-function/&quot;&gt;MySQL IF()&lt;/a&gt; is a MySQL function is a function that receives 3 parameters using the following syntax&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;IF(condition, value_if_true, value_if_false)&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;and it returns a value if a condition is TRUE, or another value if a condition is FALSE.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The &lt;a href=&quot;https://www.mssqltips.com/sqlservertutorial/196/information-schema-tables/&quot;&gt;information_schema.tables&lt;/a&gt; is a view that allows to obtain information about all the views and tables of the database. Therefore, the following SQL code&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;select+count(*)+from+information_schema.tables
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;returns the number of tables in the database.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The following SQL code&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;(select+count(*)+from+information_schema.tables)=341
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;compares the number of tables in the database with the number 341.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The following SQL code&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;IF((select+count(*)+from+information_schema.tables)=341,SLEEP(0.05),&quot;NO&quot;))
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;produces a delay of 5 seconds if the number of tables is 341 and returns the string “NO” otherwise.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The above payload needs to be embedded into a SQL query so the following SQL code&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;(SELECT+IF((select+count(*)+from+information_schema.tables)=341,SLEEP(0.05),&quot;NO&quot;))=1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;is SQL query that executes the IF function inside a comparison statement in a select clause.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;p&gt;As you can see in the previous screenshot, the request produces a delay of approximately 5 seconds (5822 miliseconds) so the number of tables in the database is 341. I sent the request to the intruder varying the value from 1 to 500 and the only request that produced a delay was the request with the value 341.&lt;/p&gt;
+
+&lt;p&gt;As you have just seen, it is possible to get information from the database through a time-based SQL injection. This process can be generalized to obtain table names, attributes… character by character, in order to make queries to the really important tables and finally dump all the tables that can be accessed by the user executing the query.&lt;/p&gt;
+
+&lt;p&gt;However, it is not an easy process and although there are tools such as Sqlmap that execute the process automatically, it is not convenient to run this type of tools in a bug bounty program because of the noise they generate and the amount of requests that have to be sent, which could affect the asset. That is why I attached a very simple PoC obtaining only the number of tables in the database.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-4&quot; /&gt;
+
+&lt;h2 id=&quot;4-report-resolution&quot;&gt;4. Report resolution&lt;/h2&gt;
+
+&lt;p&gt;The asset didn’t have a related domain name but it was an important asset of the company, that is why it was a closed registration website. SQL injection is usually considered a vulnerability of critical severity, especially in this case that I provided a PoC of how this injection could be used to get information from the database. Therefore, the report was classified as&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;Asset criticity: High&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Vulnerability severity: Critical&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;and I won the highest bounty of the program.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-5&quot; /&gt;
+
+&lt;h2 id=&quot;5-lessons-learned&quot;&gt;5. Lessons learned&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The reconnaisance step it’s very important, probably the most important one. It’s not a lost of time to use different OSINT tools, like LeakIX.&lt;/li&gt;
+  &lt;li&gt;Low criticality vulnerabilities should not be underestimated. Some of them, such as PHP info page disclosure, can lead to dangerous situations or make other vulnerabilities more critical.&lt;/li&gt;
+  &lt;li&gt;Blind vulnerabilities, such as blind SQL injection, blind RCE… can be just as dangerous as non-blind vulnerabilities. Although it is not possible to obtain information directly from the response, it can be inferred through various techniques, such as producing delays based on a boolean condition.&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>HackCommander</name></author><category term="Bug Bounty" /><category term="web pentesting" /><category term="OSINT" /><category term="LeakIX" /><category term="burpsuite" /><category term="SQL injection" /><category term="MySQL" /><category term="information_schema" /><category term="sqlmap" /><category term="PHP info page" /><summary type="html">Partial disclosure of a bug bounty report: time-based SQL injection in login form.</summary></entry><entry><title type="html">Reflected XSS bypassing HTML tag removal sanitization</title><link href="https://hackcommander.io/bug-bounty-1/" rel="alternate" type="text/html" title="Reflected XSS bypassing HTML tag removal sanitization" /><published>2022-09-20T00:00:00+02:00</published><updated>2022-09-20T00:00:00+02:00</updated><id>https://hackcommander.io/bug-bounty-1</id><content type="html" xml:base="https://hackcommander.io/bug-bounty-1/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
@@ -13,10 +273,10 @@
 &lt;/ul&gt;
 
 &lt;blockquote&gt;
-  &lt;p&gt;:warning: &lt;span style=&quot;color:red&quot;&gt;This bug was found in a private bug bounty program in which it is not allowed to publish the vulnerabilities found. So this is a partial disclosure, only the essential technical details are exposed.&lt;/span&gt;&lt;/p&gt;
+  &lt;p&gt;:warning: &lt;span style=&quot;color:red&quot;&gt;This bug was reported in a private bug bounty program in which it is not allowed to publish the vulnerabilities found. So this is a partial disclosure, only the essential technical details are exposed.&lt;/span&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;p&gt;In this post I am going to show my first relevant report in a bug bounty program: a reflected XSS bypassing an HTML tag removal sanitization. This was not my first report but it was the first one where using pentesting tools was not enough and I had to think outside the box.&lt;/p&gt;
+&lt;p&gt;In this post I am going to show my first relevant report in a bug bounty program: a reflected XSS bypassing HTML tag removal sanitization. This was not my first report but it was the first one where using pentesting tools was not enough and I had to think outside the box.&lt;/p&gt;
 
 &lt;div id=&quot;section-id-1&quot; /&gt;
 
@@ -40,7 +300,7 @@
 &lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;gau www.example.com | kxss
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;&lt;a href=&quot;https://github.com/lc/gau&quot;&gt;Gau&lt;/a&gt; is a tool used to fetch known URLs from AlienVault’s Open Threat Exchange, the Wayback Machine, Common Crawl, and URLScan for any given domain. This tool does not always find all the URLs of a domain but it is a good starting point to search XSS another types of vulnerabilities.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/lc/gau&quot;&gt;Gau&lt;/a&gt; is a tool used to fetch known URLs from AlienVault’s Open Threat Exchange, the Wayback Machine, Common Crawl, and URLScan for any given domain. This tool does not always find all the URLs of a domain but it is a good starting point to search XSS or other types of vulnerabilities.&lt;/p&gt;
 
 &lt;p&gt;&lt;a href=&quot;https://github.com/Emoe/kxss&quot;&gt;Kxss&lt;/a&gt; is a tool used to find all the “problematic characters” that are reflected in the response of any URL given as a parameter. The reflection of some problematic characters does not mean that an XSS exists but it is an indication that it could exist.&lt;/p&gt;
 
@@ -89,7 +349,7 @@
 bugbountytest2
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;So far, mission accomplished. Then I tried to inject some javascript code through a request of the form&lt;/p&gt;
+&lt;p&gt;So far so good. Then I tried to inject some javascript code through a request of the form&lt;/p&gt;
 
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;https://www.example.com/?vuln-param=bugbountytest1&apos;&quot;&amp;gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
@@ -230,7 +490,7 @@ alert(1)
 &lt;ul&gt;
   &lt;li&gt;&lt;strong&gt;Asset criticity: High&lt;/strong&gt;&lt;/li&gt;
   &lt;li&gt;&lt;strong&gt;Vulnerability severity: Medium&lt;/strong&gt;&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>HackCommander</name></author><category term="Bug Bounty" /><category term="web pentesting" /><category term="OSINT" /><category term="amass" /><category term="httpx" /><category term="gau" /><category term="kxss" /><category term="XSS" /><category term="python" /><category term="bypass" /><category term="sanitization" /><summary type="html">Partial disclosure of a bug bounty report: reflected XSS bypassing an HTML tag removal sanitization.</summary></entry><entry><title type="html">eJPT certification review</title><link href="https://hackcommander.io/ejpt-certification-review/" rel="alternate" type="text/html" title="eJPT certification review" /><published>2021-09-01T00:00:00+02:00</published><updated>2021-09-01T00:00:00+02:00</updated><id>https://hackcommander.io/ejpt-certification-review</id><content type="html" xml:base="https://hackcommander.io/ejpt-certification-review/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+&lt;/ul&gt;</content><author><name>HackCommander</name></author><category term="Bug Bounty" /><category term="web pentesting" /><category term="OSINT" /><category term="amass" /><category term="httpx" /><category term="gau" /><category term="kxss" /><category term="XSS" /><category term="python" /><category term="bypass" /><category term="sanitization" /><summary type="html">Partial disclosure of a bug bounty report: reflected XSS bypassing HTML tag removal sanitization.</summary></entry><entry><title type="html">eJPT certification review</title><link href="https://hackcommander.io/ejpt-certification-review/" rel="alternate" type="text/html" title="eJPT certification review" /><published>2022-09-01T00:00:00+02:00</published><updated>2022-09-01T00:00:00+02:00</updated><id>https://hackcommander.io/ejpt-certification-review</id><content type="html" xml:base="https://hackcommander.io/ejpt-certification-review/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. What is eJPT?&lt;/a&gt;&lt;/li&gt;

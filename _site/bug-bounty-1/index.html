@@ -9,19 +9,19 @@
   <head>
     <meta charset="utf-8">
 
-<!-- begin _includes/seo.html --><title>Reflected XSS bypassing an HTML tag removal sanitization - hackcommander.io</title>
-<meta name="description" content="Partial disclosure of a bug bounty report: reflected XSS bypassing an HTML tag removal sanitization.">
+<!-- begin _includes/seo.html --><title>Reflected XSS bypassing HTML tag removal sanitization - hackcommander.io</title>
+<meta name="description" content="Partial disclosure of a bug bounty report: reflected XSS bypassing HTML tag removal sanitization.">
 
 
 
 <meta property="og:type" content="article">
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="hackcommander.io">
-<meta property="og:title" content="Reflected XSS bypassing an HTML tag removal sanitization">
+<meta property="og:title" content="Reflected XSS bypassing HTML tag removal sanitization">
 <meta property="og:url" content="https://hackcommander.io/bug-bounty-1/">
 
 
-  <meta property="og:description" content="Partial disclosure of a bug bounty report: reflected XSS bypassing an HTML tag removal sanitization.">
+  <meta property="og:description" content="Partial disclosure of a bug bounty report: reflected XSS bypassing HTML tag removal sanitization.">
 
 
 
@@ -31,7 +31,7 @@
 
 
 
-  <meta property="article:published_time" content="2021-09-20T00:00:00+02:00">
+  <meta property="article:published_time" content="2022-09-20T00:00:00+02:00">
 
 
 
@@ -173,7 +173,7 @@
         <span class="sep">/</span>
       
       
-        <li class="current">Reflected XSS bypassing an HTML tag removal sanitization</li>
+        <li class="current">Reflected XSS bypassing HTML tag removal sanitization</li>
       
     
   </ol>
@@ -300,15 +300,15 @@
 
 
   <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
-    <meta itemprop="headline" content="Reflected XSS bypassing an HTML tag removal sanitization">
-    <meta itemprop="description" content="Partial disclosure of a bug bounty report: reflected XSS bypassing an HTML tag removal sanitization.">
-    <meta itemprop="datePublished" content="September 20, 2021">
+    <meta itemprop="headline" content="Reflected XSS bypassing HTML tag removal sanitization">
+    <meta itemprop="description" content="Partial disclosure of a bug bounty report: reflected XSS bypassing HTML tag removal sanitization.">
+    <meta itemprop="datePublished" content="September 20, 2022">
     
 
     <div class="page__inner-wrap">
       
         <header>
-          <h1 id="page-title" class="page__title" itemprop="headline">Reflected XSS bypassing an HTML tag removal sanitization
+          <h1 id="page-title" class="page__title" itemprop="headline">Reflected XSS bypassing HTML tag removal sanitization
 </h1>
           
         </header>
@@ -318,7 +318,7 @@
         
         <p class="page__meta">
           
-            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2021-09-20T00:00:00+02:00">September 20, 2021 </time> 
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2022-09-20T00:00:00+02:00">September 20, 2022 </time> 
           
           
         </p>
@@ -338,10 +338,10 @@
 </ul>
 
 <blockquote>
-  <p><img class="emoji" title=":warning:" alt=":warning:" src="https://github.githubassets.com/images/icons/emoji/unicode/26a0.png" height="20" width="20"> <span style="color:red">This bug was found in a private bug bounty program in which it is not allowed to publish the vulnerabilities found. So this is a partial disclosure, only the essential technical details are exposed.</span></p>
+  <p><img class="emoji" title=":warning:" alt=":warning:" src="https://github.githubassets.com/images/icons/emoji/unicode/26a0.png" height="20" width="20"> <span style="color:red">This bug was reported in a private bug bounty program in which it is not allowed to publish the vulnerabilities found. So this is a partial disclosure, only the essential technical details are exposed.</span></p>
 </blockquote>
 
-<p>In this post I am going to show my first relevant report in a bug bounty program: a reflected XSS bypassing an HTML tag removal sanitization. This was not my first report but it was the first one where using pentesting tools was not enough and I had to think outside the box.</p>
+<p>In this post I am going to show my first relevant report in a bug bounty program: a reflected XSS bypassing HTML tag removal sanitization. This was not my first report but it was the first one where using pentesting tools was not enough and I had to think outside the box.</p>
 
 <div id="section-id-1"></div>
 
@@ -365,7 +365,7 @@
 <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">gau www.example.com | kxss
 </span></code></pre></div></div>
 
-<p><a href="https://github.com/lc/gau">Gau</a> is a tool used to fetch known URLs from AlienVault’s Open Threat Exchange, the Wayback Machine, Common Crawl, and URLScan for any given domain. This tool does not always find all the URLs of a domain but it is a good starting point to search XSS another types of vulnerabilities.</p>
+<p><a href="https://github.com/lc/gau">Gau</a> is a tool used to fetch known URLs from AlienVault’s Open Threat Exchange, the Wayback Machine, Common Crawl, and URLScan for any given domain. This tool does not always find all the URLs of a domain but it is a good starting point to search XSS or other types of vulnerabilities.</p>
 
 <p><a href="https://github.com/Emoe/kxss">Kxss</a> is a tool used to find all the “problematic characters” that are reflected in the response of any URL given as a parameter. The reflection of some problematic characters does not mean that an XSS exists but it is an indication that it could exist.</p>
 
@@ -414,7 +414,7 @@
 bugbountytest2
 </code></pre></div></div>
 
-<p>So far, mission accomplished. Then I tried to inject some javascript code through a request of the form</p>
+<p>So far so good. Then I tried to inject some javascript code through a request of the form</p>
 
 <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://www.example.com/?vuln-param=bugbountytest1'"&gt;<span class="nt">&lt;script&gt;</span><span class="nx">alert</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="nt">&lt;/script&gt;</span>
 </code></pre></div></div>
@@ -641,7 +641,7 @@ alert(1)
 
 
         
-          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2021-09-20T00:00:00+02:00">September 20, 2021</time></p>
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2022-09-20T00:00:00+02:00">September 20, 2022</time></p>
         
       </footer>
 
@@ -654,7 +654,8 @@ alert(1)
 ">Previous</a>
     
     
-      <a href="#" class="pagination--pager disabled">Next</a>
+      <a href="/bug-bounty-2/" class="pagination--pager" title="Time-based SQL injection in a login form
+">Next</a>
     
   </nav>
 
