@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.io/" rel="alternate" type="text/html" /><updated>2022-10-17T06:28:23+02:00</updated><id>https://hackcommander.io/feed.xml</id><title type="html">hackcommander.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>HackCommander</name></author><entry><title type="html">Time-based SQL injection in a login form</title><link href="https://hackcommander.io/bug-bounty-2/" rel="alternate" type="text/html" title="Time-based SQL injection in a login form" /><published>2022-10-17T00:00:00+02:00</published><updated>2022-10-17T00:00:00+02:00</updated><id>https://hackcommander.io/bug-bounty-2</id><content type="html" xml:base="https://hackcommander.io/bug-bounty-2/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.io/" rel="alternate" type="text/html" /><updated>2022-10-23T02:22:00+02:00</updated><id>https://hackcommander.io/feed.xml</id><title type="html">hackcommander.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>HackCommander</name></author><entry><title type="html">Time-based SQL injection in a login form</title><link href="https://hackcommander.io/bug-bounty-2/" rel="alternate" type="text/html" title="Time-based SQL injection in a login form" /><published>2022-10-17T00:00:00+02:00</published><updated>2022-10-17T00:00:00+02:00</updated><id>https://hackcommander.io/bug-bounty-2</id><content type="html" xml:base="https://hackcommander.io/bug-bounty-2/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
@@ -15,8 +15,6 @@
 &lt;/ul&gt;
 
 &lt;p&gt;&lt;img src=&quot;/assets/images/general/bug-bounty.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p style=&quot;text-align:center;&quot;&gt;&lt;img src=&quot;/assets/images/general/bug-bounty.png&quot; alt=&quot;Bug Bounty&quot; /&gt;&lt;/p&gt;
 
 &lt;blockquote&gt;
   &lt;p&gt;:warning: &lt;span style=&quot;color:red&quot;&gt;This bug was reported in a private bug bounty program in which it is not allowed to publish the vulnerabilities found. So this is a partial disclosure, only the essential technical details are exposed.&lt;/span&gt;&lt;/p&gt;
@@ -270,13 +268,20 @@
   &lt;li&gt;&lt;a href=&quot;#section-id-3&quot;&gt;3. Vulnerability exploitation&lt;/a&gt;
     &lt;ul&gt;
       &lt;li&gt;&lt;a href=&quot;#section-id-3-1&quot;&gt;3.1. Steps of exploitation&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;#section-id-3-2&quot;&gt;3.2. Why does the payload work?&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#section-id-3-2&quot;&gt;3.2. Why does the payload work?&lt;/a&gt;
+        &lt;ul&gt;
+          &lt;li&gt;&lt;a href=&quot;#section-id-3-2-1&quot;&gt;3.2.1. Sanitization algorithm based on a boolean variable&lt;/a&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;a href=&quot;#section-id-3-2-2&quot;&gt;3.2.2. Sanitization algorithm based on a data structure&lt;/a&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;a href=&quot;#section-id-3-2-3&quot;&gt;3.2.3. Code of the algorithms&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
     &lt;/ul&gt;
   &lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-4&quot;&gt;4. Report resolution&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-5&quot;&gt;5. Lessons learned&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p style=&quot;text-align:center;&quot;&gt;&lt;img src=&quot;/assets/images/general/bug-bounty.png&quot; alt=&quot;Bug Bounty&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/general/bug-bounty.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;blockquote&gt;
   &lt;p&gt;:warning: &lt;span style=&quot;color:red&quot;&gt;This bug was reported in a private bug bounty program in which it is not allowed to publish the vulnerabilities found. So this is a partial disclosure, only the essential technical details are exposed.&lt;/span&gt;&lt;/p&gt;
@@ -412,11 +417,23 @@ alert(1)
 
 &lt;p&gt;After exploiting the reflected XSS, I wondered what kind of sanitization algorithm could lead to the above behavior. I am not a professional programmer but I have some scripting knowledge so I know that there could be different algorithms to try to achieve the above sanitization, some of them unsafe.&lt;/p&gt;
 
+&lt;div id=&quot;section-id-3-2-1&quot; /&gt;
+
+&lt;h3 id=&quot;321-sanitization-algorithm-based-on-a-boolean-variable&quot;&gt;3.2.1. Sanitization algorithm based on a boolean variable&lt;/h3&gt;
+
 &lt;p&gt;An insecure algorithm to try to achieve the above sanitization is to use a boolean variable to keep track of whether a &amp;lt; character has been encountered or not. This variable will be set to true when a &amp;lt; character has been encountered and false when no &amp;lt; character has been encountered or when a &amp;gt; character has been encountered that closes a &amp;lt; character. When the variable changes from true to false the algorithm removes all the content between the &amp;lt; and &amp;gt; characters, including both.&lt;/p&gt;
 
-&lt;p&gt;The flaw of this algorithm is that it does not take into account that &amp;lt; and &amp;gt; characters can be nested, so the boolean variable will be true whether 1 or 10000 &amp;lt; characters are encountered and a single &amp;gt; will be enough to set the variable to false, even if there are other &amp;lt; characters without closing. This is what I call a boolean variable based sanitization algorithm.&lt;/p&gt;
+&lt;p&gt;The flaw of this algorithm is that it does not take into account that &amp;lt; and &amp;gt; characters can be nested, so the boolean variable will be true whether 1 or 10000 &amp;lt; characters are encountered and a single &amp;gt; will be enough to set the variable to false, even if there are other &amp;lt; characters without closing. This is a sanitization algorithm based on a boolean variable.&lt;/p&gt;
 
-&lt;p&gt;One way to avoid this flaw is to use a data structure, such as stack, to keep track of all unclosed &amp;lt; characters. This is what I call a stack based sanitization algorithm.&lt;/p&gt;
+&lt;div id=&quot;section-id-3-2-2&quot; /&gt;
+
+&lt;h3 id=&quot;322-sanitization-algorithm-based-on-a-data-structure&quot;&gt;3.2.2. Sanitization algorithm based on a data structure&lt;/h3&gt;
+
+&lt;p&gt;One way to avoid this flaw is to use a data structure to keep track of all unclosed &amp;lt; characters. The most suitable data structure for this task is a &lt;strong&gt;stack&lt;/strong&gt; . The most suitable data structure to perform this task is a &lt;strong&gt;stack&lt;/strong&gt; since the sanitization will be performed from the last &amp;lt; character encountered (the one at the head of the stack) to the current &amp;gt; character. This is a sanitization algorithm based on a data structure.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-3-2-3&quot; /&gt;
+
+&lt;h3 id=&quot;323-code-of-the-algorithms&quot;&gt;3.2.3. Code of the algorithms&lt;/h3&gt;
 
 &lt;p&gt;The backend was designed in PHP but I have implemented both algorithms in python to show in practice what I mean by both algorithms&lt;/p&gt;
 
@@ -424,7 +441,7 @@ alert(1)
 &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;remove_substring&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;j&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;j&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;
 
-&lt;span class=&quot;c1&quot;&gt;# Get the boolean variable based sanitization of the input
+&lt;span class=&quot;c1&quot;&gt;# Get the sanitization of the input using an algorithm based on a boolean variable
 &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;get_boolean_variable_based_sanitization&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# Index of the input string
 &lt;/span&gt;    &lt;span class=&quot;n&quot;&gt;less_than_char_index&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# Index of the last &amp;lt; found
@@ -441,8 +458,8 @@ alert(1)
             &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;input&lt;/span&gt;
 
-&lt;span class=&quot;c1&quot;&gt;# Get the stack based sanitization of the input
-&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;get_stack_based_sanitization&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# Get the sanitization of the input using an algorithm based on a data structure
+&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;get_data_structure_based_sanitization&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
     &lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;queue&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;LifoQueue&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# Index of the input string
 &lt;/span&gt;    &lt;span class=&quot;n&quot;&gt;less_than_char_stack&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;LifoQueue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# Stack that keeps track of all &amp;lt; encountered
@@ -469,11 +486,11 @@ alert(1)
     &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;input&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;input_list&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
         &lt;span class=&quot;c1&quot;&gt;# Apply the sanitizations
 &lt;/span&gt;        &lt;span class=&quot;n&quot;&gt;boolean_variable_based_sanitization&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;get_boolean_variable_based_sanitization&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;stack_based_sanitization&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;get_stack_based_sanitization&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;data_structure_based_sanitization&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;get_data_structure_based_sanitization&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
         &lt;span class=&quot;c1&quot;&gt;# Store the output of the sanitizations
 &lt;/span&gt;        &lt;span class=&quot;n&quot;&gt;output&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;output&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;Input  -&amp;gt;  &quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;input&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;
         &lt;span class=&quot;n&quot;&gt;output&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;output&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;Boolean variable based sanitization  -&amp;gt;  &quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;boolean_variable_based_sanitization&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;output&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;output&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;Stack based sanitization  -&amp;gt;  &quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;stack_based_sanitization&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;output&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;output&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;Data structure based sanitization  -&amp;gt;  &quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data_structure_based_sanitization&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;
 
     &lt;span class=&quot;c1&quot;&gt;# Print the results
 &lt;/span&gt;    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;output&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
@@ -496,6 +513,16 @@ alert(1)
 &lt;ul&gt;
   &lt;li&gt;&lt;strong&gt;Asset criticity: High&lt;/strong&gt;&lt;/li&gt;
   &lt;li&gt;&lt;strong&gt;Vulnerability severity: Medium&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div id=&quot;section-id-5&quot; /&gt;
+
+&lt;h2 id=&quot;5-lessons-learned&quot;&gt;5. Lessons learned&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Gau and kxss are very useful tools for bug bounty. They are very easy to install and run and, in return, can give several URLs potentially vulnerable to XSS.&lt;/li&gt;
+  &lt;li&gt;Although a sanitization algorithm may seem safe at first, it may not be. Given a sanitization like the one we have seen in this post it is a good exercise to think about what algorithms you would have used to perform such sanitization because some of them may be the one being used on the web. If any of the algorithms you have thought of is vulnerable, the payloads to exploit these vulnerabilities are candidate payloads to use against the web.&lt;/li&gt;
+  &lt;li&gt;Bug bounty is not a CTF, is the jungle. Many times even if a vulnerability is present, you will have to fight with WAFs and sanitizations so you need to be prepared to think outside the box.&lt;/li&gt;
 &lt;/ul&gt;</content><author><name>HackCommander</name></author><category term="Bug Bounty" /><category term="web pentesting" /><category term="OSINT" /><category term="amass" /><category term="httpx" /><category term="gau" /><category term="kxss" /><category term="XSS" /><category term="python" /><category term="bypass" /><category term="sanitization" /><summary type="html">Partial disclosure of a bug bounty report: reflected XSS bypassing HTML tag removal sanitization.</summary></entry><entry><title type="html">eJPT certification review</title><link href="https://hackcommander.io/ejpt-certification-review/" rel="alternate" type="text/html" title="eJPT certification review" /><published>2022-09-01T00:00:00+02:00</published><updated>2022-09-01T00:00:00+02:00</updated><id>https://hackcommander.io/ejpt-certification-review</id><content type="html" xml:base="https://hackcommander.io/ejpt-certification-review/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;

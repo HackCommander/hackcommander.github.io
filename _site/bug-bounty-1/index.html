@@ -331,13 +331,21 @@
 <a href="#section-id-3">3. Vulnerability exploitation</a>
     <ul>
       <li><a href="#section-id-3-1">3.1. Steps of exploitation</a></li>
-      <li><a href="#section-id-3-2">3.2. Why does the payload work?</a></li>
+      <li>
+<a href="#section-id-3-2">3.2. Why does the payload work?</a>
+        <ul>
+          <li><a href="#section-id-3-2-1">3.2.1. Sanitization algorithm based on a boolean variable</a></li>
+          <li><a href="#section-id-3-2-2">3.2.2. Sanitization algorithm based on a data structure</a></li>
+          <li><a href="#section-id-3-2-3">3.2.3. Code of the algorithms</a></li>
+        </ul>
+      </li>
     </ul>
   </li>
   <li><a href="#section-id-4">4. Report resolution</a></li>
+  <li><a href="#section-id-5">5. Lessons learned</a></li>
 </ul>
 
-<p style="text-align:center;"><img src="/assets/images/general/bug-bounty.png" alt="Bug Bounty"></p>
+<p><img src="/assets/images/general/bug-bounty.png" alt=""></p>
 
 <blockquote>
   <p><img class="emoji" title=":warning:" alt=":warning:" src="https://github.githubassets.com/images/icons/emoji/unicode/26a0.png" height="20" width="20"> <span style="color:red">This bug was reported in a private bug bounty program in which it is not allowed to publish the vulnerabilities found. So this is a partial disclosure, only the essential technical details are exposed.</span></p>
@@ -473,11 +481,23 @@ alert(1)
 
 <p>After exploiting the reflected XSS, I wondered what kind of sanitization algorithm could lead to the above behavior. I am not a professional programmer but I have some scripting knowledge so I know that there could be different algorithms to try to achieve the above sanitization, some of them unsafe.</p>
 
+<div id="section-id-3-2-1"></div>
+
+<h3 id="321-sanitization-algorithm-based-on-a-boolean-variable">3.2.1. Sanitization algorithm based on a boolean variable</h3>
+
 <p>An insecure algorithm to try to achieve the above sanitization is to use a boolean variable to keep track of whether a &lt; character has been encountered or not. This variable will be set to true when a &lt; character has been encountered and false when no &lt; character has been encountered or when a &gt; character has been encountered that closes a &lt; character. When the variable changes from true to false the algorithm removes all the content between the &lt; and &gt; characters, including both.</p>
 
-<p>The flaw of this algorithm is that it does not take into account that &lt; and &gt; characters can be nested, so the boolean variable will be true whether 1 or 10000 &lt; characters are encountered and a single &gt; will be enough to set the variable to false, even if there are other &lt; characters without closing. This is what I call a boolean variable based sanitization algorithm.</p>
+<p>The flaw of this algorithm is that it does not take into account that &lt; and &gt; characters can be nested, so the boolean variable will be true whether 1 or 10000 &lt; characters are encountered and a single &gt; will be enough to set the variable to false, even if there are other &lt; characters without closing. This is a sanitization algorithm based on a boolean variable.</p>
 
-<p>One way to avoid this flaw is to use a data structure, such as stack, to keep track of all unclosed &lt; characters. This is what I call a stack based sanitization algorithm.</p>
+<div id="section-id-3-2-2"></div>
+
+<h3 id="322-sanitization-algorithm-based-on-a-data-structure">3.2.2. Sanitization algorithm based on a data structure</h3>
+
+<p>One way to avoid this flaw is to use a data structure to keep track of all unclosed &lt; characters. The most suitable data structure for this task is a <strong>stack</strong> . The most suitable data structure to perform this task is a <strong>stack</strong> since the sanitization will be performed from the last &lt; character encountered (the one at the head of the stack) to the current &gt; character. This is a sanitization algorithm based on a data structure.</p>
+
+<div id="section-id-3-2-3"></div>
+
+<h3 id="323-code-of-the-algorithms">3.2.3. Code of the algorithms</h3>
 
 <p>The backend was designed in PHP but I have implemented both algorithms in python to show in practice what I mean by both algorithms</p>
 
@@ -485,7 +505,7 @@ alert(1)
 </span><span class="k">def</span> <span class="nf">remove_substring</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
     <span class="k">return</span> <span class="nb">input</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="nb">input</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="nb">input</span><span class="p">)]</span>
 
-<span class="c1"># Get the boolean variable based sanitization of the input
+<span class="c1"># Get the sanitization of the input using an algorithm based on a boolean variable
 </span><span class="k">def</span> <span class="nf">get_boolean_variable_based_sanitization</span><span class="p">(</span><span class="nb">input</span><span class="p">):</span>
     <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># Index of the input string
 </span>    <span class="n">less_than_char_index</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="c1"># Index of the last &lt; found
@@ -502,8 +522,8 @@ alert(1)
             <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
     <span class="k">return</span> <span class="nb">input</span>
 
-<span class="c1"># Get the stack based sanitization of the input
-</span><span class="k">def</span> <span class="nf">get_stack_based_sanitization</span><span class="p">(</span><span class="nb">input</span><span class="p">):</span>
+<span class="c1"># Get the sanitization of the input using an algorithm based on a data structure
+</span><span class="k">def</span> <span class="nf">get_data_structure_based_sanitization</span><span class="p">(</span><span class="nb">input</span><span class="p">):</span>
     <span class="kn">from</span> <span class="nn">queue</span> <span class="kn">import</span> <span class="n">LifoQueue</span>
     <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># Index of the input string
 </span>    <span class="n">less_than_char_stack</span> <span class="o">=</span> <span class="n">LifoQueue</span><span class="p">()</span> <span class="c1"># Stack that keeps track of all &lt; encountered
@@ -530,11 +550,11 @@ alert(1)
     <span class="k">for</span> <span class="nb">input</span> <span class="ow">in</span> <span class="n">input_list</span><span class="p">:</span>
         <span class="c1"># Apply the sanitizations
 </span>        <span class="n">boolean_variable_based_sanitization</span> <span class="o">=</span> <span class="n">get_boolean_variable_based_sanitization</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
-        <span class="n">stack_based_sanitization</span> <span class="o">=</span> <span class="n">get_stack_based_sanitization</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">data_structure_based_sanitization</span> <span class="o">=</span> <span class="n">get_data_structure_based_sanitization</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
         <span class="c1"># Store the output of the sanitizations
 </span>        <span class="n">output</span> <span class="o">=</span> <span class="n">output</span> <span class="o">+</span> <span class="s">"Input  -&gt;  "</span> <span class="o">+</span> <span class="nb">input</span> <span class="o">+</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span>
         <span class="n">output</span> <span class="o">=</span> <span class="n">output</span> <span class="o">+</span> <span class="s">"Boolean variable based sanitization  -&gt;  "</span> <span class="o">+</span> <span class="n">boolean_variable_based_sanitization</span> <span class="o">+</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="n">output</span> <span class="o">+</span> <span class="s">"Stack based sanitization  -&gt;  "</span> <span class="o">+</span> <span class="n">stack_based_sanitization</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">output</span> <span class="o">+</span> <span class="s">"Data structure based sanitization  -&gt;  "</span> <span class="o">+</span> <span class="n">data_structure_based_sanitization</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span>
 
     <span class="c1"># Print the results
 </span>    <span class="k">print</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
@@ -559,6 +579,15 @@ alert(1)
   <li><strong>Vulnerability severity: Medium</strong></li>
 </ul>
 
+<div id="section-id-5"></div>
+
+<h2 id="5-lessons-learned">5. Lessons learned</h2>
+
+<ul>
+  <li>Gau and kxss are very useful tools for bug bounty. They are very easy to install and run and, in return, can give several URLs potentially vulnerable to XSS.</li>
+  <li>Although a sanitization algorithm may seem safe at first, it may not be. Given a sanitization like the one we have seen in this post it is a good exercise to think about what algorithms you would have used to perform such sanitization because some of them may be the one being used on the web. If any of the algorithms you have thought of is vulnerable, the payloads to exploit these vulnerabilities are candidate payloads to use against the web.</li>
+  <li>Bug bounty is not a CTF, is the jungle. Many times even if a vulnerability is present, you will have to fight with WAFs and sanitizations so you need to be prepared to think outside the box.</li>
+</ul>
 
         
       </section>

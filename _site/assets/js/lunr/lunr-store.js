@@ -5,7 +5,7 @@ var store = [{
         "url": "https://hackcommander.io/ejpt-certification-review/",
         "teaser":"https://hackcommander.io/assets/images/2022-09-01-ejpt-certification-review/ejpt-logo.png"},{
         "title": "Reflected XSS bypassing HTML tag removal sanitization",
-        "excerpt":"Summary 1. Asset discovery 2. Vulnerability discovery 3. Vulnerability exploitation 3.1. Steps of exploitation 3.2. Why does the payload work? 4. Report resolution :warning: This bug was reported in a private bug bounty program in which it is not allowed to publish the vulnerabilities found. So this is a partial...","categories": ["Bug Bounty"],
+        "excerpt":"Summary 1. Asset discovery 2. Vulnerability discovery 3. Vulnerability exploitation 3.1. Steps of exploitation 3.2. Why does the payload work? 3.2.1. Sanitization algorithm based on a boolean variable 3.2.2. Sanitization algorithm based on a data structure 3.2.3. Code of the algorithms 4. Report resolution 5. Lessons learned :warning: This bug...","categories": ["Bug Bounty"],
         "tags": ["web pentesting","OSINT","amass","httpx","gau","kxss","XSS","python","bypass","sanitization"],
         "url": "https://hackcommander.io/bug-bounty-1/",
         "teaser":"https://hackcommander.io/assets/images/general/bug-bounty.png"},{
