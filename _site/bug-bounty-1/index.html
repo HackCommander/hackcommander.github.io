@@ -395,7 +395,7 @@
 
 <h2 id="31-steps-of-exploitation">3.1. Steps of exploitation</h2>
 
-<p>Unfortunately I don’t have any screenshot of the exploitation of this XSS except the screenshot that shows the execution of the XSS, and the vulnerability is already patched. I don’t have the Burpsuite screenshot either because at that time I wasn’t even using Burpsuite, I was just starting in pentesting and playing with the web functionalities. Therefore the tool I used to test the XSS was the dev tools of the browser. I know, it’s crazy <img class="emoji" title=":laughing:" alt=":laughing:" src="https://github.githubassets.com/images/icons/emoji/unicode/1f606.png" height="20" width="20"></p>
+<p>Unfortunately I don’t have any screenshot of the exploitation of this XSS except the screenshot that shows the execution of the XSS, and the vulnerability is already patched. I don’t have the Burpsuite screenshot either because at that time I wasn’t even using Burpsuite, I was just starting in pentesting and playing with the website functionalities. Therefore the tool I used to test the XSS was the dev tools of the browser. I know, it’s crazy <img class="emoji" title=":laughing:" alt=":laughing:" src="https://github.githubassets.com/images/icons/emoji/unicode/1f606.png" height="20" width="20"></p>
 
 <p>Suppose that the URL returned by gau + kxss is as follows</p>
 
@@ -487,13 +487,13 @@ alert(1)
 
 <p>An insecure algorithm to try to achieve the above sanitization is to use a boolean variable to keep track of whether a &lt; character has been encountered or not. This variable will be set to true when a &lt; character has been encountered and false when no &lt; character has been encountered or when a &gt; character has been encountered that closes a &lt; character. When the variable changes from true to false the algorithm removes all the content between the &lt; and &gt; characters, including both.</p>
 
-<p>The flaw of this algorithm is that it does not take into account that &lt; and &gt; characters can be nested, so the boolean variable will be true whether 1 or 10000 &lt; characters are encountered and a single &gt; will be enough to set the variable to false, even if there are other &lt; characters without closing. This is a sanitization algorithm based on a boolean variable.</p>
+<p>The flaw of this algorithm is that it does not take into account that &lt; and &gt; characters can be nested, so the boolean variable will be true whether 1 or 10000 &lt; characters are encountered and a single &gt; will be enough to set the variable to false, even if there are other &lt; characters without closing. This is a <strong>sanitization algorithm based on a boolean variable</strong>.</p>
 
 <div id="section-id-3-2-2"></div>
 
 <h3 id="322-sanitization-algorithm-based-on-a-data-structure">3.2.2. Sanitization algorithm based on a data structure</h3>
 
-<p>One way to avoid this flaw is to use a data structure to keep track of all unclosed &lt; characters. The most suitable data structure for this task is a <strong>stack</strong> . The most suitable data structure to perform this task is a <strong>stack</strong> since the sanitization will be performed from the last &lt; character encountered (the one at the head of the stack) to the current &gt; character. This is a sanitization algorithm based on a data structure.</p>
+<p>One way to avoid this flaw is to use a data structure to keep track of all unclosed &lt; characters. The most suitable data structure for this task is a <strong>stack</strong> . The most suitable data structure to perform this task is a <strong>stack</strong> since the sanitization will be performed from the last &lt; character encountered (the one at the head of the stack) to the current &gt; character. This is a <strong>sanitization algorithm based on a data structure</strong>.</p>
 
 <div id="section-id-3-2-3"></div>
 
@@ -572,11 +572,15 @@ alert(1)
 
 <h2 id="4-report-resolution">4. Report resolution</h2>
 
-<p>The subdomain is an e-commerce asset so they considered it an important asset of the company. An XSS usually is considered a medium severity vulnerability and because I wasn’t able to sign up and log in the web, I couldn’t demonstrate a high impact such as session hijacking. Therefore, the report was classified as</p>
+<p>The subdomain is an e-commerce asset so they considered it an important asset of the company. An XSS usually is considered a medium severity vulnerability and because I wasn’t able to sign up and log in the website, I couldn’t demonstrate a high impact such as session hijacking. Therefore, the report was classified as</p>
 
 <ul>
-  <li><strong>Asset criticity: High</strong></li>
-  <li><strong>Vulnerability severity: Medium</strong></li>
+  <li>
+<strong>Asset criticity</strong>: High</li>
+  <li>
+<strong>Vulnerability severity</strong>: Medium</li>
+  <li>
+<strong>Bounty</strong>: More than $200</li>
 </ul>
 
 <div id="section-id-5"></div>
@@ -585,7 +589,7 @@ alert(1)
 
 <ul>
   <li>Gau and kxss are very useful tools for bug bounty. They are very easy to install and run and, in return, can give several URLs potentially vulnerable to XSS.</li>
-  <li>Although a sanitization algorithm may seem safe at first, it may not be. Given a sanitization like the one we have seen in this post it is a good exercise to think about what algorithms you would have used to perform such sanitization because some of them may be the one being used on the web. If any of the algorithms you have thought of is vulnerable, the payloads to exploit these vulnerabilities are candidate payloads to use against the web.</li>
+  <li>Although a sanitization algorithm may seem safe at first, it may not be. Given a sanitization like the one we have seen in this post it is a good exercise to think about what algorithms you would have used to perform such sanitization because some of them may be the one being used on the website. If any of the algorithms you have thought of is vulnerable, the payloads to exploit these vulnerabilities are candidate payloads to use against the website.</li>
   <li>Bug bounty is not a CTF, is the jungle. Many times even if a vulnerability is present, you will have to fight with WAFs and sanitizations so you need to be prepared to think outside the box.</li>
 </ul>
 

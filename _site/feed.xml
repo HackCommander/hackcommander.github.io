@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.io/" rel="alternate" type="text/html" /><updated>2022-10-23T02:22:00+02:00</updated><id>https://hackcommander.io/feed.xml</id><title type="html">hackcommander.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>HackCommander</name></author><entry><title type="html">Time-based SQL injection in a login form</title><link href="https://hackcommander.io/bug-bounty-2/" rel="alternate" type="text/html" title="Time-based SQL injection in a login form" /><published>2022-10-17T00:00:00+02:00</published><updated>2022-10-17T00:00:00+02:00</updated><id>https://hackcommander.io/bug-bounty-2</id><content type="html" xml:base="https://hackcommander.io/bug-bounty-2/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.io/" rel="alternate" type="text/html" /><updated>2022-10-25T06:34:31+02:00</updated><id>https://hackcommander.io/feed.xml</id><title type="html">hackcommander.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>HackCommander</name></author><entry><title type="html">Time-based SQL injection in a login form</title><link href="https://hackcommander.io/bug-bounty-2/" rel="alternate" type="text/html" title="Time-based SQL injection in a login form" /><published>2022-10-17T00:00:00+02:00</published><updated>2022-10-17T00:00:00+02:00</updated><id>https://hackcommander.io/bug-bounty-2</id><content type="html" xml:base="https://hackcommander.io/bug-bounty-2/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
@@ -246,8 +246,9 @@
 &lt;p&gt;The asset didn’t have a related domain name but it was an important asset of the company, that is why it was a closed registration website. SQL injection is usually considered a vulnerability of critical severity, especially in this case that I provided a PoC of how this injection could be used to get information from the database. Therefore, the report was classified as&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;&lt;strong&gt;Asset criticity: High&lt;/strong&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;Vulnerability severity: Critical&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Asset criticity&lt;/strong&gt;: High&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Vulnerability severity&lt;/strong&gt;: Critical&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Bounty&lt;/strong&gt;: More than $900&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;and I won the highest bounty of the program.&lt;/p&gt;
@@ -331,7 +332,7 @@
 
 &lt;h2 id=&quot;31-steps-of-exploitation&quot;&gt;3.1. Steps of exploitation&lt;/h2&gt;
 
-&lt;p&gt;Unfortunately I don’t have any screenshot of the exploitation of this XSS except the screenshot that shows the execution of the XSS, and the vulnerability is already patched. I don’t have the Burpsuite screenshot either because at that time I wasn’t even using Burpsuite, I was just starting in pentesting and playing with the web functionalities. Therefore the tool I used to test the XSS was the dev tools of the browser. I know, it’s crazy :laughing:&lt;/p&gt;
+&lt;p&gt;Unfortunately I don’t have any screenshot of the exploitation of this XSS except the screenshot that shows the execution of the XSS, and the vulnerability is already patched. I don’t have the Burpsuite screenshot either because at that time I wasn’t even using Burpsuite, I was just starting in pentesting and playing with the website functionalities. Therefore the tool I used to test the XSS was the dev tools of the browser. I know, it’s crazy :laughing:&lt;/p&gt;
 
 &lt;p&gt;Suppose that the URL returned by gau + kxss is as follows&lt;/p&gt;
 
@@ -423,13 +424,13 @@ alert(1)
 
 &lt;p&gt;An insecure algorithm to try to achieve the above sanitization is to use a boolean variable to keep track of whether a &amp;lt; character has been encountered or not. This variable will be set to true when a &amp;lt; character has been encountered and false when no &amp;lt; character has been encountered or when a &amp;gt; character has been encountered that closes a &amp;lt; character. When the variable changes from true to false the algorithm removes all the content between the &amp;lt; and &amp;gt; characters, including both.&lt;/p&gt;
 
-&lt;p&gt;The flaw of this algorithm is that it does not take into account that &amp;lt; and &amp;gt; characters can be nested, so the boolean variable will be true whether 1 or 10000 &amp;lt; characters are encountered and a single &amp;gt; will be enough to set the variable to false, even if there are other &amp;lt; characters without closing. This is a sanitization algorithm based on a boolean variable.&lt;/p&gt;
+&lt;p&gt;The flaw of this algorithm is that it does not take into account that &amp;lt; and &amp;gt; characters can be nested, so the boolean variable will be true whether 1 or 10000 &amp;lt; characters are encountered and a single &amp;gt; will be enough to set the variable to false, even if there are other &amp;lt; characters without closing. This is a &lt;strong&gt;sanitization algorithm based on a boolean variable&lt;/strong&gt;.&lt;/p&gt;
 
 &lt;div id=&quot;section-id-3-2-2&quot; /&gt;
 
 &lt;h3 id=&quot;322-sanitization-algorithm-based-on-a-data-structure&quot;&gt;3.2.2. Sanitization algorithm based on a data structure&lt;/h3&gt;
 
-&lt;p&gt;One way to avoid this flaw is to use a data structure to keep track of all unclosed &amp;lt; characters. The most suitable data structure for this task is a &lt;strong&gt;stack&lt;/strong&gt; . The most suitable data structure to perform this task is a &lt;strong&gt;stack&lt;/strong&gt; since the sanitization will be performed from the last &amp;lt; character encountered (the one at the head of the stack) to the current &amp;gt; character. This is a sanitization algorithm based on a data structure.&lt;/p&gt;
+&lt;p&gt;One way to avoid this flaw is to use a data structure to keep track of all unclosed &amp;lt; characters. The most suitable data structure for this task is a &lt;strong&gt;stack&lt;/strong&gt; . The most suitable data structure to perform this task is a &lt;strong&gt;stack&lt;/strong&gt; since the sanitization will be performed from the last &amp;lt; character encountered (the one at the head of the stack) to the current &amp;gt; character. This is a &lt;strong&gt;sanitization algorithm based on a data structure&lt;/strong&gt;.&lt;/p&gt;
 
 &lt;div id=&quot;section-id-3-2-3&quot; /&gt;
 
@@ -508,11 +509,12 @@ alert(1)
 
 &lt;h2 id=&quot;4-report-resolution&quot;&gt;4. Report resolution&lt;/h2&gt;
 
-&lt;p&gt;The subdomain is an e-commerce asset so they considered it an important asset of the company. An XSS usually is considered a medium severity vulnerability and because I wasn’t able to sign up and log in the web, I couldn’t demonstrate a high impact such as session hijacking. Therefore, the report was classified as&lt;/p&gt;
+&lt;p&gt;The subdomain is an e-commerce asset so they considered it an important asset of the company. An XSS usually is considered a medium severity vulnerability and because I wasn’t able to sign up and log in the website, I couldn’t demonstrate a high impact such as session hijacking. Therefore, the report was classified as&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;&lt;strong&gt;Asset criticity: High&lt;/strong&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;Vulnerability severity: Medium&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Asset criticity&lt;/strong&gt;: High&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Vulnerability severity&lt;/strong&gt;: Medium&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Bounty&lt;/strong&gt;: More than $200&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;div id=&quot;section-id-5&quot; /&gt;
@@ -521,7 +523,7 @@ alert(1)
 
 &lt;ul&gt;
   &lt;li&gt;Gau and kxss are very useful tools for bug bounty. They are very easy to install and run and, in return, can give several URLs potentially vulnerable to XSS.&lt;/li&gt;
-  &lt;li&gt;Although a sanitization algorithm may seem safe at first, it may not be. Given a sanitization like the one we have seen in this post it is a good exercise to think about what algorithms you would have used to perform such sanitization because some of them may be the one being used on the web. If any of the algorithms you have thought of is vulnerable, the payloads to exploit these vulnerabilities are candidate payloads to use against the web.&lt;/li&gt;
+  &lt;li&gt;Although a sanitization algorithm may seem safe at first, it may not be. Given a sanitization like the one we have seen in this post it is a good exercise to think about what algorithms you would have used to perform such sanitization because some of them may be the one being used on the website. If any of the algorithms you have thought of is vulnerable, the payloads to exploit these vulnerabilities are candidate payloads to use against the website.&lt;/li&gt;
   &lt;li&gt;Bug bounty is not a CTF, is the jungle. Many times even if a vulnerability is present, you will have to fight with WAFs and sanitizations so you need to be prepared to think outside the box.&lt;/li&gt;
 &lt;/ul&gt;</content><author><name>HackCommander</name></author><category term="Bug Bounty" /><category term="web pentesting" /><category term="OSINT" /><category term="amass" /><category term="httpx" /><category term="gau" /><category term="kxss" /><category term="XSS" /><category term="python" /><category term="bypass" /><category term="sanitization" /><summary type="html">Partial disclosure of a bug bounty report: reflected XSS bypassing HTML tag removal sanitization.</summary></entry><entry><title type="html">eJPT certification review</title><link href="https://hackcommander.io/ejpt-certification-review/" rel="alternate" type="text/html" title="eJPT certification review" /><published>2022-09-01T00:00:00+02:00</published><updated>2022-09-01T00:00:00+02:00</updated><id>https://hackcommander.io/ejpt-certification-review</id><content type="html" xml:base="https://hackcommander.io/ejpt-certification-review/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
