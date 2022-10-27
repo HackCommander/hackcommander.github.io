@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.io/" rel="alternate" type="text/html" /><updated>2022-10-25T06:34:31+02:00</updated><id>https://hackcommander.io/feed.xml</id><title type="html">hackcommander.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>HackCommander</name></author><entry><title type="html">Time-based SQL injection in a login form</title><link href="https://hackcommander.io/bug-bounty-2/" rel="alternate" type="text/html" title="Time-based SQL injection in a login form" /><published>2022-10-17T00:00:00+02:00</published><updated>2022-10-17T00:00:00+02:00</updated><id>https://hackcommander.io/bug-bounty-2</id><content type="html" xml:base="https://hackcommander.io/bug-bounty-2/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.io/" rel="alternate" type="text/html" /><updated>2022-10-27T08:00:24+02:00</updated><id>https://hackcommander.io/feed.xml</id><title type="html">hackcommander.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>HackCommander</name></author><entry><title type="html">Time-based SQL injection in a login form</title><link href="https://hackcommander.io/bug-bounty-2/" rel="alternate" type="text/html" title="Time-based SQL injection in a login form" /><published>2022-10-17T00:00:00+02:00</published><updated>2022-10-17T00:00:00+02:00</updated><id>https://hackcommander.io/bug-bounty-2</id><content type="html" xml:base="https://hackcommander.io/bug-bounty-2/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
@@ -176,7 +176,7 @@
 
 &lt;p&gt;&lt;a href=&quot;https://www.sqlshack.com/learn-sql-the-information_schema-database/&quot;&gt;Learn SQL: The INFORMATION_SCHEMA Database&lt;/a&gt;&lt;/p&gt;
 
-&lt;p&gt;This is one of the resources used by Sqlmap to dump the content of a database in blind SQL injections, but this is not a CTF, it’s not a good practice to use Sqlmap on a production asset. In a bug bounty program it’s usually not necessary to dump all the database to get the bounty, it is enough to give a PoC showing how you can get some information from the database. The most simple PoC that I could find was the following&lt;/p&gt;
+&lt;p&gt;This is one of the resources used by Sqlmap to dump the content of a database in blind SQL injections, but this is not a CTF, it’s not necessary to dump all the database to get some usernames and the hashes of some passwords. In a bug bounty program it’s not necessary to dump all the database to get the bounty, it’s enough to give a PoC showing how you can get some information from the database. The most simple PoC that I could find was the following&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-bug-bounty-2/number-of-tables-in-the-database.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
@@ -237,7 +237,9 @@
 
 &lt;p&gt;As you have just seen, it is possible to get information from the database through a time-based SQL injection. This process can be generalized to obtain table names, attributes… character by character, in order to make queries to the really important tables and finally dump all the tables that can be accessed by the user executing the query.&lt;/p&gt;
 
-&lt;p&gt;However, it is not an easy process and although there are tools such as Sqlmap that execute the process automatically, it is not convenient to run this type of tools in a bug bounty program because of the noise they generate and the amount of requests that have to be sent, which could affect the asset. That is why I attached a very simple PoC obtaining only the number of tables in the database.&lt;/p&gt;
+&lt;p&gt;However, it is not an easy process and although there are tools such as Sqlmap that execute the process automatically, it is not necessary to run this type of tools in a bug bounty program to &lt;strong&gt;exploit&lt;/strong&gt; a SQL injection because you can get the bounty just by attaching a simple poc that you can get information from the database. That is why I attached a very simple PoC obtaining only the number of tables in the database.&lt;/p&gt;
+
+&lt;p&gt;Nevertheless, Sqlmap can be a good tool to &lt;strong&gt;detect&lt;/strong&gt; SQL injections because this tool tests several payloads to automatically detect and classify the possible SQL injections present, and this process is not as noisy and aggressive as the one used to exploit them.&lt;/p&gt;
 
 &lt;div id=&quot;section-id-4&quot; /&gt;
 

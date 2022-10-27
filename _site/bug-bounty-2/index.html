@@ -504,7 +504,7 @@
 
 <p><a href="https://www.sqlshack.com/learn-sql-the-information_schema-database/">Learn SQL: The INFORMATION_SCHEMA Database</a></p>
 
-<p>This is one of the resources used by Sqlmap to dump the content of a database in blind SQL injections, but this is not a CTF, it’s not a good practice to use Sqlmap on a production asset. In a bug bounty program it’s usually not necessary to dump all the database to get the bounty, it is enough to give a PoC showing how you can get some information from the database. The most simple PoC that I could find was the following</p>
+<p>This is one of the resources used by Sqlmap to dump the content of a database in blind SQL injections, but this is not a CTF, it’s not necessary to dump all the database to get some usernames and the hashes of some passwords. In a bug bounty program it’s not necessary to dump all the database to get the bounty, it’s enough to give a PoC showing how you can get some information from the database. The most simple PoC that I could find was the following</p>
 
 <p><img src="/assets/images/2022-10-17-bug-bounty-2/number-of-tables-in-the-database.png" alt=""></p>
 
@@ -566,7 +566,9 @@
 
 <p>As you have just seen, it is possible to get information from the database through a time-based SQL injection. This process can be generalized to obtain table names, attributes… character by character, in order to make queries to the really important tables and finally dump all the tables that can be accessed by the user executing the query.</p>
 
-<p>However, it is not an easy process and although there are tools such as Sqlmap that execute the process automatically, it is not convenient to run this type of tools in a bug bounty program because of the noise they generate and the amount of requests that have to be sent, which could affect the asset. That is why I attached a very simple PoC obtaining only the number of tables in the database.</p>
+<p>However, it is not an easy process and although there are tools such as Sqlmap that execute the process automatically, it is not necessary to run this type of tools in a bug bounty program to <strong>exploit</strong> a SQL injection because you can get the bounty just by attaching a simple poc that you can get information from the database. That is why I attached a very simple PoC obtaining only the number of tables in the database.</p>
+
+<p>Nevertheless, Sqlmap can be a good tool to <strong>detect</strong> SQL injections because this tool tests several payloads to automatically detect and classify the possible SQL injections present, and this process is not as noisy and aggressive as the one used to exploit them.</p>
 
 <div id="section-id-4"></div>
 
