@@ -13,4 +13,9 @@ var store = [{
         "excerpt":"Summary 1. Asset discovery 2. Vulnerability discovery 3. Vulnerability exploitation 3.1. Steps of exploitation 3.2. Why does the payload work? 3.3. Is it possible to extract information from the database through this type of SQL injections? 4. Report resolution 5. Lessons learned :warning: This bug was reported in a private...","categories": ["Bug Bounty"],
         "tags": ["web pentesting","OSINT","LeakIX","burpsuite","SQL injection","MySQL","information_schema","sqlmap","PHP info page"],
         "url": "https://hackcommander.io/bug-bounty-2/",
-        "teaser":"https://hackcommander.io/assets/images/general/bug-bounty.png"}]
+        "teaser":"https://hackcommander.io/assets/images/general/bug-bounty.png"},{
+        "title": "How to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation",
+        "excerpt":"Summary 1. Setting up the environment 2. Hands-on! 2.1. Trying to exfiltrate the cookies through the usual method 2.2. Exfiltrating the cookies bypassing the HttpOnly flag through the PHP info page 2.3. Important notes 3. Conclusions PHP info page disclosure is usually considered to be a low severity vulnerability but...","categories": ["Pentesting article"],
+        "tags": ["web pentesting","burpsuite","base64","metasploitable 2","XSS","exfiltrate cookies","session hijacking","PHP info page","bypass"],
+        "url": "https://hackcommander.io/pentesting-article-1/",
+        "teaser":"https://hackcommander.io/assets/images/2022-11-12-pentesting-article-1/phpinfo-dvwa-1.png"}]

