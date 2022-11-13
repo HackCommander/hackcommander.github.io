@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.io/" rel="alternate" type="text/html" /><updated>2022-11-12T21:32:02+01:00</updated><id>https://hackcommander.io/feed.xml</id><title type="html">hackcommander.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>HackCommander</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">How to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation</title><link href="https://hackcommander.io/pentesting-article-1/" rel="alternate" type="text/html" title="How to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation" /><published>2022-11-12T00:00:00+01:00</published><updated>2022-11-12T00:00:00+01:00</updated><id>https://hackcommander.io/pentesting-article-1</id><content type="html" xml:base="https://hackcommander.io/pentesting-article-1/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.io/" rel="alternate" type="text/html" /><updated>2022-11-13T21:02:33+01:00</updated><id>https://hackcommander.io/feed.xml</id><title type="html">hackcommander.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>HackCommander</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">How to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation</title><link href="https://hackcommander.io/pentesting-article-1/" rel="alternate" type="text/html" title="How to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation" /><published>2022-11-12T00:00:00+01:00</published><updated>2022-11-12T00:00:00+01:00</updated><id>https://hackcommander.io/pentesting-article-1</id><content type="html" xml:base="https://hackcommander.io/pentesting-article-1/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Setting up the environment&lt;/a&gt;&lt;/li&gt;
@@ -16,11 +16,13 @@
 
 &lt;p&gt;PHP info page disclosure is usually considered to be a low severity vulnerability but in this post I am going to show how to bypass the &lt;em&gt;HttpOnly&lt;/em&gt; flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation. This file could be used to perform a session hijacking.&lt;/p&gt;
 
+&lt;p&gt;As far as I know, the person who discovered this bypass technique was &lt;a href=&quot;https://aleksikistauri.medium.com/bypassing-httponly-with-phpinfo-file-4e5a8b17129b&quot;&gt;Aleksi Kistauri&lt;/a&gt; and in this post we are going to see how to reproduce it in Metasploitable 2 with some extra requirements that I have not seen in other posts.&lt;/p&gt;
+
 &lt;div id=&quot;section-id-1&quot; /&gt;
 
 &lt;h2 id=&quot;1-setting-up-the-environment&quot;&gt;1. Setting up the environment&lt;/h2&gt;
 
-&lt;p&gt;We will use the intentionally vulnerable machine &lt;em&gt;Metasploitable 2&lt;/em&gt;. To set up the enviroment follow the steps below:&lt;/p&gt;
+&lt;p&gt;We will use the intentionally vulnerable machine &lt;em&gt;Metasploitable 2&lt;/em&gt;. To set up the environment follow the steps below:&lt;/p&gt;
 
 &lt;ol&gt;
   &lt;li&gt;
@@ -229,7 +231,9 @@
 
 &lt;p&gt;will be sending us their cookies associated with &lt;em&gt;DVWA&lt;/em&gt;, including the session cookie and therefore we will have achieved a session hijacking.&lt;/p&gt;
 
-&lt;p&gt;Obviously this is a test environment and no one is going to click on that link except me, and even if someone did click on it nothing would happen because that IP address is a private IP address. But imagine this situation in a public website of an important company and an attacker sending a link like this using social engineering through Twitter, Linkedin, Facebook… and sending the user’s cookies to an own server. Do you still think that PHP info page disclosure is not an important vulnerability?&lt;/p&gt;
+&lt;p&gt;Obviously this is a test environment and no one is going to click on that link except me, and even if someone did click on it nothing would happen because that IP address is a private IP address. But imagine this situation in a public website of an important company and an attacker sending a link like this using social engineering through Twitter, Linkedin, Facebook… and sending the user’s cookies to an own server.&lt;/p&gt;
+
+&lt;p&gt;Do you still think that PHP info page disclosure is not an important vulnerability?&lt;/p&gt;
 
 &lt;div id=&quot;section-id-2-3&quot; /&gt;
 
