@@ -15,7 +15,7 @@ var store = [{
         "url": "https://hackcommander.io/bug-bounty-2/",
         "teaser":"https://hackcommander.io/assets/images/general/bug-bounty.png"},{
         "title": "How to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation",
-        "excerpt":"Summary 1. Setting up the environment 2. Hands-on! 2.1. Trying to exfiltrate the cookies through the usual method 2.2. Exfiltrating the cookies bypassing the HttpOnly flag through the PHP info page 2.3. Important notes 3. Conclusions PHP info page disclosure is usually considered to be a low severity vulnerability but...","categories": ["Pentesting article"],
+        "excerpt":"Summary 1. Setting up the environment 2. Hands-on! 2.1. Trying to exfiltrate the cookies through the usual method 2.2. Exfiltrating the cookies bypassing the HttpOnly flag through the PHP info page 2.3. Using my Github tool to generate an improved payload 2.4. Important notes 3. Conclusions PHP info page disclosure...","categories": ["Pentesting article"],
         "tags": ["web pentesting","burpsuite","base64","metasploitable 2","XSS","exfiltrate cookies","session hijacking","PHP info page","bypass"],
         "url": "https://hackcommander.io/pentesting-article-1/",
         "teaser":"https://hackcommander.io/assets/images/2022-11-12-pentesting-article-1/phpinfo-dvwa-1.png"}]
