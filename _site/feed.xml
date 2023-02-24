@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.io/" rel="alternate" type="text/html" /><updated>2022-12-11T15:08:15+01:00</updated><id>https://hackcommander.io/feed.xml</id><title type="html">hackcommander.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>HackCommander</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">How to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation</title><link href="https://hackcommander.io/pentesting-article-1/" rel="alternate" type="text/html" title="How to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation" /><published>2022-11-12T00:00:00+01:00</published><updated>2022-11-12T00:00:00+01:00</updated><id>https://hackcommander.io/pentesting-article-1</id><content type="html" xml:base="https://hackcommander.io/pentesting-article-1/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.io/" rel="alternate" type="text/html" /><updated>2023-02-24T19:53:58+01:00</updated><id>https://hackcommander.io/feed.xml</id><title type="html">hackcommander.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>HackCommander</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">How to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation</title><link href="https://hackcommander.io/pentesting-article-1/" rel="alternate" type="text/html" title="How to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation" /><published>2022-11-12T00:00:00+01:00</published><updated>2022-11-12T00:00:00+01:00</updated><id>https://hackcommander.io/pentesting-article-1</id><content type="html" xml:base="https://hackcommander.io/pentesting-article-1/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Setting up the environment&lt;/a&gt;&lt;/li&gt;
@@ -323,7 +323,7 @@
   &lt;li&gt;&lt;a href=&quot;#section-id-5&quot;&gt;5. Lessons learned&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/general/bug-bounty.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/general/bug-bounty.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;blockquote&gt;
   &lt;p&gt;:warning: &lt;span style=&quot;color:red&quot;&gt;This bug was reported in a private bug bounty program in which it is not allowed to publish the vulnerabilities found. So this is a partial disclosure, only the essential technical details are exposed.&lt;/span&gt;&lt;/p&gt;
@@ -593,7 +593,7 @@
   &lt;li&gt;&lt;a href=&quot;#section-id-5&quot;&gt;5. Lessons learned&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/general/bug-bounty.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/general/bug-bounty.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;blockquote&gt;
   &lt;p&gt;:warning: &lt;span style=&quot;color:red&quot;&gt;This bug was reported in a private bug bounty program in which it is not allowed to publish the vulnerabilities found. So this is a partial disclosure, only the essential technical details are exposed.&lt;/span&gt;&lt;/p&gt;
