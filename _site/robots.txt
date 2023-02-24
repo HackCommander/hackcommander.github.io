@@ -1,1 +1,1 @@
-Sitemap: https://hackcommander.io/sitemap.xml
+Sitemap: https://hackcommander.github.io/sitemap.xml
