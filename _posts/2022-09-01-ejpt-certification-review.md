@@ -9,10 +9,10 @@ header:
   teaser_home_page: true
   icon:
 categories:
-  - Certification
+  - certification
 tags:  
-  - eLearnSecurity
-  - eJPT
+  - elearnsecurity
+  - ejpt
   - pentesting
 ---
 
