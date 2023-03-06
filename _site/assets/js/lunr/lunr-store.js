@@ -11,11 +11,16 @@ var store = [{
         "teaser":"https://hackcommander.github.io/assets/images/general/bug-bounty.jpg"},{
         "title": "Time-based SQL injection in a login form",
         "excerpt":"Summary 1. Asset discovery 2. Vulnerability discovery 3. Vulnerability exploitation 3.1. Steps of exploitation 3.2. Why does the payload work? 3.3. Is it possible to extract information from the database through this type of SQL injections? 4. Report resolution 5. Lessons learned :warning: This bug was reported in a private...","categories": ["bug bounty"],
-        "tags": ["web pentesting","osint","leakix","burpsuite","sql injection","mysql","information_schema","sqlmap","php info page"],
+        "tags": ["web pentesting","osint","leakix","portswigger","burpsuite","sql injection","mysql","information_schema","sqlmap","php info page"],
         "url": "https://hackcommander.github.io/bug-bounty-2/",
         "teaser":"https://hackcommander.github.io/assets/images/general/bug-bounty.jpg"},{
         "title": "How to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation",
         "excerpt":"Summary 1. Setting up the environment 2. Hands-on! 2.1. Trying to exfiltrate the cookies through the usual method 2.2. Exfiltrating the cookies bypassing the HttpOnly flag through the PHP info page 2.3. Using my Github tool to generate an improved payload 2.4. Important notes 3. Conclusions PHP info page disclosure...","categories": ["pentesting article"],
         "tags": ["web pentesting","burpsuite","base64","metasploitable 2","xss","exfiltrate cookies","session hijacking","php info page","bypass"],
         "url": "https://hackcommander.github.io/pentesting-article-1/",
-        "teaser":"https://hackcommander.github.io/assets/images/2022-11-12-pentesting-article-1/phpinfo-dvwa-1.png"}]
+        "teaser":"https://hackcommander.github.io/assets/images/2022-11-12-pentesting-article-1/phpinfo-dvwa-1.png"},{
+        "title": "Reflected XSS bypassing a 302 Security Redirect due to the presence of Javascript function calls",
+        "excerpt":"Summary 1. Asset discovery 2. Vulnerability discovery 3. Vulnerability exploitation 3.1. Steps of exploitation 3.2. Why does the payload work? 4. Report resolution 5. Lessons learned :warning: This bug was reported in a private bug bounty program in which it is not allowed to publish the vulnerabilities found. So this...","categories": ["bug bounty"],
+        "tags": ["web pentesting","osint","amass","httpx","gau","kxss","utm parameters","burpsuite","portswigger","xss","bypass","portswigger"],
+        "url": "https://hackcommander.github.io/bug-bounty-3/",
+        "teaser":"https://hackcommander.github.io/assets/images/general/bug-bounty.jpg"}]
