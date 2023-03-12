@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.github.io/" rel="alternate" type="text/html" /><updated>2023-03-06T02:29:59+01:00</updated><id>https://hackcommander.github.io/feed.xml</id><title type="html">hackcommander.github.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>HackCommander</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">Reflected XSS bypassing a 302 Security Redirect due to the presence of Javascript function calls</title><link href="https://hackcommander.github.io/bug-bounty-3/" rel="alternate" type="text/html" title="Reflected XSS bypassing a 302 Security Redirect due to the presence of Javascript function calls" /><published>2023-03-06T00:00:00+01:00</published><updated>2023-03-06T00:00:00+01:00</updated><id>https://hackcommander.github.io/bug-bounty-3</id><content type="html" xml:base="https://hackcommander.github.io/bug-bounty-3/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.github.io/" rel="alternate" type="text/html" /><updated>2023-03-12T18:18:16+01:00</updated><id>https://hackcommander.github.io/feed.xml</id><title type="html">hackcommander.github.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>HackCommander</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">Reflected XSS bypassing a 302 Security Redirect due to the presence of Javascript function calls</title><link href="https://hackcommander.github.io/bug-bounty-3/" rel="alternate" type="text/html" title="Reflected XSS bypassing a 302 Security Redirect due to the presence of Javascript function calls" /><published>2023-03-06T00:00:00+01:00</published><updated>2023-03-06T00:00:00+01:00</updated><id>https://hackcommander.github.io/bug-bounty-3</id><content type="html" xml:base="https://hackcommander.github.io/bug-bounty-3/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
@@ -821,6 +821,12 @@ prompt
 &lt;h2 id=&quot;1-asset-discovery&quot;&gt;1. Asset discovery&lt;/h2&gt;
 
 &lt;p&gt;I found this asset through amass + httpx. If you are looking for http services on subdomains of the domain example.com and you have your config file in the path /home/user/.config/amass/config.ini, you can use the following command&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
 
 &lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;amass enum -brute -d example.com &apos;/home/user/.config/amass/config.ini&apos; | httpx -title -tech-detect -status-code -ip -p 66,80,81,443,445,457,1080,1100,1241,1352,1433,1434,1521,1944,2301,3000,3128,3306,4000,4001,4002,4100,5000,5432,5800,5801,5802,6082,6346,6347,7001,7002,8080,8443,8888,30821
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
