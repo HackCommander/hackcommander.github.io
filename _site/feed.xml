@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.github.io/" rel="alternate" type="text/html" /><updated>2023-03-12T19:55:06+01:00</updated><id>https://hackcommander.github.io/feed.xml</id><title type="html">hackcommander.github.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>HackCommander</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">Reflected XSS bypassing a 302 Security Redirect due to the presence of Javascript function calls</title><link href="https://hackcommander.github.io/bug-bounty-3/" rel="alternate" type="text/html" title="Reflected XSS bypassing a 302 Security Redirect due to the presence of Javascript function calls" /><published>2023-03-06T00:00:00+01:00</published><updated>2023-03-06T00:00:00+01:00</updated><id>https://hackcommander.github.io/bug-bounty-3</id><content type="html" xml:base="https://hackcommander.github.io/bug-bounty-3/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.github.io/" rel="alternate" type="text/html" /><updated>2023-03-12T21:47:08+01:00</updated><id>https://hackcommander.github.io/feed.xml</id><title type="html">hackcommander.github.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>HackCommander</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">Reflected XSS bypassing a 302 Security Redirect due to the presence of Javascript function calls</title><link href="https://hackcommander.github.io/bug-bounty-3/" rel="alternate" type="text/html" title="Reflected XSS bypassing a 302 Security Redirect due to the presence of Javascript function calls" /><published>2023-03-06T00:00:00+01:00</published><updated>2023-03-06T00:00:00+01:00</updated><id>https://hackcommander.github.io/bug-bounty-3</id><content type="html" xml:base="https://hackcommander.github.io/bug-bounty-3/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
@@ -331,82 +331,67 @@ prompt
   &lt;li&gt;
     &lt;p&gt;Suposing that the IP of the &lt;em&gt;Metasploitable 2&lt;/em&gt; machine is 192.168.240.129 you can access to the web from your Kali through the URL&lt;/p&gt;
 
-    &lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
- Copy code to clipboard
-  &lt;/button&gt;
-&lt;/div&gt;
+    &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; http://192.168.240.129/
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;In the main page select the option &lt;em&gt;DVWA&lt;/em&gt;, wich is the acronym of &lt;em&gt;Damn Vulnerable Web Application&lt;/em&gt;&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/main-page.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Log in with the credentials admin:password.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Configure the &lt;em&gt;Security Level&lt;/em&gt; to &lt;em&gt;low&lt;/em&gt;&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/dvwa-security.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+    &lt;p&gt;and click &lt;em&gt;Submit&lt;/em&gt;.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;In the left panel select the option &lt;em&gt;XSS reflected&lt;/em&gt; and write the payload&lt;/p&gt;
+
+    &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+
+    &lt;p&gt;in the text box as follows&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/xss-reflected-form.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+    &lt;p&gt;and clicking on &lt;em&gt;Submit&lt;/em&gt; you will see an alert like the following&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/xss-reflected-alert.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+    &lt;p&gt;So there is an HTML context reflected XSS through GET method in the URL&lt;/p&gt;
+
+    &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;http://192.168.240.128/dvwa/vulnerabilities/xss_r/?name=%3Cscript%3Ealert(1)%3C/script%3E
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;To show how the PHP info page can be used to bypass the &lt;em&gt;HttpOnly&lt;/em&gt; flag, we must first have at least one cookie with the &lt;em&gt;HttpOnly&lt;/em&gt; flag set to &lt;em&gt;true&lt;/em&gt;. In &lt;em&gt;Metasploitable 2&lt;/em&gt; is not set by defaul, that’s why we have to access to the cookies in the browser (Firefox in my case) and set, for example, the &lt;em&gt;HttpOnly&lt;/em&gt; of the &lt;em&gt;PHPSESSID&lt;/em&gt; cookie to &lt;em&gt;true&lt;/em&gt;, as you can see in the following screenshot&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/cookies-settings.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
   &lt;/li&gt;
 &lt;/ol&gt;
-&lt;p&gt;&amp;lt;/div&amp;gt;&lt;/p&gt;
 
-&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    http://192.168.240.129/
-    ```
+&lt;div id=&quot;section-id-2&quot; /&gt;
 
-7. In the main page select the option *DVWA*, wich is the acronym of *Damn Vulnerable Web Application*
+&lt;h2 id=&quot;2-hands-on&quot;&gt;2. Hands-on!&lt;/h2&gt;
 
-   ![](/assets/images/2022-11-12-pentesting-article-1/main-page.png)
+&lt;div id=&quot;section-id-2-1&quot; /&gt;
 
-8. Log in with the credentials admin:password.
+&lt;h2 id=&quot;21-trying-to-exfiltrate-the-cookies-through-the-usual-method&quot;&gt;2.1. Trying to exfiltrate the cookies through the usual method&lt;/h2&gt;
 
-9. Configure the *Security Level* to *low*
+&lt;p&gt;A very common way to access the cookies via Javascript is through the &lt;em&gt;document&lt;/em&gt; property &lt;em&gt;cookie&lt;/em&gt;. So if you write the payload&lt;/p&gt;
 
-   ![](/assets/images/2022-11-12-pentesting-article-1/dvwa-security.png)
-   
-   and click *Submit*.
-
-10. In the left panel select the option *XSS reflected* and write the payload
-
-    &lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;code-header&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;button&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;copy-code-button&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
     Copy code to clipboard
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/button&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;
+  &lt;/button&gt;
+&lt;/div&gt;
 
-    ```html
-    &lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
-    ```
-
-    in the text box as follows
-
-    ![](/assets/images/2022-11-12-pentesting-article-1/xss-reflected-form.png)
-
-    and clicking on *Submit* you will see an alert like the following
-
-    ![](/assets/images/2022-11-12-pentesting-article-1/xss-reflected-alert.png)
-
-    So there is an HTML context reflected XSS through GET method in the URL
-
-    &lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;code-header&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;button&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;copy-code-button&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
-    Copy code to clipboard
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/button&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;
-
-    ```html
-    http://192.168.240.128/dvwa/vulnerabilities/xss_r/?name=%3Cscript%3Ealert(1)%3C/script%3E
-    ```
-
-11. To show how the PHP info page can be used to bypass the *HttpOnly* flag, we must first have at least one cookie with the *HttpOnly* flag set to *true*. In *Metasploitable 2* is not set by defaul, that&apos;s why we have to access to the cookies in the browser (Firefox in my case) and set, for example, the *HttpOnly* of the *PHPSESSID* cookie to *true*, as you can see in the following screenshot
-
-    ![](/assets/images/2022-11-12-pentesting-article-1/cookies-settings.png)
-
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&apos;section-id-2&apos;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
-## 2. Hands-on!
-
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&apos;section-id-2-1&apos;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
-## 2.1. Trying to exfiltrate the cookies through the usual method
-
-A very common way to access the cookies via Javascript is through the *document* property *cookie*. So if you write the payload
-
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;code-header&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;button&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;copy-code-button&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
-    Copy code to clipboard
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/button&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;
-
-```html
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;document&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;cookie&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;document&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;cookie&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;and you click on &lt;em&gt;Submit&lt;/em&gt;, you are going to see all your cookies in the screen… or not?&lt;/p&gt;
