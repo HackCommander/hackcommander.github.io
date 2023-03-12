@@ -172,6 +172,7 @@ Essentially in this module you will see how to begin the certification process, 
 
 To begin the exam you have to log in Caendra and click on **"Begin certification process"**. After that you will receive a pcap file, a list of user names, a list of passwords and a ovpn file to connect to the exam enviroment. If the name of the ovpn file is ovpn_file.ovpn, I advise to you to use the following command to connect to the enviroment
 
+{% include codeHeader.html %}
 ```
 sudo openvpn --config ovpn_file.ovpn --daemon
 ```

