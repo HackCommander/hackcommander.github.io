@@ -18,7 +18,7 @@ minimal_mistakes_skin    : "haxor" # "air", "aqua", "contrast", "dark", "dirt", 
 locale                   : "en-US"
 title                    : "hackcommander.github.io"
 title_separator          : "-"
-name                     : "HackCommander"
+name                     : "Iván Santos Malpica"
 description              : "This is my personal blog where I talk about science and technology, especially about offensive cybersecurity."
 url                      : "https://hackcommander.github.io" # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
 baseurl                  : # the subpath of your site, e.g. "/blog"
@@ -101,7 +101,7 @@ analytics:
 
 # Site Author
 author:
-  name             : "HackCommander"
+  name             : "Iván Santos Malpica<br>(aka HackCommander)"
   avatar           : "/assets/images/avatar.png"
   bio              : "Mathematician and Computer Engineer / Pentester / Bug Bounty Hunter / CTF Player / eJPT"
   location         : "Spain"
