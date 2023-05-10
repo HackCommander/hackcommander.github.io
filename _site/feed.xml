@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.github.io/" rel="alternate" type="text/html" /><updated>2023-05-03T13:43:37+02:00</updated><id>https://hackcommander.github.io/feed.xml</id><title type="html">hackcommander.github.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">TE.TE HTTP request smuggling obfuscating the TE header</title><link href="https://hackcommander.github.io/bug-bounty-4/" rel="alternate" type="text/html" title="TE.TE HTTP request smuggling obfuscating the TE header" /><published>2023-05-03T00:00:00+02:00</published><updated>2023-05-03T00:00:00+02:00</updated><id>https://hackcommander.github.io/bug-bounty-4</id><content type="html" xml:base="https://hackcommander.github.io/bug-bounty-4/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.github.io/" rel="alternate" type="text/html" /><updated>2023-05-11T01:53:11+02:00</updated><id>https://hackcommander.github.io/feed.xml</id><title type="html">hackcommander.github.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">TE.TE HTTP request smuggling obfuscating the TE header</title><link href="https://hackcommander.github.io/bug-bounty-4/" rel="alternate" type="text/html" title="TE.TE HTTP request smuggling obfuscating the TE header" /><published>2023-05-03T00:00:00+02:00</published><updated>2023-05-03T00:00:00+02:00</updated><id>https://hackcommander.github.io/bug-bounty-4</id><content type="html" xml:base="https://hackcommander.github.io/bug-bounty-4/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
@@ -19,7 +19,7 @@
   &lt;p&gt;:warning: &lt;span style=&quot;color:red&quot;&gt;This bug was reported in a private bug bounty program in which it is not allowed to publish the vulnerabilities found. So this is a partial disclosure, only the essential technical details are exposed.&lt;/span&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;p&gt;In this post I am going to show an HTTP request smuggling that I reported in a bug bounty program: TE.TE HTTP request smuggling, obfuscating the TE header. This type of vulnerability is not as well known as other vulnerabilities such as XSS, SQL injection… but it’s no less important. It is recommended to have at least a basic knowledge about this vulnerability before reading this post. There are numerous sources where you can get information but as I always do I recommend you to go to PortSwigger&lt;/p&gt;
+&lt;p&gt;In this post I am going to show an HTTP request smuggling that I reported in a bug bounty program: TE.TE HTTP request smuggling obfuscating the TE header. This type of vulnerability is not as well known as other vulnerabilities such as XSS, SQL injection… but it’s no less important. It is recommended to have at least a basic knowledge about this vulnerability before reading this post. There are numerous sources where you can get information but as I always do I recommend you to go to PortSwigger&lt;/p&gt;
 
 &lt;p&gt;&lt;a href=&quot;https://portswigger.net/web-security/request-smuggling&quot;&gt;HTTP request smuggling (PortSwigger)&lt;/a&gt;&lt;/p&gt;
 
@@ -198,7 +198,7 @@ The HTTP response code was 400 which usually indicates that the request sent is 
   &lt;li&gt;&lt;strong&gt;Bounty&lt;/strong&gt;: More than $100&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;I consider that the bounty was quite low considering the potential danger of the vulnerability, but that’s how it goes :angry:.&lt;/p&gt;
+&lt;p&gt;I consider that the bounty was quite low considering the potential danger of the vulnerability, but that’s how it goes :angry:&lt;/p&gt;
 
 &lt;div id=&quot;section-id-5&quot; /&gt;
 

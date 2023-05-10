@@ -264,6 +264,14 @@
           </a>
         </li>
       {% endif %}
+      
+      {% if author.buymeacoffee %}
+        <li>
+          <a href="https://www.buymeacoffee.com/{{ author.buymeacoffee }}" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fas fa-mug-hot" aria-hidden="true"></i> Buy Me a Coffee
+          </a>
+        </li>
+      {% endif %}
 
       {% include author-profile-custom-links.html %}
     </ul>
