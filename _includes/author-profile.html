@@ -265,6 +265,14 @@
         </li>
       {% endif %}
       
+      {% if author.codewars %}
+        <li>
+          <a href="https://www.codewars.com/users/{{ author.codewars }}" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fas fa-fw fa-code" aria-hidden="true"></i> Codewars
+          </a>
+        </li>
+      {% endif %}
+      
       {% if author.buymeacoffee %}
         <li>
           <a href="https://www.buymeacoffee.com/{{ author.buymeacoffee }}" itemprop="sameAs" rel="nofollow noopener noreferrer">
