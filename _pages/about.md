@@ -36,3 +36,4 @@ Attendee at the following cybersecurity events:
 - RootedCON 2022 (Madrid)
 - Osintomático 2022 (Madrid)
 - RootedCON 2023 (Madrid)
+- Osintomático 2023 (Madrid)
