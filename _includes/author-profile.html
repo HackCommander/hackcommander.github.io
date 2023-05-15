@@ -265,6 +265,24 @@
         </li>
       {% endif %}
       
+      {% if author.tryhackme %}
+        <li>
+          <a href="https://tryhackme.com/p/{{ author.tryhackme }}" target="_blank">
+            <img src="/assets/images/author-logos/tryhackme.svg" alt="TryHackMe" style="width: 15px; height: 15px;">
+            TryHackMe
+          </a>
+        </li>
+      {% endif %}
+      
+      {% if author.hackthebox %}
+        <li>
+          <a href="https://app.hackthebox.com/profile/{{ author.hackthebox }}" target="_blank">
+            <img src="/assets/images/author-logos/hackthebox.svg" alt="HackTheBox" style="width: 15px; height: 15px;">
+            HackTheBox
+          </a>
+        </li>
+      {% endif %}
+      
       {% if author.codewars %}
         <li>
           <a href="https://www.codewars.com/users/{{ author.codewars }}" target="_blank">
