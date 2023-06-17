@@ -26,6 +26,6 @@ var store = [{
         "teaser":"https://hackcommander.github.io/assets/images/general/bug-bounty.jpg"},{
         "title": "TE.TE HTTP request smuggling obfuscating the TE header",
         "excerpt":"Summary 1. Asset discovery 2. Vulnerability discovery 3. Vulnerability exploitation 3.1. Steps of exploitation 3.2. Why does the payload work? 4. Report resolution 5. Lessons learned :warning: This bug was reported in a private bug bounty program in which it is not allowed to publish the vulnerabilities found. So this...","categories": ["bug bounty"],
-        "tags": ["web pentesting","osint","amass","httpx","burpsuite","burp scanner","portswigger","http request smuggling","xss","portswigger"],
+        "tags": ["web pentesting","osint","amass","httpx","burpsuite","burp scanner","portswigger","http request smuggling","xss"],
         "url": "https://hackcommander.github.io/bug-bounty-4/",
         "teaser":"https://hackcommander.github.io/assets/images/general/bug-bounty.jpg"}]
