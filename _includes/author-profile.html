@@ -65,6 +65,15 @@
         </li>
       {% endif %}
       
+      {% if author.hackerone %}
+        <li>
+          <a href="https://hackerone.com/{{ author.hackerone }}" target="_blank">
+            <img src="/assets/images/author-logos/hackerone.svg" alt="HackerOne" style="width: 16px; height: 16px;">
+            HackerOne
+          </a>
+        </li>
+      {% endif %}
+      
       {% if author.twitter %}
         <li>
           <a href="https://twitter.com/{{ author.twitter }}" itemprop="sameAs" rel="nofollow noopener noreferrer">
