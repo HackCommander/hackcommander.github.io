@@ -9,7 +9,7 @@ date: 2023-03-19
 
 - [1. Contabo](#section-id-1)
 
-As the origin of this blog was not to earn money or fill the articles with advertising, I decided to create this page where you will find some of the brands that I am a customer and for which I advertise. By accessing the different links you see on this page and buying any of the products you will be benefiting me as I will take a commission. **You will not pay more**, simply the company will give me a commission of what she earns for having brought you as a customer.
+As the origin of this blog was not to earn money or fill the articles with advertising, I decided to create this page where you will find some of the brands that I am a customer and for which I advertise. By accessing the different links you see on this page and buying any of the products you will be benefiting me as I will take a commission. **You will not pay more**, simply the company will give me a commission of what hey earn for having brought you as a customer.
 
 <div id='section-id-1'/>
 ## 1. Contabo
