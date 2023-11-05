@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.github.io/" rel="alternate" type="text/html" /><updated>2023-11-05T16:28:53+01:00</updated><id>https://hackcommander.github.io/feed.xml</id><title type="html">hackcommander.github.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">Reflected XSS through POST request in a login form</title><link href="https://hackcommander.github.io/bug-bounty-6/" rel="alternate" type="text/html" title="Reflected XSS through POST request in a login form" /><published>2023-11-05T00:00:00+01:00</published><updated>2023-11-05T00:00:00+01:00</updated><id>https://hackcommander.github.io/bug-bounty-6</id><content type="html" xml:base="https://hackcommander.github.io/bug-bounty-6/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.github.io/" rel="alternate" type="text/html" /><updated>2023-11-06T00:11:12+01:00</updated><id>https://hackcommander.github.io/feed.xml</id><title type="html">hackcommander.github.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">Reflected XSS through POST request in a login form</title><link href="https://hackcommander.github.io/bug-bounty-6/" rel="alternate" type="text/html" title="Reflected XSS through POST request in a login form" /><published>2023-11-05T00:00:00+01:00</published><updated>2023-11-05T00:00:00+01:00</updated><id>https://hackcommander.github.io/bug-bounty-6</id><content type="html" xml:base="https://hackcommander.github.io/bug-bounty-6/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
@@ -44,11 +44,11 @@
 
 &lt;h2 id=&quot;2-vulnerability-discovery&quot;&gt;2. Vulnerability discovery&lt;/h2&gt;
 
-&lt;p&gt;The discovery of the vulnerability was fairly straightforward. I tried to login with the user &lt;em&gt;bugbounty&lt;/em&gt;, just to test the form, and I got the following response&lt;/p&gt;
+&lt;p&gt;The discovery of this vulnerability was fairly straightforward. I tried to login with the user &lt;em&gt;bugbounty&lt;/em&gt;, just to test the form, and I got the following response&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-05-bug-bounty-6/reflected-username.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;This is suspicious because it is usual to find messages of the type &lt;em&gt;Incorrect credentials&lt;/em&gt;, where the reason for the failure is not detailed and the user’s name is not reflected. Taking into account that the user’s name is reflected, I sent the following payload as username&lt;/p&gt;
+&lt;p&gt;This is suspicious because it is usual to find messages of the type &lt;em&gt;Incorrect credentials&lt;/em&gt;, where the reason for the failure is not detailed and the username is not reflected. Taking into account that the username is reflected, I sent the following payload as username&lt;/p&gt;
 
 &lt;div class=&quot;code-header&quot;&gt;
   &lt;button class=&quot;copy-code-button&quot;&gt;
@@ -77,7 +77,7 @@
 
 &lt;p&gt;&lt;a href=&quot;https://portswigger.net/blog/exploiting-xss-in-post-requests&quot;&gt;Exploiting XSS in POST requests (PortSwigger)&lt;/a&gt;&lt;/p&gt;
 
-&lt;p&gt;We can assume that the vulnerable request is as follows&lt;/p&gt;
+&lt;p&gt;I do not have the original request, but we can assume that it was a request very similar to this one&lt;/p&gt;
 
 &lt;div class=&quot;code-header&quot;&gt;
   &lt;button class=&quot;copy-code-button&quot;&gt;
@@ -161,7 +161,7 @@ username=user123&lt;span class=&quot;err&quot;&gt;&amp;amp;&lt;/span&gt;password
 
 &lt;p&gt;Is this always possible? The short answer is &lt;strong&gt;no&lt;/strong&gt;.&lt;/p&gt;
 
-&lt;p&gt;In this case this technique worked but I can say that I found other POST XSS in which this technique did not work. Unfortunately I don’t keep screenshots of the errors obtained in those situations because at that time I didn’t ask myself too many questions about the causes of my errors.&lt;/p&gt;
+&lt;p&gt;In this case this technique worked but I can say that I found other POST XSS in which this technique did not work. Unfortunately I do not keep the screenshots of the errors obtained because at that time I did not ask too many questions when something did not work :sweat_smile:.&lt;/p&gt;
 
 &lt;p&gt;On a Linux system, if you store the HTML/JavaScript code from the previous section in the file &lt;em&gt;/var/www/html/index.html&lt;/em&gt; and run the command&lt;/p&gt;
 
@@ -182,7 +182,7 @@ username=user123&lt;span class=&quot;err&quot;&gt;&amp;amp;&lt;/span&gt;password
 
 &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-05-bug-bounty-6/post-from-localhost.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;As you can see there are 2 headers, the &lt;em&gt;Origin&lt;/em&gt; and &lt;em&gt;Referer&lt;/em&gt; headers, where the domain localhost appears (the fake domain in a real attack), and the &lt;em&gt;Host&lt;/em&gt; header where the domain &lt;em&gt;example.com&lt;/em&gt; appears (the vulnerable domain in a real attack). This is what is called a &lt;strong&gt;cross-domain&lt;/strong&gt; request since the request scomes from a domain, which would be the fake domain, and goes to another domain, which would be the vulnerable domain to POST XSS.&lt;/p&gt;
+&lt;p&gt;As you can see there are 2 headers, the &lt;em&gt;Origin&lt;/em&gt; and &lt;em&gt;Referer&lt;/em&gt; headers, where the domain localhost appears (the fake domain in a real attack), and the &lt;em&gt;Host&lt;/em&gt; header where the domain &lt;em&gt;example.com&lt;/em&gt; appears (the vulnerable domain in a real attack). This is what is called a &lt;strong&gt;cross-domain&lt;/strong&gt; request since the request comes from one domain but goes to a different one.&lt;/p&gt;
 
 &lt;p&gt;And now it is time to talk about these concepts:&lt;/p&gt;
 
@@ -201,7 +201,7 @@ username=user123&lt;span class=&quot;err&quot;&gt;&amp;amp;&lt;/span&gt;password
 
 &lt;p&gt;&lt;strong&gt;SOP came first as a client-side security measure&lt;/strong&gt; to prevent cross-origin requests. &lt;strong&gt;CORS was later introduced as a server side implementation&lt;/strong&gt; to enable controlled cross-origin requests, specifying which domains are allowed access to resources, addressing SOP’s limitations. So we can consider that CORS is for the SOP a kind of…&lt;/p&gt;
 
-&lt;p style=&quot;text-align:center;&quot;&gt;&lt;img src=&quot;/assets/images/2023-11-05-bug-bounty-6/relax-bro.jpg&quot; /&gt;&lt;/p&gt;
+&lt;p style=&quot;text-align:center;&quot;&gt;&lt;img src=&quot;/assets/images/2023-11-05-bug-bounty-6/relax-bro.gif&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;In principle, SOP prevents the browser from making any kind of cross-domain request and this is not something that the developer can modify directly because SOP is implemented in the user’s browser, it is a client-side security measure. However, through an overly flexible CORS policy it is possible to allow some domains, even all domains, to make cross-domain requests to my domain. And this is something that the developer can modify because it is a server-side configuration.&lt;/p&gt;
 
