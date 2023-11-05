@@ -441,11 +441,11 @@
 
 <h2 id="2-vulnerability-discovery">2. Vulnerability discovery</h2>
 
-<p>The discovery of the vulnerability was fairly straightforward. I tried to login with the user <em>bugbounty</em>, just to test the form, and I got the following response</p>
+<p>The discovery of this vulnerability was fairly straightforward. I tried to login with the user <em>bugbounty</em>, just to test the form, and I got the following response</p>
 
 <p><img src="/assets/images/2023-11-05-bug-bounty-6/reflected-username.png" alt=""></p>
 
-<p>This is suspicious because it is usual to find messages of the type <em>Incorrect credentials</em>, where the reason for the failure is not detailed and the user’s name is not reflected. Taking into account that the user’s name is reflected, I sent the following payload as username</p>
+<p>This is suspicious because it is usual to find messages of the type <em>Incorrect credentials</em>, where the reason for the failure is not detailed and the username is not reflected. Taking into account that the username is reflected, I sent the following payload as username</p>
 
 <div class="code-header">
   <button class="copy-code-button">
@@ -474,7 +474,7 @@
 
 <p><a href="https://portswigger.net/blog/exploiting-xss-in-post-requests">Exploiting XSS in POST requests (PortSwigger)</a></p>
 
-<p>We can assume that the vulnerable request is as follows</p>
+<p>I do not have the original request, but we can assume that it was a request very similar to this one</p>
 
 <div class="code-header">
   <button class="copy-code-button">
@@ -559,7 +559,7 @@ username=user123<span class="err">&amp;</span>password=securepassword123
 
 <p>Is this always possible? The short answer is <strong>no</strong>.</p>
 
-<p>In this case this technique worked but I can say that I found other POST XSS in which this technique did not work. Unfortunately I don’t keep screenshots of the errors obtained in those situations because at that time I didn’t ask myself too many questions about the causes of my errors.</p>
+<p>In this case this technique worked but I can say that I found other POST XSS in which this technique did not work. Unfortunately I do not keep the screenshots of the errors obtained because at that time I did not ask too many questions when something did not work <img class="emoji" title=":sweat_smile:" alt=":sweat_smile:" src="https://github.githubassets.com/images/icons/emoji/unicode/1f605.png" height="20" width="20">.</p>
 
 <p>On a Linux system, if you store the HTML/JavaScript code from the previous section in the file <em>/var/www/html/index.html</em> and run the command</p>
 
@@ -580,7 +580,7 @@ username=user123<span class="err">&amp;</span>password=securepassword123
 
 <p><img src="/assets/images/2023-11-05-bug-bounty-6/post-from-localhost.png" alt=""></p>
 
-<p>As you can see there are 2 headers, the <em>Origin</em> and <em>Referer</em> headers, where the domain localhost appears (the fake domain in a real attack), and the <em>Host</em> header where the domain <em>example.com</em> appears (the vulnerable domain in a real attack). This is what is called a <strong>cross-domain</strong> request since the request scomes from a domain, which would be the fake domain, and goes to another domain, which would be the vulnerable domain to POST XSS.</p>
+<p>As you can see there are 2 headers, the <em>Origin</em> and <em>Referer</em> headers, where the domain localhost appears (the fake domain in a real attack), and the <em>Host</em> header where the domain <em>example.com</em> appears (the vulnerable domain in a real attack). This is what is called a <strong>cross-domain</strong> request since the request comes from one domain but goes to a different one.</p>
 
 <p>And now it is time to talk about these concepts:</p>
 
@@ -599,7 +599,7 @@ username=user123<span class="err">&amp;</span>password=securepassword123
 
 <p><strong>SOP came first as a client-side security measure</strong> to prevent cross-origin requests. <strong>CORS was later introduced as a server side implementation</strong> to enable controlled cross-origin requests, specifying which domains are allowed access to resources, addressing SOP’s limitations. So we can consider that CORS is for the SOP a kind of…</p>
 
-<p style="text-align:center;"><img src="/assets/images/2023-11-05-bug-bounty-6/relax-bro.jpg"></p>
+<p style="text-align:center;"><img src="/assets/images/2023-11-05-bug-bounty-6/relax-bro.gif"></p>
 
 <p>In principle, SOP prevents the browser from making any kind of cross-domain request and this is not something that the developer can modify directly because SOP is implemented in the user’s browser, it is a client-side security measure. However, through an overly flexible CORS policy it is possible to allow some domains, even all domains, to make cross-domain requests to my domain. And this is something that the developer can modify because it is a server-side configuration.</p>
 
