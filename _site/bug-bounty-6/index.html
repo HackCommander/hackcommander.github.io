@@ -9,19 +9,19 @@
   <head>
     <meta charset="utf-8">
 
-<!-- begin _includes/seo.html --><title>Reflected XSS in search filter clear button in an e-commerce website - hackcommander.github.io</title>
-<meta name="description" content="Partial disclosure of a bug bounty report: reflected XSS in search filter clear button in an e-commerce website.">
+<!-- begin _includes/seo.html --><title>Reflected XSS through POST request in a login form - hackcommander.github.io</title>
+<meta name="description" content="Partial disclosure of a bug bounty report: reflected XSS through POST request in a login form.">
 
 
 
 <meta property="og:type" content="article">
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="hackcommander.github.io">
-<meta property="og:title" content="Reflected XSS in search filter clear button in an e-commerce website">
-<meta property="og:url" content="https://hackcommander.github.io/bug-bounty-5/">
+<meta property="og:title" content="Reflected XSS through POST request in a login form">
+<meta property="og:url" content="https://hackcommander.github.io/bug-bounty-6/">
 
 
-  <meta property="og:description" content="Partial disclosure of a bug bounty report: reflected XSS in search filter clear button in an e-commerce website.">
+  <meta property="og:description" content="Partial disclosure of a bug bounty report: reflected XSS through POST request in a login form.">
 
 
 
@@ -31,7 +31,7 @@
 
 
 
-  <meta property="article:published_time" content="2023-06-24T00:00:00+02:00">
+  <meta property="article:published_time" content="2023-11-05T00:00:00+01:00">
 
 
 
@@ -42,7 +42,7 @@
   
 
 
-<link rel="canonical" href="https://hackcommander.github.io/bug-bounty-5/">
+<link rel="canonical" href="https://hackcommander.github.io/bug-bounty-6/">
 
 
 
@@ -179,7 +179,7 @@
         <span class="sep">/</span>
       
       
-        <li class="current">Reflected XSS in search filter clear button in an e-commerce website</li>
+        <li class="current">Reflected XSS through POST request in a login form</li>
       
     
   </ol>
@@ -372,15 +372,15 @@
 
 
   <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
-    <meta itemprop="headline" content="Reflected XSS in search filter clear button in an e-commerce website">
-    <meta itemprop="description" content="Partial disclosure of a bug bounty report: reflected XSS in search filter clear button in an e-commerce website.">
-    <meta itemprop="datePublished" content="June 24, 2023">
+    <meta itemprop="headline" content="Reflected XSS through POST request in a login form">
+    <meta itemprop="description" content="Partial disclosure of a bug bounty report: reflected XSS through POST request in a login form.">
+    <meta itemprop="datePublished" content="November 05, 2023">
     
 
     <div class="page__inner-wrap">
       
         <header>
-          <h1 id="page-title" class="page__title" itemprop="headline">Reflected XSS in search filter clear button in an e-commerce website
+          <h1 id="page-title" class="page__title" itemprop="headline">Reflected XSS through POST request in a login form
 </h1>
           
         </header>
@@ -390,7 +390,7 @@
         
         <p class="page__meta">
           
-            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2023-06-24T00:00:00+02:00">June 24, 2023 </time> 
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2023-11-05T00:00:00+01:00">November 05, 2023 </time> 
           
           
         </p>
@@ -402,13 +402,7 @@
   <li>
 <a href="#section-id-3">3. Vulnerability exploitation</a>
     <ul>
-      <li>
-<a href="#section-id-3-1">3.1. Steps of exploitation</a>
-        <ul>
-          <li><a href="#section-id-3-1-1">3.1.1. Struggling to find a payload</a></li>
-          <li><a href="#section-id-3-1-2">3.1.2. The winning payload</a></li>
-        </ul>
-      </li>
+      <li><a href="#section-id-3-1">3.1. Steps of exploitation</a></li>
       <li><a href="#section-id-3-2">3.2. Why does the payload work?</a></li>
     </ul>
   </li>
@@ -422,7 +416,7 @@
   <p><img class="emoji" title=":warning:" alt=":warning:" src="https://github.githubassets.com/images/icons/emoji/unicode/26a0.png" height="20" width="20"> <span style="color:red">This bug was reported in a private bug bounty program in which it is not allowed to publish the vulnerabilities found. So this is a partial disclosure, only the essential technical details are exposed.</span></p>
 </blockquote>
 
-<p>In this post I am going to show an interesting XSS that I reported in a bug bounty program: reflected XSS in search filter clear button in an e-commerce website. I will show you all the payloads I tried, some of them quite curious, and how my friend <a href="https://www.linkedin.com/in/cybersecurityfranciscogilamoros/">Fran</a> ended up giving me the winning payload. Sometimes the important thing is not the result but the way.</p>
+<p>In this post I am going to show one of the first XSS I reported in a bug bounty program: reflected XSS through POST request in a login form. It’s not a big deal but this post might be useful for all those who have ever found a POST XSS and thought it was not reportable because it had no impact.</p>
 
 <div id="section-id-1"></div>
 
@@ -447,7 +441,11 @@
 
 <h2 id="2-vulnerability-discovery">2. Vulnerability discovery</h2>
 
-<p>I discovered this XSS by chance while waiting for the <em>Burp Scanner</em> to finish. I sent the payload</p>
+<p>The discovery of the vulnerability was fairly straightforward. I tried to login with the user <em>bugbounty</em>, just to test the form, and I got the following response</p>
+
+<p><img src="/assets/images/2023-11-05-bug-bounty-6/reflected-username.png" alt=""></p>
+
+<p>This is suspicious because it is usual to find messages of the type <em>Incorrect credentials</em>, where the reason for the failure is not detailed and the user’s name is not reflected. Taking into account that the user’s name is reflected, I sent the following payload as username</p>
 
 <div class="code-header">
   <button class="copy-code-button">
@@ -455,14 +453,14 @@
   </button>
 </div>
 
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>HackCommander"'&gt;<span class="nt">&lt;</span>
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;script&gt;</span><span class="nx">alert</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="nt">&lt;/script&gt;</span>
 </code></pre></div></div>
 
-<p>with some “dangerous” characters and I received the following response</p>
+<p>and I got the following response</p>
 
-<p><img src="/assets/images/2023-06-24-bug-bounty-5/detection-request.png" alt=""></p>
+<p><img src="/assets/images/2023-11-05-bug-bounty-6/alert.png" alt=""></p>
 
-<p>As you can see the payload broke the a tag. The &lt; character was not reflected but the “’&gt; characters were, because as you can see it breaks the a tag making that the characters “&gt; that formed the end of the tag are no longer part of it and now they are outside, as the arrow points out. This made me think that there could be an XSS.</p>
+<p>So… we have a POST XSS!</p>
 
 <div id="section-id-3"></div>
 
@@ -472,13 +470,11 @@
 
 <h2 id="31-steps-of-exploitation">3.1. Steps of exploitation</h2>
 
-<div id="section-id-3-1-1"></div>
+<p>Unfortunately I do not keep the Burpsuite project as this was one of my first reports, but it is also not necessary to explain the idea behind this exploitation, that as usual in this blog, we have to thank the guys from PortSwigger</p>
 
-<h3 id="311-struggling-to-find-a-payload">3.1.1. Struggling to find a payload</h3>
+<p><a href="https://portswigger.net/blog/exploiting-xss-in-post-requests">Exploiting XSS in POST requests (PortSwigger)</a></p>
 
-<p>As you saw in the above capture, the &lt; character was not reflected so I had to try XSS in the context of the attributes.</p>
-
-<p>Therefore, the first payload I sent was</p>
+<p>We can assume that the vulnerable request is as follows</p>
 
 <div class="code-header">
   <button class="copy-code-button">
@@ -486,193 +482,142 @@
   </button>
 </div>
 
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"+onclick="alert(1)
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>POST /login HTTP/1.1
+Host: example.com
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.0.0 Safari/537.36
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 38
+
+username=user123<span class="err">&amp;</span>password=securepassword123
 </code></pre></div></div>
 
-<p>and I got the following response</p>
+<p>and these are the steps I followed:</p>
 
-<p><img src="/assets/images/2023-06-24-bug-bounty-5/expoitation-onclick-burp.png" alt=""></p>
-
-<p>The response in the browser looked like this</p>
-
-<p><img src="/assets/images/2023-06-24-bug-bounty-5/expoitation-onclick-browser.png" alt=""></p>
-
-<p>and by clicking on the <em>X</em>, the <em>alert(1)</em> was executed, as you can see in the following capture</p>
-
-<p><img src="/assets/images/2023-06-24-bug-bounty-5/expoitation-onclick-alert.png" alt=""></p>
-
-<p>But… what is this <em>X</em>? It is the tag that we are dealing with in this XSS and its function is to serve as a kind of “button” to remove the filters set when you are looking for a product to buy, since this website was an e-commerce website. It serves to remove a concrete filter that as you can guess is of the type price, manufacturer, rating… and the title attribute of each a tag is something like <em>Remove + “name of the filter”</em>. The title attribute is the injection point.</p>
-
-<p>For example, if you were looking for chairs for less than 100 euros with a rating of at least 4 stars, you will have an <em>X</em> button for each of these filters, which you can delete individually by clicking on the corresponding <em>X</em>. The title attribute of the a tag used to remove the price would be <em>Remove price</em>.</p>
-
-<p>This XSS requires user interaction, it requires the user to click on that tiny X. So the goal I had was to scale this XSS to one that required no interaction or a more likely interaction.</p>
-
-<p>So first I tried to make it so that the user didn’t have to click but simply hover the mouse over the <em>X</em>, that means, I sent the payload</p>
-
-<div class="code-header">
-  <button class="copy-code-button">
-    Copy
-  </button>
-</div>
-
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"+onmouseover="alert(1)
-</code></pre></div></div>
-<p>and it worked as you can see in the following capture</p>
-
-<p><img src="/assets/images/2023-06-24-bug-bounty-5/expoitation-onmouseover-burp.png" alt=""></p>
-
-<p>Hovering the mouse over the X the <em>alert(1)</em> was executed. But… the X is very small, the <em>alert(1)</em> will only be executed if the user accidentally hover the mouse over the <em>X</em>, which is not very likely.</p>
-
-<p>The way to make the user more likely to mouse over the <em>X</em> is to make the X bigger, but… is this possible? YEAH, IT IS. The way to do this is by injecting CSS code through the <em>style</em> attribute, so I sent the payload</p>
-
-<div class="code-header">
-  <button class="copy-code-button">
-    Copy
-  </button>
-</div>
-
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"+style="position:+fixed;width:+2000px;height:2000px;background-color:purple;"+onmouseover="alert(1)
-</code></pre></div></div>
-<p>where the meaning of each property is</p>
-
-<ul>
+<ol>
   <li>
-<strong>position: fixed;</strong>: Sets the positioning of the element to be fixed, meaning it will remain in a fixed position even when the page is scrolled.</li>
+    <p>I sent the request to the Burp repeater</p>
+
+    <p><img src="/assets/images/2023-11-05-bug-bounty-6/burp-repeater.png" alt=""></p>
+  </li>
   <li>
-<strong>width: 2000px;</strong>: Sets the width of the element to be 2000 pixels.</li>
+    <p>I right clicked on the request and selected <em>Engagement tools -&gt; Generate CSRF PoC</em></p>
+
+    <p><img src="/assets/images/2023-11-05-bug-bounty-6/repeater-csrf-poc.png" alt=""></p>
+
+    <p>Don’t get confused, this vulnerability is not a CSRF. They simply coincide in the first step, which involves generating an HTML/JavaScript code that sends a specific request to a domain. In this case, what I wanted to achieve is to obtain an HTML/JavaScript code that can be hosted on a malicious website, and when a user accesses it, it automatically sends the request with the XSS to the vulnerable domain. This Burp option was designed to exploit CSRFs but can also be used for PoCs like the one I am showing in this post, and in general for any vulnerability that involves generating HTML/JavaScript code that sends a request.</p>
+  </li>
   <li>
-<strong>height: 2000px;</strong>: Sets the height of the element to be 2000 pixels.</li>
+    <p>I selected <em>Options -&gt; Include auto-submit script</em> and then <em>Regenerate -&gt; Test in browser</em></p>
+
+    <p><img src="/assets/images/2023-11-05-bug-bounty-6/csrf-poc-generator.png" alt=""></p>
+
+    <p>So in this example the malicious HTML/JavaScript code is</p>
+
+    <div class="code-header">
+   <button class="copy-code-button">
+     Copy
+   </button>
+ </div>
+    <div class="language-html highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code><span class="nt">&lt;html&gt;</span>
+  <span class="c">&lt;!-- CSRF PoC - generated by Burp Suite Professional --&gt;</span>
+  <span class="nt">&lt;body&gt;</span>
+    <span class="nt">&lt;form</span> <span class="na">action=</span><span class="s">"https://example.com/login"</span> <span class="na">method=</span><span class="s">"POST"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"hidden"</span> <span class="na">name=</span><span class="s">"username"</span> <span class="na">value=</span><span class="s">"&amp;lt;script&amp;gt;alert&amp;#40;1&amp;#41;&amp;lt;&amp;#47;script&amp;gt;"</span> <span class="nt">/&gt;</span>
+      <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"hidden"</span> <span class="na">name=</span><span class="s">"password"</span> <span class="na">value=</span><span class="s">"securepassword123"</span> <span class="nt">/&gt;</span>
+      <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"submit"</span> <span class="na">value=</span><span class="s">"Submit request"</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/form&gt;</span>
+    <span class="nt">&lt;script&gt;</span>
+      <span class="nx">history</span><span class="p">.</span><span class="nx">pushState</span><span class="p">(</span><span class="dl">''</span><span class="p">,</span> <span class="dl">''</span><span class="p">,</span> <span class="dl">'</span><span class="s1">/</span><span class="dl">'</span><span class="p">);</span>
+      <span class="nb">document</span><span class="p">.</span><span class="nx">forms</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">submit</span><span class="p">();</span>
+    <span class="nt">&lt;/script&gt;</span>
+  <span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</code></pre></div>    </div>
+    <p>This code can be stored in a fake domain like <em>example-support.com</em>, with a credible name from a social engineering point of view. The JavaScript code generated by the <em>Include auto-submit script</em> option is necessary so that the POST request with the XSS is sent automatically when the user visits the page and does not need to click on the submit button.</p>
+  </li>
   <li>
-<strong>background-color: purple;</strong>: Sets the background color of the element to purple.</li>
-</ul>
+    <p>I Copied the URL</p>
 
-<p>and it worked as you can see in the following capture</p>
+    <p><img src="/assets/images/2023-11-05-bug-bounty-6/csrf-poc-generator-url.png" alt=""></p>
 
-<p><img src="/assets/images/2023-06-24-bug-bounty-5/expoitation-style-burp.png" alt=""></p>
+    <p>and pasted in the browser. After that, I checked that the alert was executed in the context of the vulnerable web site</p>
 
-<p>Now almost the whole screen is purple (the blue areas were placed by me to obfuscate information) as you can see in the following capture</p>
+    <p><img src="/assets/images/2023-11-05-bug-bounty-6/alert.png" alt=""></p>
 
-<p><img src="/assets/images/2023-06-24-bug-bounty-5/expoitation-style-browser.png" alt=""></p>
-
-<p>and it is enough to put the mouse over the purple area to execute the <em>alert(1)</em>. This XSS still requires user interaction but this interaction is much more likely, it is almost certain. This is already something reportable.</p>
-
-<p>However, I wanted to achieve an XSS that did not require user interaction. The only one that I could think of was the typical</p>
-
-<div class="code-header">
-  <button class="copy-code-button">
-    Copy
-  </button>
-</div>
-
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"+autofocus+onfocus="alert(1)
-</code></pre></div></div>
-
-<p>I sent this payload and it was reflected as you can see in the following capture</p>
-
-<p><img src="/assets/images/2023-06-24-bug-bounty-5/expoitation-autofocus-burp.png" alt=""></p>
-
-<p>but the <em>alert(1)</em> was not executed. Why? Because the only tags that support the <em>autofocus</em> attribute are <em>input</em>, <em>button</em>, <em>select</em> and <em>textarea</em>.</p>
-
-<p>And that’s as far as my creativity went, so I decided to report the XSS with the <em>style</em> attribute, which was the best payload I could find.</p>
-
-<div id="section-id-3-1-2"></div>
-
-<h3 id="312-the-winning-payload">3.1.2. The winning payload</h3>
-
-<p>Before reporting I told my friend <a href="https://www.linkedin.com/in/cybersecurityfranciscogilamoros/">Fran</a> about the case and he told me to try this payload</p>
-
-<div class="code-header">
-  <button class="copy-code-button">
-    Copy
-  </button>
-</div>
-
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"+onfocus="alert(1)"+id="xss"&gt;
-</code></pre></div></div>
-
-<p>adding the term <em>#xss</em> at the end of the URL. So if the domain is <em>example.com</em> and the vulnerable param is <em>vulnerable-param</em>, the malicious URL would be</p>
-
-<div class="code-header">
-  <button class="copy-code-button">
-    Copy
-  </button>
-</div>
-
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://example.com/?vulnerable-param="+onfocus="alert(1)"+id="xss"&gt;#xss
-</code></pre></div></div>
-
-<p>When I saw this payload I thought… Damn! Shame on me! How could I not realize it!</p>
-
-<p>I can’t use the <em>autofocus</em> attribute but I can name the tag with the attribute assignment <em>id=”xss”</em> and force the focus on it with the term <em>#xss</em>. It worked as you can see in the following capture</p>
-
-<p><img src="/assets/images/2023-06-24-bug-bounty-5/expoitation-hash-burp.png" alt=""></p>
-
-<p>Now the <em>alert(1)</em> is executed with no user interaction as you can see in the following capture</p>
-
-<p><img src="/assets/images/2023-06-24-bug-bounty-5/expoitation-hash-alert.png" alt=""></p>
-
-<p><img class="emoji" title=":clap:" alt=":clap:" src="https://github.githubassets.com/images/icons/emoji/unicode/1f44f.png" height="20" width="20"> <img class="emoji" title=":clap:" alt=":clap:" src="https://github.githubassets.com/images/icons/emoji/unicode/1f44f.png" height="20" width="20"> <img class="emoji" title=":clap:" alt=":clap:" src="https://github.githubassets.com/images/icons/emoji/unicode/1f44f.png" height="20" width="20"></p>
-
-<p>He then told me that he had read about this payload in the following Portswigger article</p>
-
-<p><a href="https://portswigger.net/research/one-xss-cheatsheet-to-rule-them-all">One XSS cheatsheet to rule them all (PortSwigger)</a></p>
-
-<p>God bless Portswigger! <img class="emoji" title=":pray:" alt=":pray:" src="https://github.githubassets.com/images/icons/emoji/unicode/1f64f.png" height="20" width="20"> <img class="emoji" title=":raised_hands:" alt=":raised_hands:" src="https://github.githubassets.com/images/icons/emoji/unicode/1f64c.png" height="20" width="20"></p>
+    <p>This means that any user visiting the fake domain <em>example-support.com</em>, where the malicious HTML/JavaScript code would be stored, will automatically send the malicious request to the vulnerable domain and suffer an XSS in the context of that domain.</p>
+  </li>
+</ol>
 
 <div id="section-id-3-2"></div>
 
 <h2 id="32--why-does-the-payload-work">3.2.  Why does the payload work?</h2>
 
-<p>Given what we have seen, it is easy to understand why the payload works:</p>
+<p>But you’re probably thinking now…</p>
 
-<ol>
+<p style="text-align:center;"><img src="/assets/images/2023-11-05-bug-bounty-6/sorcery.jpg"></p>
+
+<p>Is this always possible? The short answer is <strong>no</strong>.</p>
+
+<p>In this case this technique worked but I can say that I found other POST XSS in which this technique did not work. Unfortunately I don’t keep screenshots of the errors obtained in those situations because at that time I didn’t ask myself too many questions about the causes of my errors.</p>
+
+<p>On a Linux system, if you store the HTML/JavaScript code from the previous section in the file <em>/var/www/html/index.html</em> and run the command</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">sudo apache2 system start
+</span></code></pre></div></div>
+
+<p>you will have a web server up on port 80 on your machine. At this point, if you set Burpsuite to intercept traffic and access the URL <em>http://localhost/</em> you will see that the first request that is sent is obviously</p>
+
+<p><img src="/assets/images/2023-11-05-bug-bounty-6/get-to-localhost.png" alt=""></p>
+
+<p>and if you click on <em>Forward</em> to give way to the next request you will see that the next request is</p>
+
+<p><img src="/assets/images/2023-11-05-bug-bounty-6/post-from-localhost.png" alt=""></p>
+
+<p>As you can see there are 2 headers, the <em>Origin</em> and <em>Referer</em> headers, where the domain localhost appears (the fake domain in a real attack), and the <em>Host</em> header where the domain <em>example.com</em> appears (the vulnerable domain in a real attack). This is what is called a <strong>cross-domain</strong> request since the request scomes from a domain, which would be the fake domain, and goes to another domain, which would be the vulnerable domain to POST XSS.</p>
+
+<p>And now it is time to talk about these concepts:</p>
+
+<ul>
   <li>
-    <p>The user clicks on the malicious link and sends the request with the payload</p>
+    <p><strong>Same-origin policy (SOP)</strong>: the Same-Origin Policy (SOP) is a web security mechanism implemented by web browsers that restricts web pages from making requests to different domains than the one that served the web page. It helps prevent unauthorized data access and actions by scripts from other origins. For example, if you have a web page hosted at <em>https://www.example.com/</em>, the SOP prevents JavaScript on that page from making requests to, or interacting with, a different domain like <em>https://malicious.com/</em>, thus protecting against cross-site request forgery (CSRF) and other security risks. In the same way, it would prevent JavaScript in <em>https://malicious.com/</em> from making requests to a different domain such as <em>https://www.example.com/</em>, thus avoiding attacks like the one shown in this post. You can learn more about SOP at the following link</p>
 
-    <div class="code-header">
-   <button class="copy-code-button">
-     Copy
-   </button>
- </div>
-    <div class="language-html highlighter-rouge">
-<div class="highlight"><pre class="highlight"><code> "+onfocus="alert(1)"+id="xss"&gt;
-</code></pre></div>    </div>
+    <p><a href="https://portswigger.net/web-security/cors/same-origin-policy">Same-origin policy (SOP) (PortSwigger)</a></p>
   </li>
   <li>
-    <p>The user’s browser receives and processes the response. Within that response is the label</p>
+    <p><strong>Cross-Origin Resource Sharing (CORS)</strong>: the Cross-Origin Resource Sharing (CORS) is a security feature that allows web servers to specify which domains are allowed to access their resources via HTTP requests, relaxing the same-origin policy when necessary. For instance, a web server can send CORS headers to indicate that <em>https://trusted-origin.com/</em> is permitted to make cross-origin requests. Without CORS, such requests would be blocked by the browser, but with CORS, specific cross-origin requests can be selectively allowed, enhancing the functionality of web applications while maintaining security. You can learn more about CORS at the following link</p>
 
-    <div class="code-header">
-   <button class="copy-code-button">
-     Copy
-   </button>
- </div>
-    <div class="language-html highlighter-rouge">
-<div class="highlight"><pre class="highlight"><code> <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">"OBFUSCATED"</span> <span class="na">href=</span><span class="s">"https://OBFUSCATED.OBFUSCATED"</span> <span class="na">title=</span><span class="s">"OBFUSCATED"</span> <span class="na">onfocus=</span><span class="s">"alert(1)"</span> <span class="na">id=</span><span class="s">"xss"</span><span class="nt">&gt;</span>
-</code></pre></div>    </div>
+    <p><a href="https://portswigger.net/web-security/cors">Cross-origin resource sharing (CORS) (PortSwigger)</a></p>
+  </li>
+</ul>
 
-    <p>The string <em>OBFUSCATED</em> does not really appear in the answer, I have put it to obfuscate information about the target.</p>
-  </li>
-  <li>
-    <p>The user puts the focus on the tag above due to the term <em>#xss</em> at the end of the URL and the <em>id=”xss”</em> attribute assignment of the tag.</p>
-  </li>
-  <li>
-    <p>Due to the onfocus event of the tag above, the Javascript code <em>alert(1)</em> is executed.</p>
-  </li>
-</ol>
+<p><strong>SOP came first as a client-side security measure</strong> to prevent cross-origin requests. <strong>CORS was later introduced as a server side implementation</strong> to enable controlled cross-origin requests, specifying which domains are allowed access to resources, addressing SOP’s limitations. So we can consider that CORS is for the SOP a kind of…</p>
+
+<p style="text-align:center;"><img src="/assets/images/2023-11-05-bug-bounty-6/relax-bro.jpg"></p>
+
+<p>In principle, SOP prevents the browser from making any kind of cross-domain request and this is not something that the developer can modify directly because SOP is implemented in the user’s browser, it is a client-side security measure. However, through an overly flexible CORS policy it is possible to allow some domains, even all domains, to make cross-domain requests to my domain. And this is something that the developer can modify because it is a server-side configuration.</p>
+
+<p>So even though I don’t keep the burp project and the vulnerable asset was decommissioned, it is possible to ensure that the asset had a CORS policy that was too lax. This could have allowed the cross-domain request exploiting the POST XSS to be sent from another domain without problems.</p>
 
 <div id="section-id-4"></div>
 
 <h2 id="4-report-resolution">4. Report resolution</h2>
 
-<p>The subdomain is an e-commerce asset but, I don’t know why, they considered the asset to be of medium criticity. Also an XSS usually is considered a medium severity vulnerability and because I wasn’t able to sign up and log in the website, I couldn’t demonstrate a high impact such as session hijacking. Therefore, the report was classified as</p>
+<p>The subdomain was the typical forgotten asset that the company did not even remember it had, so the criticality of the asset was low. Also an XSS usually is considered a medium severity vulnerability and because I wasn’t able to sign up and log in the website, I couldn’t demonstrate a high impact such as session hijacking. Therefore, the report was classified as</p>
 
 <ul>
   <li>
-<strong>Asset criticity</strong>: Medium</li>
+<strong>Asset criticity</strong>: Low</li>
   <li>
 <strong>Vulnerability severity</strong>: Medium</li>
   <li>
-<strong>Bounty</strong>: More than $100</li>
+<strong>Bounty</strong>: More than $50</li>
 </ul>
 
 <div id="section-id-5"></div>
@@ -680,11 +625,10 @@
 <h2 id="5-lessons-learned">5. Lessons learned</h2>
 
 <ul>
-  <li>Bug bounty is a competitive field but whenever you can collaborate with other bug bounty hunters. I think bug bounty is a scientific-technical field and in science collaboration is essential. Sharing the bounty is just a nice consequence of collaboration.</li>
-  <li>The way is usually more important than the result. In this case you saw how I was struggling until I found the winning payload and along the way I found beautiful jewels. In this case they were not necessary but in the future maybe I will find cases where the winning payload is not possible and I can use some of these payloads that I found.</li>
-  <li>The solution is sometimes obvious. See how I’ve been racking my brain trying to find a payload, and in the end, this one was much simpler than all the ones I had thought of. Always try to apply <a href="https://en.wikipedia.org/wiki/Occam%27s_razor">Occam’s razor</a>.</li>
+  <li>No credentials does not mean game over. In a login form you can look for authentication vulnerabilities, SQL injection… or XSS, as in this case. This is the second post I publish about a vulnerability in a login form and both vulnerabilities were found without credentials.</li>
+  <li>Don’t give up if you find a vulnerability that is apparently not weaponizable and therefore has no impact. You may be able to chain it with another vulnerability or find an original attack vector to make an impact.</li>
+  <li>Try to find out why the techniques you are applying are not working, check the errors obtained and deepen the concepts. Sometimes bug bounty is like a rat race where you don’t allow yourself to go deep into the vulnerabilities you find to go for the next bug, but sometimes it’s good to stop and think about why the payload is not working. Don’t forget that although the main goal in bug bounty is supposed to be money, it should be learning, because the only way to get important bugs is to reach levels of knowledge that others haven’t reached.</li>
 </ul>
-
 
         
       </section>
@@ -713,6 +657,10 @@
     
       
       
+      <a href="/tags/#cors" class="page__taxonomy-item" rel="tag">cors</a><span class="sep">, </span>
+    
+      
+      
       <a href="/tags/#httpx" class="page__taxonomy-item" rel="tag">httpx</a><span class="sep">, </span>
     
       
@@ -722,6 +670,10 @@
       
       
       <a href="/tags/#portswigger" class="page__taxonomy-item" rel="tag">portswigger</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#sop" class="page__taxonomy-item" rel="tag">sop</a><span class="sep">, </span>
     
       
       
@@ -757,7 +709,7 @@
 
 
         
-          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2023-06-24T00:00:00+02:00">June 24, 2023</time></p>
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2023-11-05T00:00:00+01:00">November 05, 2023</time></p>
         
       </footer>
 
@@ -766,12 +718,11 @@
       
   <nav class="pagination">
     
-      <a href="/bug-bounty-4/" class="pagination--pager" title="TE.TE HTTP request smuggling obfuscating the TE header
+      <a href="/bug-bounty-5/" class="pagination--pager" title="Reflected XSS in search filter clear button in an e-commerce website
 ">Previous</a>
     
     
-      <a href="/bug-bounty-6/" class="pagination--pager" title="Reflected XSS through POST request in a login form
-">Next</a>
+      <a href="#" class="pagination--pager disabled">Next</a>
     
   </nav>
 

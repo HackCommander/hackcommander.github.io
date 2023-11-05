@@ -33,4 +33,9 @@ var store = [{
         "excerpt":"Summary 1. Asset discovery 2. Vulnerability discovery 3. Vulnerability exploitation 3.1. Steps of exploitation 3.1.1. Struggling to find a payload 3.1.2. The winning payload 3.2. Why does the payload work? 4. Report resolution 5. Lessons learned :warning: This bug was reported in a private bug bounty program in which it...","categories": ["bug bounty"],
         "tags": ["web pentesting","osint","amass","httpx","burpsuite","portswigger","xss"],
         "url": "https://hackcommander.github.io/bug-bounty-5/",
+        "teaser":"https://hackcommander.github.io/assets/images/general/bug-bounty.jpg"},{
+        "title": "Reflected XSS through POST request in a login form",
+        "excerpt":"Summary 1. Asset discovery 2. Vulnerability discovery 3. Vulnerability exploitation 3.1. Steps of exploitation 3.2. Why does the payload work? 4. Report resolution 5. Lessons learned :warning: This bug was reported in a private bug bounty program in which it is not allowed to publish the vulnerabilities found. So this...","categories": ["bug bounty"],
+        "tags": ["web pentesting","osint","amass","httpx","burpsuite","portswigger","xss","sop","cors"],
+        "url": "https://hackcommander.github.io/bug-bounty-6/",
         "teaser":"https://hackcommander.github.io/assets/images/general/bug-bounty.jpg"}]
