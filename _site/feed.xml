@@ -1,4 +1,285 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.github.io/" rel="alternate" type="text/html" /><updated>2023-11-06T02:44:28+01:00</updated><id>https://hackcommander.github.io/feed.xml</id><title type="html">hackcommander.github.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">Reflected XSS through POST request in a login form</title><link href="https://hackcommander.github.io/bug-bounty-6/" rel="alternate" type="text/html" title="Reflected XSS through POST request in a login form" /><published>2023-11-05T00:00:00+01:00</published><updated>2023-11-05T00:00:00+01:00</updated><id>https://hackcommander.github.io/bug-bounty-6</id><content type="html" xml:base="https://hackcommander.github.io/bug-bounty-6/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.github.io/" rel="alternate" type="text/html" /><updated>2023-11-13T04:52:42+01:00</updated><id>https://hackcommander.github.io/feed.xml</id><title type="html">hackcommander.github.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">Subdomain takeover via unclaimed Azure VM</title><link href="https://hackcommander.github.io/bug-bounty-7/" rel="alternate" type="text/html" title="Subdomain takeover via unclaimed Azure VM" /><published>2023-11-13T00:00:00+01:00</published><updated>2023-11-13T00:00:00+01:00</updated><id>https://hackcommander.github.io/bug-bounty-7</id><content type="html" xml:base="https://hackcommander.github.io/bug-bounty-7/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-2&quot;&gt;2. Vulnerability discovery&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-3&quot;&gt;3. Vulnerability exploitation&lt;/a&gt;
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#section-id-3-1&quot;&gt;3.1. Steps of exploitation&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#section-id-3-2&quot;&gt;3.2. Why does this vulnerability exist?&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-4&quot;&gt;4. Report resolution&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-5&quot;&gt;5. Lessons learned&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/general/bug-bounty.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;:warning: &lt;span style=&quot;color:red&quot;&gt;This bug was reported in a private bug bounty program in which it is not allowed to publish the vulnerabilities found. So this is a partial disclosure, only the essential technical details are exposed.&lt;/span&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;In this post I am going to show the first subdomain takeover (STO) I reported in a bug bounty program: subdomain takeover via unclaimed Azure VM. I was quite excited to find this vulnerability because, although it is almost always very easy to find and exploit, it is a very shocking vulnerability.&lt;/p&gt;
+
+&lt;p&gt;Simplifying a lot, what an attacker gets by exploiting this vulnerability is to configure the web that he wants in the vulnerable subdomain. In this way, any user accessing that domain will not see the legitimate website of the company but will be seeing the website that the attacker has configured.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-1&quot; /&gt;
+
+&lt;h2 id=&quot;1-asset-discovery&quot;&gt;1. Asset discovery&lt;/h2&gt;
+
+&lt;p&gt;I found this asset through reconFTW on my VPS. &lt;a href=&quot;https://github.com/six2dez/reconftw&quot;&gt;ReconFTW&lt;/a&gt; is a recon tool to automate the entire process of reconnaissance for you. It outperforms the work of subdomain enumeration along with various vulnerability checks and obtaining maximum information about your target.&lt;/p&gt;
+
+&lt;p&gt;The command that I used and that you can also use in your VPS is&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;nohup ~/reconftw/reconftw.sh -d example.com -r --deep -o ~/reconftw-output/ &amp;gt;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;~/nohup-history/nohup_1.log 2&amp;gt;&amp;amp;1 &amp;amp;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The meaning of each of the elements of the command is:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;nohup&lt;/strong&gt;: this command runs another command in the background and ensures it continues running even if the user logs out. This allows us to run a reconFTW execution and exit the VPS whenever we want without the process being terminated. If we did not use nohup, when we exit the SSH session on the VPS the process will end its execution.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;-d example.com&lt;/strong&gt;: specifies the target domain as &lt;em&gt;example.com&lt;/em&gt;.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;-r –deep&lt;/strong&gt;: performs &lt;a href=&quot;https://github.com/six2dez/reconftw#perform-full-recon-with-more-time-intense-tasks-vps-intended-only&quot;&gt;full recon with more time intense tasks (VPS intended only)&lt;/a&gt;.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;-o ~/reconftw-output/&lt;/strong&gt;: sets the output directory for the results of the reconftw.sh script to &lt;em&gt;~/reconftw-output/&lt;/em&gt;.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;&amp;gt; ~/nohup-history/nohup_1.log&lt;/strong&gt;: redirects standard output to the file &lt;em&gt;nohup_1.log&lt;/em&gt; in the directory &lt;em&gt;~/nohup-history/&lt;/em&gt;. This is useful to see how the execution is going at each moment. Simplifying, this file stores in each moment the reconFTW console output that we would see if we were executing reconFTW in the usual way (without nohup or in the background).&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;2&amp;gt;&amp;amp;1&lt;/strong&gt;: redirects standard error to the same location as standard output, ensuring both are captured in the log file.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;&amp;amp;&lt;/strong&gt;: runs the entire command in the background, allowing the user to continue using the VPS terminal for other tasks without waiting for the command to finish.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Depending on the number of subdomains, the execution of this command can take days to finish, so if you launch reconFTW in this mode it is highly recommended to do it from a VPS. After the execution finishes, the subdomains appear in the file &lt;em&gt;~/reconftw-output/example.com/subdomains/subdomains.txt&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;Remember that if you want to have a VPS like mine you can rent it through my &lt;a href=&quot;https://hackcommander.github.io/advertising/#section-id-1&quot;&gt;referral links&lt;/a&gt;! You’ll pay the same and you’ll be helping me!&lt;/p&gt;
+
+&lt;div id=&quot;section-id-2&quot; /&gt;
+
+&lt;h2 id=&quot;2-vulnerability-discovery&quot;&gt;2. Vulnerability discovery&lt;/h2&gt;
+
+&lt;p&gt;I also found this vulnerability through reconFTW, specifically through the execution of nuclei that reconFTW performs on the subdomains that it finds. As you can see in the following capture&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-bug-bounty-7/nuclei-output.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;the nuclei findings are stored in the directory &lt;em&gt;/nuclei_output&lt;/em&gt;, divided into different txt files by criticality. Subdomain takeover is a high criticality vulnerability so they are stored in the high.txt file, and as you can see… I found 2 at the same time! These subdomains were the same except for some different letters at the end, something like &lt;em&gt;support.example.com&lt;/em&gt; and &lt;em&gt;support-e.example.com&lt;/em&gt;. They probably represented the same website but in different environments: PRE, QA, PRO…&lt;/p&gt;
+
+&lt;p&gt;As this was my first subdomain takeover, I was looking for information on the internet to understand the vulnerability and see a PoC, and I found this post&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://godiego.co/posts/STO-Azure/&quot;&gt;Subdomain Takeover in Azure: making a PoC&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;which saved my life. Thanks to this post I could interpret the output of nuclei taking into account the lowest level subdomains:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Both Azure assets are VMs (virtual machines) due to the subdomain &lt;em&gt;cloudapp.azure.com&lt;/em&gt;.&lt;/li&gt;
+  &lt;li&gt;Both machines are in Eastern North America due to the string &lt;em&gt;eastus&lt;/em&gt; of the highest subdomain.&lt;/li&gt;
+  &lt;li&gt;Although they are in the same region, they are in different datacenters, since the highest subdomain of the first one is &lt;em&gt;eastus2&lt;/em&gt; (datacenter 2) and the second one is &lt;em&gt;eastus&lt;/em&gt; (we could say that it is datacenter 1).&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Both subdomains can be exploited in exactly the same way, so we will concentrate only on the first one.&lt;/p&gt;
+
+&lt;p&gt;To check that the subdomain was really vulnerable I execute a command of the type&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;dig test.example.com
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;and the result was&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-bug-bounty-7/dig-before-takeover.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;As you can see, the status field has the value &lt;em&gt;NXDOMAIN&lt;/em&gt;, which means that the queried subdomain does not exist in the DNS. Specifically, &lt;em&gt;NXDOMAIN&lt;/em&gt; stands for &lt;em&gt;Non-Existent Domain&lt;/em&gt; and this status is returned when the DNS resolver cannot find any information, such as IP address or other records, for the specified subdomain. Also in &lt;em&gt;ANSWER SECTION&lt;/em&gt; and &lt;em&gt;AUTHORITY SECTION&lt;/em&gt; you can see how Azure appears and how the subdomain points to an Azure CloudApp subdomain through the &lt;em&gt;CNAME&lt;/em&gt; record.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-3&quot; /&gt;
+
+&lt;h2 id=&quot;3-vulnerability-exploitation&quot;&gt;3. Vulnerability exploitation&lt;/h2&gt;
+
+&lt;div id=&quot;section-id-3-1&quot; /&gt;
+
+&lt;h2 id=&quot;31-steps-of-exploitation&quot;&gt;3.1. Steps of exploitation&lt;/h2&gt;
+
+&lt;p&gt;Exploitation of this vulnerability is very simple, especially being an Azure VM. Although you have all the information in the GoDiego post I mentioned before, I will detail the process step by step:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;Create an Azure account. At the beginning you will have a free subscription that will allow you to make your first subdomain takeovers for free.&lt;/p&gt;
+
+    &lt;p&gt;&lt;a href=&quot;https://azure.microsoft.com/en-us/free/&quot;&gt;Create a free Azure account&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Log in and select the option &lt;em&gt;Virtual Machines&lt;/em&gt;.&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-bug-bounty-7/azure-home.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Select de option &lt;em&gt;Create&lt;/em&gt;.&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-bug-bounty-7/azure-create-vm.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Configure the machine as follows, but change the machine’s region to the one that corresponds in your case. In mine, as I said before, the region is &lt;em&gt;(US) East US 2&lt;/em&gt;.&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-bug-bounty-7/azure-vm-conf-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-bug-bounty-7/azure-vm-conf-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Once you have created the machine, access the configuration and enter the name of the Azure subdomain associated with the takeover. If all goes well you will see something like the following&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-bug-bounty-7/azure-vm-conf-3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+    &lt;p&gt;If not, you might get an error message like &lt;em&gt;The subdomain is already taken&lt;/em&gt;. I was talking to other bug bounty hunters who even had automated detection and exploitation of this vulnerability and they told me that Azure introduced a mitigation to subdomain takeovers recently. This mitigation includes a delay after the expiration of the domain, so although it looks vulnerable in the dig query, it is not possible to perform the subdomain takeover until some time has passed. In my case from detection to exploitation it took a month because I could not perform the takeover.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;You must connect to the virtual machine via SSH using the assigned public IP and with the credentials you chose during configuration. This is necessary to store the HTML code you want to display on the vulnerable domain and to run the web service.&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-bug-bounty-7/azure-vm-connection.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+    &lt;p&gt;In my case I used the following HTML code generated by ChatGPT&lt;/p&gt;
+
+    &lt;div class=&quot;code-header&quot;&gt;
+   &lt;button class=&quot;copy-code-button&quot;&gt;
+     Copy
+   &lt;/button&gt;
+&lt;/div&gt;
+    &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;&amp;lt;!-- Subdomain takeover by HackCommander at dd/mm/aaaa --&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;&amp;lt;!DOCTYPE html&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;html&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;head&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;title&amp;gt;&lt;/span&gt;PUT THE NAME OF THE COMPANY HERE&lt;span class=&quot;nt&quot;&gt;&amp;lt;/title&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;style&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;body&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;nl&quot;&gt;font-family&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Arial&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;sans-serif&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    
+    &lt;span class=&quot;nc&quot;&gt;.container&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;nl&quot;&gt;width&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;300px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+      &lt;span class=&quot;nl&quot;&gt;margin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;auto&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+      &lt;span class=&quot;nl&quot;&gt;padding&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;20px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+      &lt;span class=&quot;nl&quot;&gt;border&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;1px&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;solid&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;#ccc&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+      &lt;span class=&quot;nl&quot;&gt;border-radius&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;5px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    
+    &lt;span class=&quot;nt&quot;&gt;h2&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;nl&quot;&gt;text-align&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;center&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    
+    &lt;span class=&quot;nc&quot;&gt;.form-group&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;nl&quot;&gt;margin-bottom&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;15px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    
+    &lt;span class=&quot;nc&quot;&gt;.form-group&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;label&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;nl&quot;&gt;display&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;block&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+      &lt;span class=&quot;nl&quot;&gt;margin-bottom&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;5px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    
+    &lt;span class=&quot;nc&quot;&gt;.form-group&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;input&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;nl&quot;&gt;width&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;100%&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+      &lt;span class=&quot;nl&quot;&gt;padding&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;7px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+      &lt;span class=&quot;nl&quot;&gt;border&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;1px&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;solid&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;#ccc&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+      &lt;span class=&quot;nl&quot;&gt;border-radius&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;3px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    
+    &lt;span class=&quot;nc&quot;&gt;.form-group&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;button&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;nl&quot;&gt;width&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;100%&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+      &lt;span class=&quot;nl&quot;&gt;padding&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;10px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+      &lt;span class=&quot;nl&quot;&gt;background-color&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;#4CAF50&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+      &lt;span class=&quot;nl&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;#fff&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+      &lt;span class=&quot;nl&quot;&gt;border&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;none&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+      &lt;span class=&quot;nl&quot;&gt;border-radius&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;3px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+      &lt;span class=&quot;nl&quot;&gt;cursor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;pointer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    
+    &lt;span class=&quot;nc&quot;&gt;.form-group&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;button&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;:hover&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;nl&quot;&gt;background-color&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;#45a049&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/style&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/head&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;body&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;container&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;h2&amp;gt;&lt;/span&gt;PUT THE NAME OF THE COMPANY&apos;S PLATFORM HERE&lt;span class=&quot;nt&quot;&gt;&amp;lt;/h2&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;form&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;form-group&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;label&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;for=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;username&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;Username&lt;span class=&quot;nt&quot;&gt;&amp;lt;/label&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;input&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;text&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;username&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;username&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;placeholder=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Enter your username&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;nt&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;form-group&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;label&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;for=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;password&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;Password&lt;span class=&quot;nt&quot;&gt;&amp;lt;/label&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;input&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;password&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;password&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;password&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;placeholder=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Enter your password&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;nt&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;form-group&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;button&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;submit&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;Login&lt;span class=&quot;nt&quot;&gt;&amp;lt;/button&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;nt&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;/form&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/body&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/html&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+
+    &lt;p&gt;I wanted to simulate a fake login form to increase the criticality of the report and “impact” the triager but the truth is that this is not necessary :satisfied:. It is enough that you use a simple HTML code in which you indicate your user of the platform in a comment in the code.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Finally, you can run the dig command again on the vulnerable subdomain&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-bug-bounty-7/dig-after-takeover.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+    &lt;p&gt;and you will see how the subdomain already appears as taken and pointing to the IP of your virtual machine (region covered in green). If you now access the vulnerable subdomain you will see that the HTML code you have previously left in your Azure virtual machine appears&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-bug-bounty-7/website.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;YEAH! The first subdomain takeover always feels like…&lt;/p&gt;
+
+&lt;p style=&quot;text-align:center;&quot;&gt;&lt;img src=&quot;/assets/images/general/magic.gif&quot; /&gt;&lt;/p&gt;
+
+&lt;div id=&quot;section-id-3-2&quot; /&gt;
+
+&lt;h2 id=&quot;32--why-does-this-vulnerability-exist&quot;&gt;3.2.  Why does this vulnerability exist?&lt;/h2&gt;
+
+&lt;p&gt;As you can see, this is not a vulnerability due to technical implementation failures or something like that, it seems more like a vulnerability related to the management of the company’s assets. Some of the reasons that could lead to the presence of this vulnerability in the assets of a company are:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;Unused or Forgotten Services&lt;/strong&gt;: companies often use various third-party services or cloud platforms for different purposes. Over time, they might stop using a particular service or platform, but the corresponding subdomains are still configured in their DNS records.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Incomplete Cleanup&lt;/strong&gt;: when organizations migrate services or shut down projects, there might be oversight in cleaning up DNS records. Subdomains pointing to services that are no longer in use may be left behind.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Third-Party Integrations&lt;/strong&gt;: companies frequently integrate third-party services or applications into their infrastructure. If these integrations involve creating subdomains, neglecting to update or remove DNS records after discontinuing the service can lead to subdomain takeover vulnerabilities.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;External Contractors and Developers&lt;/strong&gt;: companies often work with external contractors or developers for specific projects. If these external parties set up subdomains for their use, and the company doesn’t manage DNS records properly, subdomain takeover vulnerabilities may arise if the external parties’ services are terminated.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Lack of Inventory and Monitoring&lt;/strong&gt;: some organizations may not maintain a comprehensive inventory of their subdomains or lack proper monitoring mechanisms. This can result in not promptly identifying and addressing subdomains that are no longer in use.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Dynamic Cloud Infrastructure&lt;/strong&gt;: in cloud environments, organizations may dynamically create and destroy resources. If a subdomain is associated with a cloud resource (e.g., an Amazon S3 bucket) that gets deleted, but the DNS record remains, it can lead to subdomain takeover.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Employee Turnover&lt;/strong&gt;: when employees who manage DNS records leave the organization, and there is no proper knowledge transfer or documentation, it can lead to lapses in managing subdomains effectively.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div id=&quot;section-id-4&quot; /&gt;
+
+&lt;h2 id=&quot;4-report-resolution&quot;&gt;4. Report resolution&lt;/h2&gt;
+
+&lt;p&gt;The subdomain was the typical forgotten asset that the company did not even remember, so the criticality of the asset was low. Getting this criticality in an asset when reporting this type of vulnerability is quite common. As we saw in the previous section, if this vulnerability exists in an asset, it is possibly because it is not monitored, and this would be because it is not an important asset for them.&lt;/p&gt;
+
+&lt;p&gt;On the other hand, this vulnerability is commonly classified as high or critical because as you have seen, it is possible to gain full control of the content that will display the subdomain. Therefore, the report was classified as&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;Asset criticity&lt;/strong&gt;: Low&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Vulnerability severity&lt;/strong&gt;: High&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Bounty&lt;/strong&gt;: More than $200 for each subdomain takeover (because of a 2X reward multiplier on high and critical vulnerabilities)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div id=&quot;section-id-5&quot; /&gt;
+
+&lt;h2 id=&quot;5-lessons-learned&quot;&gt;5. Lessons learned&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;VPS are a very useful tool for bug bounty. In this case with the report of these subdomain takeovers I already amortized the cost of the VPS for the next 2 years and I had to to practically nothing.&lt;/li&gt;
+  &lt;li&gt;When you find a vulnerability in a subdomain, try to look for the same vulnerability in other subdomains with a similar name. As we saw in this post, I found 2 subdomain takeovers in domains with very similar names, possibly because one belonged to the production environment and the other to a pre-production or QA environment.&lt;/li&gt;
+  &lt;li&gt;There are some vulnerabilities whose exploitation can be very hard and whose impact is not always very high, as we saw in the post about &lt;a href=&quot;https://hackcommander.github.io/bug-bounty-4/&quot;&gt;HTTP request smuggling&lt;/a&gt;. However, there are also the opposite cases, like this one, in which we have a vulnerability that is very easy to detect and exploit and yet its impact is high. Many bug bounty hunters have fully automated detection, exploitation and reporting of vulnerabilities such as this one.&lt;/li&gt;
+  &lt;li&gt;Try to help content creators you like. For example, the creator of reconFTW, &lt;a href=&quot;https://es.linkedin.com/in/alexisfdezfdez/es&quot;&gt;Alexis&lt;/a&gt;, has a &lt;a href=&quot;https://www.buymeacoffee.com/six2dez&quot;&gt;Buy Me a Coffee&lt;/a&gt; account where he can make donations. Making a donation of 1 coffee costs nothing and is a sign of recognition and admiration that encourages content creators to continue creating quality content.&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web pentesting" /><category term="osint" /><category term="reconftw" /><category term="nuclei" /><category term="subdomain takeover" /><summary type="html">Partial disclosure of a bug bounty report: subdomain takeover via unclaimed Azure VM.</summary></entry><entry><title type="html">Reflected XSS through POST request in a login form</title><link href="https://hackcommander.github.io/bug-bounty-6/" rel="alternate" type="text/html" title="Reflected XSS through POST request in a login form" /><published>2023-11-05T00:00:00+01:00</published><updated>2023-11-05T00:00:00+01:00</updated><id>https://hackcommander.github.io/bug-bounty-6</id><content type="html" xml:base="https://hackcommander.github.io/bug-bounty-6/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
