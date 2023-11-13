@@ -555,7 +555,7 @@ username=user123<span class="err">&amp;</span>password=securepassword123
 
 <p>But you’re probably thinking now…</p>
 
-<p style="text-align:center;"><img src="/assets/images/2023-11-05-bug-bounty-6/sorcery.jpg"></p>
+<p style="text-align:center;"><img src="/assets/images/general/sorcery.jpg"></p>
 
 <p>Is this always possible? The short answer is <strong>no</strong>.</p>
 
@@ -599,7 +599,7 @@ username=user123<span class="err">&amp;</span>password=securepassword123
 
 <p><strong>SOP came first as a client-side security measure</strong> to prevent cross-origin requests. <strong>CORS was later introduced as a server side implementation</strong> to enable controlled cross-origin requests, specifying which domains are allowed access to resources, addressing SOP’s limitations. So we can consider that CORS is for the SOP a kind of…</p>
 
-<p style="text-align:center;"><img src="/assets/images/2023-11-05-bug-bounty-6/relax-bro.gif"></p>
+<p style="text-align:center;"><img src="/assets/images/general/relax-bro.gif"></p>
 
 <p>In principle, SOP prevents the browser from making any kind of cross-domain request and this is not something that the developer can modify directly because SOP is implemented in the user’s browser, it is a client-side security measure. However, through an overly flexible CORS policy it is possible to allow some domains, even all domains, to make cross-domain requests to my domain. And this is something that the developer can modify because it is a server-side configuration.</p>
 
