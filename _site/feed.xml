@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.github.io/" rel="alternate" type="text/html" /><updated>2023-11-13T05:19:20+01:00</updated><id>https://hackcommander.github.io/feed.xml</id><title type="html">hackcommander.github.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">Subdomain takeover via unclaimed Azure VM</title><link href="https://hackcommander.github.io/bug-bounty-7/" rel="alternate" type="text/html" title="Subdomain takeover via unclaimed Azure VM" /><published>2023-11-13T00:00:00+01:00</published><updated>2023-11-13T00:00:00+01:00</updated><id>https://hackcommander.github.io/bug-bounty-7</id><content type="html" xml:base="https://hackcommander.github.io/bug-bounty-7/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.github.io/" rel="alternate" type="text/html" /><updated>2023-11-14T04:07:13+01:00</updated><id>https://hackcommander.github.io/feed.xml</id><title type="html">hackcommander.github.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">Subdomain takeover via unclaimed Azure VM</title><link href="https://hackcommander.github.io/bug-bounty-7/" rel="alternate" type="text/html" title="Subdomain takeover via unclaimed Azure VM" /><published>2023-11-13T00:00:00+01:00</published><updated>2023-11-13T00:00:00+01:00</updated><id>https://hackcommander.github.io/bug-bounty-7</id><content type="html" xml:base="https://hackcommander.github.io/bug-bounty-7/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
@@ -95,7 +95,7 @@
 
 &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-bug-bounty-7/dig-before-takeover.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;As you can see, the status field has the value &lt;em&gt;NXDOMAIN&lt;/em&gt;, which means that the queried subdomain does not exist in the DNS. Specifically, &lt;em&gt;NXDOMAIN&lt;/em&gt; stands for &lt;em&gt;Non-Existent Domain&lt;/em&gt; and this status is returned when the DNS resolver cannot find any information, such as IP address or other records, for the specified subdomain. Also in &lt;em&gt;ANSWER SECTION&lt;/em&gt; and &lt;em&gt;AUTHORITY SECTION&lt;/em&gt; you can see how Azure appears and how the subdomain points to an Azure CloudApp subdomain through the &lt;em&gt;CNAME&lt;/em&gt; record.&lt;/p&gt;
+&lt;p&gt;As you can see, the status field has the value &lt;em&gt;NXDOMAIN&lt;/em&gt;, which means that the queried subdomain does not exist in the DNS. Specifically, &lt;em&gt;NXDOMAIN&lt;/em&gt; stands for &lt;em&gt;Non-Existent Domain&lt;/em&gt; and this status is returned when the DNS resolver cannot find any information, such as IP address or other records, for the specified subdomain. Also in &lt;em&gt;ANSWER SECTION&lt;/em&gt; and &lt;em&gt;AUTHORITY SECTION&lt;/em&gt; you can see how Azure appears and how the subdomain points to an &lt;em&gt;Azure CloudApp&lt;/em&gt; subdomain through the &lt;em&gt;CNAME&lt;/em&gt; record.&lt;/p&gt;
 
 &lt;div id=&quot;section-id-3&quot; /&gt;
 
@@ -105,7 +105,7 @@
 
 &lt;h2 id=&quot;31-steps-of-exploitation&quot;&gt;3.1. Steps of exploitation&lt;/h2&gt;
 
-&lt;p&gt;Exploitation of this vulnerability is very simple, especially being an Azure VM. Although you have all the information in the GoDiego post I mentioned before, I will detail the process step by step:&lt;/p&gt;
+&lt;p&gt;Exploitation of this vulnerability is very simple, especially being an Azure VM. Although you have all the information in the GoDiego’s post I mentioned before, I will detail the process step by step:&lt;/p&gt;
 
 &lt;ol&gt;
   &lt;li&gt;
@@ -135,12 +135,28 @@
 
     &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-bug-bounty-7/azure-vm-conf-3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-    &lt;p&gt;If not, you might get an error message like &lt;em&gt;The subdomain is already taken&lt;/em&gt;. I was talking to other bug bounty hunters who even had automated detection and exploitation of this vulnerability and they told me that Azure introduced a mitigation to subdomain takeovers recently. This mitigation includes a delay after the expiration of the domain, so although it looks vulnerable in the dig query, it is not possible to perform the subdomain takeover until some time has passed. In my case from detection to exploitation it took a month because I could not perform the takeover.&lt;/p&gt;
+    &lt;p&gt;If not, you might get an error message like &lt;em&gt;The subdomain is already taken&lt;/em&gt; or similar. I was talking to other bug bounty hunters who even had automated detection and exploitation of this vulnerability and they told me that Azure introduced a mitigation to subdomain takeovers recently. This mitigation includes a delay after the expiration of the domain, so although it looks vulnerable in the dig query, it is not possible to perform the subdomain takeover until some time has passed. In my case, a month passed from detection to exploitation because I could not perform the subdomain takeover before.&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
     &lt;p&gt;You must connect to the virtual machine via SSH using the assigned public IP and with the credentials you chose during configuration. This is necessary to store the HTML code you want to display on the vulnerable domain and to run the web service.&lt;/p&gt;
 
     &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-bug-bounty-7/azure-vm-connection.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+    &lt;p&gt;You will have to execute some commands like the following ones&lt;/p&gt;
+
+    &lt;div class=&quot;code-header&quot;&gt;
+   &lt;button class=&quot;copy-code-button&quot;&gt;
+     Copy
+   &lt;/button&gt;
+&lt;/div&gt;
+    &lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;ssh hackcommander@&amp;lt;public-azure-vm-ip&amp;gt;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;go&quot;&gt;mkdir www
+cd /www
+nano index.html
+nohup sudo python3 -m http.server 80 &amp;amp;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+
+    &lt;p&gt;where during the execution of the command &lt;em&gt;nano&lt;/em&gt; you will have to write the HTML code you want.&lt;/p&gt;
 
     &lt;p&gt;In my case I used the following HTML code generated by ChatGPT&lt;/p&gt;
 
@@ -230,9 +246,12 @@
 
     &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-bug-bounty-7/dig-after-takeover.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-    &lt;p&gt;and you will see how the subdomain already appears as taken and pointing to the IP of your virtual machine (region covered in green). If you now access the vulnerable subdomain you will see that the HTML code you have previously left in your Azure virtual machine appears&lt;/p&gt;
+    &lt;p&gt;and you will see how the subdomain already appears as taken and pointing to the IP of your virtual machine (region covered in green). Then by accessing the vulnerable subdomain you will see that the response is the one associated with the HTML code you coded in the Azure VM.&lt;/p&gt;
 
     &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-bug-bounty-7/website.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;And lastly, and most importantly… don’t forget to shut down and decommission the virtual machine and all Azure assets you may have created in the process! Azure charges by the hour, and if you’re not careful, they will take away your bounty :satisfied:.&lt;/p&gt;
   &lt;/li&gt;
 &lt;/ol&gt;
 
@@ -244,16 +263,16 @@
 
 &lt;h2 id=&quot;32--why-does-this-vulnerability-exist&quot;&gt;3.2.  Why does this vulnerability exist?&lt;/h2&gt;
 
-&lt;p&gt;As you can see, this is not a vulnerability due to technical implementation failures or something like that, it seems more like a vulnerability related to the management of the company’s assets. Some of the reasons that could lead to the presence of this vulnerability in the assets of a company are:&lt;/p&gt;
+&lt;p&gt;As you can see, this is not the typical vulnerability due to a flaw in the code. It seems more like a vulnerability related to the human factor and the management of the company’s assets. Some of the reasons that could lead to the presence of this vulnerability are:&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;&lt;strong&gt;Unused or Forgotten Services&lt;/strong&gt;: companies often use various third-party services or cloud platforms for different purposes. Over time, they might stop using a particular service or platform, but the corresponding subdomains are still configured in their DNS records.&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;Incomplete Cleanup&lt;/strong&gt;: when organizations migrate services or shut down projects, there might be oversight in cleaning up DNS records. Subdomains pointing to services that are no longer in use may be left behind.&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;Third-Party Integrations&lt;/strong&gt;: companies frequently integrate third-party services or applications into their infrastructure. If these integrations involve creating subdomains, neglecting to update or remove DNS records after discontinuing the service can lead to subdomain takeover vulnerabilities.&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;External Contractors and Developers&lt;/strong&gt;: companies often work with external contractors or developers for specific projects. If these external parties set up subdomains for their use, and the company doesn’t manage DNS records properly, subdomain takeover vulnerabilities may arise if the external parties’ services are terminated.&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;Lack of Inventory and Monitoring&lt;/strong&gt;: some organizations may not maintain a comprehensive inventory of their subdomains or lack proper monitoring mechanisms. This can result in not promptly identifying and addressing subdomains that are no longer in use.&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;Dynamic Cloud Infrastructure&lt;/strong&gt;: in cloud environments, organizations may dynamically create and destroy resources. If a subdomain is associated with a cloud resource (e.g., an Amazon S3 bucket) that gets deleted, but the DNS record remains, it can lead to subdomain takeover.&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;Employee Turnover&lt;/strong&gt;: when employees who manage DNS records leave the organization, and there is no proper knowledge transfer or documentation, it can lead to lapses in managing subdomains effectively.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Unused or forgotten services&lt;/strong&gt;: companies often use various third-party services or cloud platforms for different purposes. Over time, they might stop using a particular service or platform, but the corresponding subdomains are still configured in their DNS records.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Incomplete cleanup&lt;/strong&gt;: when organizations migrate services or shut down projects, there might be oversight in cleaning up DNS records. Subdomains pointing to services that are no longer in use may be left behind.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Third-Party integrations&lt;/strong&gt;: companies frequently integrate third-party services or applications into their infrastructure. If these integrations involve creating subdomains, neglecting to update or remove DNS records after discontinuing the service can lead to subdomain takeover vulnerabilities.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;External contractors and developers&lt;/strong&gt;: companies often work with external contractors or developers for specific projects. If these external parties set up subdomains for their use, and the company doesn’t manage DNS records properly, subdomain takeover vulnerabilities may arise if the external parties’ services are terminated.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Lack of inventory and monitoring&lt;/strong&gt;: some organizations may not maintain a comprehensive inventory of their subdomains or lack proper monitoring mechanisms. This can result in not promptly identifying and addressing subdomains that are no longer in use.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Dynamic cloud infrastructure&lt;/strong&gt;: in cloud environments, organizations may dynamically create and destroy resources. If a subdomain is associated with a cloud resource (e.g., an Amazon S3 bucket) that gets deleted, but the DNS record remains, it can lead to subdomain takeover.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Employee turnover&lt;/strong&gt;: when employees who manage DNS records leave the organization, and there is no proper knowledge transfer or documentation, it can lead to lapses in managing subdomains effectively.&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;div id=&quot;section-id-4&quot; /&gt;
@@ -279,7 +298,7 @@
   &lt;li&gt;When you find a vulnerability in a subdomain, try to look for the same vulnerability in other subdomains with a similar name. As we saw in this post, I found 2 subdomain takeovers in domains with very similar names, possibly because one belonged to the production environment and the other to a pre-production or QA environment.&lt;/li&gt;
   &lt;li&gt;There are some vulnerabilities whose exploitation can be very hard and whose impact is not always very high, as we saw in the post about &lt;a href=&quot;https://hackcommander.github.io/bug-bounty-4/&quot;&gt;HTTP request smuggling&lt;/a&gt;. However, there are also the opposite cases, like this one, in which we have a vulnerability that is very easy to detect and exploit and yet its impact is high. Many bug bounty hunters have fully automated detection, exploitation and reporting of vulnerabilities such as this one.&lt;/li&gt;
   &lt;li&gt;Try to help content creators you like. For example, the creator of reconFTW, &lt;a href=&quot;https://es.linkedin.com/in/alexisfdezfdez/es&quot;&gt;Alexis&lt;/a&gt;, has a &lt;a href=&quot;https://www.buymeacoffee.com/six2dez&quot;&gt;Buy Me a Coffee&lt;/a&gt; account where he can make donations. Making a donation of 1 coffee costs nothing and is a sign of recognition and admiration that encourages content creators to continue creating quality content.&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web pentesting" /><category term="osint" /><category term="reconftw" /><category term="nuclei" /><category term="subdomain takeover" /><summary type="html">Partial disclosure of a bug bounty report: subdomain takeover via unclaimed Azure VM.</summary></entry><entry><title type="html">Reflected XSS through POST request in a login form</title><link href="https://hackcommander.github.io/bug-bounty-6/" rel="alternate" type="text/html" title="Reflected XSS through POST request in a login form" /><published>2023-11-05T00:00:00+01:00</published><updated>2023-11-05T00:00:00+01:00</updated><id>https://hackcommander.github.io/bug-bounty-6</id><content type="html" xml:base="https://hackcommander.github.io/bug-bounty-6/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web pentesting" /><category term="vps" /><category term="osint" /><category term="reconftw" /><category term="nuclei" /><category term="subdomain takeover" /><summary type="html">Partial disclosure of a bug bounty report: subdomain takeover via unclaimed Azure VM.</summary></entry><entry><title type="html">Reflected XSS through POST request in a login form</title><link href="https://hackcommander.github.io/bug-bounty-6/" rel="alternate" type="text/html" title="Reflected XSS through POST request in a login form" /><published>2023-11-05T00:00:00+01:00</published><updated>2023-11-05T00:00:00+01:00</updated><id>https://hackcommander.github.io/bug-bounty-6</id><content type="html" xml:base="https://hackcommander.github.io/bug-bounty-6/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;

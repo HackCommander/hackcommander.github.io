@@ -41,6 +41,6 @@ var store = [{
         "teaser":"https://hackcommander.github.io/assets/images/general/bug-bounty.jpg"},{
         "title": "Subdomain takeover via unclaimed Azure VM",
         "excerpt":"Summary 1. Asset discovery 2. Vulnerability discovery 3. Vulnerability exploitation 3.1. Steps of exploitation 3.2. Why does this vulnerability exist? 4. Report resolution 5. Lessons learned :warning: This bug was reported in a private bug bounty program in which it is not allowed to publish the vulnerabilities found. So this...","categories": ["bug bounty"],
-        "tags": ["web pentesting","osint","reconftw","nuclei","subdomain takeover"],
+        "tags": ["web pentesting","vps","osint","reconftw","nuclei","subdomain takeover"],
         "url": "https://hackcommander.github.io/bug-bounty-7/",
         "teaser":"https://hackcommander.github.io/assets/images/general/bug-bounty.jpg"}]
