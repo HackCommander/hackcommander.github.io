@@ -9,19 +9,19 @@
   <head>
     <meta charset="utf-8">
 
-<!-- begin _includes/seo.html --><title>Reflected XSS bypassing a 302 Security Redirect due to the presence of Javascript function calls - hackcommander.github.io</title>
-<meta name="description" content="Partial disclosure of a bug bounty report: reflected XSS bypassing a 302 Security Redirect due to the presence of Javascript function calls.">
+<!-- begin _includes/seo.html --><title>Reflected XSS bypassing hidden input tag and auto-submit script in a form - hackcommander.github.io</title>
+<meta name="description" content="Partial disclosure of a bug bounty report: reflected XSS bypassing hidden input tag and auto-submit script in a form.">
 
 
 
 <meta property="og:type" content="article">
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="hackcommander.github.io">
-<meta property="og:title" content="Reflected XSS bypassing a 302 Security Redirect due to the presence of Javascript function calls">
-<meta property="og:url" content="https://hackcommander.github.io/bug-bounty-3/">
+<meta property="og:title" content="Reflected XSS bypassing hidden input tag and auto-submit script in a form">
+<meta property="og:url" content="https://hackcommander.github.io/bug-bounty-8/">
 
 
-  <meta property="og:description" content="Partial disclosure of a bug bounty report: reflected XSS bypassing a 302 Security Redirect due to the presence of Javascript function calls.">
+  <meta property="og:description" content="Partial disclosure of a bug bounty report: reflected XSS bypassing hidden input tag and auto-submit script in a form.">
 
 
 
@@ -31,7 +31,7 @@
 
 
 
-  <meta property="article:published_time" content="2023-03-06T00:00:00+01:00">
+  <meta property="article:published_time" content="2023-12-10T00:00:00+01:00">
 
 
 
@@ -42,7 +42,7 @@
   
 
 
-<link rel="canonical" href="https://hackcommander.github.io/bug-bounty-3/">
+<link rel="canonical" href="https://hackcommander.github.io/bug-bounty-8/">
 
 
 
@@ -179,7 +179,7 @@
         <span class="sep">/</span>
       
       
-        <li class="current">Reflected XSS bypassing a 302 Security Redirect due to the presence of Javascript function calls</li>
+        <li class="current">Reflected XSS bypassing hidden input tag and auto-submit script in a form</li>
       
     
   </ol>
@@ -372,15 +372,15 @@
 
 
   <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
-    <meta itemprop="headline" content="Reflected XSS bypassing a 302 Security Redirect due to the presence of Javascript function calls">
-    <meta itemprop="description" content="Partial disclosure of a bug bounty report: reflected XSS bypassing a 302 Security Redirect due to the presence of Javascript function calls.">
-    <meta itemprop="datePublished" content="March 06, 2023">
+    <meta itemprop="headline" content="Reflected XSS bypassing hidden input tag and auto-submit script in a form">
+    <meta itemprop="description" content="Partial disclosure of a bug bounty report: reflected XSS bypassing hidden input tag and auto-submit script in a form.">
+    <meta itemprop="datePublished" content="December 10, 2023">
     
 
     <div class="page__inner-wrap">
       
         <header>
-          <h1 id="page-title" class="page__title" itemprop="headline">Reflected XSS bypassing a 302 Security Redirect due to the presence of Javascript function calls
+          <h1 id="page-title" class="page__title" itemprop="headline">Reflected XSS bypassing hidden input tag and auto-submit script in a form
 </h1>
           
         </header>
@@ -390,7 +390,7 @@
         
         <p class="page__meta">
           
-            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2023-03-06T00:00:00+01:00">March 06, 2023 </time> 
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2023-12-10T00:00:00+01:00">December 10, 2023 </time> 
           
           
         </p>
@@ -416,7 +416,7 @@
   <p><img class="emoji" title=":warning:" alt=":warning:" src="https://github.githubassets.com/images/icons/emoji/unicode/26a0.png" height="20" width="20"> <span style="color:red">This bug was reported in a private program in which it is not allowed to publish the vulnerabilities found. So this is a partial disclosure, only the essential technical details are exposed.</span></p>
 </blockquote>
 
-<p>In this post I am going to show an interesting XSS that I reported in a bug bounty program: reflected XSS bypassing a <em>302 Security Redirect</em> due to the presence of Javascript function calls. As a good novel, it has all the elements to be an interesting report: a bypass, a custom payload, a PortSwigger’s research article… I hope you enjoy it and learn something new!</p>
+<p>In this post I am going to show one of the strangest XSS I have ever found: reflected XSS bypassing hidden input tag and auto-submit script in a form. I was racking my brain for several days with this XSS, and I almost gave up. I will explain step by step all the difficulties that I found, how I managed to overcome them and also some doubts that arose that I did not know how to answer.</p>
 
 <div id="section-id-1"></div>
 
@@ -462,11 +462,9 @@
 
 <p>In this case I got an output like the following</p>
 
-<p><img src="/assets/images/2023-03-06-bug-bounty-3/gau-kxss-output.png" alt=""></p>
+<p><img src="/assets/images/2023-12-10-bug-bounty-8/gau-kxss-output.png" alt=""></p>
 
-<p>where the blue color is obfuscating unimportant findings and the red color is obfuscating the XSS candidate URLs.</p>
-
-<p>As you can see, there are 2 parameters that reflect all the dangerous characters: <em>utm_campaign</em> and <em>utm_source</em>. Both parameters belong to the same URL and in fact in the URL there were more <a href="https://en.wikipedia.org/wiki/UTM_parameters">UTM parameters</a> in the same situation. It is not the first time I find an XSS in this type of parameters so it is always worth taking a look at them.</p>
+<p>The parameter had no special meaning. In fact all the parameters of the URL were vulnerable to XSS.</p>
 
 <div id="section-id-3"></div>
 
@@ -476,30 +474,7 @@
 
 <h2 id="31-steps-of-exploitation">3.1. Steps of exploitation</h2>
 
-<p>Although there are several UTM parameters that may be vulnerable to XSS, I am going to focus on the <em>utm_source</em> parameter. I have seen that the <em>utm_source</em> parameter reflects all the dangerous characters but it’s important to see where the parameter is reflected in the response, that is, the context of the XSS. Why is this important? Because it’s essential to build a customized payload.</p>
-
-<p>By sending the payload <em>HackCommander</em> through the <em>utm_source</em> parameter I got the following response</p>
-
-<p><img src="/assets/images/2023-03-06-bug-bounty-3/repeater-exploitation-1.png" alt=""></p>
-
-<p>As you can see the payload is reflected inside a Javascript script, so the potential XSS would be in a Javascript context. Within the script, the payload is reflected inside a dictionary that is passed as a parameter to the <em>push</em> method of the <em>dataLayer</em> array. The yellow color is obfuscating the value of one of the dictionary keys so the payload <em>HackCommander</em> is reflected inside one of the dictionary values, not inside one of the keys.</p>
-
-<p>So if I want to inject Javascript code I have to send a payload with the following characters:</p>
-
-<ol>
-  <li>
-<span style="color:red">”</span> to close the string.</li>
-  <li>
-<span style="color:red">}</span> to close the dictionary.</li>
-  <li>
-<span style="color:red">)</span> to close the call to the <em>push</em> method.</li>
-  <li>
-<span style="color:red">;</span> to close the Javascript line of code which calls the push method of the <em>dataLayer</em> array.</li>
-  <li>A Javascript payload such as <span style="color:red">alert(1);</span>.</li>
-  <li>A <span style="color:red">&lt;/script&gt;</span> tag to close the Javascript script to avoid Javascript syntax errors.</li>
-</ol>
-
-<p>Before injecting any Javascript payload, let’s see if I can close the <em>push</em> method and inject some string into the script. Sending a payload like the following</p>
+<p>The first thing I did was to check where the payload is reflected by sending the following payload</p>
 
 <div class="code-header">
   <button class="copy-code-button">
@@ -507,14 +482,14 @@
   </button>
 </div>
 
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"});HackCommander;<span class="nt">&lt;/script&gt;</span>
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>HackCommander
 </code></pre></div></div>
 
-<p>I got the following response</p>
+<p>The answer was</p>
 
-<p><img src="/assets/images/2023-03-06-bug-bounty-3/repeater-exploitation-2.png" alt=""></p>
+<p><img src="/assets/images/2023-12-10-bug-bounty-8/burp-repeater-1.png" alt=""></p>
 
-<p>So far so good! Then I tried to send the following payload</p>
+<p>so the payload is reflected in the attribute <em>value</em> of an input tag. After this I tried to send the payload</p>
 
 <div class="code-header">
   <button class="copy-code-button">
@@ -522,16 +497,10 @@
   </button>
 </div>
 
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"});alert(1);<span class="nt">&lt;/script&gt;</span>
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>" autofocus onfocus="alert(1)"&gt;
 </code></pre></div></div>
 
-<p>and I got the following response</p>
-
-<p><img src="/assets/images/2023-03-06-bug-bounty-3/repeater-exploitation-3.png" alt=""></p>
-
-<p>The server didn’t like something because when I changed the <em>HackCommander</em> payload to the Javascript payload <em>alert(1)</em> it returned a <em>302 Security Redirect</em>. It is possible that there was some WAF or server-side configuration implemented to detect potentially dangerous payloads, in this case Javascript function calls.</p>
-
-<p>Javascript allows to use `` instead of () to call functions such as alert (<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals">Template literals</a>), that is, it allows to use calls of the form alert`1`. Not all security measures take into account this flexibility of Javascript and only blacklist expressions of the form <em>string1(string2)</em>. Therefore, a typical bypass for this type of situation is to change the () to ``, that is, use a payload of the type</p>
+<p>but the WAF stopped the request, so I changed it to the payload.</p>
 
 <div class="code-header">
   <button class="copy-code-button">
@@ -539,20 +508,18 @@
   </button>
 </div>
 
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"});alert`1`;<span class="nt">&lt;/script&gt;</span>
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>" autofocus onfocus="[].map.call`${alert}1`"&gt;
 </code></pre></div></div>
 
-<p>In spite of this, I received the following response</p>
+<p>and this was the response</p>
 
-<p><img src="/assets/images/2023-03-06-bug-bounty-3/repeater-exploitation-4.png" alt=""></p>
+<p><img src="/assets/images/2023-12-10-bug-bounty-8/burp-repeater-2.png" alt=""></p>
 
-<p>DAMN! It doesn’t work. So… I had to follow another strategy.</p>
+<p>As you can see the problem was the alert(1) function, but this payload bypasses the WAF without problems.</p>
 
-<p>After a while, I remembered a Linkedin post I had seen from the PortSwigger researching team that talked about different ways to call a JavaScript function without parentheses</p>
+<p>However, the alert did not appear on the screen. The above payload is used a lot in XSS in the context of the attributes and that is why I used it. However, looking at the tag in which the payload is injected you can see that it is an input tag with type <em>hidden</em>, which means that the tag is hidden, it is not visible. In these cases it is impossible to focus on the tag so the attribute <em>autofocus</em> has no effect, it is not a valid attribute. That is why the code of the attribute <em>onfocus</em> is never executed and therefore the payload is not valid to exploit the XSS.</p>
 
-<p><a href="https://portswigger.net/research/the-seventh-way-to-call-a-javascript-function-without-parentheses">The seventh way to call a JavaScript function without parentheses (PortSwigger)</a></p>
-
-<p>After taking a look at all the proposed payloads, I thought that the seventh method discovered might fit my needs. Therefore I sent the following payload</p>
+<p>So there is not much to do injecting code into the input tag, so it will be necessary to break the tag and inject a new one. That’s why I sent the following payload</p>
 
 <div class="code-header">
   <button class="copy-code-button">
@@ -560,34 +527,64 @@
   </button>
 </div>
 
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"});[].map.call`${alert}1`;<span class="nt">&lt;/script&gt;</span>
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"&gt;<span class="nt">&lt;img</span> <span class="na">src=</span><span class="s">1</span> <span class="na">onerror=</span><span class="s">"[].map.call`${alert}1`"</span><span class="nt">&gt;</span>
 </code></pre></div></div>
 
-<p>and I received the following response</p>
+<p>to inject an img tag, and this was the response</p>
 
-<p><img src="/assets/images/2023-03-06-bug-bounty-3/repeater-exploitation-5.png" alt=""></p>
+<p><img src="/assets/images/2023-12-10-bug-bounty-8/burp-repeater-3.png" alt=""></p>
 
-<p>The payload is completely reflected! Redirection bypassed!</p>
+<p>Seeing this response, one would expect that the alert should be executed, but it was not. When I activated the burpsuite proxy and sent the request I found that another request was sent second. This request was the one associated to the form in which we were injecting code and that has an auto-submit script, that is to say, that it is sent automatically.</p>
 
-<p>After that, clicking in the option <em>Show response in browser</em> I got the following response</p>
+<p>I thought the problem might be that the img tag was being injected into a form so I sent the following payload</p>
 
-<p><img src="/assets/images/2023-03-06-bug-bounty-3/repeater-exploitation-6.png" alt=""></p>
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
 
-<p>with an empty alert. After clicking <em>OK</em> I got the following response</p>
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"&gt;<span class="nt">&lt;/FORM&gt;&lt;img</span> <span class="na">src=</span><span class="s">1</span> <span class="na">onerror=</span><span class="s">"[].map.call`${alert}1`"</span><span class="nt">&gt;</span>
+</code></pre></div></div>
 
-<p><img src="/assets/images/2023-03-06-bug-bounty-3/repeater-exploitation-7.png" alt=""></p>
+<p>to check if removing the img tag from the form would execute the alert. The response was</p>
 
-<p>with the <em>alert(1)</em>. I am not sure why the empty <em>alert</em> appeared but the important fact is that the <em>alert(1)</em> was executed.</p>
+<p><img src="/assets/images/2023-12-10-bug-bounty-8/burp-repeater-4.png" alt=""></p>
 
-<p>This is why it is important to keep up to date in the cybersecurity field and read all the researching articles.</p>
+<p>and the behavior was the same.</p>
+
+<p>In my opinion, this means that it is prioritizing the execution of the auto-submit JavaScript code before the processing of the injected img tag. However, I don’t understand why because the img tag is part of the HTML code as well as the form so it should be processed before the JavaScript code.</p>
+
+<p>From this idea I thought that I should think of an event that could be executed before any JavaScript code and I thought in the payload I used in the following post</p>
+
+<p><a href="https://hackcommander.github.io/bug-bounty-5/">Reflected XSS in search filter clear button in an e-commerce website</a></p>
+
+<p>Maybe the focus of an attribute is executed before the auto-submit code so using the payload</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"&gt;<span class="nt">&lt;input</span> <span class="na">id=</span><span class="s">"xss"</span> <span class="na">onfocus=</span><span class="s">"[].map.call`${alert}1`"</span><span class="nt">&gt;</span>
+</code></pre></div></div>
+
+<p>and adding the term <em>#xss</em> at the end of the URL to force the focus to the injected input tag, the alert should be executed.</p>
+
+<p>The response was</p>
+
+<p><img src="/assets/images/2023-12-10-bug-bounty-8/burp-repeater-5.png" alt=""></p>
+
+<p>and the alert was executed</p>
+
+<p><img src="/assets/images/2023-12-10-bug-bounty-8/alert.png" alt=""></p>
 
 <div id="section-id-3-2"></div>
 
-<h2 id="32-why-does-the-payload-work">3.2. Why does the payload work?</h2>
+<h2 id="32-why-does-the-payload-work">3.2. Why does the payload work??</h2>
 
-<p>It is not the purpose of this section to explain the meaning of the payload as this can be seen in the PortSwigger link above. What this section is intended to explain is… Why did this payload bypass the <em>302 Security Redirect</em>? <strong>It is impossible to know for sure the answer to this question without having the source code but here is my theory</strong>.</p>
-
-<p>If you remember, in the previous section, the following payload</p>
+<p>This payload</p>
 
 <div class="code-header">
   <button class="copy-code-button">
@@ -595,12 +592,10 @@
   </button>
 </div>
 
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"});alert(1);<span class="nt">&lt;/script&gt;</span>
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"&gt;<span class="nt">&lt;input</span> <span class="na">id=</span><span class="s">"xss"</span> <span class="na">onfocus=</span><span class="s">"[].map.call`${alert}1`"</span><span class="nt">&gt;</span>
 </code></pre></div></div>
 
-<p>returned a <em>302 Security Redirect</em>.</p>
-
-<p>But… What is the origin of this redirection? The <em>alert</em> string? The brackets? The combination of both?. The following payload</p>
+<p>works because the <em>#xss</em> event is processed before the form’s auto-submit, which makes sense. What doesn’t make sense is that payloads such as</p>
 
 <div class="code-header">
   <button class="copy-code-button">
@@ -608,14 +603,10 @@
   </button>
 </div>
 
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"});HackCommander(1);<span class="nt">&lt;/script&gt;</span>
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"&gt;<span class="nt">&lt;/FORM&gt;&lt;img</span> <span class="na">src=</span><span class="s">1</span> <span class="na">onerror=</span><span class="s">"[].map.call`${alert}1`"</span><span class="nt">&gt;</span>
 </code></pre></div></div>
 
-<p>is the same as the previous one but changing the <em>alert</em> string to the <em>HackCommander</em> string, and I got the following response</p>
-
-<p><img src="/assets/images/2023-03-06-bug-bounty-3/repeater-demonstration-blacklist-1.png" alt=""></p>
-
-<p>so… the problem was the <em>alert</em> string? To solve this question I sent the following payload</p>
+<p>don’t work, since the tag</p>
 
 <div class="code-header">
   <button class="copy-code-button">
@@ -623,42 +614,12 @@
   </button>
 </div>
 
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"});alert;<span class="nt">&lt;/script&gt;</span>
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;img</span> <span class="na">src=</span><span class="s">1</span> <span class="na">onerror=</span><span class="s">"[].map.call`${alert}1`"</span><span class="nt">&gt;</span>
 </code></pre></div></div>
 
-<p>and I got the following response</p>
+<p>should be processed before the auto-submit request. So I must admit that I don’t know why that payload doesn’t work…</p>
 
-<p><img src="/assets/images/2023-03-06-bug-bounty-3/repeater-demonstration-blacklist-2.png" alt=""></p>
-
-<p>so the problem was not the <em>alert</em> string. As you can see the problem was combination of the <em>alert</em> string plus the input argument.</p>
-
-<p>So what I think is causing the redirection is some regex-like mechanism that rejects payloads of the type <em>keyword(inputParams)</em> or <em>keyword`inputParams`</em> (calls to Javascript functions and methods, in general) where <em>keyword</em> is any element of a blacklist composed of Javascript method names, a blacklist of the type</p>
-
-<div class="code-header">
-  <button class="copy-code-button">
-    Copy
-  </button>
-</div>
-
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>alert
-prompt
-...
-</code></pre></div></div>
-
-<p>So the following payload</p>
-
-<div class="code-header">
-  <button class="copy-code-button">
-    Copy
-  </button>
-</div>
-
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"});[].map.call`${alert}1`;<span class="nt">&lt;/script&gt;</span>
-</code></pre></div></div>
-
-<p>probably bypass the redirection because the string <em>call</em> is not in the blacklist.</p>
-
-<p>In a nutshell, <strong>I think the vulnerability comes from using a blacklist of Javascript methods to reject suspicious payloads instead of using another more robust and general validation method</strong>.</p>
+<p style="text-align:center;"><img src="/assets/images/general/no-idea.gif" style="width: 600px;"></p>
 
 <div id="section-id-4"></div>
 
@@ -680,11 +641,9 @@ prompt
 <h2 id="5-lessons-learned">5. Lessons learned</h2>
 
 <ul>
-  <li>Scan all the company’s domains, do not stop looking for vulnerabilities in a domain because it is well known and you think that all the vulnerabilities are already reported. In this case I discovered an XSS in a well known domain of the company because the XSS was not obvious, it required a bypass, which although it was simple no one had discovered before. So… be humble with your colleagues but be confident, it is fundamental if you want to dedicate yourself seriously to bug bounty.</li>
-  <li>Be aware of the multipliers applied to the programs in which you participate. These multipliers can turn a low hanging fruit into a big banana <img class="emoji" title=":banana:" alt=":banana:" src="https://github.githubassets.com/images/icons/emoji/unicode/1f34c.png" height="20" width="20">.</li>
-  <li>It’s important to keep up to date in the cybersecurity field and read all the researching articles. Today’s discoveries can invalidate yesterday’s security measures.</li>
+  <li>This XSS was in one of the company’s main domains so it is unlikely that nobody had discovered it before. What probably happened is that they just used automated tools or gave up before finding the right payload. So, when you find the possible existence of a vulnerability, don’t give up, try harder until you find the right payload because it surely exists.</li>
+  <li>If you are struggling with an XSS trying to avoid a redirection, an auto-submit form… use the payload that we have seen in this post. As we saw, the focus through the hash in the URL is one of the first tasks that the browser performs when receiving a response, so it will be performed before any other task.</li>
 </ul>
-
 
         
       </section>
@@ -709,10 +668,6 @@ prompt
     
       
       
-      <a href="/tags/#burpsuite" class="page__taxonomy-item" rel="tag">burpsuite</a><span class="sep">, </span>
-    
-      
-      
       <a href="/tags/#bypass" class="page__taxonomy-item" rel="tag">bypass</a><span class="sep">, </span>
     
       
@@ -730,14 +685,6 @@ prompt
       
       
       <a href="/tags/#osint" class="page__taxonomy-item" rel="tag">osint</a><span class="sep">, </span>
-    
-      
-      
-      <a href="/tags/#portswigger" class="page__taxonomy-item" rel="tag">portswigger</a><span class="sep">, </span>
-    
-      
-      
-      <a href="/tags/#utm-parameters" class="page__taxonomy-item" rel="tag">utm parameters</a><span class="sep">, </span>
     
       
       
@@ -773,7 +720,7 @@ prompt
 
 
         
-          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2023-03-06T00:00:00+01:00">March 06, 2023</time></p>
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2023-12-10T00:00:00+01:00">December 10, 2023</time></p>
         
       </footer>
 
@@ -782,12 +729,11 @@ prompt
       
   <nav class="pagination">
     
-      <a href="/pentesting-article-1/" class="pagination--pager" title="How to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation
+      <a href="/bug-bounty-7/" class="pagination--pager" title="Subdomain takeover via unclaimed Azure VM
 ">Previous</a>
     
     
-      <a href="/bug-bounty-4/" class="pagination--pager" title="TE.TE HTTP request smuggling obfuscating the TE header
-">Next</a>
+      <a href="#" class="pagination--pager disabled">Next</a>
     
   </nav>
 
