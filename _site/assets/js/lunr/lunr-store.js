@@ -20,27 +20,32 @@ var store = [{
         "url": "https://hackcommander.github.io/pentesting-article-1/",
         "teaser":"https://hackcommander.github.io/assets/images/2022-11-12-pentesting-article-1/phpinfo-dvwa-1.png"},{
         "title": "Reflected XSS bypassing a 302 Security Redirect due to the presence of Javascript function calls",
-        "excerpt":"Summary 1. Asset discovery 2. Vulnerability discovery 3. Vulnerability exploitation 3.1. Steps of exploitation 3.2. Why does the payload work? 4. Report resolution 5. Lessons learned :warning: This bug was reported in a private bug bounty program in which it is not allowed to publish the vulnerabilities found. So this...","categories": ["bug bounty"],
+        "excerpt":"Summary 1. Asset discovery 2. Vulnerability discovery 3. Vulnerability exploitation 3.1. Steps of exploitation 3.2. Why does the payload work? 4. Report resolution 5. Lessons learned :warning: This bug was reported in a private program in which it is not allowed to publish the vulnerabilities found. So this is a...","categories": ["bug bounty"],
         "tags": ["web pentesting","osint","amass","httpx","gau","kxss","utm parameters","burpsuite","portswigger","xss","bypass"],
         "url": "https://hackcommander.github.io/bug-bounty-3/",
         "teaser":"https://hackcommander.github.io/assets/images/general/bug-bounty.jpg"},{
         "title": "TE.TE HTTP request smuggling obfuscating the TE header",
-        "excerpt":"Summary 1. Asset discovery 2. Vulnerability discovery 3. Vulnerability exploitation 3.1. Steps of exploitation 3.2. Why does the payload work? 4. Report resolution 5. Lessons learned :warning: This bug was reported in a private bug bounty program in which it is not allowed to publish the vulnerabilities found. So this...","categories": ["bug bounty"],
+        "excerpt":"Summary 1. Asset discovery 2. Vulnerability discovery 3. Vulnerability exploitation 3.1. Steps of exploitation 3.2. Why does the payload work? 4. Report resolution 5. Lessons learned :warning: This bug was reported in a private program in which it is not allowed to publish the vulnerabilities found. So this is a...","categories": ["bug bounty"],
         "tags": ["web pentesting","osint","amass","httpx","burpsuite","burp scanner","portswigger","http request smuggling","xss"],
         "url": "https://hackcommander.github.io/bug-bounty-4/",
         "teaser":"https://hackcommander.github.io/assets/images/general/bug-bounty.jpg"},{
         "title": "Reflected XSS in search filter clear button in an e-commerce website",
-        "excerpt":"Summary 1. Asset discovery 2. Vulnerability discovery 3. Vulnerability exploitation 3.1. Steps of exploitation 3.1.1. Struggling to find a payload 3.1.2. The winning payload 3.2. Why does the payload work? 4. Report resolution 5. Lessons learned :warning: This bug was reported in a private bug bounty program in which it...","categories": ["bug bounty"],
+        "excerpt":"Summary 1. Asset discovery 2. Vulnerability discovery 3. Vulnerability exploitation 3.1. Steps of exploitation 3.1.1. Struggling to find a payload 3.1.2. The winning payload 3.2. Why does the payload work? 4. Report resolution 5. Lessons learned :warning: This bug was reported in a private program in which it is not...","categories": ["bug bounty"],
         "tags": ["web pentesting","osint","amass","httpx","burpsuite","portswigger","xss"],
         "url": "https://hackcommander.github.io/bug-bounty-5/",
         "teaser":"https://hackcommander.github.io/assets/images/general/bug-bounty.jpg"},{
         "title": "Reflected XSS through POST request in a login form",
-        "excerpt":"Summary 1. Asset discovery 2. Vulnerability discovery 3. Vulnerability exploitation 3.1. Steps of exploitation 3.2. Why does the payload work? 4. Report resolution 5. Lessons learned :warning: This bug was reported in a private bug bounty program in which it is not allowed to publish the vulnerabilities found. So this...","categories": ["bug bounty"],
+        "excerpt":"Summary 1. Asset discovery 2. Vulnerability discovery 3. Vulnerability exploitation 3.1. Steps of exploitation 3.2. Why does the payload work? 4. Report resolution 5. Lessons learned :warning: This bug was reported in a private program in which it is not allowed to publish the vulnerabilities found. So this is a...","categories": ["bug bounty"],
         "tags": ["web pentesting","osint","amass","httpx","burpsuite","portswigger","xss","sop","cors"],
         "url": "https://hackcommander.github.io/bug-bounty-6/",
         "teaser":"https://hackcommander.github.io/assets/images/general/bug-bounty.jpg"},{
         "title": "Subdomain takeover via unclaimed Azure VM",
-        "excerpt":"Summary 1. Asset discovery 2. Vulnerability discovery 3. Vulnerability exploitation 3.1. Steps of exploitation 3.2. Why does this vulnerability exist? 4. Report resolution 5. Lessons learned :warning: This bug was reported in a private bug bounty program in which it is not allowed to publish the vulnerabilities found. So this...","categories": ["bug bounty"],
+        "excerpt":"Summary 1. Asset discovery 2. Vulnerability discovery 3. Vulnerability exploitation 3.1. Steps of exploitation 3.2. Why does this vulnerability exist? 4. Report resolution 5. Lessons learned :warning: This bug was reported in a private program in which it is not allowed to publish the vulnerabilities found. So this is a...","categories": ["bug bounty"],
         "tags": ["web pentesting","vps","osint","reconftw","nuclei","subdomain takeover"],
         "url": "https://hackcommander.github.io/bug-bounty-7/",
+        "teaser":"https://hackcommander.github.io/assets/images/general/bug-bounty.jpg"},{
+        "title": "Reflected XSS bypassing hidden input tag and auto-submit script in a form",
+        "excerpt":"Summary 1. Asset discovery 2. Vulnerability discovery 3. Vulnerability exploitation 3.1. Steps of exploitation 3.2. Why does the payload work? 4. Report resolution 5. Lessons learned :warning: This bug was reported in a private program in which it is not allowed to publish the vulnerabilities found. So this is a...","categories": ["bug bounty"],
+        "tags": ["web pentesting","osint","amass","httpx","gau","kxss","xss","bypass"],
+        "url": "https://hackcommander.github.io/bug-bounty-8/",
         "teaser":"https://hackcommander.github.io/assets/images/general/bug-bounty.jpg"}]
