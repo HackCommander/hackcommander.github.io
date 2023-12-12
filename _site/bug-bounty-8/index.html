@@ -474,7 +474,7 @@
 
 <h2 id="31-steps-of-exploitation">3.1. Steps of exploitation</h2>
 
-<p>The first thing I did was to check where the payload is reflected by sending the following payload</p>
+<p>The first thing I did was to check where the payload was reflected by sending the following payload</p>
 
 <div class="code-header">
   <button class="copy-code-button">
@@ -489,7 +489,7 @@
 
 <p><img src="/assets/images/2023-12-10-bug-bounty-8/burp-repeater-1.png" alt=""></p>
 
-<p>so the payload is reflected in the attribute <em>value</em> of an input tag. After this I tried to send the payload</p>
+<p>so the payload was reflected in the attribute <em>value</em> of an input tag. After this I tried to send the payload</p>
 
 <div class="code-header">
   <button class="copy-code-button">
@@ -515,7 +515,7 @@
 
 <p><img src="/assets/images/2023-12-10-bug-bounty-8/burp-repeater-2.png" alt=""></p>
 
-<p>As you can see the problem was the alert(1) function, but this payload bypasses the WAF without problems.</p>
+<p>As you can see the problem was the <em>alert(1)</em> function, but this payload bypasses the WAF without problems.</p>
 
 <p>However, the alert did not appear on the screen. The above payload is used a lot in XSS in the context of the attributes and that is why I used it. However, looking at the tag in which the payload is injected you can see that it is an input tag with type <em>hidden</em>, which means that the tag is hidden, it is not visible. In these cases it is impossible to focus on the tag so the attribute <em>autofocus</em> has no effect, it is not a valid attribute. That is why the code of the attribute <em>onfocus</em> is never executed and therefore the payload is not valid to exploit the XSS.</p>
 
@@ -534,7 +534,7 @@
 
 <p><img src="/assets/images/2023-12-10-bug-bounty-8/burp-repeater-3.png" alt=""></p>
 
-<p>Seeing this response, one would expect that the alert should be executed, but it was not. When I activated the burpsuite proxy and sent the request I found that another request was sent second. This request was the one associated to the form in which we were injecting code and that has an auto-submit script, that is to say, that it is sent automatically.</p>
+<p>Seeing this response, one would expect that the alert should be executed, but it was not. When I enabled the burpsuite proxy and sent the request, I found that another request was sent second. This request was the one associated to the form in which we were injecting code and that has an auto-submit script, that is to say, that it is sent automatically.</p>
 
 <p>I thought the problem might be that the img tag was being injected into a form so I sent the following payload</p>
 
@@ -621,6 +621,56 @@
 
 <p style="text-align:center;"><img src="/assets/images/general/no-idea.gif" style="width: 600px;"></p>
 
+<p>But we are bug bounty hunters, not monkeys banging on the keyboard, so it is worth at least trying to understand what is going on. So let’s play a little.</p>
+
+<p>If you host the following code</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;html&gt;</span>
+  <span class="nt">&lt;body&gt;</span>
+    <span class="nt">&lt;script&gt;</span><span class="nx">alert</span><span class="p">(</span><span class="dl">"</span><span class="s2">alert from script tag 1</span><span class="dl">"</span><span class="p">)</span><span class="nt">&lt;/script&gt;</span>
+    <span class="nt">&lt;img</span> <span class="na">src=</span><span class="s">1</span> <span class="na">onerror=</span><span class="s">"alert('alert from img tag 1')"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;form</span> <span class="na">action=</span><span class="s">"http://localhost/form-path/"</span> <span class="na">method=</span><span class="s">"POST"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"hidden"</span> <span class="na">name=</span><span class="s">"test1-name"</span> <span class="na">value=</span><span class="s">"test1-value"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;input</span> <span class="na">id=</span><span class="s">"xss"</span> <span class="na">onfocus=</span><span class="s">"alert('alert from input tag')"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;script&gt;</span><span class="nx">alert</span><span class="p">(</span><span class="dl">"</span><span class="s2">alert from script tag 2</span><span class="dl">"</span><span class="p">)</span><span class="nt">&lt;/script&gt;</span>
+      <span class="nt">&lt;script </span><span class="na">language=</span><span class="s">"JavaScript"</span><span class="nt">&gt;</span> <span class="nb">document</span><span class="p">.</span><span class="nx">forms</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">submit</span><span class="p">();</span> <span class="nt">&lt;/script&gt;</span>
+      <span class="nt">&lt;script&gt;</span><span class="nx">alert</span><span class="p">(</span><span class="dl">"</span><span class="s2">alert from script tag 3</span><span class="dl">"</span><span class="p">)</span><span class="nt">&lt;/script&gt;</span>
+    <span class="nt">&lt;/form&gt;</span>
+    <span class="nt">&lt;img</span> <span class="na">src=</span><span class="s">1</span> <span class="na">onerror=</span><span class="s">"alert('alert from img tag 2')"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;script&gt;</span><span class="nx">alert</span><span class="p">(</span><span class="dl">"</span><span class="s2">alert from script tag 4</span><span class="dl">"</span><span class="p">)</span><span class="nt">&lt;/script&gt;</span>
+  <span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</code></pre></div></div>
+
+<p>in local and make the request <em>http://localhost/#xss</em>, you will see the following alerts:</p>
+
+<ul>
+  <li>Displayed of <em>alert from script tag 1</em>.</li>
+  <li>Displayed of <em>alert from script tag 2</em>.</li>
+  <li>Displayed of <em>alert from img tag 1</em>.</li>
+  <li>Displayed of <em>alert from input tag</em>.</li>
+  <li>Form submit to the path <em>http://localhost/form-path/</em>.</li>
+</ul>
+
+<p>In a nutshell, this means that the JavaScript code was executed in the following order</p>
+
+<p><img src="/assets/images/2023-12-10-bug-bounty-8/execution-priority.png" alt=""></p>
+
+<p>And this is very interesting because we can extracts some conclusions:</p>
+
+<ul>
+  <li>There is sequentiality but within a prioritization. First executes the JavaScript code inside script tags (codes 1 and 2), then the JavaScript code of the events (codes 3 and 4) and finally the code associated with the form submission (code 5), which is also a JavaScript code between script tags but needs to process the form first.</li>
+  <li>No JavaScript code is executed after the form submission.</li>
+</ul>
+
+<p>This does not explain why the img payload did not work, but it does explain why the focus on the input tag is done before the form submission, and therefore works. As this is not a course on JavaScript, it is sufficient to keep in mind that <strong>the execution priority of JavaScript code is not trivial</strong> and it depends on which parts of the response is the code.</p>
+
 <div id="section-id-4"></div>
 
 <h2 id="4-report-resolution">4. Report resolution</h2>
@@ -642,7 +692,7 @@
 
 <ul>
   <li>This XSS was in one of the company’s main domains so it is unlikely that nobody had discovered it before. What probably happened is that they just used automated tools or gave up before finding the right payload. So, when you find the possible existence of a vulnerability, don’t give up, try harder until you find the right payload because it surely exists.</li>
-  <li>If you are struggling with an XSS trying to avoid a redirection, an auto-submit form… use the payload that we have seen in this post. As we saw, the focus through the hash in the URL is one of the first tasks that the browser performs when receiving a response, so it will be performed before any other task.</li>
+  <li>If you are struggling with an XSS trying to avoid a redirection, an auto-submit form… try to use the payload that we have seen in this post. As we saw, the focus through the hash in the URL is one of the first tasks that the browser performs when receiving a response, so it will be performed before tasks such as auto-submit form.</li>
 </ul>
 
         
