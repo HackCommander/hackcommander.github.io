@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.github.io/" rel="alternate" type="text/html" /><updated>2023-12-10T19:03:46+01:00</updated><id>https://hackcommander.github.io/feed.xml</id><title type="html">hackcommander.github.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">Reflected XSS bypassing hidden input tag and auto-submit script in a form</title><link href="https://hackcommander.github.io/bug-bounty-8/" rel="alternate" type="text/html" title="Reflected XSS bypassing hidden input tag and auto-submit script in a form" /><published>2023-12-10T00:00:00+01:00</published><updated>2023-12-10T00:00:00+01:00</updated><id>https://hackcommander.github.io/bug-bounty-8</id><content type="html" xml:base="https://hackcommander.github.io/bug-bounty-8/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.github.io/" rel="alternate" type="text/html" /><updated>2023-12-12T02:28:26+01:00</updated><id>https://hackcommander.github.io/feed.xml</id><title type="html">hackcommander.github.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">Reflected XSS bypassing hidden input tag and auto-submit script in a form</title><link href="https://hackcommander.github.io/bug-bounty-8/" rel="alternate" type="text/html" title="Reflected XSS bypassing hidden input tag and auto-submit script in a form" /><published>2023-12-10T00:00:00+01:00</published><updated>2023-12-10T00:00:00+01:00</updated><id>https://hackcommander.github.io/bug-bounty-8</id><content type="html" xml:base="https://hackcommander.github.io/bug-bounty-8/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
@@ -77,7 +77,7 @@
 
 &lt;h2 id=&quot;31-steps-of-exploitation&quot;&gt;3.1. Steps of exploitation&lt;/h2&gt;
 
-&lt;p&gt;The first thing I did was to check where the payload is reflected by sending the following payload&lt;/p&gt;
+&lt;p&gt;The first thing I did was to check where the payload was reflected by sending the following payload&lt;/p&gt;
 
 &lt;div class=&quot;code-header&quot;&gt;
   &lt;button class=&quot;copy-code-button&quot;&gt;
@@ -92,7 +92,7 @@
 
 &lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-10-bug-bounty-8/burp-repeater-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;so the payload is reflected in the attribute &lt;em&gt;value&lt;/em&gt; of an input tag. After this I tried to send the payload&lt;/p&gt;
+&lt;p&gt;so the payload was reflected in the attribute &lt;em&gt;value&lt;/em&gt; of an input tag. After this I tried to send the payload&lt;/p&gt;
 
 &lt;div class=&quot;code-header&quot;&gt;
   &lt;button class=&quot;copy-code-button&quot;&gt;
@@ -118,7 +118,7 @@
 
 &lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-10-bug-bounty-8/burp-repeater-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;As you can see the problem was the alert(1) function, but this payload bypasses the WAF without problems.&lt;/p&gt;
+&lt;p&gt;As you can see the problem was the &lt;em&gt;alert(1)&lt;/em&gt; function, but this payload bypasses the WAF without problems.&lt;/p&gt;
 
 &lt;p&gt;However, the alert did not appear on the screen. The above payload is used a lot in XSS in the context of the attributes and that is why I used it. However, looking at the tag in which the payload is injected you can see that it is an input tag with type &lt;em&gt;hidden&lt;/em&gt;, which means that the tag is hidden, it is not visible. In these cases it is impossible to focus on the tag so the attribute &lt;em&gt;autofocus&lt;/em&gt; has no effect, it is not a valid attribute. That is why the code of the attribute &lt;em&gt;onfocus&lt;/em&gt; is never executed and therefore the payload is not valid to exploit the XSS.&lt;/p&gt;
 
@@ -137,7 +137,7 @@
 
 &lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-10-bug-bounty-8/burp-repeater-3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;Seeing this response, one would expect that the alert should be executed, but it was not. When I activated the burpsuite proxy and sent the request I found that another request was sent second. This request was the one associated to the form in which we were injecting code and that has an auto-submit script, that is to say, that it is sent automatically.&lt;/p&gt;
+&lt;p&gt;Seeing this response, one would expect that the alert should be executed, but it was not. When I enabled the burpsuite proxy and sent the request, I found that another request was sent second. This request was the one associated to the form in which we were injecting code and that has an auto-submit script, that is to say, that it is sent automatically.&lt;/p&gt;
 
 &lt;p&gt;I thought the problem might be that the img tag was being injected into a form so I sent the following payload&lt;/p&gt;
 
@@ -224,6 +224,56 @@
 
 &lt;p style=&quot;text-align:center;&quot;&gt;&lt;img src=&quot;/assets/images/general/no-idea.gif&quot; style=&quot;width: 600px;&quot; /&gt;&lt;/p&gt;
 
+&lt;p&gt;But we are bug bounty hunters, not monkeys banging on the keyboard, so it is worth at least trying to understand what is going on. So let’s play a little.&lt;/p&gt;
+
+&lt;p&gt;If you host the following code&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;html&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;body&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;alert from script tag 1&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;img&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;src=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;onerror=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;alert(&apos;alert from img tag 1&apos;)&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;form&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;action=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;http://localhost/form-path/&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;method=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;POST&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;nt&quot;&gt;&amp;lt;input&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;hidden&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;test1-name&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;value=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;test1-value&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;nt&quot;&gt;&amp;lt;input&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;xss&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;onfocus=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;alert(&apos;alert from input tag&apos;)&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;alert from script tag 2&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;nt&quot;&gt;&amp;lt;script &lt;/span&gt;&lt;span class=&quot;na&quot;&gt;language=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;JavaScript&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;document&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;forms&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;submit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;alert from script tag 3&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;/form&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;img&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;src=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;onerror=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;alert(&apos;alert from img tag 2&apos;)&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;alert from script tag 4&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/body&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/html&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;in local and make the request &lt;em&gt;http://localhost/#xss&lt;/em&gt;, you will see the following alerts:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Displayed of &lt;em&gt;alert from script tag 1&lt;/em&gt;.&lt;/li&gt;
+  &lt;li&gt;Displayed of &lt;em&gt;alert from script tag 2&lt;/em&gt;.&lt;/li&gt;
+  &lt;li&gt;Displayed of &lt;em&gt;alert from img tag 1&lt;/em&gt;.&lt;/li&gt;
+  &lt;li&gt;Displayed of &lt;em&gt;alert from input tag&lt;/em&gt;.&lt;/li&gt;
+  &lt;li&gt;Form submit to the path &lt;em&gt;http://localhost/form-path/&lt;/em&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;In a nutshell, this means that the JavaScript code was executed in the following order&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-10-bug-bounty-8/execution-priority.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;And this is very interesting because we can extracts some conclusions:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;There is sequentiality but within a prioritization. First executes the JavaScript code inside script tags (codes 1 and 2), then the JavaScript code of the events (codes 3 and 4) and finally the code associated with the form submission (code 5), which is also a JavaScript code between script tags but needs to process the form first.&lt;/li&gt;
+  &lt;li&gt;No JavaScript code is executed after the form submission.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;This does not explain why the img payload did not work, but it does explain why the focus on the input tag is done before the form submission, and therefore works. As this is not a course on JavaScript, it is sufficient to keep in mind that &lt;strong&gt;the execution priority of JavaScript code is not trivial&lt;/strong&gt; and it depends on which parts of the response is the code.&lt;/p&gt;
+
 &lt;div id=&quot;section-id-4&quot; /&gt;
 
 &lt;h2 id=&quot;4-report-resolution&quot;&gt;4. Report resolution&lt;/h2&gt;
@@ -242,7 +292,7 @@
 
 &lt;ul&gt;
   &lt;li&gt;This XSS was in one of the company’s main domains so it is unlikely that nobody had discovered it before. What probably happened is that they just used automated tools or gave up before finding the right payload. So, when you find the possible existence of a vulnerability, don’t give up, try harder until you find the right payload because it surely exists.&lt;/li&gt;
-  &lt;li&gt;If you are struggling with an XSS trying to avoid a redirection, an auto-submit form… use the payload that we have seen in this post. As we saw, the focus through the hash in the URL is one of the first tasks that the browser performs when receiving a response, so it will be performed before any other task.&lt;/li&gt;
+  &lt;li&gt;If you are struggling with an XSS trying to avoid a redirection, an auto-submit form… try to use the payload that we have seen in this post. As we saw, the focus through the hash in the URL is one of the first tasks that the browser performs when receiving a response, so it will be performed before tasks such as auto-submit form.&lt;/li&gt;
 &lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web pentesting" /><category term="osint" /><category term="amass" /><category term="httpx" /><category term="gau" /><category term="kxss" /><category term="xss" /><category term="bypass" /><summary type="html">Partial disclosure of a bug bounty report: reflected XSS bypassing hidden input tag and auto-submit script in a form.</summary></entry><entry><title type="html">Subdomain takeover via unclaimed Azure VM</title><link href="https://hackcommander.github.io/bug-bounty-7/" rel="alternate" type="text/html" title="Subdomain takeover via unclaimed Azure VM" /><published>2023-11-13T00:00:00+01:00</published><updated>2023-11-13T00:00:00+01:00</updated><id>https://hackcommander.github.io/bug-bounty-7</id><content type="html" xml:base="https://hackcommander.github.io/bug-bounty-7/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
