@@ -29,6 +29,7 @@ I have made the following contributions:
 - [Personal blog about science and technology](https://hackcommander.github.io/).
 - Talk called *Pentesting: CTFs as a learning medium* at [Bluetab Company](https://www.bluetab.net/es/).
 - Pull request to HackTricks to add a [method to bypass the HttpOnly during an XSS exploit using the PHP info page](https://book.hacktricks.xyz/pentesting-web/hacking-with-cookies).
+- Final project degree of Computer Engineering about [CTFs as a means of learning in cybersecurity](http://e-spacio.uned.es/fez/view/bibliuned:grado-ETSIInformatica-II-Isantos).
 
 ## Attendances
 Attendee at the following cybersecurity events:
