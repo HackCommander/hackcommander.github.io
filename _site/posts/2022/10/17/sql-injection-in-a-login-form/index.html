@@ -1,0 +1,941 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Time-based SQL injection in a login form - hackcommander.github.io</title>
+<meta name="description" content="Partial disclosure of a bug bounty report: time-based SQL injection in login form.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.github.io">
+<meta property="og:title" content="Time-based SQL injection in a login form">
+<meta property="og:url" content="https://hackcommander.github.io/posts/2022/10/17/sql-injection-in-a-login-form/">
+
+
+  <meta property="og:description" content="Partial disclosure of a bug bounty report: time-based SQL injection in login form.">
+
+
+
+  <meta property="og:image" content="https://hackcommander.github.io/assets/images/general/bug-bounty.jpg">
+
+
+
+
+
+  <meta property="article:published_time" content="2022-10-17T00:00:00+02:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="https://hackcommander.github.io/posts/2022/10/17/sql-injection-in-a-login-form/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Iván Santos Malpica",
+      "url": "https://hackcommander.github.io",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.github.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+    
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links">
+<li class="masthead__menu-item">
+              <a href="/">Home</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/year-archive/">Posts</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/categories/">Categories</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/tags/">Tags</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/search/">Search</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/advertising/">Advertising</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/about/">About</a>
+            </li>
+</ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="https://hackcommander.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1">
+        </li>
+        <span class="sep">/</span>
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#posts" itemprop="item"><span itemprop="name">Posts</span></a>
+          <meta itemprop="position" content="2">
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#2022" itemprop="item"><span itemprop="name">2022</span></a>
+          <meta itemprop="position" content="3">
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#10" itemprop="item"><span itemprop="name">10</span></a>
+          <meta itemprop="position" content="4">
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#17" itemprop="item"><span itemprop="name">17</span></a>
+          <meta itemprop="position" content="5">
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        <li class="current">Time-based SQL injection in a login form</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">Iván Santos Malpica<br>(Aka. HackCommander)</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Mathematician and Computer Engineer / Pentester / Bug Bounty Hunter / CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+      
+      
+        <li>
+          <a href="mailto:ivansantosmalpica.contact@gmail.com">
+            <meta itemprop="email" content="ivansantosmalpica.contact@gmail.com">
+            <i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email
+          </a>
+        </li>
+      
+      
+      
+        <li>
+          <a href="https://www.linkedin.com/in/%E2%98%91iv%C3%A1n-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+      
+      
+        <li>
+          <a href="https://hackerone.com/hackcommander" target="_blank">
+            <img src="/assets/images/author-logos/hackerone.svg" alt="HackerOne" style="width: 16px; height: 16px;">
+            HackerOne
+          </a>
+        </li>
+      
+      
+      
+        <li>
+          <a href="https://twitter.com/H4ckC0mm4nd3r" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter
+          </a>
+        </li>
+      
+      
+      
+        
+          <li>
+            <a href="https://www.youtube.com/@ivansantosmalpica" itemprop="sameAs" rel="nofollow noopener noreferrer">
+              <i class="fab fa-fw fa-youtube" aria-hidden="true"></i> YouTube
+            </a>
+          </li>
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+      
+      
+        <li>
+          <a href="https://tryhackme.com/p/HackCommander" target="_blank">
+            <img src="/assets/images/author-logos/tryhackme.svg" alt="TryHackMe" style="width: 15px; height: 15px;">
+            TryHackMe
+          </a>
+        </li>
+      
+      
+      
+        <li>
+          <a href="https://app.hackthebox.com/profile/270539" target="_blank">
+            <img src="/assets/images/author-logos/hackthebox.svg" alt="HackTheBox" style="width: 15px; height: 15px;">
+            HackTheBox
+          </a>
+        </li>
+      
+      
+      
+        <li>
+          <a href="https://www.codewars.com/users/HackCommander" target="_blank">
+            <img src="/assets/images/author-logos/codewars.svg" alt="CodeWars" style="width: 15px; height: 15px;">
+            CodeWars
+          </a>
+        </li>
+      
+
+      
+        <li>
+          <a href="https://www.buymeacoffee.com/ivansantos" target="_blank">
+            <img src="/assets/images/author-logos/buymeacoffee.svg" alt="Buy Me a Coffee" style="width: 16px; height: 16px;">
+            Buy Me a Coffee
+          </a>
+        </li>
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Time-based SQL injection in a login form">
+    <meta itemprop="description" content="Partial disclosure of a bug bounty report: time-based SQL injection in login form.">
+    <meta itemprop="datePublished" content="October 17, 2022">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Time-based SQL injection in a login form
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2022-10-17T00:00:00+02:00">October 17, 2022 </time> 
+          
+          
+        </p>
+        <h2 id="summary">Summary</h2>
+
+<ul>
+  <li><a href="#section-id-1">1. Asset discovery</a></li>
+  <li><a href="#section-id-2">2. Vulnerability discovery</a></li>
+  <li>
+<a href="#section-id-3">3. Vulnerability exploitation</a>
+    <ul>
+      <li><a href="#section-id-3-1">3.1. Steps of exploitation</a></li>
+      <li><a href="#section-id-3-2">3.2. Why does the payload work?</a></li>
+      <li><a href="#section-id-3-3">3.3. Is it possible to extract information from the database through this type of SQL injections?</a></li>
+    </ul>
+  </li>
+  <li><a href="#section-id-4">4. Report resolution</a></li>
+  <li><a href="#section-id-5">5. Lessons learned</a></li>
+</ul>
+
+<p><img src="/assets/images/general/bug-bounty.jpg" alt=""></p>
+
+<blockquote>
+  <p><img class="emoji" title=":warning:" alt=":warning:" src="https://github.githubassets.com/images/icons/emoji/unicode/26a0.png" height="20" width="20"> <span style="color:red">This bug was reported in a private program in which it is not allowed to publish the vulnerabilities found. So this is a partial disclosure, only the essential technical details are exposed.</span></p>
+</blockquote>
+
+<p>In this post I am going to show the most critical vulnerability I have reported in a bug bounty program so far: a time-based SQL injection in a login form.</p>
+
+<div id="section-id-1"></div>
+
+<h2 id="1-asset-discovery">1. Asset discovery</h2>
+
+<p>I found this asset through <a href="https://leakix.net/">LeakIX</a>. LeakIX is an OSINT platform that combines a search engine that indexes public information and an open reporting platform linked to the results. I found this asset making a domain query of the type</p>
+
+<p><strong>example.com</strong></p>
+
+<p>and I got the following results</p>
+
+<p><img src="/assets/images/2022-10-17-sql-injection-in-a-login-form/leakix-results.png" alt=""></p>
+
+<p>where the colours are ofustating the following info:</p>
+
+<ul>
+  <li>
+<span style="color:red">Red</span>: not important info.</li>
+  <li>
+<span style="color:blue">Blue</span>: the domain name of the company that I was looking for.</li>
+  <li>
+<span style="color:green">Green</span>: the IP of the asset.</li>
+</ul>
+
+<p>The asset that I discovered didn’t have a related domain name, it was just an HTTP service on port 80 of an IP, so… Why did leakix return this IP as one of the results?</p>
+
+<p>That’s because the PHP info page was present in the website and the PHP variable $_SERVER[‘SERVER_ADMIN’] had assigned an email address whose domain was the domain used in the search. Continuing with the example domain, you can think of it as the e-mail address found is something like <strong>admin@example.com</strong>.</p>
+
+<p>As you can see in the following HackerOne report</p>
+
+<p><a href="https://hackerone.com/reports/1118898">PHP info page disclosure report in HackerOne</a></p>
+
+<p>PHP info page disclosure is considered a low severity vulnerability but a vulnerability should not be underestimated by its scoring. For example, the PHP info page can be used to bypass the HttpOnly flag in the cookies during the exploitation of an XSS to get a session hijacking.</p>
+
+<p>In this case, PHP info page disclosure has been crucial in finding this vulnerable asset because the HTTP service doesn’t have an related domain and naturally doesn’t have a TLS certificate to indicate that this asset belongs to the company in question. In fact, the company asked me how I had found this asset since they didn’t have it in their inventory.</p>
+
+<div id="section-id-2"></div>
+
+<h2 id="2-vulnerability-discovery">2. Vulnerability discovery</h2>
+
+<p>When I accessed to the website, I saw the following landing page</p>
+
+<p><img src="/assets/images/2022-10-17-sql-injection-in-a-login-form/landing-page.png" alt=""></p>
+
+<p>with the company logo and, when I saw this, I was sure that the asset belonged to the company.</p>
+
+<p>The website was an operations center for the clients of the company and it looked very simple, in fact Wappalyzer didn’t alert me that any web framework had been used. That’s a very good fact because to not use a web framework is usually less safe than using it.</p>
+
+<p>As you can see, the website has 2 buttons: one for login and the other one for signing up. The signing up button didn’t work because it was a closed registration website and to sign up on the website it was necessary to send an email to the email address that I have obfuscated with blue color. That was the same email address that appeared in the PHP variable $_SERVER[‘SERVER_ADMIN’] in the results of LeakIX.</p>
+
+<p>After clicking in the login button I got the following login form</p>
+
+<p><img src="/assets/images/2022-10-17-sql-injection-in-a-login-form/login-form.png" alt=""></p>
+
+<p>but… How did I discover the vulnerability?</p>
+
+<p>I sent a login request and intercepted it with Burpsuite. Then using the repeater I sent a request with a typical SQL injection payload in the parameter nombre_usuario and I got the following response</p>
+
+<p><img src="/assets/images/2022-10-17-sql-injection-in-a-login-form/error-500.png" alt=""></p>
+
+<p>The characters such as single quote, hashtag and others are the typical characters that can lead to break the SQL query (in this case, a SQL query to verify the credentials) in the backend, and getting an HTTP error 500 response is the symptom that there could be a SQL injection.</p>
+
+<p>You can see more info about how to detect SQL injection vulnerabilities in the following link</p>
+
+<p><a href="https://portswigger.net/web-security/sql-injection">How to detect SQL injection vulnerabilities</a></p>
+
+<p>An interesting fact is that the parameter password didn’t appear to be vulnerable. We will see why this might be in the section 3.2 but it could be because this parameter is not being entered in the vulnerable query.</p>
+
+<div id="section-id-3"></div>
+
+<h2 id="3-vulnerability-exploitation">3. Vulnerability exploitation</h2>
+
+<div id="section-id-3-1"></div>
+
+<h2 id="31-steps-of-exploitation">3.1. Steps of exploitation</h2>
+
+<p>First of all, it’s necessary to guess what is the DataBase Management System (DBMS), because each of them uses a different syntax. In the following link</p>
+
+<p><a href="https://portswigger.net/web-security/sql-injection/cheat-sheet">SQL injection cheat sheet</a></p>
+
+<p>you can see different payloads for different DBMS and purposes.</p>
+
+<p>This is not a CTF so, to discover the DBMS, it’s always best to examine the website well before fuzzing intensely.</p>
+
+<p>Do you remember the PHP info page disclosure vulnerability? Yes, this page will be useful in this step too, this is the power of a low severity vulnerability. As you can see in the following screenshot</p>
+
+<p><img src="/assets/images/2022-10-17-sql-injection-in-a-login-form/php-info-page.png" alt=""></p>
+
+<p>looking at the info.php page I found several references to MySQL. So MySQL is a candidate to be the DBMS used in the query.</p>
+
+<p>After a long time of testing MySQL payloads for different purposes such as login bypass, RCE… Finally the only one that worked was</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">user'+OR+(SELECT+SLEEP(0.02))=1#</span><span class="w">
+</span></code></pre></div></div>
+
+<p>which is a time-based SQL injection payload, where the + sign is the URL encoded form of the space character although %20 is valid too. I don’t know why, but there was a change of units in the sleep function, that is, a value of 0.02 in the sleep function produces a delay of approximately 2 seconds (2452 miliseconds) in the response, as you can see in the following screenshot</p>
+
+<p><img src="/assets/images/2022-10-17-sql-injection-in-a-login-form/response-delay.png" alt=""></p>
+
+<p>To make sure that the delay was proportional to the input of the sleep function, I sent the following request to the intruder</p>
+
+<p><img src="/assets/images/2022-10-17-sql-injection-in-a-login-form/intruder-positions.png" alt=""></p>
+
+<p>varying the value of the sleep function from 0.01 to 0.09</p>
+
+<p><img src="/assets/images/2022-10-17-sql-injection-in-a-login-form/intruder-payloads.png" alt=""></p>
+
+<p>and the result was as follows</p>
+
+<p><img src="/assets/images/2022-10-17-sql-injection-in-a-login-form/response-delay-intruder.png" alt=""></p>
+
+<p>where you can see the payloads in the column “Payload” and the delays in the columns “Response received” and “Response completed”, in miliseconds.</p>
+
+<p>This is the proof that SQL code is being executed.</p>
+
+<div id="section-id-3-2"></div>
+
+<h2 id="32-why-does-the-payload-work">3.2. Why does the payload work?</h2>
+
+<p>I don’t have the source code of the website but, I think that in the backend there was a MySQL query similar to this</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="n">id</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span> <span class="k">FROM</span> <span class="n">users</span> <span class="k">WHERE</span> <span class="n">username</span> <span class="o">=</span> <span class="err">$</span><span class="n">_POST</span><span class="p">[</span><span class="nv">"nombre_usuario"</span><span class="p">]</span>
+</code></pre></div></div>
+
+<p>I think this because the parameter password didn’t appear to be vulnerable so probably only the parameter nombre_usuario was used in the vulnerable query, that is, the query to get the data of the user. After that, the password retrieved in the query will be compared with the one entered by the user.</p>
+
+<p>If we enter a “non-malicious” user, such as</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">HackCommander
+</span></code></pre></div></div>
+
+<p>the query that will be executed is</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="n">id</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span> <span class="k">FROM</span> <span class="n">users</span> <span class="k">WHERE</span> <span class="n">username</span> <span class="o">=</span> <span class="s1">'HackCommander'</span>
+</code></pre></div></div>
+
+<p>but if we enter a “malicious” user such as</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">HackCommander' OR (SELECT SLEEP(0.02))=1#</span><span class="w">
+</span></code></pre></div></div>
+
+<p>and <strong>the backend no sanitization is being applied in the input</strong>, the query that will be executed is</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="n">id</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span> <span class="k">FROM</span> <span class="n">users</span> <span class="k">WHERE</span> <span class="n">username</span> <span class="o">=</span> <span class="s1">'HackCommander'</span> <span class="k">OR</span> <span class="p">(</span><span class="k">SELECT</span> <span class="n">SLEEP</span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">02</span><span class="p">))</span><span class="o">=</span><span class="mi">1</span><span class="o">#</span><span class="n">Here</span> <span class="n">would</span> <span class="n">be</span> <span class="n">the</span> <span class="n">remaining</span> <span class="n">code</span>
+</code></pre></div></div>
+
+<p>and, as you can see, the injected SQL code is executed in the where clause of the query. The reason of the hashtag is that the query could have some code after the evaluation of the parameter username so, to avoid syntax errors, it is a good practice to use the hashtag at the end of the payload, which is the character used in MySQL to write comments.</p>
+
+<div id="section-id-3-3"></div>
+
+<h2 id="33-is-it-possible-to-extract-information-from-the-database-through-this-type-of-sql-injections">3.3. Is it possible to extract information from the database through this type of SQL injections?</h2>
+
+<p>The answer is <strong>yes</strong>. But… Where do we get the information if we don’t know the name of any table, attribute…?</p>
+
+<p>In MySQL, and not only in MySQL, there is an important element to get informacion from the database: the <strong>information schema</strong>. The information schema (information_schema) is an ANSI-standard set of read-only views that provide information about all of the tables, views, columns, and procedures in a database. You can see more details about information_schema in the following link</p>
+
+<p><a href="https://www.sqlshack.com/learn-sql-the-information_schema-database/">Learn SQL: The INFORMATION_SCHEMA Database</a></p>
+
+<p>This is one of the resources used by Sqlmap to dump the content of a database in blind SQL injections, but this is not a CTF, it’s not necessary to dump all the database to get some usernames and the hashes of some passwords. In a bug bounty program it’s not necessary to dump all the database to get the bounty, it’s enough to give a PoC showing how you can get some information from the database. The most simple PoC that I could find was the following</p>
+
+<p><img src="/assets/images/2022-10-17-sql-injection-in-a-login-form/number-of-tables-in-the-database.png" alt=""></p>
+
+<p>using the following payload</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">USER'+OR+(SELECT+IF((select+count(*)+from+information_schema.tables)=341,SLEEP(0.05),"NO"))=1#</span><span class="w">
+</span></code></pre></div></div>
+
+<p>This PoC shows that the number of tables in the database is 341. I am going to explain the payload by breaking it down into several points:</p>
+
+<ul>
+  <li>
+<a href="https://www.geeksforgeeks.org/mysql-if-function/">MySQL IF()</a> is a MySQL function is a function that receives 3 parameters using the following syntax</li>
+</ul>
+
+<p><strong>IF(condition, value_if_true, value_if_false)</strong></p>
+
+<p>and it returns a value if a condition is TRUE, or another value if a condition is FALSE.</p>
+
+<ul>
+  <li>The <a href="https://www.mssqltips.com/sqlservertutorial/196/information-schema-tables/">information_schema.tables</a> is a view that allows to obtain information about all the views and tables of the database. Therefore, the following SQL code</li>
+</ul>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">select+count(*)+from+information_schema.tables
+</span></code></pre></div></div>
+
+<p>returns the number of tables in the database.</p>
+
+<ul>
+  <li>The following SQL code</li>
+</ul>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">(select+count(*)+from+information_schema.tables)=341
+</span></code></pre></div></div>
+
+<p>compares the number of tables in the database with the number 341.</p>
+
+<ul>
+  <li>The following SQL code</li>
+</ul>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">IF((select+count(*)+from+information_schema.tables)=341,SLEEP(0.05),"NO"))
+</span></code></pre></div></div>
+
+<p>produces a delay of 5 seconds if the number of tables is 341 and returns the string “NO” otherwise.</p>
+
+<ul>
+  <li>The above payload needs to be embedded into a SQL query so the following SQL code</li>
+</ul>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">(SELECT+IF((select+count(*)+from+information_schema.tables)=341,SLEEP(0.05),"NO"))=1
+</span></code></pre></div></div>
+
+<p>is SQL query that executes the IF function inside a comparison statement in a select clause.</p>
+
+<p><br></p>
+
+<p>As you can see in the previous screenshot, the request produces a delay of approximately 5 seconds (5822 miliseconds) so the number of tables in the database is 341. I sent the request to the intruder varying the value from 1 to 500 and the only request that produced a delay was the request with the value 341.</p>
+
+<p>As you have just seen, it is possible to get information from the database through a time-based SQL injection. This process can be generalized to obtain table names, attributes… character by character, in order to make queries to the really important tables and finally dump all the tables that can be accessed by the user executing the query.</p>
+
+<p>However, it is not an easy process and although there are tools such as Sqlmap that execute the process automatically, it is not necessary to run this type of tools in a bug bounty program to <strong>exploit</strong> a SQL injection because you can get the bounty just by attaching a simple poc that you can get information from the database. That is why I attached a very simple PoC obtaining only the number of tables in the database.</p>
+
+<p>Nevertheless, Sqlmap can be a good tool to <strong>detect</strong> SQL injections because this tool tests several payloads to automatically detect and classify the possible SQL injections present, and this process is not as noisy and aggressive as the one used to exploit them.</p>
+
+<div id="section-id-4"></div>
+
+<h2 id="4-report-resolution">4. Report resolution</h2>
+
+<p>The asset didn’t have a related domain name but it was an important asset of the company, that is why it was a closed registration website. SQL injection is usually considered a vulnerability of critical severity, especially in this case that I provided a PoC of how this injection could be used to get information from the database. Therefore, the report was classified as</p>
+
+<ul>
+  <li>
+<strong>Asset criticity</strong>: High</li>
+  <li>
+<strong>Vulnerability severity</strong>: Critical</li>
+  <li>
+<strong>Bounty</strong>: More than $900</li>
+</ul>
+
+<p>and I won the highest bounty of the program.</p>
+
+<div id="section-id-5"></div>
+
+<h2 id="5-lessons-learned">5. Lessons learned</h2>
+
+<ul>
+  <li>The reconnaisance step it’s very important, probably the most important one. It’s not a lost of time to use different OSINT tools, like LeakIX.</li>
+  <li>Low severity vulnerabilities should not be underestimated. Some of them, such as PHP info page disclosure, can lead to dangerous situations or make other vulnerabilities more critical.</li>
+  <li>Blind vulnerabilities, such as blind SQL injection, blind RCE… can be just as dangerous as non-blind vulnerabilities. Although it is not possible to obtain information directly from the response, it can be inferred through various techniques, such as producing delays based on a boolean condition.</li>
+</ul>
+
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#burpsuite" class="page__taxonomy-item" rel="tag">burpsuite</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#information-schema" class="page__taxonomy-item" rel="tag">information_schema</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#leakix" class="page__taxonomy-item" rel="tag">leakix</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#mysql" class="page__taxonomy-item" rel="tag">mysql</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#osint" class="page__taxonomy-item" rel="tag">osint</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#php-info-page" class="page__taxonomy-item" rel="tag">php info page</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#portswigger" class="page__taxonomy-item" rel="tag">portswigger</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#sql-injection" class="page__taxonomy-item" rel="tag">sql injection</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#sqlmap" class="page__taxonomy-item" rel="tag">sqlmap</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#web-pentesting" class="page__taxonomy-item" rel="tag">web pentesting</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#bug-bounty" class="page__taxonomy-item" rel="tag">bug bounty</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2022-10-17T00:00:00+02:00">October 17, 2022</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/posts/2022/09/20/reflected-xss-bypassing-html-tag-removal-sanitization/" class="pagination--pager" title="Reflected XSS bypassing HTML tag removal sanitization
+">Previous</a>
+    
+    
+      <a href="/posts/2022/11/12/bypass-httponly-via-php-info-page/" class="pagination--pager" title="How to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+  <script src="/assets/scripts/copyCode.js"></script>
+
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+<div style="background-color: #333; padding: 20px; text-align: center;">
+  <p style="color: white; font-size: 24px;">⭐ Liked this blog? Give it a <a href="https://github.com/HackCommander/hackcommander.github.io" style="color: white; font-weight: bold;">GitHub star</a>! ⭐</p>
+  <p style="color: white; font-size: 24px;">🔎 Connect with me on <a href="https://www.linkedin.com/in/%E2%98%91iv%C3%A1n-santos-malpica-1023a11b4/" style="color: white; font-weight: bold;">LinkedIn</a> for more hacking and bug bounty content! 🔎</p>
+  <p style="color: white; font-size: 24px;">🛍️ Interested in the products I use? Check out my <a href="https://hackcommander.github.io/advertising/" style="color: white; font-weight: bold;">recommended products</a> page for nice deals! 🛍️</p>
+  <p style="color: white; font-size: 24px;">☕️ If you found this blog helpful, consider <a href="https://www.buymeacoffee.com/ivansantos" style="color: white; font-weight: bold;">buying me a coffee</a>. Thanks a latte! ☕️</p>
+</div>
+<!-- end custom footer snippets -->
+
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">© 2023 Iván Santos Malpica</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-JGTZF7HYRM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-JGTZF7HYRM');
+</script>
+
+
+
+  </body>
+</html>

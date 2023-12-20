@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.github.io/" rel="alternate" type="text/html" /><updated>2023-12-12T02:28:26+01:00</updated><id>https://hackcommander.github.io/feed.xml</id><title type="html">hackcommander.github.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">Reflected XSS bypassing hidden input tag and auto-submit script in a form</title><link href="https://hackcommander.github.io/bug-bounty-8/" rel="alternate" type="text/html" title="Reflected XSS bypassing hidden input tag and auto-submit script in a form" /><published>2023-12-10T00:00:00+01:00</published><updated>2023-12-10T00:00:00+01:00</updated><id>https://hackcommander.github.io/bug-bounty-8</id><content type="html" xml:base="https://hackcommander.github.io/bug-bounty-8/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.github.io/" rel="alternate" type="text/html" /><updated>2023-12-20T17:35:12+01:00</updated><id>https://hackcommander.github.io/feed.xml</id><title type="html">hackcommander.github.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">Reflected XSS bypassing hidden input tag and auto-submit script in a form</title><link href="https://hackcommander.github.io/posts/2023/12/10/reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script/" rel="alternate" type="text/html" title="Reflected XSS bypassing hidden input tag and auto-submit script in a form" /><published>2023-12-10T00:00:00+01:00</published><updated>2023-12-10T00:00:00+01:00</updated><id>https://hackcommander.github.io/posts/2023/12/10/reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script</id><content type="html" xml:base="https://hackcommander.github.io/posts/2023/12/10/reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
@@ -65,7 +65,7 @@
 
 &lt;p&gt;In this case I got an output like the following&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-10-bug-bounty-8/gau-kxss-output.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-10-reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script/gau-kxss-output.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;The parameter had no special meaning. In fact all the parameters of the URL were vulnerable to XSS.&lt;/p&gt;
 
@@ -90,7 +90,7 @@
 
 &lt;p&gt;The answer was&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-10-bug-bounty-8/burp-repeater-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-10-reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script/burp-repeater-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;so the payload was reflected in the attribute &lt;em&gt;value&lt;/em&gt; of an input tag. After this I tried to send the payload&lt;/p&gt;
 
@@ -116,7 +116,7 @@
 
 &lt;p&gt;and this was the response&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-10-bug-bounty-8/burp-repeater-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-10-reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script/burp-repeater-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;As you can see the problem was the &lt;em&gt;alert(1)&lt;/em&gt; function, but this payload bypasses the WAF without problems.&lt;/p&gt;
 
@@ -135,7 +135,7 @@
 
 &lt;p&gt;to inject an img tag, and this was the response&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-10-bug-bounty-8/burp-repeater-3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-10-reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script/burp-repeater-3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Seeing this response, one would expect that the alert should be executed, but it was not. When I enabled the burpsuite proxy and sent the request, I found that another request was sent second. This request was the one associated to the form in which we were injecting code and that has an auto-submit script, that is to say, that it is sent automatically.&lt;/p&gt;
 
@@ -152,7 +152,7 @@
 
 &lt;p&gt;to check if removing the img tag from the form would execute the alert. The response was&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-10-bug-bounty-8/burp-repeater-4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-10-reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script/burp-repeater-4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;and the behavior was the same.&lt;/p&gt;
 
@@ -160,7 +160,7 @@
 
 &lt;p&gt;From this idea I thought that I should think of an event that could be executed before any JavaScript code and I thought in the payload I used in the following post&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&quot;https://hackcommander.github.io/bug-bounty-5/&quot;&gt;Reflected XSS in search filter clear button in an e-commerce website&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://hackcommander.github.io/posts/2023/06/24/reflected-xss-in-search-filter-clear-button/&quot;&gt;Reflected XSS in search filter clear button in an e-commerce website&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;Maybe the focus of an attribute is executed before the auto-submit code so using the payload&lt;/p&gt;
 
@@ -177,11 +177,11 @@
 
 &lt;p&gt;The response was&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-10-bug-bounty-8/burp-repeater-5.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-10-reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script/burp-repeater-5.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;and the alert was executed&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-10-bug-bounty-8/alert.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-10-reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script/alert.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;div id=&quot;section-id-3-2&quot; /&gt;
 
@@ -263,7 +263,7 @@
 
 &lt;p&gt;In a nutshell, this means that the JavaScript code was executed in the following order&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-10-bug-bounty-8/execution-priority.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-12-10-reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script/execution-priority.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;And this is very interesting because we can extracts some conclusions:&lt;/p&gt;
 
@@ -272,7 +272,7 @@
   &lt;li&gt;No JavaScript code is executed after the form submission.&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;This does not explain why the img payload did not work, but it does explain why the focus on the input tag is done before the form submission, and therefore works. As this is not a course on JavaScript, it is sufficient to keep in mind that &lt;strong&gt;the execution priority of JavaScript code is not trivial&lt;/strong&gt; and it depends on which parts of the response is the code.&lt;/p&gt;
+&lt;p&gt;This does not explain why the img payload did not work, but it does explain why the focus on the input tag is done before the form submission, and therefore works. As this is not a course on JavaScript, it is sufficient to keep in mind that &lt;strong&gt;the execution priority of JavaScript code is not trivial&lt;/strong&gt; and it depends on which parts of the response is the JavaScript code.&lt;/p&gt;
 
 &lt;div id=&quot;section-id-4&quot; /&gt;
 
@@ -293,7 +293,7 @@
 &lt;ul&gt;
   &lt;li&gt;This XSS was in one of the company’s main domains so it is unlikely that nobody had discovered it before. What probably happened is that they just used automated tools or gave up before finding the right payload. So, when you find the possible existence of a vulnerability, don’t give up, try harder until you find the right payload because it surely exists.&lt;/li&gt;
   &lt;li&gt;If you are struggling with an XSS trying to avoid a redirection, an auto-submit form… try to use the payload that we have seen in this post. As we saw, the focus through the hash in the URL is one of the first tasks that the browser performs when receiving a response, so it will be performed before tasks such as auto-submit form.&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web pentesting" /><category term="osint" /><category term="amass" /><category term="httpx" /><category term="gau" /><category term="kxss" /><category term="xss" /><category term="bypass" /><summary type="html">Partial disclosure of a bug bounty report: reflected XSS bypassing hidden input tag and auto-submit script in a form.</summary></entry><entry><title type="html">Subdomain takeover via unclaimed Azure VM</title><link href="https://hackcommander.github.io/bug-bounty-7/" rel="alternate" type="text/html" title="Subdomain takeover via unclaimed Azure VM" /><published>2023-11-13T00:00:00+01:00</published><updated>2023-11-13T00:00:00+01:00</updated><id>https://hackcommander.github.io/bug-bounty-7</id><content type="html" xml:base="https://hackcommander.github.io/bug-bounty-7/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web pentesting" /><category term="osint" /><category term="amass" /><category term="httpx" /><category term="gau" /><category term="kxss" /><category term="xss" /><category term="bypass" /><summary type="html">Partial disclosure of a bug bounty report: reflected XSS bypassing hidden input tag and auto-submit script in a form.</summary></entry><entry><title type="html">Subdomain takeover via unclaimed Azure VM</title><link href="https://hackcommander.github.io/posts/2023/11/13/subdomain-takeover-via-unclaimed-azure-vm/" rel="alternate" type="text/html" title="Subdomain takeover via unclaimed Azure VM" /><published>2023-11-13T00:00:00+01:00</published><updated>2023-11-13T00:00:00+01:00</updated><id>https://hackcommander.github.io/posts/2023/11/13/subdomain-takeover-via-unclaimed-azure-vm</id><content type="html" xml:base="https://hackcommander.github.io/posts/2023/11/13/subdomain-takeover-via-unclaimed-azure-vm/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
@@ -357,7 +357,7 @@
 
 &lt;p&gt;I also found this vulnerability through reconFTW, specifically through the execution of nuclei that reconFTW performs on the subdomains that it finds. As you can see in the following capture&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-bug-bounty-7/nuclei-output.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-subdomain-takeover-via-unclaimed-azure-vm/nuclei-output.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;the nuclei findings are stored in the directory &lt;em&gt;/nuclei_output&lt;/em&gt;, divided into different txt files by criticality. Subdomain takeover is a high criticality vulnerability so they are stored in the high.txt file, and as you can see… I found 2 at the same time! These subdomains were the same except for some different letters at the end, something like &lt;em&gt;support.example.com&lt;/em&gt; and &lt;em&gt;support-e.example.com&lt;/em&gt;. They probably represented the same website but in different environments: PRE, QA, PRO…&lt;/p&gt;
 
@@ -388,7 +388,7 @@
 
 &lt;p&gt;and the result was&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-bug-bounty-7/dig-before-takeover.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-subdomain-takeover-via-unclaimed-azure-vm/dig-before-takeover.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;As you can see, the status field has the value &lt;em&gt;NXDOMAIN&lt;/em&gt;, which means that the queried subdomain does not exist in the DNS. Specifically, &lt;em&gt;NXDOMAIN&lt;/em&gt; stands for &lt;em&gt;Non-Existent Domain&lt;/em&gt; and this status is returned when the DNS resolver cannot find any information, such as IP address or other records, for the specified subdomain. Also in &lt;em&gt;ANSWER SECTION&lt;/em&gt; and &lt;em&gt;AUTHORITY SECTION&lt;/em&gt; you can see how Azure appears and how the subdomain points to an &lt;em&gt;Azure CloudApp&lt;/em&gt; subdomain through the &lt;em&gt;CNAME&lt;/em&gt; record.&lt;/p&gt;
 
@@ -411,31 +411,31 @@
   &lt;li&gt;
     &lt;p&gt;Log in and select the option &lt;em&gt;Virtual Machines&lt;/em&gt;.&lt;/p&gt;
 
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-bug-bounty-7/azure-home.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-subdomain-takeover-via-unclaimed-azure-vm/azure-home.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
     &lt;p&gt;Select de option &lt;em&gt;Create&lt;/em&gt;.&lt;/p&gt;
 
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-bug-bounty-7/azure-create-vm.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-subdomain-takeover-via-unclaimed-azure-vm/azure-create-vm.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
     &lt;p&gt;Configure the machine as follows, but change the machine’s region to the one that corresponds in your case. In mine, as I said before, the region is &lt;em&gt;(US) East US 2&lt;/em&gt;.&lt;/p&gt;
 
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-bug-bounty-7/azure-vm-conf-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-subdomain-takeover-via-unclaimed-azure-vm/azure-vm-conf-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-bug-bounty-7/azure-vm-conf-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-subdomain-takeover-via-unclaimed-azure-vm/azure-vm-conf-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
     &lt;p&gt;Once you have created the machine, access the configuration and enter the name of the Azure subdomain associated with the takeover. If all goes well you will see something like the following&lt;/p&gt;
 
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-bug-bounty-7/azure-vm-conf-3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-subdomain-takeover-via-unclaimed-azure-vm/azure-vm-conf-3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
     &lt;p&gt;If not, you might get an error message like &lt;em&gt;The subdomain is already taken&lt;/em&gt; or similar. I was talking to other bug bounty hunters who even had automated detection and exploitation of this vulnerability and they told me that Azure introduced a mitigation to subdomain takeovers recently. This mitigation includes a delay after the expiration of the domain, so although it looks vulnerable in the dig query, it is not possible to perform the subdomain takeover until some time has passed. In my case, a month passed from detection to exploitation because I could not perform the subdomain takeover before.&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
     &lt;p&gt;You must connect to the virtual machine via SSH using the assigned public IP and with the credentials you chose during configuration. This is necessary to store the HTML code you want to display on the vulnerable domain and to run the web service.&lt;/p&gt;
 
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-bug-bounty-7/azure-vm-connection.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-subdomain-takeover-via-unclaimed-azure-vm/azure-vm-connection.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
     &lt;p&gt;You will have to execute some commands like the following ones&lt;/p&gt;
 
@@ -539,11 +539,11 @@ nohup sudo python3 -m http.server 80 &amp;amp;
   &lt;li&gt;
     &lt;p&gt;Finally, you can run the dig command again on the vulnerable subdomain&lt;/p&gt;
 
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-bug-bounty-7/dig-after-takeover.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-subdomain-takeover-via-unclaimed-azure-vm/dig-after-takeover.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
     &lt;p&gt;and you will see how the subdomain already appears as taken and pointing to the IP of your virtual machine (region covered in green). Then by accessing the vulnerable subdomain you will see that the response is the one associated with the HTML code you coded in the Azure VM.&lt;/p&gt;
 
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-bug-bounty-7/website.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-13-subdomain-takeover-via-unclaimed-azure-vm/website.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
     &lt;p&gt;And lastly, and most importantly… don’t forget to shut down and decommission the virtual machine and all Azure assets you may have created in the process! Azure charges by the hour, and if you’re not careful, they will take away your bounty :satisfied:.&lt;/p&gt;
@@ -591,9 +591,9 @@ nohup sudo python3 -m http.server 80 &amp;amp;
 &lt;ul&gt;
   &lt;li&gt;VPS are a very useful tool for bug bounty. In this case with the report of these subdomain takeovers I already amortized the cost of the VPS for the next 2 years and I had to to practically nothing.&lt;/li&gt;
   &lt;li&gt;When you find a vulnerability in a subdomain, try to look for the same vulnerability in other subdomains with a similar name. As we saw in this post, I found 2 subdomain takeovers in domains with very similar names, possibly because one belonged to the production environment and the other to a pre-production or QA environment.&lt;/li&gt;
-  &lt;li&gt;There are some vulnerabilities whose exploitation can be very hard and whose impact is not always very high, as we saw in the post about &lt;a href=&quot;https://hackcommander.github.io/bug-bounty-4/&quot;&gt;HTTP request smuggling&lt;/a&gt;. However, there are also the opposite cases, like this one, in which we have a vulnerability that is very easy to detect and exploit and yet its impact is high. Many bug bounty hunters have fully automated detection, exploitation and reporting of vulnerabilities such as this one.&lt;/li&gt;
+  &lt;li&gt;There are some vulnerabilities whose exploitation can be very hard and whose impact is not always very high, as we saw in the post about &lt;a href=&quot;https://hackcommander.github.io/posts/2023/05/03/te-te-http-request-smuggling-obfuscating-te-header/&quot;&gt;HTTP request smuggling&lt;/a&gt;. However, there are also the opposite cases, like this one, in which we have a vulnerability that is very easy to detect and exploit and yet its impact is high. Many bug bounty hunters have fully automated detection, exploitation and reporting of vulnerabilities such as this one.&lt;/li&gt;
   &lt;li&gt;Try to help content creators you like. For example, the creator of reconFTW, &lt;a href=&quot;https://es.linkedin.com/in/alexisfdezfdez/es&quot;&gt;Alexis&lt;/a&gt;, has a &lt;a href=&quot;https://www.buymeacoffee.com/six2dez&quot;&gt;Buy Me a Coffee&lt;/a&gt; account where he can make donations. Making a donation of 1 coffee costs nothing and is a sign of recognition and admiration that encourages content creators to continue creating quality content.&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web pentesting" /><category term="vps" /><category term="osint" /><category term="reconftw" /><category term="nuclei" /><category term="subdomain takeover" /><summary type="html">Partial disclosure of a bug bounty report: subdomain takeover via unclaimed Azure VM.</summary></entry><entry><title type="html">Reflected XSS through POST request in a login form</title><link href="https://hackcommander.github.io/bug-bounty-6/" rel="alternate" type="text/html" title="Reflected XSS through POST request in a login form" /><published>2023-11-05T00:00:00+01:00</published><updated>2023-11-05T00:00:00+01:00</updated><id>https://hackcommander.github.io/bug-bounty-6</id><content type="html" xml:base="https://hackcommander.github.io/bug-bounty-6/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web pentesting" /><category term="vps" /><category term="osint" /><category term="reconftw" /><category term="nuclei" /><category term="subdomain takeover" /><summary type="html">Partial disclosure of a bug bounty report: subdomain takeover via unclaimed Azure VM.</summary></entry><entry><title type="html">Reflected XSS through POST request in a login form</title><link href="https://hackcommander.github.io/posts/2023/11/05/reflected-xss-through-post-request-in-login-form/" rel="alternate" type="text/html" title="Reflected XSS through POST request in a login form" /><published>2023-11-05T00:00:00+01:00</published><updated>2023-11-05T00:00:00+01:00</updated><id>https://hackcommander.github.io/posts/2023/11/05/reflected-xss-through-post-request-in-login-form</id><content type="html" xml:base="https://hackcommander.github.io/posts/2023/11/05/reflected-xss-through-post-request-in-login-form/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
@@ -641,7 +641,7 @@ nohup sudo python3 -m http.server 80 &amp;amp;
 
 &lt;p&gt;The discovery of this vulnerability was fairly straightforward. I tried to login with the user &lt;em&gt;bugbounty&lt;/em&gt;, just to test the form, and I got the following response&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-05-bug-bounty-6/reflected-username.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-05-reflected-xss-through-post-request-in-login-form/reflected-username.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;This is suspicious because it is usual to find messages of the type &lt;em&gt;Incorrect credentials&lt;/em&gt;, where the reason for the failure is not detailed and the username is not reflected. Taking into account that the username is reflected, I sent the following payload as username&lt;/p&gt;
 
@@ -656,7 +656,7 @@ nohup sudo python3 -m http.server 80 &amp;amp;
 
 &lt;p&gt;and I got the following response&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-05-bug-bounty-6/alert.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-05-reflected-xss-through-post-request-in-login-form/alert.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;So… we have a POST XSS!&lt;/p&gt;
 
@@ -695,19 +695,19 @@ username=user123&lt;span class=&quot;err&quot;&gt;&amp;amp;&lt;/span&gt;password
   &lt;li&gt;
     &lt;p&gt;I sent the request to the Burp repeater&lt;/p&gt;
 
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-05-bug-bounty-6/burp-repeater.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-05-reflected-xss-through-post-request-in-login-form/burp-repeater.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
     &lt;p&gt;I right clicked on the request and selected &lt;em&gt;Engagement tools -&amp;gt; Generate CSRF PoC&lt;/em&gt;&lt;/p&gt;
 
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-05-bug-bounty-6/repeater-csrf-poc.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-05-reflected-xss-through-post-request-in-login-form/repeater-csrf-poc.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
     &lt;p&gt;Don’t get confused, this vulnerability is not a CSRF. They simply coincide in the first step, which involves generating an HTML/JavaScript code that sends a specific request to a domain. In this case, what I wanted to achieve is to obtain an HTML/JavaScript code that can be hosted on a malicious website, and when a user accesses it, it automatically sends the request with the XSS to the vulnerable domain. This Burp option was designed to exploit CSRFs but can also be used for PoCs like the one I am showing in this post, and in general for any vulnerability that involves generating HTML/JavaScript code that sends a request.&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
     &lt;p&gt;I selected &lt;em&gt;Options -&amp;gt; Include auto-submit script&lt;/em&gt; and then &lt;em&gt;Regenerate -&amp;gt; Test in browser&lt;/em&gt;&lt;/p&gt;
 
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-05-bug-bounty-6/csrf-poc-generator.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-05-reflected-xss-through-post-request-in-login-form/csrf-poc-generator.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
     &lt;p&gt;So in this example the malicious HTML/JavaScript code is&lt;/p&gt;
 
@@ -736,11 +736,11 @@ username=user123&lt;span class=&quot;err&quot;&gt;&amp;amp;&lt;/span&gt;password
   &lt;li&gt;
     &lt;p&gt;I Copied the URL&lt;/p&gt;
 
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-05-bug-bounty-6/csrf-poc-generator-url.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-05-reflected-xss-through-post-request-in-login-form/csrf-poc-generator-url.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
     &lt;p&gt;and pasted in the browser. After that, I checked that the alert was executed in the context of the vulnerable web site&lt;/p&gt;
 
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-05-bug-bounty-6/alert.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-05-reflected-xss-through-post-request-in-login-form/alert.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
     &lt;p&gt;This means that any user visiting the fake domain &lt;em&gt;example-support.com&lt;/em&gt;, where the malicious HTML/JavaScript code would be stored, will automatically send the malicious request to the vulnerable domain and suffer an XSS in the context of that domain.&lt;/p&gt;
   &lt;/li&gt;
@@ -771,11 +771,11 @@ username=user123&lt;span class=&quot;err&quot;&gt;&amp;amp;&lt;/span&gt;password
 
 &lt;p&gt;you will have a web server up on port 80 on your machine. At this point, if you set Burpsuite to intercept traffic and access the URL &lt;em&gt;http://localhost/&lt;/em&gt; you will see that the first request that is sent is obviously&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-05-bug-bounty-6/get-to-localhost.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-05-reflected-xss-through-post-request-in-login-form/get-to-localhost.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;and if you click on &lt;em&gt;Forward&lt;/em&gt; to give way to the next request you will see that the next request is&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-05-bug-bounty-6/post-from-localhost.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-11-05-reflected-xss-through-post-request-in-login-form/post-from-localhost.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;As you can see there are 2 headers, the &lt;em&gt;Origin&lt;/em&gt; and &lt;em&gt;Referer&lt;/em&gt; headers, where the domain localhost appears (the fake domain in a real attack), and the &lt;em&gt;Host&lt;/em&gt; header where the domain &lt;em&gt;example.com&lt;/em&gt; appears (the vulnerable domain in a real attack). This is what is called a &lt;strong&gt;cross-domain&lt;/strong&gt; request since the request comes from one domain but goes to a different one.&lt;/p&gt;
 
@@ -833,7 +833,7 @@ username=user123&lt;span class=&quot;err&quot;&gt;&amp;amp;&lt;/span&gt;password
   &lt;li&gt;No credentials does not mean game over. In a login form you can look for authentication vulnerabilities, SQL injection… or XSS, as in this case. This is the second post I publish about a vulnerability in a login form and both vulnerabilities were found without credentials.&lt;/li&gt;
   &lt;li&gt;Don’t give up if you find a vulnerability that is apparently not weaponizable and therefore has no impact. You may be able to chain it with another vulnerability or find an original attack vector to make an impact.&lt;/li&gt;
   &lt;li&gt;Try to find out why the techniques you are applying are not working, check the errors obtained and deepen the concepts. Sometimes bug bounty is like a rat race where you don’t allow yourself to go deep into the vulnerabilities you find to go for the next bug, but sometimes it’s good to stop and think about why the payload is not working. Don’t forget that although the main goal in bug bounty is supposed to be money, it should be learning, because the only way to get important bugs is to reach levels of knowledge that others haven’t reached.&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web pentesting" /><category term="osint" /><category term="amass" /><category term="httpx" /><category term="burpsuite" /><category term="portswigger" /><category term="xss" /><category term="sop" /><category term="cors" /><summary type="html">Partial disclosure of a bug bounty report: reflected XSS through POST request in a login form.</summary></entry><entry><title type="html">Reflected XSS in search filter clear button in an e-commerce website</title><link href="https://hackcommander.github.io/bug-bounty-5/" rel="alternate" type="text/html" title="Reflected XSS in search filter clear button in an e-commerce website" /><published>2023-06-24T00:00:00+02:00</published><updated>2023-06-24T00:00:00+02:00</updated><id>https://hackcommander.github.io/bug-bounty-5</id><content type="html" xml:base="https://hackcommander.github.io/bug-bounty-5/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web pentesting" /><category term="osint" /><category term="amass" /><category term="httpx" /><category term="burpsuite" /><category term="portswigger" /><category term="xss" /><category term="sop" /><category term="cors" /><summary type="html">Partial disclosure of a bug bounty report: reflected XSS through POST request in a login form.</summary></entry><entry><title type="html">Reflected XSS in search filter clear button in an e-commerce website</title><link href="https://hackcommander.github.io/posts/2023/06/24/reflected-xss-in-search-filter-clear-button/" rel="alternate" type="text/html" title="Reflected XSS in search filter clear button in an e-commerce website" /><published>2023-06-24T00:00:00+02:00</published><updated>2023-06-24T00:00:00+02:00</updated><id>https://hackcommander.github.io/posts/2023/06/24/reflected-xss-in-search-filter-clear-button</id><content type="html" xml:base="https://hackcommander.github.io/posts/2023/06/24/reflected-xss-in-search-filter-clear-button/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
@@ -897,7 +897,7 @@ username=user123&lt;span class=&quot;err&quot;&gt;&amp;amp;&lt;/span&gt;password
 
 &lt;p&gt;with some “dangerous” characters and I received the following response&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-06-24-bug-bounty-5/detection-request.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-06-24-reflected-xss-in-search-filter-clear-button/detection-request.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;As you can see the payload broke the a tag. The &amp;lt; character was not reflected but the “’&amp;gt; characters were, because as you can see it breaks the a tag making that the characters “&amp;gt; that formed the end of the tag are no longer part of it and now they are outside, as the arrow points out. This made me think that there could be an XSS.&lt;/p&gt;
 
@@ -928,15 +928,15 @@ username=user123&lt;span class=&quot;err&quot;&gt;&amp;amp;&lt;/span&gt;password
 
 &lt;p&gt;and I got the following response&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-06-24-bug-bounty-5/expoitation-onclick-burp.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-06-24-reflected-xss-in-search-filter-clear-button/expoitation-onclick-burp.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;The response in the browser looked like this&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-06-24-bug-bounty-5/expoitation-onclick-browser.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-06-24-reflected-xss-in-search-filter-clear-button/expoitation-onclick-browser.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;and by clicking on the &lt;em&gt;X&lt;/em&gt;, the &lt;em&gt;alert(1)&lt;/em&gt; was executed, as you can see in the following capture&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-06-24-bug-bounty-5/expoitation-onclick-alert.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-06-24-reflected-xss-in-search-filter-clear-button/expoitation-onclick-alert.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;But… what is this &lt;em&gt;X&lt;/em&gt;? It is the tag that we are dealing with in this XSS and its function is to serve as a kind of “button” to remove the filters set when you are looking for a product to buy, since this website was an e-commerce website. It serves to remove a concrete filter that as you can guess is of the type price, manufacturer, rating… and the title attribute of each a tag is something like &lt;em&gt;Remove + “name of the filter”&lt;/em&gt;. The title attribute is the injection point.&lt;/p&gt;
 
@@ -956,7 +956,7 @@ username=user123&lt;span class=&quot;err&quot;&gt;&amp;amp;&lt;/span&gt;password
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;p&gt;and it worked as you can see in the following capture&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-06-24-bug-bounty-5/expoitation-onmouseover-burp.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-06-24-reflected-xss-in-search-filter-clear-button/expoitation-onmouseover-burp.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Hovering the mouse over the X the &lt;em&gt;alert(1)&lt;/em&gt; was executed. But… the X is very small, the &lt;em&gt;alert(1)&lt;/em&gt; will only be executed if the user accidentally hover the mouse over the &lt;em&gt;X&lt;/em&gt;, which is not very likely.&lt;/p&gt;
 
@@ -981,11 +981,11 @@ username=user123&lt;span class=&quot;err&quot;&gt;&amp;amp;&lt;/span&gt;password
 
 &lt;p&gt;and it worked as you can see in the following capture&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-06-24-bug-bounty-5/expoitation-style-burp.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-06-24-reflected-xss-in-search-filter-clear-button/expoitation-style-burp.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Now almost the whole screen is purple (the blue areas were placed by me to obfuscate information) as you can see in the following capture&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-06-24-bug-bounty-5/expoitation-style-browser.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-06-24-reflected-xss-in-search-filter-clear-button/expoitation-style-browser.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;and it is enough to put the mouse over the purple area to execute the &lt;em&gt;alert(1)&lt;/em&gt;. This XSS still requires user interaction but this interaction is much more likely, it is almost certain. This is already something reportable.&lt;/p&gt;
 
@@ -1002,7 +1002,7 @@ username=user123&lt;span class=&quot;err&quot;&gt;&amp;amp;&lt;/span&gt;password
 
 &lt;p&gt;I sent this payload and it was reflected as you can see in the following capture&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-06-24-bug-bounty-5/expoitation-autofocus-burp.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-06-24-reflected-xss-in-search-filter-clear-button/expoitation-autofocus-burp.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;but the &lt;em&gt;alert(1)&lt;/em&gt; was not executed. Why? Because the only tags that support the &lt;em&gt;autofocus&lt;/em&gt; attribute are &lt;em&gt;input&lt;/em&gt;, &lt;em&gt;button&lt;/em&gt;, &lt;em&gt;select&lt;/em&gt; and &lt;em&gt;textarea&lt;/em&gt;.&lt;/p&gt;
 
@@ -1038,11 +1038,11 @@ username=user123&lt;span class=&quot;err&quot;&gt;&amp;amp;&lt;/span&gt;password
 
 &lt;p&gt;I can’t use the &lt;em&gt;autofocus&lt;/em&gt; attribute but I can name the tag with the attribute assignment &lt;em&gt;id=”xss”&lt;/em&gt; and force the focus on it with the term &lt;em&gt;#xss&lt;/em&gt;. It worked as you can see in the following capture&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-06-24-bug-bounty-5/expoitation-hash-burp.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-06-24-reflected-xss-in-search-filter-clear-button/expoitation-hash-burp.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Now the &lt;em&gt;alert(1)&lt;/em&gt; is executed with no user interaction as you can see in the following capture&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-06-24-bug-bounty-5/expoitation-hash-alert.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-06-24-reflected-xss-in-search-filter-clear-button/expoitation-hash-alert.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;:clap: :clap: :clap:&lt;/p&gt;
 
@@ -1111,7 +1111,7 @@ username=user123&lt;span class=&quot;err&quot;&gt;&amp;amp;&lt;/span&gt;password
   &lt;li&gt;Bug bounty is a competitive field but whenever you can collaborate with other bug bounty hunters. I think bug bounty is a scientific-technical field and in science collaboration is essential. Sharing the bounty is just a nice consequence of collaboration.&lt;/li&gt;
   &lt;li&gt;The way is usually more important than the result. In this case you saw how I was struggling until I found the winning payload and along the way I found beautiful jewels. In this case they were not necessary but in the future maybe I will find cases where the winning payload is not possible and I can use some of these payloads that I found.&lt;/li&gt;
   &lt;li&gt;The solution is sometimes obvious. See how I’ve been racking my brain trying to find a payload, and in the end, this one was much simpler than all the ones I had thought of. Always try to apply &lt;a href=&quot;https://en.wikipedia.org/wiki/Occam%27s_razor&quot;&gt;Occam’s razor&lt;/a&gt;.&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web pentesting" /><category term="osint" /><category term="amass" /><category term="httpx" /><category term="burpsuite" /><category term="portswigger" /><category term="xss" /><summary type="html">Partial disclosure of a bug bounty report: reflected XSS in search filter clear button in an e-commerce website.</summary></entry><entry><title type="html">TE.TE HTTP request smuggling obfuscating the TE header</title><link href="https://hackcommander.github.io/bug-bounty-4/" rel="alternate" type="text/html" title="TE.TE HTTP request smuggling obfuscating the TE header" /><published>2023-05-03T00:00:00+02:00</published><updated>2023-05-03T00:00:00+02:00</updated><id>https://hackcommander.github.io/bug-bounty-4</id><content type="html" xml:base="https://hackcommander.github.io/bug-bounty-4/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web pentesting" /><category term="osint" /><category term="amass" /><category term="httpx" /><category term="burpsuite" /><category term="portswigger" /><category term="xss" /><summary type="html">Partial disclosure of a bug bounty report: reflected XSS in search filter clear button in an e-commerce website.</summary></entry><entry><title type="html">TE.TE HTTP request smuggling obfuscating the TE header</title><link href="https://hackcommander.github.io/posts/2023/05/03/te-te-http-request-smuggling-obfuscating-te-header/" rel="alternate" type="text/html" title="TE.TE HTTP request smuggling obfuscating the TE header" /><published>2023-05-03T00:00:00+02:00</published><updated>2023-05-03T00:00:00+02:00</updated><id>https://hackcommander.github.io/posts/2023/05/03/te-te-http-request-smuggling-obfuscating-te-header</id><content type="html" xml:base="https://hackcommander.github.io/posts/2023/05/03/te-te-http-request-smuggling-obfuscating-te-header/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
@@ -1161,7 +1161,7 @@ username=user123&lt;span class=&quot;err&quot;&gt;&amp;amp;&lt;/span&gt;password
 
 &lt;p&gt;I found this vulnerability through the &lt;em&gt;Burp Scanner&lt;/em&gt;, as you can see in the following capture&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-bug-bounty-4/vulnerability-detection.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-te-te-http-request-smuggling-obfuscating-te-header/vulnerability-detection.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;As you can see, several HTTP request smuggling alerts appeared, the first one with a higher confidence level than the others, &lt;em&gt;Confidence Firm&lt;/em&gt;. I have also pointed out in the capture an alert about cross-site scripting but we will talk about this in section 3.2 :wink:&lt;/p&gt;
 
@@ -1169,32 +1169,32 @@ username=user123&lt;span class=&quot;err&quot;&gt;&amp;amp;&lt;/span&gt;password
 
 &lt;p&gt;The first request was&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-bug-bounty-4/detection-request-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-te-te-http-request-smuggling-obfuscating-te-header/detection-request-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;and the response was&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-bug-bounty-4/detection-response-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-te-te-http-request-smuggling-obfuscating-te-header/detection-response-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;The request sent is typical when testing for TE.TE HTTP request smuggling vulnerabilities. It is not the purpose of this post to explain what HTTP request smuggling is but if you want a more detailed explanation you can see it in section 3.2.
 The HTTP response code was 400 which usually indicates that the request sent is malformed. This alone is not a solid indicator that there is HTTP request smuggling but it fits.&lt;/p&gt;
 
 &lt;p&gt;The second request was&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-bug-bounty-4/detection-request-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-te-te-http-request-smuggling-obfuscating-te-header/detection-request-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;and the response was&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-bug-bounty-4/detection-response-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-te-te-http-request-smuggling-obfuscating-te-header/detection-response-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;The request is essentially the same except that there is a GET request attached to the end of the request, and this detail is quite important. On the other hand, the response was the same.&lt;/p&gt;
 
 &lt;p&gt;The third request was&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-bug-bounty-4/detection-request-3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-te-te-http-request-smuggling-obfuscating-te-header/detection-request-3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;and the response was&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-bug-bounty-4/detection-response-3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-te-te-http-request-smuggling-obfuscating-te-header/detection-response-3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;This set off alarm bells in my mind :mega: :mega: :fire: The path and the parameter on which the request is made was the same as in the case of request 1 and yet the HTTP response code was 404. This is the HTTP code returned when a request is made to a non-existent web resource. So this resource existed when request 1 was made but not when request 3 was made… Suspicious :suspect:&lt;/p&gt;
 
@@ -1210,11 +1210,11 @@ The HTTP response code was 400 which usually indicates that the request sent is 
 
 &lt;p&gt;To check if the hypothesis that I stated in the previous section is true, I sent the following request in the &lt;em&gt;Burpsuite Repeater&lt;/em&gt;&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-bug-bounty-4/dos-request.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-te-te-http-request-smuggling-obfuscating-te-header/dos-request.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;If my hypothesis was true, the next request to any path in the domain should return an HTTP 404 response. I tried to access the web through the browser and I got the following response&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-bug-bounty-4/dos-test.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-te-te-http-request-smuggling-obfuscating-te-header/dos-test.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;I made this check accessing from different PCs, different networks… and the behavior was always the same so it was already sure that I had found an HTTP request smuggling.&lt;/p&gt;
 
@@ -1224,11 +1224,11 @@ The HTTP response code was 400 which usually indicates that the request sent is 
 
 &lt;p&gt;The idea I had in mind was, instead of polluting user requests with a request to a non-existent resource, to pollute them with an XSS. So I sent the following request in the &lt;em&gt;Burpsuite Repeater&lt;/em&gt;&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-bug-bounty-4/xss-request.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-te-te-http-request-smuggling-obfuscating-te-header/xss-request.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;I tried to access the web through the browser and I got the following response&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-bug-bounty-4/xss-test.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-te-te-http-request-smuggling-obfuscating-te-header/xss-test.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;so I managed to poison user requests with an XSS. By constantly sending the above request using a tool like the &lt;em&gt;Burpsuite Intruder&lt;/em&gt;, the impact achieved would be something like an stored XSS triggered by any request made to the web. Sounds dangerous, right? :skull:&lt;/p&gt;
 
@@ -1242,7 +1242,7 @@ The HTTP response code was 400 which usually indicates that the request sent is 
 
 &lt;p&gt;it seems that the type of the HTTP request smuggling I found is TE.TE. The main reason is the space in front of the &lt;em&gt;Transfer-Encoding&lt;/em&gt; header which seems to be a kind of obfuscation. In fact in the link this type of obfuscation is contemplated&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-bug-bounty-4/transfer-encoding-obfuscation.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-te-te-http-request-smuggling-obfuscating-te-header/transfer-encoding-obfuscation.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Let’s see what could possibly be happening when sending this request:&lt;/p&gt;
 
@@ -1250,7 +1250,7 @@ The HTTP response code was 400 which usually indicates that the request sent is 
   &lt;li&gt;
     &lt;p&gt;The hacker sends the following request&lt;/p&gt;
 
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-bug-bounty-4/xss-request.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-te-te-http-request-smuggling-obfuscating-te-header/xss-request.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
     &lt;p&gt;The request arrives at the front-end.&lt;/p&gt;
@@ -1258,28 +1258,28 @@ The HTTP response code was 400 which usually indicates that the request sent is 
   &lt;li&gt;
     &lt;p&gt;The front-end tries to process the &lt;em&gt;Transfer-Encoding&lt;/em&gt; header but cannot so it tries to process the &lt;em&gt;Content-Length&lt;/em&gt; header&lt;/p&gt;
 
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-bug-bounty-4/payload-works-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-te-te-http-request-smuggling-obfuscating-te-header/payload-works-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
     &lt;p&gt;After processing, the front-end considers the entire request as a single request in the normal way, and sends it to the back-end&lt;/p&gt;
 
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-bug-bounty-4/payload-works-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-te-te-http-request-smuggling-obfuscating-te-header/payload-works-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
     &lt;p&gt;The back-end tries to process the &lt;em&gt;Transfer-Encoding&lt;/em&gt; header and in this case it can process it successfully, so it considers that the request ends at 0, leaving the rest of the request queued to be part of the beginning of the next one. It looks something like this&lt;/p&gt;
 
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-bug-bounty-4/payload-works-3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-te-te-http-request-smuggling-obfuscating-te-header/payload-works-3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
     &lt;p&gt;where request 1 is processed by the back-end and request 2 remains queued. Using the following PortSwigger capture&lt;/p&gt;
 
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-bug-bounty-4/payload-works-4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-te-te-http-request-smuggling-obfuscating-te-header/payload-works-4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
     &lt;p&gt;the blue request is the request 1, the red request is the request 2 and the green requests are the requests made by the users.&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
     &lt;p&gt;A user sends a request to the web and it will be attached to the end of the malicious request queued, after the header &lt;em&gt;X-Ignore: X&lt;/em&gt;, leaving a situation like this&lt;/p&gt;
 
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-bug-bounty-4/payload-works-5.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2023-05-03-te-te-http-request-smuggling-obfuscating-te-header/payload-works-5.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
     &lt;p&gt;This is why you have to put a header after the GET request. It doesn’t matter if it is the header &lt;em&gt;X-Ignore: X&lt;/em&gt; or any other like &lt;em&gt;Foo: x&lt;/em&gt;, the important thing is to put one so that the final request that arrives to the back-end is similar to the one that I showed in the previous capture. If you want to obtain more information on this topic you can check the following link&lt;/p&gt;
 
@@ -1321,7 +1321,7 @@ The HTTP response code was 400 which usually indicates that the request sent is 
   &lt;li&gt;&lt;em&gt;Burp Scanner&lt;/em&gt; is a very important tool that, if conditions permit, should be launched. It performs many tests automatically that can provide very interesting alerts.&lt;/li&gt;
   &lt;li&gt;It is advisable to analyze all alerts received, not only from &lt;em&gt;Burpsuite&lt;/em&gt;, but from any software. The existence of false positives is not a reason to stop manually inspecting alerts.&lt;/li&gt;
   &lt;li&gt;If you have the possibility, it’s good to see the reports of other bug bounty hunters. You will learn from them, you will know the existence of other assets… but try not to step on their work doing pentesting on the same assets at the same time as them.&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web pentesting" /><category term="osint" /><category term="amass" /><category term="httpx" /><category term="burpsuite" /><category term="burp scanner" /><category term="portswigger" /><category term="http request smuggling" /><category term="xss" /><summary type="html">Partial disclosure of a bug bounty report: TE.TE HTTP request smuggling obfuscating the TE header.</summary></entry><entry><title type="html">Reflected XSS bypassing a 302 Security Redirect due to the presence of Javascript function calls</title><link href="https://hackcommander.github.io/bug-bounty-3/" rel="alternate" type="text/html" title="Reflected XSS bypassing a 302 Security Redirect due to the presence of Javascript function calls" /><published>2023-03-06T00:00:00+01:00</published><updated>2023-03-06T00:00:00+01:00</updated><id>https://hackcommander.github.io/bug-bounty-3</id><content type="html" xml:base="https://hackcommander.github.io/bug-bounty-3/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web pentesting" /><category term="osint" /><category term="amass" /><category term="httpx" /><category term="burpsuite" /><category term="burp scanner" /><category term="portswigger" /><category term="http request smuggling" /><category term="xss" /><summary type="html">Partial disclosure of a bug bounty report: TE.TE HTTP request smuggling obfuscating the TE header.</summary></entry><entry><title type="html">Reflected XSS bypassing a 302 Security Redirect due to the presence of Javascript function calls</title><link href="https://hackcommander.github.io/posts/2023/03/06/reflected-xss-bypassing-redirect-due-to-javascript-function/" rel="alternate" type="text/html" title="Reflected XSS bypassing a 302 Security Redirect due to the presence of Javascript function calls" /><published>2023-03-06T00:00:00+01:00</published><updated>2023-03-06T00:00:00+01:00</updated><id>https://hackcommander.github.io/posts/2023/03/06/reflected-xss-bypassing-redirect-due-to-javascript-function</id><content type="html" xml:base="https://hackcommander.github.io/posts/2023/03/06/reflected-xss-bypassing-redirect-due-to-javascript-function/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
@@ -1388,7 +1388,7 @@ The HTTP response code was 400 which usually indicates that the request sent is 
 
 &lt;p&gt;In this case I got an output like the following&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-bug-bounty-3/gau-kxss-output.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-reflected-xss-bypassing-redirect-due-to-javascript-function/gau-kxss-output.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;where the blue color is obfuscating unimportant findings and the red color is obfuscating the XSS candidate URLs.&lt;/p&gt;
 
@@ -1406,7 +1406,7 @@ The HTTP response code was 400 which usually indicates that the request sent is 
 
 &lt;p&gt;By sending the payload &lt;em&gt;HackCommander&lt;/em&gt; through the &lt;em&gt;utm_source&lt;/em&gt; parameter I got the following response&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-bug-bounty-3/repeater-exploitation-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-reflected-xss-bypassing-redirect-due-to-javascript-function/repeater-exploitation-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;As you can see the payload is reflected inside a Javascript script, so the potential XSS would be in a Javascript context. Within the script, the payload is reflected inside a dictionary that is passed as a parameter to the &lt;em&gt;push&lt;/em&gt; method of the &lt;em&gt;dataLayer&lt;/em&gt; array. The yellow color is obfuscating the value of one of the dictionary keys so the payload &lt;em&gt;HackCommander&lt;/em&gt; is reflected inside one of the dictionary values, not inside one of the keys.&lt;/p&gt;
 
@@ -1434,7 +1434,7 @@ The HTTP response code was 400 which usually indicates that the request sent is 
 
 &lt;p&gt;I got the following response&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-bug-bounty-3/repeater-exploitation-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-reflected-xss-bypassing-redirect-due-to-javascript-function/repeater-exploitation-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;So far so good! Then I tried to send the following payload&lt;/p&gt;
 
@@ -1449,7 +1449,7 @@ The HTTP response code was 400 which usually indicates that the request sent is 
 
 &lt;p&gt;and I got the following response&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-bug-bounty-3/repeater-exploitation-3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-reflected-xss-bypassing-redirect-due-to-javascript-function/repeater-exploitation-3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;The server didn’t like something because when I changed the &lt;em&gt;HackCommander&lt;/em&gt; payload to the Javascript payload &lt;em&gt;alert(1)&lt;/em&gt; it returned a &lt;em&gt;302 Security Redirect&lt;/em&gt;. It is possible that there was some WAF or server-side configuration implemented to detect potentially dangerous payloads, in this case Javascript function calls.&lt;/p&gt;
 
@@ -1466,7 +1466,7 @@ The HTTP response code was 400 which usually indicates that the request sent is 
 
 &lt;p&gt;In spite of this, I received the following response&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-bug-bounty-3/repeater-exploitation-4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-reflected-xss-bypassing-redirect-due-to-javascript-function/repeater-exploitation-4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;DAMN! It doesn’t work. So… I had to follow another strategy.&lt;/p&gt;
 
@@ -1487,17 +1487,17 @@ The HTTP response code was 400 which usually indicates that the request sent is 
 
 &lt;p&gt;and I received the following response&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-bug-bounty-3/repeater-exploitation-5.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-reflected-xss-bypassing-redirect-due-to-javascript-function/repeater-exploitation-5.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;The payload is completely reflected! Redirection bypassed!&lt;/p&gt;
 
 &lt;p&gt;After that, clicking in the option &lt;em&gt;Show response in browser&lt;/em&gt; I got the following response&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-bug-bounty-3/repeater-exploitation-6.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-reflected-xss-bypassing-redirect-due-to-javascript-function/repeater-exploitation-6.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;with an empty alert. After clicking &lt;em&gt;OK&lt;/em&gt; I got the following response&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-bug-bounty-3/repeater-exploitation-7.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-reflected-xss-bypassing-redirect-due-to-javascript-function/repeater-exploitation-7.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;with the &lt;em&gt;alert(1)&lt;/em&gt;. I am not sure why the empty &lt;em&gt;alert&lt;/em&gt; appeared but the important fact is that the &lt;em&gt;alert(1)&lt;/em&gt; was executed.&lt;/p&gt;
 
@@ -1535,7 +1535,7 @@ The HTTP response code was 400 which usually indicates that the request sent is 
 
 &lt;p&gt;is the same as the previous one but changing the &lt;em&gt;alert&lt;/em&gt; string to the &lt;em&gt;HackCommander&lt;/em&gt; string, and I got the following response&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-bug-bounty-3/repeater-demonstration-blacklist-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-reflected-xss-bypassing-redirect-due-to-javascript-function/repeater-demonstration-blacklist-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;so… the problem was the &lt;em&gt;alert&lt;/em&gt; string? To solve this question I sent the following payload&lt;/p&gt;
 
@@ -1550,7 +1550,7 @@ The HTTP response code was 400 which usually indicates that the request sent is 
 
 &lt;p&gt;and I got the following response&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-bug-bounty-3/repeater-demonstration-blacklist-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-reflected-xss-bypassing-redirect-due-to-javascript-function/repeater-demonstration-blacklist-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;so the problem was not the &lt;em&gt;alert&lt;/em&gt; string. As you can see the problem was combination of the &lt;em&gt;alert&lt;/em&gt; string plus the input argument.&lt;/p&gt;
 
@@ -1602,7 +1602,7 @@ prompt
   &lt;li&gt;Scan all the company’s domains, do not stop looking for vulnerabilities in a domain because it is well known and you think that all the vulnerabilities are already reported. In this case I discovered an XSS in a well known domain of the company because the XSS was not obvious, it required a bypass, which although it was simple no one had discovered before. So… be humble with your colleagues but be confident, it is fundamental if you want to dedicate yourself seriously to bug bounty.&lt;/li&gt;
   &lt;li&gt;Be aware of the multipliers applied to the programs in which you participate. These multipliers can turn a low hanging fruit into a big banana :banana:.&lt;/li&gt;
   &lt;li&gt;It’s important to keep up to date in the cybersecurity field and read all the researching articles. Today’s discoveries can invalidate yesterday’s security measures.&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web pentesting" /><category term="osint" /><category term="amass" /><category term="httpx" /><category term="gau" /><category term="kxss" /><category term="utm parameters" /><category term="burpsuite" /><category term="portswigger" /><category term="xss" /><category term="bypass" /><summary type="html">Partial disclosure of a bug bounty report: reflected XSS bypassing a *302 Security Redirect* due to the presence of Javascript function calls.</summary></entry><entry><title type="html">How to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation</title><link href="https://hackcommander.github.io/pentesting-article-1/" rel="alternate" type="text/html" title="How to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation" /><published>2022-11-12T00:00:00+01:00</published><updated>2022-11-12T00:00:00+01:00</updated><id>https://hackcommander.github.io/pentesting-article-1</id><content type="html" xml:base="https://hackcommander.github.io/pentesting-article-1/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web pentesting" /><category term="osint" /><category term="amass" /><category term="httpx" /><category term="gau" /><category term="kxss" /><category term="utm parameters" /><category term="burpsuite" /><category term="portswigger" /><category term="xss" /><category term="bypass" /><summary type="html">Partial disclosure of a bug bounty report: reflected XSS bypassing a *302 Security Redirect* due to the presence of Javascript function calls.</summary></entry><entry><title type="html">How to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation</title><link href="https://hackcommander.github.io/posts/2022/11/12/bypass-httponly-via-php-info-page/" rel="alternate" type="text/html" title="How to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation" /><published>2022-11-12T00:00:00+01:00</published><updated>2022-11-12T00:00:00+01:00</updated><id>https://hackcommander.github.io/posts/2022/11/12/bypass-httponly-via-php-info-page</id><content type="html" xml:base="https://hackcommander.github.io/posts/2022/11/12/bypass-httponly-via-php-info-page/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Setting up the environment&lt;/a&gt;&lt;/li&gt;
@@ -1617,7 +1617,7 @@ prompt
   &lt;li&gt;&lt;a href=&quot;#section-id-3&quot;&gt;3. Conclusions&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/phpinfo-dvwa-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/phpinfo-dvwa-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;PHP info page disclosure is usually considered to be a low severity vulnerability but in this post I am going to show how to bypass the &lt;em&gt;HttpOnly&lt;/em&gt; flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation. This file could be used to perform a session hijacking.&lt;/p&gt;
 
@@ -1649,7 +1649,7 @@ prompt
   &lt;li&gt;
     &lt;p&gt;Get the IP of the machine through the command ifconfig&lt;/p&gt;
 
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/ifconfig.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/ifconfig.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
     &lt;p&gt;Suposing that the IP of the &lt;em&gt;Metasploitable 2&lt;/em&gt; machine is 192.168.240.129 you can access to the web from your Kali through the URL&lt;/p&gt;
@@ -1665,7 +1665,7 @@ prompt
   &lt;li&gt;
     &lt;p&gt;In the main page select the option &lt;em&gt;DVWA&lt;/em&gt;, wich is the acronym of &lt;em&gt;Damn Vulnerable Web Application&lt;/em&gt;&lt;/p&gt;
 
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/main-page.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/main-page.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
     &lt;p&gt;Log in with the credentials admin:password.&lt;/p&gt;
@@ -1673,7 +1673,7 @@ prompt
   &lt;li&gt;
     &lt;p&gt;Configure the &lt;em&gt;Security Level&lt;/em&gt; to &lt;em&gt;low&lt;/em&gt;&lt;/p&gt;
 
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/dvwa-security.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/dvwa-security.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
     &lt;p&gt;and click &lt;em&gt;Submit&lt;/em&gt;.&lt;/p&gt;
   &lt;/li&gt;
@@ -1690,11 +1690,11 @@ prompt
 
     &lt;p&gt;in the text box as follows&lt;/p&gt;
 
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/xss-reflected-form.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/xss-reflected-form.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
     &lt;p&gt;and clicking on &lt;em&gt;Submit&lt;/em&gt; you will see an alert like the following&lt;/p&gt;
 
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/xss-reflected-alert.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/xss-reflected-alert.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
     &lt;p&gt;So there is an HTML context reflected XSS through GET method in the URL&lt;/p&gt;
 
@@ -1709,7 +1709,7 @@ prompt
   &lt;li&gt;
     &lt;p&gt;To show how the PHP info page can be used to bypass the &lt;em&gt;HttpOnly&lt;/em&gt; flag, we must first have at least one cookie with the &lt;em&gt;HttpOnly&lt;/em&gt; flag set to &lt;em&gt;true&lt;/em&gt;. In &lt;em&gt;Metasploitable 2&lt;/em&gt; is not set by defaul, that’s why we have to access to the cookies in the browser (Firefox in my case) and set, for example, the &lt;em&gt;HttpOnly&lt;/em&gt; of the &lt;em&gt;PHPSESSID&lt;/em&gt; cookie to &lt;em&gt;true&lt;/em&gt;, as you can see in the following screenshot&lt;/p&gt;
 
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/cookies-settings.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/cookies-settings.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
   &lt;/li&gt;
 &lt;/ol&gt;
 
@@ -1736,7 +1736,7 @@ prompt
 
 &lt;p&gt;If you make that, you are going to see only the &lt;em&gt;security&lt;/em&gt; cookie, like in the following screenshot&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/xss-cookies-alert.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/xss-cookies-alert.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;but… Why are we not seeing the value of the &lt;em&gt;PHPSESSID&lt;/em&gt; cookie? That’s because the value &lt;em&gt;true&lt;/em&gt; in the &lt;em&gt;HttpOnly&lt;/em&gt; flag of the cookie &lt;em&gt;PHPSESSID&lt;/em&gt;.&lt;/p&gt;
 
@@ -1775,7 +1775,7 @@ prompt
 
 &lt;p&gt;like in the following screenshot&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/python-web-server.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/python-web-server.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;and we write the payload&lt;/p&gt;
 
@@ -1790,11 +1790,11 @@ prompt
 
 &lt;p&gt;and we click &lt;em&gt;Submit&lt;/em&gt;, we can see that a GET request has been printed in the web server, like in the following screenshot&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/user-cookies-exfiltrated-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/user-cookies-exfiltrated-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;The path of the GET request is the &lt;em&gt;base64&lt;/em&gt; encoded form of the user cookies, so decoding it with the burpsuite decoder we can get the user cookies&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/user-cookies-exfiltrated-decoded-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/user-cookies-exfiltrated-decoded-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;As you can see, only the &lt;em&gt;security&lt;/em&gt; cookie is displayed and not the &lt;em&gt;PHPSESSID&lt;/em&gt; cookie. That’s because the &lt;em&gt;HttpOnly&lt;/em&gt; flag of the &lt;em&gt;PHPSESSID&lt;/em&gt; cookie.&lt;/p&gt;
 
@@ -1817,7 +1817,7 @@ prompt
 
 &lt;p&gt;&lt;a href=&quot;https://www.php.net/manual/en/function.phpinfo.php&quot;&gt;PHP info page&lt;/a&gt; is a page that outputs information about PHP’s configuration and is a valuable debugging tool as it contains all EGPCS (Environment, GET, POST, Cookie, Server) data. If you take a look at the page you will see that your cookies appear in several places, for example in&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/phpinfo-dvwa-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/phpinfo-dvwa-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;ol&gt;
   &lt;li&gt;
@@ -1885,11 +1885,11 @@ prompt
 
 &lt;p&gt;and we click on &lt;em&gt;Submit&lt;/em&gt;, we can see that a GET request has been printed in the web server, like in the following screenshot&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/user-cookies-exfiltrated-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/user-cookies-exfiltrated-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;The value of the parameter &lt;em&gt;data&lt;/em&gt; is the &lt;em&gt;base64&lt;/em&gt; encoded form of the user cookies (and a lot of HTML code but not relevant), so decoding it with the burpsuite decoder we can get the user cookies&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/user-cookies-exfiltrated-decoded-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/user-cookies-exfiltrated-decoded-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;As you can see, all the cookies has been displayed, so we have bypassed the &lt;em&gt;HttpOnly&lt;/em&gt; flag of the &lt;em&gt;PHPSESSID&lt;/em&gt; cookie. Therefore, anyone who clicks on the URL&lt;/p&gt;
 
@@ -1939,11 +1939,11 @@ prompt
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;p&gt;This payload is much more accurate than the one used in the previous section because it sends only the cookies to the web server, without all the non-relevant HTML code. Repeating all the process of the previous section but executing this payload instead of the other one, you will receive a GET request like this&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/user-cookies-exfiltrated-improved-payload.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/user-cookies-exfiltrated-improved-payload.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;The encoded cookies are sent through the encodedCookies GET parameter, so decoding it with the burpsuite decoder we can get the user cookies&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/user-cookies-exfiltrated-decoded-improved-payload.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/user-cookies-exfiltrated-decoded-improved-payload.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;As you can see, only the cookies are sent.&lt;/p&gt;
 
@@ -1955,11 +1955,11 @@ prompt
 
 &lt;p&gt;Go to your browser and create some test cookies like in the following screenshot&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/test-cookies.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/test-cookies.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Don’t forget to set to &lt;em&gt;true&lt;/em&gt; the &lt;em&gt;HttpOnly&lt;/em&gt; flag and write the same paths of the screenshot below. If you go to the PHP info page you are going to see something like this&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/phpinfo-dvwa-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/phpinfo-dvwa-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;Not all the cookies are displayed but… Why? That’s because the &lt;em&gt;path&lt;/em&gt; value.&lt;/p&gt;
 
@@ -1979,7 +1979,7 @@ prompt
 
 &lt;p&gt;There is another PHP info page in the root path of &lt;em&gt;Metasploitable 2&lt;/em&gt; as you can see in the following screenshot&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-pentesting-article-1/phpinfo-raiz-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/phpinfo-raiz-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;The only cookie whose path is a parent path of the PHP info page path is &lt;em&gt;cookie3&lt;/em&gt;, that’s because is the only cookie displayed. You can see that the rule works.&lt;/p&gt;
 
@@ -1991,7 +1991,7 @@ prompt
   &lt;li&gt;&lt;em&gt;Metasploitable 2&lt;/em&gt; is a good environment for testing certain vulnerabilities and not having to create a vulnerable environment from scratch.&lt;/li&gt;
   &lt;li&gt;Low severity vulnerabilities such as PHP info page disclosure are usually wrongly evaluated as “low severity” is often considered synonymous with “not important”.&lt;/li&gt;
   &lt;li&gt;PHP info page disclosure can be used to bypass the &lt;em&gt;HttpOnly&lt;/em&gt; flag of some user cookies and exfiltrate them during an XSS exploitation. The only requirement is that the cookie path must be a parent path of the path where the PHP info page is located.&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="pentesting article" /><category term="web pentesting" /><category term="burpsuite" /><category term="base64" /><category term="metasploitable 2" /><category term="xss" /><category term="exfiltrate cookies" /><category term="session hijacking" /><category term="php info page" /><category term="bypass" /><summary type="html">Pentesting article: how to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation.</summary></entry><entry><title type="html">Time-based SQL injection in a login form</title><link href="https://hackcommander.github.io/bug-bounty-2/" rel="alternate" type="text/html" title="Time-based SQL injection in a login form" /><published>2022-10-17T00:00:00+02:00</published><updated>2022-10-17T00:00:00+02:00</updated><id>https://hackcommander.github.io/bug-bounty-2</id><content type="html" xml:base="https://hackcommander.github.io/bug-bounty-2/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="pentesting article" /><category term="web pentesting" /><category term="burpsuite" /><category term="base64" /><category term="metasploitable 2" /><category term="xss" /><category term="exfiltrate cookies" /><category term="session hijacking" /><category term="php info page" /><category term="bypass" /><summary type="html">Pentesting article: how to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation.</summary></entry><entry><title type="html">Time-based SQL injection in a login form</title><link href="https://hackcommander.github.io/posts/2022/10/17/sql-injection-in-a-login-form/" rel="alternate" type="text/html" title="Time-based SQL injection in a login form" /><published>2022-10-17T00:00:00+02:00</published><updated>2022-10-17T00:00:00+02:00</updated><id>https://hackcommander.github.io/posts/2022/10/17/sql-injection-in-a-login-form</id><content type="html" xml:base="https://hackcommander.github.io/posts/2022/10/17/sql-injection-in-a-login-form/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
@@ -2025,7 +2025,7 @@ prompt
 
 &lt;p&gt;and I got the following results&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-bug-bounty-2/leakix-results.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-sql-injection-in-a-login-form/leakix-results.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;where the colours are ofustating the following info:&lt;/p&gt;
 
@@ -2053,7 +2053,7 @@ prompt
 
 &lt;p&gt;When I accessed to the website, I saw the following landing page&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-bug-bounty-2/landing-page.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-sql-injection-in-a-login-form/landing-page.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;with the company logo and, when I saw this, I was sure that the asset belonged to the company.&lt;/p&gt;
 
@@ -2063,13 +2063,13 @@ prompt
 
 &lt;p&gt;After clicking in the login button I got the following login form&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-bug-bounty-2/login-form.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-sql-injection-in-a-login-form/login-form.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;but… How did I discover the vulnerability?&lt;/p&gt;
 
 &lt;p&gt;I sent a login request and intercepted it with Burpsuite. Then using the repeater I sent a request with a typical SQL injection payload in the parameter nombre_usuario and I got the following response&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-bug-bounty-2/error-500.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-sql-injection-in-a-login-form/error-500.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;The characters such as single quote, hashtag and others are the typical characters that can lead to break the SQL query (in this case, a SQL query to verify the credentials) in the backend, and getting an HTTP error 500 response is the symptom that there could be a SQL injection.&lt;/p&gt;
 
@@ -2097,7 +2097,7 @@ prompt
 
 &lt;p&gt;Do you remember the PHP info page disclosure vulnerability? Yes, this page will be useful in this step too, this is the power of a low severity vulnerability. As you can see in the following screenshot&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-bug-bounty-2/php-info-page.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-sql-injection-in-a-login-form/php-info-page.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;looking at the info.php page I found several references to MySQL. So MySQL is a candidate to be the DBMS used in the query.&lt;/p&gt;
 
@@ -2114,19 +2114,19 @@ prompt
 
 &lt;p&gt;which is a time-based SQL injection payload, where the + sign is the URL encoded form of the space character although %20 is valid too. I don’t know why, but there was a change of units in the sleep function, that is, a value of 0.02 in the sleep function produces a delay of approximately 2 seconds (2452 miliseconds) in the response, as you can see in the following screenshot&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-bug-bounty-2/response-delay.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-sql-injection-in-a-login-form/response-delay.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;To make sure that the delay was proportional to the input of the sleep function, I sent the following request to the intruder&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-bug-bounty-2/intruder-positions.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-sql-injection-in-a-login-form/intruder-positions.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;varying the value of the sleep function from 0.01 to 0.09&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-bug-bounty-2/intruder-payloads.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-sql-injection-in-a-login-form/intruder-payloads.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;and the result was as follows&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-bug-bounty-2/response-delay-intruder.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-sql-injection-in-a-login-form/response-delay-intruder.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;where you can see the payloads in the column “Payload” and the delays in the columns “Response received” and “Response completed”, in miliseconds.&lt;/p&gt;
 
@@ -2207,7 +2207,7 @@ prompt
 
 &lt;p&gt;This is one of the resources used by Sqlmap to dump the content of a database in blind SQL injections, but this is not a CTF, it’s not necessary to dump all the database to get some usernames and the hashes of some passwords. In a bug bounty program it’s not necessary to dump all the database to get the bounty, it’s enough to give a PoC showing how you can get some information from the database. The most simple PoC that I could find was the following&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-bug-bounty-2/number-of-tables-in-the-database.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-sql-injection-in-a-login-form/number-of-tables-in-the-database.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;using the following payload&lt;/p&gt;
 
@@ -2322,7 +2322,7 @@ prompt
   &lt;li&gt;The reconnaisance step it’s very important, probably the most important one. It’s not a lost of time to use different OSINT tools, like LeakIX.&lt;/li&gt;
   &lt;li&gt;Low severity vulnerabilities should not be underestimated. Some of them, such as PHP info page disclosure, can lead to dangerous situations or make other vulnerabilities more critical.&lt;/li&gt;
   &lt;li&gt;Blind vulnerabilities, such as blind SQL injection, blind RCE… can be just as dangerous as non-blind vulnerabilities. Although it is not possible to obtain information directly from the response, it can be inferred through various techniques, such as producing delays based on a boolean condition.&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web pentesting" /><category term="osint" /><category term="leakix" /><category term="portswigger" /><category term="burpsuite" /><category term="sql injection" /><category term="mysql" /><category term="information_schema" /><category term="sqlmap" /><category term="php info page" /><summary type="html">Partial disclosure of a bug bounty report: time-based SQL injection in login form.</summary></entry><entry><title type="html">Reflected XSS bypassing HTML tag removal sanitization</title><link href="https://hackcommander.github.io/bug-bounty-1/" rel="alternate" type="text/html" title="Reflected XSS bypassing HTML tag removal sanitization" /><published>2022-09-20T00:00:00+02:00</published><updated>2022-09-20T00:00:00+02:00</updated><id>https://hackcommander.github.io/bug-bounty-1</id><content type="html" xml:base="https://hackcommander.github.io/bug-bounty-1/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web pentesting" /><category term="osint" /><category term="leakix" /><category term="portswigger" /><category term="burpsuite" /><category term="sql injection" /><category term="mysql" /><category term="information_schema" /><category term="sqlmap" /><category term="php info page" /><summary type="html">Partial disclosure of a bug bounty report: time-based SQL injection in login form.</summary></entry><entry><title type="html">Reflected XSS bypassing HTML tag removal sanitization</title><link href="https://hackcommander.github.io/posts/2022/09/20/reflected-xss-bypassing-html-tag-removal-sanitization/" rel="alternate" type="text/html" title="Reflected XSS bypassing HTML tag removal sanitization" /><published>2022-09-20T00:00:00+02:00</published><updated>2022-09-20T00:00:00+02:00</updated><id>https://hackcommander.github.io/posts/2022/09/20/reflected-xss-bypassing-html-tag-removal-sanitization</id><content type="html" xml:base="https://hackcommander.github.io/posts/2022/09/20/reflected-xss-bypassing-html-tag-removal-sanitization/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
@@ -2393,7 +2393,7 @@ prompt
 
 &lt;p&gt;In this case I got an output like the following&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-09-20-bug-bounty-1/gau-kxss-output.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-09-20-reflected-xss-bypassing-html-tag-removal-sanitization/gau-kxss-output.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;The vulnerable parameter was the typical parameter used to make queries on a website, which usually reflects the word used as a search parameter.&lt;/p&gt;
 
@@ -2555,7 +2555,7 @@ alert(1)
 
 &lt;p&gt;and the reflected XSS was reproduced as you can see in the following screenshot&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-09-20-bug-bounty-1/xss-alert.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-09-20-reflected-xss-bypassing-html-tag-removal-sanitization/xss-alert.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;div id=&quot;section-id-3-2&quot; /&gt;
 
@@ -2650,7 +2650,7 @@ alert(1)
 
 &lt;p&gt;As you can see, the 2 algorithms are very similar because they only differ in the type of variable used to keep track of whether there is any &amp;lt; unclosed character or not. If you put the above code in a main.py and you execute it with Python3, you will see the following output&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-09-20-bug-bounty-1/script-output.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2022-09-20-reflected-xss-bypassing-html-tag-removal-sanitization/script-output.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;It is easy to see that the first three inputs yield the same sanitization but the fourth and fifth, which is precisely where the &amp;lt; and &amp;gt; characters are nested, the sanitizations are different.&lt;/p&gt;
 
@@ -2676,7 +2676,7 @@ alert(1)
   &lt;li&gt;Gau and kxss are very useful tools for bug bounty. They are very easy to install and run and, in return, can give several URLs potentially vulnerable to XSS.&lt;/li&gt;
   &lt;li&gt;Although a sanitization algorithm may seem safe at first, it may not be. Given a sanitization like the one we have seen in this post it is a good exercise to think about what algorithms you would have used to perform such sanitization because some of them may be the one being used on the website. If any of the algorithms you have thought of is vulnerable, the payloads to exploit these vulnerabilities are candidate payloads to use against the website.&lt;/li&gt;
   &lt;li&gt;Bug bounty is not a CTF, is the jungle. Many times even if a vulnerability is present, you will have to fight with WAFs and sanitizations so you need to be prepared to think outside the box.&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web pentesting" /><category term="osint" /><category term="amass" /><category term="httpx" /><category term="gau" /><category term="kxss" /><category term="xss" /><category term="python" /><category term="bypass" /><category term="sanitization" /><summary type="html">Partial disclosure of a bug bounty report: reflected XSS bypassing HTML tag removal sanitization.</summary></entry><entry><title type="html">eJPT certification review</title><link href="https://hackcommander.github.io/ejpt-certification-review/" rel="alternate" type="text/html" title="eJPT certification review" /><published>2022-09-01T00:00:00+02:00</published><updated>2022-09-01T00:00:00+02:00</updated><id>https://hackcommander.github.io/ejpt-certification-review</id><content type="html" xml:base="https://hackcommander.github.io/ejpt-certification-review/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web pentesting" /><category term="osint" /><category term="amass" /><category term="httpx" /><category term="gau" /><category term="kxss" /><category term="xss" /><category term="python" /><category term="bypass" /><category term="sanitization" /><summary type="html">Partial disclosure of a bug bounty report: reflected XSS bypassing HTML tag removal sanitization.</summary></entry><entry><title type="html">eJPT certification review</title><link href="https://hackcommander.github.io/posts/2022/09/01/ejpt-certification-review/" rel="alternate" type="text/html" title="eJPT certification review" /><published>2022-09-01T00:00:00+02:00</published><updated>2022-09-01T00:00:00+02:00</updated><id>https://hackcommander.github.io/posts/2022/09/01/ejpt-certification-review</id><content type="html" xml:base="https://hackcommander.github.io/posts/2022/09/01/ejpt-certification-review/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. What is eJPT?&lt;/a&gt;&lt;/li&gt;

