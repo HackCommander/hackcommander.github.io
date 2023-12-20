@@ -269,6 +269,7 @@ defaults:
       path: ""
       type: posts
     values:
+      permalink: /posts/:year/:month/:day/:title/
       layout: single
       author_profile: true
       read_time: false

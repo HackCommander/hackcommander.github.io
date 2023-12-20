@@ -1,0 +1,879 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Reflected XSS in search filter clear button in an e-commerce website - hackcommander.github.io</title>
+<meta name="description" content="Partial disclosure of a bug bounty report: reflected XSS in search filter clear button in an e-commerce website.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.github.io">
+<meta property="og:title" content="Reflected XSS in search filter clear button in an e-commerce website">
+<meta property="og:url" content="https://hackcommander.github.io/posts/2023/06/24/reflected-xss-in-search-filter-clear-button/">
+
+
+  <meta property="og:description" content="Partial disclosure of a bug bounty report: reflected XSS in search filter clear button in an e-commerce website.">
+
+
+
+  <meta property="og:image" content="https://hackcommander.github.io/assets/images/general/bug-bounty.jpg">
+
+
+
+
+
+  <meta property="article:published_time" content="2023-06-24T00:00:00+02:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="https://hackcommander.github.io/posts/2023/06/24/reflected-xss-in-search-filter-clear-button/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Iván Santos Malpica",
+      "url": "https://hackcommander.github.io",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.github.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+    
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links">
+<li class="masthead__menu-item">
+              <a href="/">Home</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/year-archive/">Posts</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/categories/">Categories</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/tags/">Tags</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/search/">Search</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/advertising/">Advertising</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/about/">About</a>
+            </li>
+</ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="https://hackcommander.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1">
+        </li>
+        <span class="sep">/</span>
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#posts" itemprop="item"><span itemprop="name">Posts</span></a>
+          <meta itemprop="position" content="2">
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#2023" itemprop="item"><span itemprop="name">2023</span></a>
+          <meta itemprop="position" content="3">
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#06" itemprop="item"><span itemprop="name">06</span></a>
+          <meta itemprop="position" content="4">
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#24" itemprop="item"><span itemprop="name">24</span></a>
+          <meta itemprop="position" content="5">
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        <li class="current">Reflected XSS in search filter clear button in an e-commerce website</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">Iván Santos Malpica<br>(Aka. HackCommander)</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Mathematician and Computer Engineer / Pentester / Bug Bounty Hunter / CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+      
+      
+        <li>
+          <a href="mailto:ivansantosmalpica.contact@gmail.com">
+            <meta itemprop="email" content="ivansantosmalpica.contact@gmail.com">
+            <i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email
+          </a>
+        </li>
+      
+      
+      
+        <li>
+          <a href="https://www.linkedin.com/in/%E2%98%91iv%C3%A1n-santos-malpica-1023a11b4" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+      
+      
+        <li>
+          <a href="https://hackerone.com/hackcommander" target="_blank">
+            <img src="/assets/images/author-logos/hackerone.svg" alt="HackerOne" style="width: 16px; height: 16px;">
+            HackerOne
+          </a>
+        </li>
+      
+      
+      
+        <li>
+          <a href="https://twitter.com/H4ckC0mm4nd3r" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter
+          </a>
+        </li>
+      
+      
+      
+        
+          <li>
+            <a href="https://www.youtube.com/@ivansantosmalpica" itemprop="sameAs" rel="nofollow noopener noreferrer">
+              <i class="fab fa-fw fa-youtube" aria-hidden="true"></i> YouTube
+            </a>
+          </li>
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+      
+      
+        <li>
+          <a href="https://tryhackme.com/p/HackCommander" target="_blank">
+            <img src="/assets/images/author-logos/tryhackme.svg" alt="TryHackMe" style="width: 15px; height: 15px;">
+            TryHackMe
+          </a>
+        </li>
+      
+      
+      
+        <li>
+          <a href="https://app.hackthebox.com/profile/270539" target="_blank">
+            <img src="/assets/images/author-logos/hackthebox.svg" alt="HackTheBox" style="width: 15px; height: 15px;">
+            HackTheBox
+          </a>
+        </li>
+      
+      
+      
+        <li>
+          <a href="https://www.codewars.com/users/HackCommander" target="_blank">
+            <img src="/assets/images/author-logos/codewars.svg" alt="CodeWars" style="width: 15px; height: 15px;">
+            CodeWars
+          </a>
+        </li>
+      
+
+      
+        <li>
+          <a href="https://www.buymeacoffee.com/ivansantos" target="_blank">
+            <img src="/assets/images/author-logos/buymeacoffee.svg" alt="Buy Me a Coffee" style="width: 16px; height: 16px;">
+            Buy Me a Coffee
+          </a>
+        </li>
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Reflected XSS in search filter clear button in an e-commerce website">
+    <meta itemprop="description" content="Partial disclosure of a bug bounty report: reflected XSS in search filter clear button in an e-commerce website.">
+    <meta itemprop="datePublished" content="June 24, 2023">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Reflected XSS in search filter clear button in an e-commerce website
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2023-06-24T00:00:00+02:00">June 24, 2023 </time> 
+          
+          
+        </p>
+        <h2 id="summary">Summary</h2>
+
+<ul>
+  <li><a href="#section-id-1">1. Asset discovery</a></li>
+  <li><a href="#section-id-2">2. Vulnerability discovery</a></li>
+  <li>
+<a href="#section-id-3">3. Vulnerability exploitation</a>
+    <ul>
+      <li>
+<a href="#section-id-3-1">3.1. Steps of exploitation</a>
+        <ul>
+          <li><a href="#section-id-3-1-1">3.1.1. Struggling to find a payload</a></li>
+          <li><a href="#section-id-3-1-2">3.1.2. The winning payload</a></li>
+        </ul>
+      </li>
+      <li><a href="#section-id-3-2">3.2. Why does the payload work?</a></li>
+    </ul>
+  </li>
+  <li><a href="#section-id-4">4. Report resolution</a></li>
+  <li><a href="#section-id-5">5. Lessons learned</a></li>
+</ul>
+
+<p><img src="/assets/images/general/bug-bounty.jpg" alt=""></p>
+
+<blockquote>
+  <p><img class="emoji" title=":warning:" alt=":warning:" src="https://github.githubassets.com/images/icons/emoji/unicode/26a0.png" height="20" width="20"> <span style="color:red">This bug was reported in a private program in which it is not allowed to publish the vulnerabilities found. So this is a partial disclosure, only the essential technical details are exposed.</span></p>
+</blockquote>
+
+<p>In this post I am going to show an interesting XSS that I reported in a bug bounty program: reflected XSS in search filter clear button in an e-commerce website. I will show you all the payloads I tried, some of them quite curious, and how my friend <a href="https://www.linkedin.com/in/cybersecurityfranciscogilamoros/">Fran</a> ended up giving me the winning payload. Sometimes the important thing is not the result but the way.</p>
+
+<div id="section-id-1"></div>
+
+<h2 id="1-asset-discovery">1. Asset discovery</h2>
+
+<p>I found this asset through amass + httpx. If you are looking for http services on subdomains of the domain example.com and you have your config file in the path <em>/home/user/.config/amass/config.ini</em>, you can use the following command</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">amass enum -brute -d example.com '/home/user/.config/amass/config.ini' | httpx -title -tech-detect -status-code -ip -p 66,80,81,443,445,457,1080,1100,1241,1352,1433,1434,1521,1944,2301,3000,3128,3306,4000,4001,4002,4100,5000,5432,5800,5801,5802,6082,6346,6347,7001,7002,8080,8443,8888,30821
+</span></code></pre></div></div>
+
+<p><a href="https://github.com/OWASP/Amass">Amass</a> is an OSINT tool to perform network mapping of attack surfaces and external asset discovery which is a very famous tool used in the recon step in bug bounty. The output of the above amass command is a list of subdomains of the given domain, i.e, a list of potential targets.</p>
+
+<p><a href="https://github.com/projectdiscovery/httpx">Httpx</a> is a multi-purpose HTTP toolkit allow to run multiple probers. In this case, the input of httpx is a list of subdomains and the output is a list of subdomains that have an http service in any of the ports given as a parameter. Also it shows some additional information about the service such as the title, the detected technologies… that I have specified in the parameters to be displayed.</p>
+
+<div id="section-id-2"></div>
+
+<h2 id="2-vulnerability-discovery">2. Vulnerability discovery</h2>
+
+<p>I discovered this XSS by chance while waiting for the <em>Burp Scanner</em> to finish. I sent the payload</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>HackCommander"'&gt;<span class="nt">&lt;</span>
+</code></pre></div></div>
+
+<p>with some “dangerous” characters and I received the following response</p>
+
+<p><img src="/assets/images/2023-06-24-reflected-xss-in-search-filter-clear-button/detection-request.png" alt=""></p>
+
+<p>As you can see the payload broke the a tag. The &lt; character was not reflected but the “’&gt; characters were, because as you can see it breaks the a tag making that the characters “&gt; that formed the end of the tag are no longer part of it and now they are outside, as the arrow points out. This made me think that there could be an XSS.</p>
+
+<div id="section-id-3"></div>
+
+<h2 id="3-vulnerability-exploitation">3. Vulnerability exploitation</h2>
+
+<div id="section-id-3-1"></div>
+
+<h2 id="31-steps-of-exploitation">3.1. Steps of exploitation</h2>
+
+<div id="section-id-3-1-1"></div>
+
+<h3 id="311-struggling-to-find-a-payload">3.1.1. Struggling to find a payload</h3>
+
+<p>As you saw in the above capture, the &lt; character was not reflected so I had to try XSS in the context of the attributes.</p>
+
+<p>Therefore, the first payload I sent was</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"+onclick="alert(1)
+</code></pre></div></div>
+
+<p>and I got the following response</p>
+
+<p><img src="/assets/images/2023-06-24-reflected-xss-in-search-filter-clear-button/expoitation-onclick-burp.png" alt=""></p>
+
+<p>The response in the browser looked like this</p>
+
+<p><img src="/assets/images/2023-06-24-reflected-xss-in-search-filter-clear-button/expoitation-onclick-browser.png" alt=""></p>
+
+<p>and by clicking on the <em>X</em>, the <em>alert(1)</em> was executed, as you can see in the following capture</p>
+
+<p><img src="/assets/images/2023-06-24-reflected-xss-in-search-filter-clear-button/expoitation-onclick-alert.png" alt=""></p>
+
+<p>But… what is this <em>X</em>? It is the tag that we are dealing with in this XSS and its function is to serve as a kind of “button” to remove the filters set when you are looking for a product to buy, since this website was an e-commerce website. It serves to remove a concrete filter that as you can guess is of the type price, manufacturer, rating… and the title attribute of each a tag is something like <em>Remove + “name of the filter”</em>. The title attribute is the injection point.</p>
+
+<p>For example, if you were looking for chairs for less than 100 euros with a rating of at least 4 stars, you will have an <em>X</em> button for each of these filters, which you can delete individually by clicking on the corresponding <em>X</em>. The title attribute of the a tag used to remove the price would be <em>Remove price</em>.</p>
+
+<p>This XSS requires user interaction, it requires the user to click on that tiny X. So the goal I had was to scale this XSS to one that required no interaction or a more likely interaction.</p>
+
+<p>So first I tried to make it so that the user didn’t have to click but simply hover the mouse over the <em>X</em>, that means, I sent the payload</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"+onmouseover="alert(1)
+</code></pre></div></div>
+<p>and it worked as you can see in the following capture</p>
+
+<p><img src="/assets/images/2023-06-24-reflected-xss-in-search-filter-clear-button/expoitation-onmouseover-burp.png" alt=""></p>
+
+<p>Hovering the mouse over the X the <em>alert(1)</em> was executed. But… the X is very small, the <em>alert(1)</em> will only be executed if the user accidentally hover the mouse over the <em>X</em>, which is not very likely.</p>
+
+<p>The way to make the user more likely to mouse over the <em>X</em> is to make the X bigger, but… is this possible? YEAH, IT IS. The way to do this is by injecting CSS code through the <em>style</em> attribute, so I sent the payload</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"+style="position:+fixed;width:+2000px;height:2000px;background-color:purple;"+onmouseover="alert(1)
+</code></pre></div></div>
+<p>where the meaning of each property is</p>
+
+<ul>
+  <li>
+<strong>position: fixed;</strong>: Sets the positioning of the element to be fixed, meaning it will remain in a fixed position even when the page is scrolled.</li>
+  <li>
+<strong>width: 2000px;</strong>: Sets the width of the element to be 2000 pixels.</li>
+  <li>
+<strong>height: 2000px;</strong>: Sets the height of the element to be 2000 pixels.</li>
+  <li>
+<strong>background-color: purple;</strong>: Sets the background color of the element to purple.</li>
+</ul>
+
+<p>and it worked as you can see in the following capture</p>
+
+<p><img src="/assets/images/2023-06-24-reflected-xss-in-search-filter-clear-button/expoitation-style-burp.png" alt=""></p>
+
+<p>Now almost the whole screen is purple (the blue areas were placed by me to obfuscate information) as you can see in the following capture</p>
+
+<p><img src="/assets/images/2023-06-24-reflected-xss-in-search-filter-clear-button/expoitation-style-browser.png" alt=""></p>
+
+<p>and it is enough to put the mouse over the purple area to execute the <em>alert(1)</em>. This XSS still requires user interaction but this interaction is much more likely, it is almost certain. This is already something reportable.</p>
+
+<p>However, I wanted to achieve an XSS that did not require user interaction. The only one that I could think of was the typical</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"+autofocus+onfocus="alert(1)
+</code></pre></div></div>
+
+<p>I sent this payload and it was reflected as you can see in the following capture</p>
+
+<p><img src="/assets/images/2023-06-24-reflected-xss-in-search-filter-clear-button/expoitation-autofocus-burp.png" alt=""></p>
+
+<p>but the <em>alert(1)</em> was not executed. Why? Because the only tags that support the <em>autofocus</em> attribute are <em>input</em>, <em>button</em>, <em>select</em> and <em>textarea</em>.</p>
+
+<p>And that’s as far as my creativity went, so I decided to report the XSS with the <em>style</em> attribute, which was the best payload I could find.</p>
+
+<div id="section-id-3-1-2"></div>
+
+<h3 id="312-the-winning-payload">3.1.2. The winning payload</h3>
+
+<p>Before reporting I told my friend <a href="https://www.linkedin.com/in/cybersecurityfranciscogilamoros/">Fran</a> about the case and he told me to try this payload</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"+onfocus="alert(1)"+id="xss"&gt;
+</code></pre></div></div>
+
+<p>adding the term <em>#xss</em> at the end of the URL. So if the domain is <em>example.com</em> and the vulnerable param is <em>vulnerable-param</em>, the malicious URL would be</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://example.com/?vulnerable-param="+onfocus="alert(1)"+id="xss"&gt;#xss
+</code></pre></div></div>
+
+<p>When I saw this payload I thought… Damn! Shame on me! How could I not realize it!</p>
+
+<p>I can’t use the <em>autofocus</em> attribute but I can name the tag with the attribute assignment <em>id=”xss”</em> and force the focus on it with the term <em>#xss</em>. It worked as you can see in the following capture</p>
+
+<p><img src="/assets/images/2023-06-24-reflected-xss-in-search-filter-clear-button/expoitation-hash-burp.png" alt=""></p>
+
+<p>Now the <em>alert(1)</em> is executed with no user interaction as you can see in the following capture</p>
+
+<p><img src="/assets/images/2023-06-24-reflected-xss-in-search-filter-clear-button/expoitation-hash-alert.png" alt=""></p>
+
+<p><img class="emoji" title=":clap:" alt=":clap:" src="https://github.githubassets.com/images/icons/emoji/unicode/1f44f.png" height="20" width="20"> <img class="emoji" title=":clap:" alt=":clap:" src="https://github.githubassets.com/images/icons/emoji/unicode/1f44f.png" height="20" width="20"> <img class="emoji" title=":clap:" alt=":clap:" src="https://github.githubassets.com/images/icons/emoji/unicode/1f44f.png" height="20" width="20"></p>
+
+<p>He then told me that he had read about this payload in the following Portswigger article</p>
+
+<p><a href="https://portswigger.net/research/one-xss-cheatsheet-to-rule-them-all">One XSS cheatsheet to rule them all (PortSwigger)</a></p>
+
+<p>God bless Portswigger! <img class="emoji" title=":pray:" alt=":pray:" src="https://github.githubassets.com/images/icons/emoji/unicode/1f64f.png" height="20" width="20"> <img class="emoji" title=":raised_hands:" alt=":raised_hands:" src="https://github.githubassets.com/images/icons/emoji/unicode/1f64c.png" height="20" width="20"></p>
+
+<div id="section-id-3-2"></div>
+
+<h2 id="32-why-does-the-payload-work">3.2. Why does the payload work?</h2>
+
+<p>Given what we have seen, it is easy to understand why the payload works:</p>
+
+<ol>
+  <li>
+    <p>The user clicks on the malicious link and sends the request with the payload</p>
+
+    <div class="code-header">
+   <button class="copy-code-button">
+     Copy
+   </button>
+ </div>
+    <div class="language-html highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code> "+onfocus="alert(1)"+id="xss"&gt;
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>The user’s browser receives and processes the response. Within that response is the label</p>
+
+    <div class="code-header">
+   <button class="copy-code-button">
+     Copy
+   </button>
+ </div>
+    <div class="language-html highlighter-rouge">
+<div class="highlight"><pre class="highlight"><code> <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">"OBFUSCATED"</span> <span class="na">href=</span><span class="s">"https://OBFUSCATED.OBFUSCATED"</span> <span class="na">title=</span><span class="s">"OBFUSCATED"</span> <span class="na">onfocus=</span><span class="s">"alert(1)"</span> <span class="na">id=</span><span class="s">"xss"</span><span class="nt">&gt;</span>
+</code></pre></div>    </div>
+
+    <p>The string <em>OBFUSCATED</em> does not really appear in the answer, I have put it to obfuscate information about the target.</p>
+  </li>
+  <li>
+    <p>The user puts the focus on the tag above due to the term <em>#xss</em> at the end of the URL and the <em>id=”xss”</em> attribute assignment of the tag.</p>
+  </li>
+  <li>
+    <p>Due to the onfocus event of the tag above, the Javascript code <em>alert(1)</em> is executed.</p>
+  </li>
+</ol>
+
+<div id="section-id-4"></div>
+
+<h2 id="4-report-resolution">4. Report resolution</h2>
+
+<p>The subdomain is an e-commerce asset but, I don’t know why, they considered the asset to be of medium criticity. Also an XSS usually is considered a medium severity vulnerability and because I wasn’t able to sign up and log in the website, I couldn’t demonstrate a high impact such as session hijacking. Therefore, the report was classified as</p>
+
+<ul>
+  <li>
+<strong>Asset criticity</strong>: Medium</li>
+  <li>
+<strong>Vulnerability severity</strong>: Medium</li>
+  <li>
+<strong>Bounty</strong>: More than $100</li>
+</ul>
+
+<div id="section-id-5"></div>
+
+<h2 id="5-lessons-learned">5. Lessons learned</h2>
+
+<ul>
+  <li>Bug bounty is a competitive field but whenever you can collaborate with other bug bounty hunters. I think bug bounty is a scientific-technical field and in science collaboration is essential. Sharing the bounty is just a nice consequence of collaboration.</li>
+  <li>The way is usually more important than the result. In this case you saw how I was struggling until I found the winning payload and along the way I found beautiful jewels. In this case they were not necessary but in the future maybe I will find cases where the winning payload is not possible and I can use some of these payloads that I found.</li>
+  <li>The solution is sometimes obvious. See how I’ve been racking my brain trying to find a payload, and in the end, this one was much simpler than all the ones I had thought of. Always try to apply <a href="https://en.wikipedia.org/wiki/Occam%27s_razor">Occam’s razor</a>.</li>
+</ul>
+
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#amass" class="page__taxonomy-item" rel="tag">amass</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#burpsuite" class="page__taxonomy-item" rel="tag">burpsuite</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#httpx" class="page__taxonomy-item" rel="tag">httpx</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#osint" class="page__taxonomy-item" rel="tag">osint</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#portswigger" class="page__taxonomy-item" rel="tag">portswigger</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#web-pentesting" class="page__taxonomy-item" rel="tag">web pentesting</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#xss" class="page__taxonomy-item" rel="tag">xss</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#bug-bounty" class="page__taxonomy-item" rel="tag">bug bounty</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2023-06-24T00:00:00+02:00">June 24, 2023</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/posts/2023/05/03/te-te-http-request-smuggling-obfuscating-te-header/" class="pagination--pager" title="TE.TE HTTP request smuggling obfuscating the TE header
+">Previous</a>
+    
+    
+      <a href="/posts/2023/11/05/reflected-xss-through-post-request-in-login-form/" class="pagination--pager" title="Reflected XSS through POST request in a login form
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+  <script src="/assets/scripts/copyCode.js"></script>
+
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+<div style="background-color: #333; padding: 20px; text-align: center;">
+  <p style="color: white; font-size: 24px;">⭐ Liked this blog? Give it a <a href="https://github.com/HackCommander/hackcommander.github.io" style="color: white; font-weight: bold;">GitHub star</a>! ⭐</p>
+  <p style="color: white; font-size: 24px;">🔎 Connect with me on <a href="https://www.linkedin.com/in/%E2%98%91iv%C3%A1n-santos-malpica-1023a11b4/" style="color: white; font-weight: bold;">LinkedIn</a> for more hacking and bug bounty content! 🔎</p>
+  <p style="color: white; font-size: 24px;">🛍️ Interested in the products I use? Check out my <a href="https://hackcommander.github.io/advertising/" style="color: white; font-weight: bold;">recommended products</a> page for nice deals! 🛍️</p>
+  <p style="color: white; font-size: 24px;">☕️ If you found this blog helpful, consider <a href="https://www.buymeacoffee.com/ivansantos" style="color: white; font-weight: bold;">buying me a coffee</a>. Thanks a latte! ☕️</p>
+</div>
+<!-- end custom footer snippets -->
+
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">© 2023 Iván Santos Malpica</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-JGTZF7HYRM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-JGTZF7HYRM');
+</script>
+
+
+
+  </body>
+</html>
