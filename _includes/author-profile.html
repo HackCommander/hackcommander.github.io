@@ -74,6 +74,15 @@
         </li>
       {% endif %}
       
+      {% if author.yogosha %}
+        <li>
+          <a href="https://app.yogosha.com/r/{{ author.yogosha }}" target="_blank">
+            <img src="/assets/images/author-logos/yogosha.svg" alt="Yogosha" style="width: 16px; height: 16px;">
+            Yogosha
+          </a>
+        </li>
+      {% endif %}
+      
       {% if author.twitter %}
         <li>
           <a href="https://twitter.com/{{ author.twitter }}" itemprop="sameAs" rel="nofollow noopener noreferrer">
