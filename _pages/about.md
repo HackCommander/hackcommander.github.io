@@ -38,3 +38,5 @@ Attendee at the following cybersecurity events:
 - Osintomático 2022 (Madrid)
 - RootedCON 2023 (Madrid)
 - Osintomático 2023 (Madrid)
+- RootedCON 2024 (Madrid)
+- RootedCON 2024 HackerNight - BugBounty (Madrid)
