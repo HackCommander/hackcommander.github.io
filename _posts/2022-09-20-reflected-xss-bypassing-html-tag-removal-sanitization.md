@@ -15,6 +15,7 @@ tags:
   - osint
   - amass
   - httpx
+  - burpsuite
   - gau
   - kxss
   - xss

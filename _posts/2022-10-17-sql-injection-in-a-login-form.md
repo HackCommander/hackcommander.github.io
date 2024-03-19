@@ -176,11 +176,11 @@ SELECT id, username, password FROM users WHERE username = 'HackCommander'
 but if we enter a "malicious" user such as
 
 {% include codeHeader.html %}
-```console 
+```sql 
 HackCommander' OR (SELECT SLEEP(0.02))=1#
 ```
 
-and **the backend no sanitization is being applied in the input**, the query that will be executed is
+and **no input sanitization is being applied in the backend**, the query that will be executed is
 
 {% include codeHeader.html %}
 ```sql 

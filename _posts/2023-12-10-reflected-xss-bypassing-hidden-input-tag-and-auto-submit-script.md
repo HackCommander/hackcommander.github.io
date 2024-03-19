@@ -17,6 +17,7 @@ tags:
   - httpx
   - gau
   - kxss
+  - burpsuite
   - xss
   - bypass
 ---

@@ -635,10 +635,10 @@
   </button>
 </div>
 
-<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">HackCommander' OR (SELECT SLEEP(0.02))=1#</span><span class="w">
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">HackCommander</span><span class="s1">' OR (SELECT SLEEP(0.02))=1#
 </span></code></pre></div></div>
 
-<p>and <strong>the backend no sanitization is being applied in the input</strong>, the query that will be executed is</p>
+<p>and <strong>no input sanitization is being applied in the backend</strong>, the query that will be executed is</p>
 
 <div class="code-header">
   <button class="copy-code-button">

@@ -6,7 +6,7 @@ var store = [{
         "teaser":"https://hackcommander.github.io/assets/images/2022-09-01-ejpt-certification-review/ejpt-logo.png"},{
         "title": "Reflected XSS bypassing HTML tag removal sanitization",
         "excerpt":"Summary 1. Asset discovery 2. Vulnerability discovery 3. Vulnerability exploitation 3.1. Steps of exploitation 3.2. Why does the payload work? 3.2.1. Sanitization algorithm based on a boolean variable 3.2.2. Sanitization algorithm based on a data structure 3.2.3. Code of the algorithms 4. Report resolution 5. Lessons learned :warning: This bug...","categories": ["bug bounty"],
-        "tags": ["web pentesting","osint","amass","httpx","gau","kxss","xss","python","bypass","sanitization"],
+        "tags": ["web pentesting","osint","amass","httpx","burpsuite","gau","kxss","xss","python","bypass","sanitization"],
         "url": "https://hackcommander.github.io/posts/2022/09/20/reflected-xss-bypassing-html-tag-removal-sanitization/",
         "teaser":"https://hackcommander.github.io/assets/images/general/bug-bounty.jpg"},{
         "title": "Time-based SQL injection in a login form",
@@ -46,6 +46,11 @@ var store = [{
         "teaser":"https://hackcommander.github.io/assets/images/general/bug-bounty.jpg"},{
         "title": "Reflected XSS bypassing hidden input tag and auto-submit script in a form",
         "excerpt":"Summary 1. Asset discovery 2. Vulnerability discovery 3. Vulnerability exploitation 3.1. Steps of exploitation 3.2. Why does the payload work? 4. Report resolution 5. Lessons learned :warning: This bug was reported in a private program in which it is not allowed to publish the vulnerabilities found. So this is a...","categories": ["bug bounty"],
-        "tags": ["web pentesting","osint","amass","httpx","gau","kxss","xss","bypass"],
+        "tags": ["web pentesting","osint","amass","httpx","gau","kxss","burpsuite","xss","bypass"],
         "url": "https://hackcommander.github.io/posts/2023/12/10/reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script/",
+        "teaser":"https://hackcommander.github.io/assets/images/general/bug-bounty.jpg"},{
+        "title": "Human 1 - sqlmap 0&#58; defeating automation through manual exploitation",
+        "excerpt":"Summary 1. Asset discovery 2. Vulnerability discovery 3. Vulnerability exploitation 3.1. Steps of exploitation 3.1.1. Bypassing the sanitization of the symbol = 3.1.2. Bypassing the sanitization of quotes 3.1.3. Bypassing the blacklisting of the SUBSTR function 3.1.4. Weaponizing the payload to dump the database name 3.2. Why does the payload...","categories": ["bug bounty"],
+        "tags": ["web pentesting","collaboration","osint","google dorking","portswigger","burpsuite","0iq","sqlmap","sql injection","mysql","bypass"],
+        "url": "https://hackcommander.github.io/posts/2024/03/19/human-1-sqlmap-0-defeating-automation-through-manual-exploitation/",
         "teaser":"https://hackcommander.github.io/assets/images/general/bug-bounty.jpg"}]
