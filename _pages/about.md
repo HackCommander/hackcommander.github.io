@@ -30,6 +30,9 @@ I have made the following contributions:
 - Talk called *Pentesting: CTFs as a learning medium* at [Bluetab Company](https://www.bluetab.net/es/).
 - Pull request to HackTricks to add a [method to bypass the HttpOnly during an XSS exploit using the PHP info page](https://book.hacktricks.xyz/pentesting-web/hacking-with-cookies).
 - Final project degree of Computer Engineering about [CTFs as a learning tool in cybersecurity](http://e-spacio.uned.es/fez/view/bibliuned:grado-ETSIInformatica-II-Isantos).
+- CTFs in the Capture The Flag Platform [VulNyx](https://vulnyx.com/):
+  - HackingStation.
+  - Diff3r3ntS3c.
 
 ## Attendances
 Attendee at the following cybersecurity events:
