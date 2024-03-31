@@ -13,7 +13,9 @@ categories:
 tags:  
   - vulnyx
   - nmap
+  - web
   - command injection
+  - gtfobins
   - binary exploitation
 ---
 
