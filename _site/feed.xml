@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.github.io/" rel="alternate" type="text/html" /><updated>2024-03-31T05:35:56+02:00</updated><id>https://hackcommander.github.io/feed.xml</id><title type="html">hackcommander.github.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">VulNyx: HackingStation</title><link href="https://hackcommander.github.io/posts/2024/03/30/vulnyx-hackingstation/" rel="alternate" type="text/html" title="VulNyx: HackingStation" /><published>2024-03-30T00:00:00+01:00</published><updated>2024-03-30T00:00:00+01:00</updated><id>https://hackcommander.github.io/posts/2024/03/30/vulnyx-hackingstation</id><content type="html" xml:base="https://hackcommander.github.io/posts/2024/03/30/vulnyx-hackingstation/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.github.io/" rel="alternate" type="text/html" /><updated>2024-03-31T15:11:29+02:00</updated><id>https://hackcommander.github.io/feed.xml</id><title type="html">hackcommander.github.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">VulNyx: HackingStation</title><link href="https://hackcommander.github.io/posts/2024/03/31/vulnyx-hackingstation/" rel="alternate" type="text/html" title="VulNyx: HackingStation" /><published>2024-03-31T00:00:00+01:00</published><updated>2024-03-31T00:00:00+01:00</updated><id>https://hackcommander.github.io/posts/2024/03/31/vulnyx-hackingstation</id><content type="html" xml:base="https://hackcommander.github.io/posts/2024/03/31/vulnyx-hackingstation/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Port and service scanning&lt;/a&gt;&lt;/li&gt;
@@ -185,9 +185,7 @@ index.html
 &lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;?&amp;gt;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;we can see that &lt;strong&gt;the product parameter is passed without sanitization to an &lt;a href=&quot;https://www.php.net/manual/en/function.exec.php&quot;&gt;exec&lt;/a&gt; PHP function&lt;/strong&gt;, so there is a command injection. It is not recommended to use functions to execute system commands, and if there is no other option, it is mandatory to validate or sanitize the input before passing it to the function.&lt;/p&gt;
-
-&lt;p&gt;For example, when we send the payload&lt;/p&gt;
+&lt;p&gt;we can see that &lt;strong&gt;the product parameter is passed without sanitization to an &lt;a href=&quot;https://www.php.net/manual/en/function.exec.php&quot;&gt;exec&lt;/a&gt; PHP function&lt;/strong&gt;, so there is a command injection. For example, when we send the payload&lt;/p&gt;
 
 &lt;div class=&quot;code-header&quot;&gt;
   &lt;button class=&quot;copy-code-button&quot;&gt;
@@ -198,7 +196,7 @@ index.html
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Liferay
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;payload, what is being executed in the backend is the command&lt;/p&gt;
+&lt;p&gt;the backend executes the following command&lt;/p&gt;
 
 &lt;div class=&quot;code-header&quot;&gt;
   &lt;button class=&quot;copy-code-button&quot;&gt;
@@ -220,7 +218,7 @@ index.html
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Liferay;whoami
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;what is being executed in the backend are the following commands&lt;/p&gt;
+&lt;p&gt;the backend executes the following commands&lt;/p&gt;
 
 &lt;div class=&quot;code-header&quot;&gt;
   &lt;button class=&quot;copy-code-button&quot;&gt;
@@ -232,6 +230,8 @@ index.html
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;In this way, first is executed the command &lt;em&gt;searchsploit -wj Liferay&lt;/em&gt; and then the command &lt;em&gt;whoami&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;It is not recommended to use functions to execute system commands, and if there is no other option, it is mandatory to validate or sanitize the input before passing it to the function.&lt;/p&gt;
 
 &lt;div id=&quot;section-id-3&quot; /&gt;
 
@@ -278,7 +278,7 @@ User hacker may run the following commands on HackingStation:
     (root) NOPASSWD: /usr/bin/nmap
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;so we can execute nmap with sudo without password. This doesn’t sound very safe.&lt;/p&gt;
+&lt;p&gt;so we can execute nmap as root with sudo without password. This doesn’t sound very safe.&lt;/p&gt;
 
 &lt;div id=&quot;section-id-3-2&quot; /&gt;
 
@@ -305,7 +305,7 @@ Compiled without:
 Available nsock engines: epoll poll select
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;we can see that the installed nmap is in version 7.93, which means that the second method is not applicable in this case.&lt;/p&gt;
+&lt;p&gt;we can see that the installed nmap is in version 7.93, so interactive mode is not available. This means that the second method is not applicable in this case.&lt;/p&gt;
 
 &lt;p&gt;On the other hand, the first method is based on nmap functionality to execute scripts written in Lua. So executing that commands we get the following result&lt;/p&gt;
 
@@ -348,11 +348,13 @@ snap
 &lt;div class=&quot;language-lua highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;os.execute&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;/bin/sh&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;is essentially a shell. &lt;strong&gt;When this Lua code is executed through nmap, a shell will be invoked with the same user that executed nmap&lt;/strong&gt;. In this case, if nmap is executed without sudo I get a shell with the &lt;em&gt;hacker&lt;/em&gt; user, but if I execute nmap with sudo I execute the shell with the superuser, so I get a &lt;em&gt;root&lt;/em&gt; shell.&lt;/p&gt;
+&lt;p&gt;is essentially a shell. &lt;strong&gt;When this Lua code is executed through nmap, a shell will be invoked with the same user that executed nmap&lt;/strong&gt;. In this case, if nmap is executed without sudo, we get a shell with the &lt;em&gt;hacker&lt;/em&gt; user, but if we execute nmap with sudo, we get a shell with the &lt;em&gt;root&lt;/em&gt; user.&lt;/p&gt;
 
-&lt;p&gt;This can be seen in the following root processes with PIDs from 1137 to 1140.&lt;/p&gt;
+&lt;p&gt;We can see this in the following root processes with PIDs from 1137 to 1140&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2024-03-31-vulnyx-hackingstation/root-pids.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="ctfs" /><category term="vulnyx" /><category term="nmap" /><category term="command injection" /><category term="binary exploitation" /><summary type="html">Partial disclosure of a bug bounty report: human 1 - sqlmap 0: defeating automation through manual exploitation.</summary></entry><entry><title type="html">Human 1 - sqlmap 0: defeating automation through manual exploitation</title><link href="https://hackcommander.github.io/posts/2024/03/19/human-1-sqlmap-0-defeating-automation-through-manual-exploitation/" rel="alternate" type="text/html" title="Human 1 - sqlmap 0: defeating automation through manual exploitation" /><published>2024-03-19T00:00:00+01:00</published><updated>2024-03-19T00:00:00+01:00</updated><id>https://hackcommander.github.io/posts/2024/03/19/human-1-sqlmap-0-defeating-automation-through-manual-exploitation</id><content type="html" xml:base="https://hackcommander.github.io/posts/2024/03/19/human-1-sqlmap-0-defeating-automation-through-manual-exploitation/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-03-31-vulnyx-hackingstation/root-pids.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;where 1140 is the PID of the current root shell.&lt;/p&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="ctfs" /><category term="vulnyx" /><category term="nmap" /><category term="command injection" /><category term="binary exploitation" /><summary type="html">Partial disclosure of a bug bounty report: human 1 - sqlmap 0: defeating automation through manual exploitation.</summary></entry><entry><title type="html">Human 1 - sqlmap 0: defeating automation through manual exploitation</title><link href="https://hackcommander.github.io/posts/2024/03/19/human-1-sqlmap-0-defeating-automation-through-manual-exploitation/" rel="alternate" type="text/html" title="Human 1 - sqlmap 0: defeating automation through manual exploitation" /><published>2024-03-19T00:00:00+01:00</published><updated>2024-03-19T00:00:00+01:00</updated><id>https://hackcommander.github.io/posts/2024/03/19/human-1-sqlmap-0-defeating-automation-through-manual-exploitation</id><content type="html" xml:base="https://hackcommander.github.io/posts/2024/03/19/human-1-sqlmap-0-defeating-automation-through-manual-exploitation/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
