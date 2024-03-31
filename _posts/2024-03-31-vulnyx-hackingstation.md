@@ -2,7 +2,7 @@
 layout: single
 title: VulNyx&#58; HackingStation
 excerpt: "Partial disclosure of a bug bounty report: human 1 - sqlmap 0: defeating automation through manual exploitation."
-date: 2024-03-30
+date: 2024-03-31
 classes: wide
 header:
   teaser: /assets/images/2024-03-31-vulnyx-hackingstation/box-info.png
