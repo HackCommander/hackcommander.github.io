@@ -53,4 +53,9 @@ var store = [{
         "excerpt":"Summary 1. Asset discovery 2. Vulnerability discovery 3. Vulnerability exploitation 3.1. Steps of exploitation 3.1.1. Bypassing the sanitization of the symbol = 3.1.2. Bypassing the sanitization of quotes 3.1.3. Bypassing the blacklisting of the SUBSTR function 3.1.4. Weaponizing the payload to dump the database name 3.2. Why does the payload...","categories": ["bug bounty"],
         "tags": ["web pentesting","collaboration","osint","google dorking","portswigger","burpsuite","0iq","sqlmap","sql injection","mysql","bypass"],
         "url": "https://hackcommander.github.io/posts/2024/03/19/human-1-sqlmap-0-defeating-automation-through-manual-exploitation/",
-        "teaser":"https://hackcommander.github.io/assets/images/general/bug-bounty.jpg"}]
+        "teaser":"https://hackcommander.github.io/assets/images/general/bug-bounty.jpg"},{
+        "title": "VulNyx&#58; HackingStation",
+        "excerpt":"Summary 1. Port and service scanning 2. Gaining access 2.1. Detecting the command injection 2.2. Getting a shell as hacker 2.3. Why does this command injection exist? 3. Privilege escalation 3.1. Detecting the nmap vulnerability 3.2. Getting a shell as root 3.3. Why does this privilege escalation via nmap exist?...","categories": ["ctfs"],
+        "tags": ["vulnyx","nmap","command injection","binary exploitation"],
+        "url": "https://hackcommander.github.io/posts/2024/03/30/vulnyx-hackingstation/",
+        "teaser":"https://hackcommander.github.io/assets/images/2024-03-31-vulnyx-hackingstation/box-info.png"}]

