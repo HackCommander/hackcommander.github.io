@@ -163,16 +163,14 @@ cat exploitQuery.php
 ?>
 ```
 
-we can see that **the product parameter is passed without sanitization to an [exec](https://www.php.net/manual/en/function.exec.php) PHP function**, so there is a command injection. It is not recommended to use functions to execute system commands, and if there is no other option, it is mandatory to validate or sanitize the input before passing it to the function.
-
-For example, when we send the payload
+we can see that **the product parameter is passed without sanitization to an [exec](https://www.php.net/manual/en/function.exec.php) PHP function**, so there is a command injection. For example, when we send the payload
 
 {% include codeHeader.html %}
 ```html
 Liferay
 ```
 
-payload, what is being executed in the backend is the command
+the backend executes the following command
 
 {% include codeHeader.html %}
 ```console
@@ -186,7 +184,7 @@ However, when we send the following payload
 Liferay;whoami
 ```
 
-what is being executed in the backend are the following commands
+the backend executes the following commands
 
 {% include codeHeader.html %}
 ```console
@@ -194,6 +192,8 @@ searchsploit -wj Liferay;whoami
 ```
 
 In this way, first is executed the command *searchsploit -wj Liferay* and then the command *whoami*.
+
+It is not recommended to use functions to execute system commands, and if there is no other option, it is mandatory to validate or sanitize the input before passing it to the function.
 
 <div id='section-id-3'/>
 ## 3. Privilege escalation
@@ -231,7 +231,7 @@ User hacker may run the following commands on HackingStation:
     (root) NOPASSWD: /usr/bin/nmap
 ```
 
-so we can execute nmap with sudo without password. This doesn't sound very safe.
+so we can execute nmap as root with sudo without password. This doesn't sound very safe.
 
 <div id='section-id-3-2'/>
 ## 3.2. Getting a shell as root
@@ -253,7 +253,7 @@ Compiled without:
 Available nsock engines: epoll poll select
 ```
 
-we can see that the installed nmap is in version 7.93, which means that the second method is not applicable in this case. 
+we can see that the installed nmap is in version 7.93, so interactive mode is not available. This means that the second method is not applicable in this case. 
 
 On the other hand, the first method is based on nmap functionality to execute scripts written in Lua. So executing that commands we get the following result
 
@@ -287,8 +287,10 @@ The function *os.execute* in Lua allows the execution of operating system comman
 os.execute("/bin/sh")
 ```
 
-is essentially a shell. **When this Lua code is executed through nmap, a shell will be invoked with the same user that executed nmap**. In this case, if nmap is executed without sudo I get a shell with the *hacker* user, but if I execute nmap with sudo I execute the shell with the superuser, so I get a shell with the *root* user.
+is essentially a shell. **When this Lua code is executed through nmap, a shell will be invoked with the same user that executed nmap**. In this case, if nmap is executed without sudo, we get a shell with the *hacker* user, but if we execute nmap with sudo, we get a shell with the *root* user.
 
-This can be seen in the following root processes with PIDs from 1137 to 1140.
+We can see this in the following root processes with PIDs from 1137 to 1140
 
 ![](/assets/images/2024-03-31-vulnyx-hackingstation/root-pids.png)
+
+where 1140 is the PID of the current root shell.

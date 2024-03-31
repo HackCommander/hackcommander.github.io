@@ -57,5 +57,5 @@ var store = [{
         "title": "VulNyx&#58; HackingStation",
         "excerpt":"Summary 1. Port and service scanning 2. Gaining access 2.1. Detecting the command injection 2.2. Getting a shell as hacker 2.3. Why does this command injection exist? 3. Privilege escalation 3.1. Detecting the nmap vulnerability 3.2. Getting a shell as root 3.3. Why does this privilege escalation via nmap exist?...","categories": ["ctfs"],
         "tags": ["vulnyx","nmap","command injection","binary exploitation"],
-        "url": "https://hackcommander.github.io/posts/2024/03/30/vulnyx-hackingstation/",
+        "url": "https://hackcommander.github.io/posts/2024/03/31/vulnyx-hackingstation/",
         "teaser":"https://hackcommander.github.io/assets/images/2024-03-31-vulnyx-hackingstation/box-info.png"}]

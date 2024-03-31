@@ -18,7 +18,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="hackcommander.github.io">
 <meta property="og:title" content="VulNyx: HackingStation">
-<meta property="og:url" content="https://hackcommander.github.io/posts/2024/03/30/vulnyx-hackingstation/">
+<meta property="og:url" content="https://hackcommander.github.io/posts/2024/03/31/vulnyx-hackingstation/">
 
 
   <meta property="og:description" content="Partial disclosure of a bug bounty report: human 1 - sqlmap 0: defeating automation through manual exploitation.">
@@ -31,7 +31,7 @@
 
 
 
-  <meta property="article:published_time" content="2024-03-30T00:00:00+01:00">
+  <meta property="article:published_time" content="2024-03-31T00:00:00+01:00">
 
 
 
@@ -42,7 +42,7 @@
   
 
 
-<link rel="canonical" href="https://hackcommander.github.io/posts/2024/03/30/vulnyx-hackingstation/">
+<link rel="canonical" href="https://hackcommander.github.io/posts/2024/03/31/vulnyx-hackingstation/">
 
 
 
@@ -203,7 +203,7 @@
       
         
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="/categories/#30" itemprop="item"><span itemprop="name">30</span></a>
+          <a href="/categories/#31" itemprop="item"><span itemprop="name">31</span></a>
           <meta itemprop="position" content="5" />
         </li>
         <span class="sep">/</span>
@@ -415,7 +415,7 @@
   <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
     <meta itemprop="headline" content="VulNyx: HackingStation">
     <meta itemprop="description" content="Partial disclosure of a bug bounty report: human 1 - sqlmap 0: defeating automation through manual exploitation.">
-    <meta itemprop="datePublished" content="March 30, 2024">
+    <meta itemprop="datePublished" content="March 31, 2024">
     
 
     <div class="page__inner-wrap">
@@ -431,7 +431,7 @@
         
         <p class="page__meta">
           
-            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2024-03-30T00:00:00+01:00">March 30, 2024 </time>&emsp;
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2024-03-31T00:00:00+01:00">March 31, 2024 </time>&emsp;
           
           
         </p>
@@ -622,9 +622,7 @@ index.html
 </span><span class="gp">?&gt;</span><span class="w">
 </span></code></pre></div></div>
 
-<p>we can see that <strong>the product parameter is passed without sanitization to an <a href="https://www.php.net/manual/en/function.exec.php">exec</a> PHP function</strong>, so there is a command injection. It is not recommended to use functions to execute system commands, and if there is no other option, it is mandatory to validate or sanitize the input before passing it to the function.</p>
-
-<p>For example, when we send the payload</p>
+<p>we can see that <strong>the product parameter is passed without sanitization to an <a href="https://www.php.net/manual/en/function.exec.php">exec</a> PHP function</strong>, so there is a command injection. For example, when we send the payload</p>
 
 <div class="code-header">
   <button class="copy-code-button">
@@ -635,7 +633,7 @@ index.html
 <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Liferay
 </code></pre></div></div>
 
-<p>payload, what is being executed in the backend is the command</p>
+<p>the backend executes the following command</p>
 
 <div class="code-header">
   <button class="copy-code-button">
@@ -657,7 +655,7 @@ index.html
 <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Liferay;whoami
 </code></pre></div></div>
 
-<p>what is being executed in the backend are the following commands</p>
+<p>the backend executes the following commands</p>
 
 <div class="code-header">
   <button class="copy-code-button">
@@ -669,6 +667,8 @@ index.html
 </code></pre></div></div>
 
 <p>In this way, first is executed the command <em>searchsploit -wj Liferay</em> and then the command <em>whoami</em>.</p>
+
+<p>It is not recommended to use functions to execute system commands, and if there is no other option, it is mandatory to validate or sanitize the input before passing it to the function.</p>
 
 <div id="section-id-3" />
 
@@ -715,7 +715,7 @@ User hacker may run the following commands on HackingStation:
     (root) NOPASSWD: /usr/bin/nmap
 </span></code></pre></div></div>
 
-<p>so we can execute nmap with sudo without password. This doesn’t sound very safe.</p>
+<p>so we can execute nmap as root with sudo without password. This doesn’t sound very safe.</p>
 
 <div id="section-id-3-2" />
 
@@ -742,7 +742,7 @@ Compiled without:
 Available nsock engines: epoll poll select
 </span></code></pre></div></div>
 
-<p>we can see that the installed nmap is in version 7.93, which means that the second method is not applicable in this case.</p>
+<p>we can see that the installed nmap is in version 7.93, so interactive mode is not available. This means that the second method is not applicable in this case.</p>
 
 <p>On the other hand, the first method is based on nmap functionality to execute scripts written in Lua. So executing that commands we get the following result</p>
 
@@ -785,11 +785,13 @@ snap
 <div class="language-lua highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">os.execute</span><span class="p">(</span><span class="s2">"/bin/sh"</span><span class="p">)</span>
 </code></pre></div></div>
 
-<p>is essentially a shell. <strong>When this Lua code is executed through nmap, a shell will be invoked with the same user that executed nmap</strong>. In this case, if nmap is executed without sudo I get a shell with the <em>hacker</em> user, but if I execute nmap with sudo I execute the shell with the superuser, so I get a <em>root</em> shell.</p>
+<p>is essentially a shell. <strong>When this Lua code is executed through nmap, a shell will be invoked with the same user that executed nmap</strong>. In this case, if nmap is executed without sudo, we get a shell with the <em>hacker</em> user, but if we execute nmap with sudo, we get a shell with the <em>root</em> user.</p>
 
-<p>This can be seen in the following root processes with PIDs from 1137 to 1140.</p>
+<p>We can see this in the following root processes with PIDs from 1137 to 1140</p>
 
 <p><img src="/assets/images/2024-03-31-vulnyx-hackingstation/root-pids.png" alt="" /></p>
+
+<p>where 1140 is the PID of the current root shell.</p>
 
         
       </section>
@@ -850,7 +852,7 @@ snap
 
 
         
-          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2024-03-30T00:00:00+01:00">March 30, 2024</time></p>
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2024-03-31T00:00:00+01:00">March 31, 2024</time></p>
         
       </footer>
 
