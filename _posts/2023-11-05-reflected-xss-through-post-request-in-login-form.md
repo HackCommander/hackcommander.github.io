@@ -11,7 +11,7 @@ header:
 categories:
   - bug bounty
 tags:  
-  - web pentesting
+  - web
   - osint
   - amass
   - httpx

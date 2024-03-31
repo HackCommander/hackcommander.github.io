@@ -11,7 +11,7 @@ header:
 categories:
   - pentesting article
 tags:  
-  - web pentesting
+  - web
   - burpsuite
   - base64
   - metasploitable 2
