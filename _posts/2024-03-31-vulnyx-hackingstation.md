@@ -9,7 +9,7 @@ header:
   teaser_home_page: true
   icon:
 categories:
-  - ctfs
+  - ctf
 tags:  
   - vulnyx
   - nmap
@@ -31,7 +31,7 @@ tags:
   - [3.2. Getting a shell as root](#section-id-3-2)
   - [3.3. Why does this privilege escalation via nmap exist?](#section-id-3-3)
 
-<p style="text-align:center;"><img src="/assets/images/2024-03-31-vulnyx-hackingstation/box-info.png" style="width: 800px;"></p>
+<p style="text-align:center;"><img src="/assets/images/2024-03-31-vulnyx-hackingstation/box-info.png" style="width: 750px;"></p>
 
 In this post we are going to see the writeup of the first machine I have uploaded to VulNyx: HackingStation. It is a very simple machine for beginners in which we are going to get access to the machine through a command injection in a web and then to escalate privileges through a nmap binary, which is allowed to run as superuser without password.
 
