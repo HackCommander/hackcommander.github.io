@@ -58,4 +58,9 @@ var store = [{
         "excerpt":"Summary 1. Port and service scanning 2. Gaining access 2.1. Detecting the command injection 2.2. Getting a shell as hacker 2.3. Why does this command injection exist? 3. Privilege escalation 3.1. Detecting the nmap vulnerability 3.2. Getting a shell as root 3.3. Why does this privilege escalation via nmap exist?...","categories": ["ctf"],
         "tags": ["vulnyx","nmap","web","command injection","gtfobins","binary exploitation"],
         "url": "https://hackcommander.github.io/posts/2024/03/31/vulnyx-hackingstation/",
-        "teaser":"https://hackcommander.github.io/assets/images/2024-03-31-vulnyx-hackingstation/box-info.png"}]
+        "teaser":"https://hackcommander.github.io/assets/images/2024-03-31-vulnyx-hackingstation/box-info.png"},{
+        "title": "VulNyx&#58; Diff3r3ntS3c",
+        "excerpt":"Summary 1. Port and service scanning 2. Gaining access 2.1. Detecting the arbitrary file upload 2.2. Getting a shell as candidate 2.3. Why does this arbitrary file upload exist? 3. Privilege escalation 3.1. Detecting the cronjob vulnerability 3.2. Getting a shell as root 3.3. Why does this privilege escalation via...","categories": ["ctf"],
+        "tags": ["vulnyx","nmap","web","burpsuite","arbitrary file upload","ffuf","directory listing","command injection","cronjob"],
+        "url": "https://hackcommander.github.io/posts/2024/04/08/vulnyx-diff3r3nts3c/",
+        "teaser":"https://hackcommander.github.io/assets/images/2024-04-08-vulnyx-diff3r3nts3c/box-info.png"}]
