@@ -107,7 +107,7 @@ The result contains at the end the word *hacker*, which must be the user with wh
 <div id='section-id-2-2'/>
 ## 2.2. Getting a shell as hacker
 
-Now is the time to get a shell. First we set up a listener on port 8000 using the command
+Now is the time to get a shell. First we set up a listener on the attacking machine on port 8000 using the command
 
 {% include codeHeader.html %}
 ```console

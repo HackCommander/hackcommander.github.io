@@ -267,7 +267,7 @@ where we can see that we got a shell as the *candidate* user and that the user f
 <div id='section-id-2-3'/>
 ## 2.3. Why does this arbitrary file upload exist?
 
-After opening the script that performs the data upload, we can see the following PHP code
+After opening the script */var/www/html/uploadData.php*, which is the one that performs the data upload, we can see the following PHP code
 
 {% include codeHeader.html %}
 ```php
