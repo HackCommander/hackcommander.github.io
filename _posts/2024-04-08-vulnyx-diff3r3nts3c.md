@@ -34,9 +34,9 @@ tags:
   - [3.2. Getting a shell as root](#section-id-3-2)
   - [3.3. Why does this privilege escalation via cronjob exist?](#section-id-3-3)
 
-<p style="text-align:center;"><img src="/assets/images/2024-03-31-vulnyx-hackingstation/box-info.png" style="width: 750px;"></p>
+<p style="text-align:center;"><img src="/assets/images/2024-04-08-vulnyx-diff3r3nts3c/box-info.png" style="width: 750px;"></p>
 
-In this post we are going to see the writeup of the machine Diff3r3ntS3c from [VulNyx](https://vulnyx.com/). It's an easy machine created by [HackCommander](https://hackcommander.github.io/) (yeah, it's me again :blush:) especially designed for beginners. We are going to get access to the machine through an arbitrary file upload in a web form and then to escalate privileges through a cronjob executed as root using a script editable by any user.
+In this post we are going to see the writeup of the machine Diff3r3ntS3c from [VulNyx](https://vulnyx.com/). It's a low machine created by [HackCommander](https://hackcommander.github.io/) (yeah, it's me again :blush:) especially designed for beginners. We are going to get access to the machine through an arbitrary file upload in a web form and then to escalate privileges through a cronjob executed as root using a script editable by any user.
 
 <div id='section-id-1'/>
 ## 1. Port and service scanning
@@ -353,7 +353,7 @@ the following response is obtained
 
 ![](/assets/images/2024-04-08-vulnyx-diff3r3nts3c/command-injection.png)
 
-The presence of this vulnerability does not affect the difficulty of the machine as this method is more difficult to find and exploit than arbitrary file uploading. This is why the machine remains easy.
+The presence of this vulnerability does not affect the difficulty of the machine as this method is more difficult to find and exploit than arbitrary file uploading. This is why the machine remains low.
 
 <div id='section-id-3'/>
 ## 3. Privilege escalation
