@@ -36,7 +36,7 @@ tags:
 
 <p style="text-align:center;"><img src="/assets/images/2024-04-08-vulnyx-diff3r3nts3c/box-info.png" style="width: 750px;"></p>
 
-In this post we are going to see the writeup of the machine Diff3r3ntS3c from [VulNyx](https://vulnyx.com/). It's a low machine created by [HackCommander](https://hackcommander.github.io/) (yeah, it's me again :blush:) especially designed for beginners. We are going to get access to the machine through an arbitrary file upload in a web form and then to escalate privileges through a cronjob executed as root using a script editable by any user.
+In this post we are going to see the writeup of the machine Diff3r3ntS3c from [VulNyx](https://vulnyx.com/). It's a low machine created by [HackCommander](https://hackcommander.github.io/) (yeah, it's me again :blush:) made in PHP without framework and especially designed for beginners. We are going to get access to the machine through an arbitrary file upload in a web form and then to escalate privileges through a cronjob executed as root using a script editable by any user.
 
 <div id='section-id-1'/>
 ## 1. Port and service scanning

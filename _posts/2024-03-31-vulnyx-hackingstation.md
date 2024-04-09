@@ -33,7 +33,7 @@ tags:
 
 <p style="text-align:center;"><img src="/assets/images/2024-03-31-vulnyx-hackingstation/box-info.png" style="width: 750px;"></p>
 
-In this post we are going to see the writeup of the machine HackingStation from [VulNyx](https://vulnyx.com/). It's a low machine created by [HackCommander](https://hackcommander.github.io/) (yeah, it's me :blush:) especially designed for beginners. We are going to get access to the machine through a command injection in a web and then to escalate privileges through the nmap binary, which is allowed to run as superuser without password.
+In this post we are going to see the writeup of the machine HackingStation from [VulNyx](https://vulnyx.com/). It's a low machine created by [HackCommander](https://hackcommander.github.io/) (yeah, it's me :blush:) made in PHP without framework and especially designed for beginners. We are going to get access to the machine through a command injection in a web and then to escalate privileges through the nmap binary, which is allowed to run as superuser without password.
 
 <div id='section-id-1'/>
 ## 1. Port and service scanning
