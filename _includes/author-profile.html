@@ -83,6 +83,15 @@
         </li>
       {% endif %}
       
+      {% if author.yeswehack %}
+        <li>
+          <a href="https://yeswehack.com/hunters/{{ author.yeswehack }}" target="_blank">
+            <img src="/assets/images/author-logos/yeswehack.png" alt="Yogosha" style="width: 16px; height: 16px;">
+            YesWeHack
+          </a>
+        </li>
+      {% endif %}
+      
       {% if author.twitter %}
         <li>
           <a href="https://twitter.com/{{ author.twitter }}" itemprop="sameAs" rel="nofollow noopener noreferrer">
