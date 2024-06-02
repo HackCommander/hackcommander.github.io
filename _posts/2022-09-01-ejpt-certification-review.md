@@ -9,7 +9,7 @@ header:
   teaser_home_page: true
   icon:
 categories:
-  - certification
+  - review
 tags:  
   - elearnsecurity
   - ejpt
