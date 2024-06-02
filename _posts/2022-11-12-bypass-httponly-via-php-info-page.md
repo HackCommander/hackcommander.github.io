@@ -9,7 +9,7 @@ header:
   teaser_home_page: true
   icon:
 categories:
-  - pentesting article
+  - research
 tags:  
   - web
   - burpsuite
