@@ -11,6 +11,7 @@ header:
 categories:
   - review
 tags:  
+  - certification
   - elearnsecurity
   - ejpt
   - pentesting
