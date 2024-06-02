@@ -1,7 +1,7 @@
 ---
 layout: single
 title: How to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation
-excerpt: "Pentesting article: how to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation."
+excerpt: "Research on how to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation."
 date: 2022-11-12
 classes: wide
 header:
