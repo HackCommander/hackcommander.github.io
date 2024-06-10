@@ -1,7 +1,7 @@
 var store = [{
         "title": "eJPT certification review",
-        "excerpt":"Summary 1. What is eJPT? 2. What will you learn and what previous knowledge do you need? 3. Is it useful for the curriculum? 4. Is it affordable? 5. How is the content? 5.1. Penetration Testing Prerequisites 5.2. Penetration Testing: Preliminary Skills &amp; Programming 5.3. Penetration Testing Basics 5.4. eJPT...","categories": ["certification"],
-        "tags": ["elearnsecurity","ejpt","pentesting"],
+        "excerpt":"Summary 1. What is eJPT? 2. What will you learn and what previous knowledge do you need? 3. Is it useful for the curriculum? 4. Is it affordable? 5. How is the content? 5.1. Penetration Testing Prerequisites 5.2. Penetration Testing: Preliminary Skills &amp; Programming 5.3. Penetration Testing Basics 5.4. eJPT...","categories": ["review"],
+        "tags": ["certification","elearnsecurity","ejpt","pentesting"],
         "url": "https://hackcommander.github.io/posts/2022/09/01/ejpt-certification-review/",
         "teaser":"https://hackcommander.github.io/assets/images/2022-09-01-ejpt-certification-review/ejpt-logo.png"},{
         "title": "Reflected XSS bypassing HTML tag removal sanitization",
@@ -15,7 +15,7 @@ var store = [{
         "url": "https://hackcommander.github.io/posts/2022/10/17/sql-injection-in-a-login-form/",
         "teaser":"https://hackcommander.github.io/assets/images/general/bug-bounty.jpg"},{
         "title": "How to bypass the HttpOnly flag via the PHP info page to exfiltrate the user cookies during an XSS exploitation",
-        "excerpt":"Summary 1. Setting up the environment 2. Hands-on! 2.1. Trying to exfiltrate the cookies through the usual method 2.2. Exfiltrating the cookies bypassing the HttpOnly flag through the PHP info page 2.3. Using my Github tool to generate an improved payload 2.4. Important notes 3. Conclusions PHP info page disclosure...","categories": ["pentesting article"],
+        "excerpt":"Summary 1. Setting up the environment 2. Hands-on! 2.1. Trying to exfiltrate the cookies through the usual method 2.2. Exfiltrating the cookies bypassing the HttpOnly flag through the PHP info page 2.3. Using my Github tool to generate an improved payload 2.4. Important notes 3. Conclusions PHP info page disclosure...","categories": ["research"],
         "tags": ["web","burpsuite","base64","metasploitable 2","xss","exfiltrate cookies","session hijacking","php info page","bypass"],
         "url": "https://hackcommander.github.io/posts/2022/11/12/bypass-httponly-via-php-info-page/",
         "teaser":"https://hackcommander.github.io/assets/images/2022-11-12-bypass-httponly-via-php-info-page/phpinfo-dvwa-1.png"},{
@@ -63,4 +63,9 @@ var store = [{
         "excerpt":"Summary 1. Port and service scanning 2. Gaining access 2.1. Detecting the arbitrary file upload 2.2. Getting a shell as candidate 2.3. Why does this arbitrary file upload exist? 3. Privilege escalation 3.1. Detecting the cronjob vulnerability 3.2. Getting a shell as root 3.3. Why does this privilege escalation via...","categories": ["ctf"],
         "tags": ["vulnyx","nmap","web","burpsuite","arbitrary file upload","ffuf","directory listing","command injection","cronjob"],
         "url": "https://hackcommander.github.io/posts/2024/04/08/vulnyx-diff3r3nts3c/",
-        "teaser":"https://hackcommander.github.io/assets/images/2024-04-08-vulnyx-diff3r3nts3c/box-info.png"}]
+        "teaser":"https://hackcommander.github.io/assets/images/2024-04-08-vulnyx-diff3r3nts3c/box-info.png"},{
+        "title": "HackerNight 2024&#58; my first live hacking event",
+        "excerpt":"Summary 1. What is HackerNight? 2. Why did I sign up for HackerNight? 3. The course of HackerNight 3.1. Entry to the event 3.2. During the event 3.3. Outcome of the event 4. Conclusions of HackerNight :warning: This post does not contain technical details about the vulnerabilities I found in...","categories": ["review","bug bounty"],
+        "tags": ["life hacking event","hackernight","rootedcon","yogosha","first blood"],
+        "url": "https://hackcommander.github.io/posts/2024/06/11/hackernight-2024-my-first-live-hacking-event/",
+        "teaser":"https://hackcommander.github.io/assets/images/2024-06-11-hackernight-2024-my-first-live-hacking-event/first-blood.png"}]
