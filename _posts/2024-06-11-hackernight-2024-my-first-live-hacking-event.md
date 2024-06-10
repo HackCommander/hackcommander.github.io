@@ -116,7 +116,7 @@ Finally, the outcome of the event was:
 
 - **First blood in the Carter Cash program.** HackCommander appeared on the Kinepolis screen!
 - **A good amount of money for a few hours of work.** I wish my hourly wage was what I earned that night...
-- **Direct access to the [Yogosha Strike Force](https://yogosha.com/hackers/).** To enter this community it is necessary to pass a series of CTFs, but if you report in a LHE a vulnerability of at least *Medium* severity, you get a direct access to the community. I just had to write them a ticket because the process is not automatic, and since then I already receive invitations to private programs and I have a public profile as [HackCommander](https://app.yogosha.com/r/hackcommander) on Yogosha.
+- **Direct access to the [Yogosha Strike Force](https://yogosha.com/hackers/).** To enter this community it's necessary to pass a series of CTFs, but if you report in a LHE a vulnerability of at least *Medium* severity, you get a direct access to the community. I just had to write them a ticket because the process is not automatic, and since then I already receive invitations to private programs and I have a public profile as [HackCommander](https://app.yogosha.com/r/hackcommander) on Yogosha.
 
 <div id='section-id-3-4'/>
 ## 3.4. Conclusions of HackerNight
