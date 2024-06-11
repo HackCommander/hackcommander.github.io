@@ -2,10 +2,10 @@
 layout: single
 title: HackerNight 2024&#58; my first live hacking event
 excerpt: "Review of my experience at the HackerNight live hacking event in RootedCON and how I got the first blood on one of the customers."
-date: 2024-06-11
+date: 2024-06-10
 classes: wide
 header:
-  teaser: /assets/images/2024-06-11-hackernight-2024-my-first-live-hacking-event/first-blood.png
+  teaser: /assets/images/2024-06-10-hackernight-2024-my-first-live-hacking-event/first-blood.png
   teaser_home_page: true
   icon:
 categories:
@@ -29,7 +29,7 @@ tags:
   - [3.3. Outcome of the event](#section-id-3-3)
 - [4. Conclusions of HackerNight](#section-id-4)
 
-![](/assets/images/2024-06-11-hackernight-2024-my-first-live-hacking-event/rooted-hn-logo.jpg)
+![](/assets/images/2024-06-10-hackernight-2024-my-first-live-hacking-event/rooted-hn-logo.jpg)
 
 > :warning: <span style="color:red">This post does not contain technical details about the vulnerabilities I found in the event because in order to participate in the event I signed a NDA (non-disclosure agreement), so this post is a review about the event and not a technical post about bug bounty.</span>
 
@@ -65,7 +65,7 @@ To be honest, when it was time to enter I didn't really want to get into the eve
 
 The event was supposed to run from 8:00 pm on March 8 to 8:00 am on March 9, that is, 12 hours of hacking. However, due to a delay in the registrations and in the preparation of the event, in the end the event started around 11:00 pm. When I entered I sat at a table with my colleagues of Tarlogic and, although there is no picture of me at the event, I can tell you that I'm the one sitting there on the right:
 
-![](/assets/images/2024-06-11-hackernight-2024-my-first-live-hacking-event/me.png)
+![](/assets/images/2024-06-10-hackernight-2024-my-first-live-hacking-event/me.png)
 
 <div id='section-id-3-2'/>
 ## 3.2. During the event
@@ -79,7 +79,7 @@ I don't keep a logbook about the event, but the approximate timeline of the even
 - **4:25 am:** reported the first vulnerability as *Medium*.
 - **4:42 am:** the customer accepted the vulnerability as *Medium* and my nickname, *HackCommander*, appeared on the movie screen in the first bloods section to applause. At that moment, all my accumulated fatigue vanished, and I felt a rush of excitement.
 
-  ![](/assets/images/2024-06-11-hackernight-2024-my-first-live-hacking-event/first-blood.png)
+  ![](/assets/images/2024-06-10-hackernight-2024-my-first-live-hacking-event/first-blood.png)
   
   This picture was taken long after I got the first blood so I had already been kicked off the leaderboard, but I was present for some hours. In fact, I think if they had updated the leaderboard after I was accepted for the *High* vulnerability, I might have been in.
   
@@ -104,7 +104,7 @@ In the following Linkedin post you can see how Yogosha published a thank you to 
 
 - [Yogosha post on Linkedin about HackerNight 2024](https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7176490844202381313)
 
-<p style="text-align:center;"><img src="/assets/images/2024-06-11-hackernight-2024-my-first-live-hacking-event/linkedin-post.png"></p>
+<p style="text-align:center;"><img src="/assets/images/2024-06-10-hackernight-2024-my-first-live-hacking-event/linkedin-post.png"></p>
 
 They also published a video about the event:
 

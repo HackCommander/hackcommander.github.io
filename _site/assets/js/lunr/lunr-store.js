@@ -67,5 +67,5 @@ var store = [{
         "title": "HackerNight 2024&#58; my first live hacking event",
         "excerpt":"Summary 1. What is HackerNight? 2. Why did I sign up for HackerNight? 3. The course of HackerNight 3.1. Entry to the event 3.2. During the event 3.3. Outcome of the event 4. Conclusions of HackerNight :warning: This post does not contain technical details about the vulnerabilities I found in...","categories": ["review","bug bounty"],
         "tags": ["life hacking event","hackernight","rootedcon","yogosha","first blood"],
-        "url": "https://hackcommander.github.io/posts/2024/06/11/hackernight-2024-my-first-live-hacking-event/",
-        "teaser":"https://hackcommander.github.io/assets/images/2024-06-11-hackernight-2024-my-first-live-hacking-event/first-blood.png"}]
+        "url": "https://hackcommander.github.io/posts/2024/06/10/hackernight-2024-my-first-live-hacking-event/",
+        "teaser":"https://hackcommander.github.io/assets/images/2024-06-10-hackernight-2024-my-first-live-hacking-event/first-blood.png"}]
