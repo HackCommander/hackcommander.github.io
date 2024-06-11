@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.github.io/" rel="alternate" type="text/html" /><updated>2024-06-11T01:28:27+02:00</updated><id>https://hackcommander.github.io/feed.xml</id><title type="html">hackcommander.github.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">HackerNight 2024: my first live hacking event</title><link href="https://hackcommander.github.io/posts/2024/06/11/hackernight-2024-my-first-live-hacking-event/" rel="alternate" type="text/html" title="HackerNight 2024: my first live hacking event" /><published>2024-06-11T00:00:00+02:00</published><updated>2024-06-11T00:00:00+02:00</updated><id>https://hackcommander.github.io/posts/2024/06/11/hackernight-2024-my-first-live-hacking-event</id><content type="html" xml:base="https://hackcommander.github.io/posts/2024/06/11/hackernight-2024-my-first-live-hacking-event/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.github.io/" rel="alternate" type="text/html" /><updated>2024-06-11T10:10:10+02:00</updated><id>https://hackcommander.github.io/feed.xml</id><title type="html">hackcommander.github.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">HackerNight 2024: my first live hacking event</title><link href="https://hackcommander.github.io/posts/2024/06/10/hackernight-2024-my-first-live-hacking-event/" rel="alternate" type="text/html" title="HackerNight 2024: my first live hacking event" /><published>2024-06-10T00:00:00+02:00</published><updated>2024-06-10T00:00:00+02:00</updated><id>https://hackcommander.github.io/posts/2024/06/10/hackernight-2024-my-first-live-hacking-event</id><content type="html" xml:base="https://hackcommander.github.io/posts/2024/06/10/hackernight-2024-my-first-live-hacking-event/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. What is HackerNight?&lt;/a&gt;&lt;/li&gt;
@@ -13,7 +13,7 @@
   &lt;li&gt;&lt;a href=&quot;#section-id-4&quot;&gt;4. Conclusions of HackerNight&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2024-06-11-hackernight-2024-my-first-live-hacking-event/rooted-hn-logo.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-06-10-hackernight-2024-my-first-live-hacking-event/rooted-hn-logo.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;blockquote&gt;
   &lt;p&gt;:warning: &lt;span style=&quot;color:red&quot;&gt;This post does not contain technical details about the vulnerabilities I found in the event because in order to participate in the event I signed a NDA (non-disclosure agreement), so this post is a review about the event and not a technical post about bug bounty.&lt;/span&gt;&lt;/p&gt;
@@ -55,7 +55,7 @@
 
 &lt;p&gt;The event was supposed to run from 8:00 pm on March 8 to 8:00 am on March 9, that is, 12 hours of hacking. However, due to a delay in the registrations and in the preparation of the event, in the end the event started around 11:00 pm. When I entered I sat at a table with my colleagues of Tarlogic and, although there is no picture of me at the event, I can tell you that I’m the one sitting there on the right:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/assets/images/2024-06-11-hackernight-2024-my-first-live-hacking-event/me.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-06-10-hackernight-2024-my-first-live-hacking-event/me.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;div id=&quot;section-id-3-2&quot; /&gt;
 
@@ -72,7 +72,7 @@
   &lt;li&gt;
     &lt;p&gt;&lt;strong&gt;4:42 am:&lt;/strong&gt; the customer accepted the vulnerability as &lt;em&gt;Medium&lt;/em&gt; and my nickname, &lt;em&gt;HackCommander&lt;/em&gt;, appeared on the movie screen in the first bloods section to applause. At that moment, all my accumulated fatigue vanished, and I felt a rush of excitement.&lt;/p&gt;
 
-    &lt;p&gt;&lt;img src=&quot;/assets/images/2024-06-11-hackernight-2024-my-first-live-hacking-event/first-blood.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;img src=&quot;/assets/images/2024-06-10-hackernight-2024-my-first-live-hacking-event/first-blood.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
     &lt;p&gt;This picture was taken long after I got the first blood so I had already been kicked off the leaderboard, but I was present for some hours. In fact, I think if they had updated the leaderboard after I was accepted for the &lt;em&gt;High&lt;/em&gt; vulnerability, I might have been in.&lt;/p&gt;
   &lt;/li&gt;
@@ -101,7 +101,7 @@
   &lt;li&gt;&lt;a href=&quot;https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7176490844202381313&quot;&gt;Yogosha post on Linkedin about HackerNight 2024&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p style=&quot;text-align:center;&quot;&gt;&lt;img src=&quot;/assets/images/2024-06-11-hackernight-2024-my-first-live-hacking-event/linkedin-post.png&quot; /&gt;&lt;/p&gt;
+&lt;p style=&quot;text-align:center;&quot;&gt;&lt;img src=&quot;/assets/images/2024-06-10-hackernight-2024-my-first-live-hacking-event/linkedin-post.png&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;They also published a video about the event:&lt;/p&gt;
 
