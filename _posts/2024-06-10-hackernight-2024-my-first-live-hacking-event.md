@@ -75,7 +75,7 @@ I don't keep a logbook about the event, but the approximate timeline of the even
 - **11:00 pm:** start of HackerNight.
 - **11:00 pm - 1:00 am:** participating in one of the programs without a defined strategy and without understanding the logic of the application.
 - **1:00 am - 4:00 am:** eating pringles and hamburgers and drinking monsters to drown my sorrows because I wasn't focused and couldn't find anything :cry:.
-- **4:00 am - 4:25 am:** taking a look at the scope of another program, I found a vulnerability by chance.
+- **4:00 am - 4:25 am:** taking a look at the scope of another program, I saw something that looked familiar. I found a vulnerability by chance, against all odds.
 - **4:25 am:** reported the first vulnerability as *Medium*.
 - **4:42 am:** the customer accepted the vulnerability as *Medium* and my nickname, *HackCommander*, appeared on the movie screen in the first bloods section to applause. At that moment, all my accumulated fatigue vanished, and I felt a rush of excitement.
 
@@ -110,7 +110,7 @@ They also published a video about the event:
 
 - [Yogosha video on Youtube about HackerNight 2024](https://www.youtube.com/watch?v=45b8ykxyY7o&ab_channel=Yogosha)
 
-In this video you can see that in the screen appear the nicknames of many hackers next to the customers where they got the first blood. For example *Lobuhi* got the first blood at *Arize*, *Borgi* at *Spartoo*... This is public information published by Yogosha, so I guess I can say that **I got the first blood at Carter Cash**.
+In this video you can see that in the screen appear the nicknames of many hackers next to the customers where they got the first blood. For example *Lobuhi* got the first blood at *Arize*, *Borgi* at *Spartoo*... This is public information published by Yogosha, so I guess I can say that **I got the first blood at [Carter Cash](https://fr.linkedin.com/company/carter-cash)**.
 
 Finally, the outcome of the event was:
 
