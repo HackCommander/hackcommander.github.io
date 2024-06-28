@@ -106,6 +106,7 @@ author:
   bio              : "Mathematician and Computer Engineer / Pentester / Bug Bounty Hunter / CTF Player"
   location         : "Spain"
   email            : "ivansantosmalpica.contact@gmail.com"
+  pgp              : "pgp"
   uri              :
   home             : # null (default), "absolute or relative url to link to author home"
   bitbucket        :

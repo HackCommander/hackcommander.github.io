@@ -57,6 +57,15 @@
         </li>
       {% endif %}
       
+      {% if author.pgp %}
+        <li>
+          <a href="https://hackcommander.github.io/assets/misc/2CF9F4B62E06BB2C336989C818B0C19D52075F78.asc" itemprop="sameAs" rel="nofollow noopener noreferrer">
+            <img src="/assets/images/author-logos/lock.svg" alt="HackerOne" style="width: 16px; height: 16px;">
+            PGP
+          </a>
+        </li>
+      {% endif %}
+      
       {% if author.linkedin %}
         <li>
           <a href="https://www.linkedin.com/in/{{ author.linkedin }}" itemprop="sameAs" rel="nofollow noopener noreferrer">
