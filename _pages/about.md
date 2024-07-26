@@ -15,7 +15,7 @@ My name is Iván Santos Malpica (aka **HackCommander**). I am a mathematician, c
 These are my titles:
 
 - *Mathematical Engineering* by the *Universidad Complutense de Madrid*.
-- *Computer Engineer* by the *Universidad Nacional de Educación a Distancia (UNED)*.
+- *Computer Engineer* by the *Universidad Nacional de Educación a Distancia (UNED)* with an [academic excellence award for the best academic record](https://www.uned.es/universidad/inicio/en/dam/jcr:cce5225c-d7ec-4f9b-a0dd-8bb75d26c857/Listado%20PROVISIONAL%20de%20premiados%20titulaci%C3%B3n%202024.v2.pdf).
 - *eJPT* (eLearnSecurity Junior Penetration Tester) by *eLearnSecurity*.
 
 ## Developed tools
@@ -29,7 +29,6 @@ I have made the following contributions:
 - [Personal blog about science and technology](https://hackcommander.github.io/).
 - Talk called *Pentesting: CTFs as a learning medium* at [Bluetab Company](https://www.bluetab.net/es/).
 - Pull request to HackTricks to add a [method to bypass the HttpOnly during an XSS exploit using the PHP info page](https://book.hacktricks.xyz/pentesting-web/hacking-with-cookies).
-- Final project degree of Computer Engineering about [CTFs as a learning tool in cybersecurity](http://e-spacio.uned.es/fez/view/bibliuned:grado-ETSIInformatica-II-Isantos).
 - CTFs in the Capture The Flag Platform [VulNyx](https://vulnyx.com/):
   - HackingStation.
   - Diff3r3ntS3c.
