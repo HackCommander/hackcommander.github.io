@@ -176,29 +176,29 @@ As you can see there are 2 headers, the *Origin* and *Referer* headers, where th
 
 And now it is time to talk about these concepts:
 
-- **Same-origin policy (SOP)**: the Same-Origin Policy (SOP) is a web security mechanism implemented by web browsers that restricts web pages from making requests to different domains than the one that served the web page. It helps prevent unauthorized data access and actions by scripts from other origins. For example, if you have a web page hosted at *https://www.example.com/*, the SOP prevents JavaScript on that page from making requests to, or interacting with, a different domain like *https://malicious.com/*, thus protecting against cross-site request forgery (CSRF) and other security risks. In the same way, it would prevent JavaScript in *https://malicious.com/* from making requests to a different domain such as *https://www.example.com/*, thus avoiding attacks like the one shown in this post. You can learn more about SOP at the following link
+- **Same-origin policy (SOP)**: the Same-Origin Policy (SOP) is a web security mechanism implemented by web browsers that restricts scripts on one origin from accessing data from another origin. It helps prevent unauthorized data access and actions by scripts from other origins. For example, if you have a web page hosted at *https://www.example.com/*, the SOP prevents JavaScript on that page from accessing data from a different domain like *https://malicious.com/*. In the same way, it would prevent JavaScript in *https://malicious.com/* from accessing data from a different domain such as *https://www.example.com/*, thus avoiding attacks like the one shown in this post. You can learn more about SOP at the following link
 
   [Same-origin policy (SOP) (PortSwigger)](https://portswigger.net/web-security/cors/same-origin-policy)
 
-- **Cross-Origin Resource Sharing (CORS)**: the Cross-Origin Resource Sharing (CORS) is a security feature that allows web servers to specify which domains are allowed to access their resources via HTTP requests, relaxing the same-origin policy when necessary. For instance, a web server can send CORS headers to indicate that *https://trusted-origin.com/* is permitted to make cross-origin requests. Without CORS, such requests would be blocked by the browser, but with CORS, specific cross-origin requests can be selectively allowed, enhancing the functionality of web applications while maintaining security. You can learn more about CORS at the following link
+- **Cross-Origin Resource Sharing (CORS)**: the Cross-Origin Resource Sharing (CORS) is a security feature that allows web servers to specify which domains are allowed to access their resources via HTTP requests, relaxing the same-origin policy when necessary. For instance, a website can send CORS headers to indicate that *https://trusted-origin.com/* is allowed to access data of the website. Without CORS, such accesses would be blocked by the browser, but with CORS, specific cross-origin accesses can be selectively allowed, enhancing the functionality of web applications while maintaining security. You can learn more about CORS at the following link
 
   [Cross-origin resource sharing (CORS) (PortSwigger)](https://portswigger.net/web-security/cors)
   
-
-**SOP came first as a client-side security measure** to prevent cross-origin requests. **CORS was later introduced as a server side implementation** to enable controlled cross-origin requests, specifying which domains are allowed access to resources, addressing SOP's limitations. So we can consider that CORS is for the SOP a kind of...
+**SOP came first as a client-side security measure** to prevent cross-origin accesses. **CORS was later introduced as a server side implementation** to enable controlled cross-origin accesses, specifying which domains are allowed access to resources, addressing SOP's limitations. So we can consider that CORS is for the SOP a kind of...
 
 <p style="text-align:center;"><img src="/assets/images/general/relax-bro.gif"></p>
 
-In principle, SOP prevents the browser from making any kind of cross-domain request and this is not something that the developer can modify directly because SOP is implemented in the user's browser, it is a client-side security measure. However, through an overly flexible CORS policy it is possible to allow some domains, even all domains, to make cross-domain requests to my domain. And this is something that the developer can modify because it is a server-side configuration.
+In principle, SOP prevents the browser from any kind of cross-domain accesses and this is not something that the developer can modify directly because SOP is implemented in the user's browser, it is a client-side security measure. However, through an overly flexible CORS policy it is possible to allow some domains, even all domains, to make cross-domain accesses to my domain. And this is something that the developer can modify because it is a server-side configuration.
 
 So even though I don't keep the burp project and the vulnerable asset was decommissioned, it is possible to ensure that the asset had a CORS policy that was too lax. The most lax CORS policy possible would be to allow access to web resources from any source, which we could identify by the presence of the following header
 
 {% include codeHeader.html %}
 ```html
 Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
 ```
 
-in an HTTP response from the vulnerable server. This could have allowed the cross-domain request exploiting the POST XSS to be sent from any other domain without problems.
+in an HTTP response from the vulnerable server. This could have allowed the cross-domain request and subsequent access to the response, exploiting the POST XSS to be sent from any other domain without problems.
 
 <div id='section-id-4'/>
 ## 4. Report resolution
