@@ -68,4 +68,9 @@ var store = [{
         "excerpt":"Summary 1. What is HackerNight? 2. Why did I sign up for HackerNight? 3. The course of HackerNight 3.1. Entry to the event 3.2. During the event 3.3. Outcome of the event 4. Conclusions of HackerNight :warning: This post does not contain technical details about the vulnerabilities I found in...","categories": ["review","bug bounty"],
         "tags": ["life hacking event","hackernight","rootedcon","yogosha","first blood"],
         "url": "https://hackcommander.github.io/posts/2024/06/10/hackernight-2024-my-first-live-hacking-event/",
-        "teaser":"https://hackcommander.github.io/assets/images/2024-06-10-hackernight-2024-my-first-live-hacking-event/first-blood.png"}]
+        "teaser":"https://hackcommander.github.io/assets/images/2024-06-10-hackernight-2024-my-first-live-hacking-event/first-blood.png"},{
+        "title": "Breaking the perimeter by exploiting routing-based SSRF via a misconfigured load balancer",
+        "excerpt":"Summary 1. Asset discovery 2. Vulnerability discovery 3. Vulnerability exploitation 3.1. Steps of exploitation 3.1.1. Accessing the internal network 3.1.2. Scanning the internal network 3.2. Why does this vulnerability exist? 4. Report resolution 5. Lessons learned :warning: This bug was reported in a private program in which it is not...","categories": ["bug bounty"],
+        "tags": ["web","portswigger","burpsuite","burp scanner","nikto","mod_proxy_balancer","ssrf"],
+        "url": "https://hackcommander.github.io/posts/2024/12/07/breaking-the-perimeter-by-exploiting-routing-based-ssrf-via-a-misconfigured-load-balancer/",
+        "teaser":"https://hackcommander.github.io/assets/images/general/bug-bounty.jpg"}]

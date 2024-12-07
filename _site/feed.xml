@@ -1,4 +1,249 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.github.io/" rel="alternate" type="text/html" /><updated>2024-09-07T23:46:19+02:00</updated><id>https://hackcommander.github.io/feed.xml</id><title type="html">hackcommander.github.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">HackerNight 2024: my first live hacking event</title><link href="https://hackcommander.github.io/posts/2024/06/10/hackernight-2024-my-first-live-hacking-event/" rel="alternate" type="text/html" title="HackerNight 2024: my first live hacking event" /><published>2024-06-10T00:00:00+02:00</published><updated>2024-06-10T00:00:00+02:00</updated><id>https://hackcommander.github.io/posts/2024/06/10/hackernight-2024-my-first-live-hacking-event</id><content type="html" xml:base="https://hackcommander.github.io/posts/2024/06/10/hackernight-2024-my-first-live-hacking-event/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://hackcommander.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://hackcommander.github.io/" rel="alternate" type="text/html" /><updated>2024-12-07T22:00:33+01:00</updated><id>https://hackcommander.github.io/feed.xml</id><title type="html">hackcommander.github.io</title><subtitle>This is my personal blog where I talk about science and technology, especially about offensive cybersecurity.</subtitle><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><entry><title type="html">Breaking the perimeter by exploiting routing-based SSRF via a misconfigured load balancer</title><link href="https://hackcommander.github.io/posts/2024/12/07/breaking-the-perimeter-by-exploiting-routing-based-ssrf-via-a-misconfigured-load-balancer/" rel="alternate" type="text/html" title="Breaking the perimeter by exploiting routing-based SSRF via a misconfigured load balancer" /><published>2024-12-07T00:00:00+01:00</published><updated>2024-12-07T00:00:00+01:00</updated><id>https://hackcommander.github.io/posts/2024/12/07/breaking-the-perimeter-by-exploiting-routing-based-ssrf-via-a-misconfigured-load-balancer</id><content type="html" xml:base="https://hackcommander.github.io/posts/2024/12/07/breaking-the-perimeter-by-exploiting-routing-based-ssrf-via-a-misconfigured-load-balancer/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-2&quot;&gt;2. Vulnerability discovery&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-3&quot;&gt;3. Vulnerability exploitation&lt;/a&gt;
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#section-id-3-1&quot;&gt;3.1. Steps of exploitation&lt;/a&gt;
+        &lt;ul&gt;
+          &lt;li&gt;&lt;a href=&quot;#section-id-3-1-1&quot;&gt;3.1.1. Accessing the internal network&lt;/a&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;a href=&quot;#section-id-3-1-2&quot;&gt;3.1.2. Scanning the internal network&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#section-id-3-2&quot;&gt;3.2. Why does this vulnerability exist?&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-4&quot;&gt;4. Report resolution&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-id-5&quot;&gt;5. Lessons learned&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/general/bug-bounty.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;:warning: &lt;span style=&quot;color:red&quot;&gt;This bug was reported in a private program in which it is not allowed to publish the vulnerabilities found. So this is a partial disclosure, only the essential technical details are exposed.&lt;/span&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;In this post I am going to show a vulnerability that I found some years ago, in my beginnings as a bounty hunter. It is not my most original post and the final impact found was not critical, but as I am always talking about the same vulnerabilities (XSS, SQLi…), I felt like making a post about a somewhat different vulnerability, just to change up my content a bit :smiley:. Besides, it’s always good to look back at bugs found some time ago to draw conclusions and think what could have been done better.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-1&quot; /&gt;
+
+&lt;h2 id=&quot;1-asset-discovery&quot;&gt;1. Asset discovery&lt;/h2&gt;
+
+&lt;p&gt;I found this asset through amass + httpx. If you are looking for http services on subdomains of the domain example.com and you have your config file in the path &lt;em&gt;/home/user/.config/amass/config.ini&lt;/em&gt;, you can use the following command&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;amass enum -brute -d example.com &apos;/home/user/.config/amass/config.ini&apos; | httpx -title -tech-detect -status-code -ip -p 66,80,81,443,445,457,1080,1100,1241,1352,1433,1434,1521,1944,2301,3000,3128,3306,4000,4001,4002,4100,5000,5432,5800,5801,5802,6082,6346,6347,7001,7002,8080,8443,8888,30821
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/OWASP/Amass&quot;&gt;Amass&lt;/a&gt; is an OSINT tool to perform network mapping of attack surfaces and external asset discovery which is a very famous tool used in the recon step in bug bounty. The output of the above amass command is a list of subdomains of the given domain, i.e, a list of potential targets.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/projectdiscovery/httpx&quot;&gt;Httpx&lt;/a&gt; is a multi-purpose HTTP toolkit allow to run multiple probers. In this case, the input of httpx is a list of subdomains and the output is a list of subdomains that have an http service in any of the ports given as a parameter. Also it shows some additional information about the service such as the title, the detected technologies… that I have specified in the parameters to be displayed.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-2&quot; /&gt;
+
+&lt;h2 id=&quot;2-vulnerability-discovery&quot;&gt;2. Vulnerability discovery&lt;/h2&gt;
+
+&lt;p&gt;The main page worked over HTTP and it didn’t look like a big deal. It only displayed the text &lt;em&gt;It works!&lt;/em&gt;, as can be seen in the following evidence:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-12-07-breaking-the-perimeter-by-exploiting-routing-based-ssrf-via-a-misconfigured-load-balancer/main-page.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Although it is difficult to decide which part belongs to the discovery and which part belongs to the exploitation, I got the initial clue from the &lt;em&gt;Burp Scanner&lt;/em&gt;, as can be seen in the following capture:&lt;/p&gt;
+
+&lt;div style=&quot;text-align: center;&quot;&gt;
+  &lt;img src=&quot;/assets/images/2024-12-07-breaking-the-perimeter-by-exploiting-routing-based-ssrf-via-a-misconfigured-load-balancer/issue-finding-1.png&quot; /&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;p&gt;This alert indicates the presence of an &lt;em&gt;External service interaction (DNS)&lt;/em&gt; in the server root. This type of alert is usually not a symptom of a vulnerability as it may be due to intentional web functionality and is usually in the &lt;em&gt;Host&lt;/em&gt; header of the request. However, it can sometimes allow access to the internal network, as can be seen in the following &lt;em&gt;PortSwigger&lt;/em&gt; links:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://portswigger.net/web-security/host-header/exploiting#routing-based-ssrf&quot;&gt;Routing-based SSRF (PortSwigger)&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://portswigger.net/web-security/host-header/exploiting/lab-host-header-routing-based-ssrf&quot;&gt;Lab: Routing-based SSRF (PortSwigger)&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;However, when I looked at the alert in detail I saw the following:&lt;/p&gt;
+
+&lt;div style=&quot;text-align: center;&quot;&gt;
+  &lt;img src=&quot;/assets/images/2024-12-07-breaking-the-perimeter-by-exploiting-routing-based-ssrf-via-a-misconfigured-load-balancer/issue-finding-2.png&quot; /&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;p&gt;As you can see, the injection is not happening in the &lt;em&gt;Host&lt;/em&gt; header, but in the HTTP verb path itself. This caught my attention because I had not seen it until then, so to check that it was not a false positive I sent the request again to a new instance of burp collaborator and checked that indeed several DNS requests were coming, as can be seen in the following capture:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-12-07-breaking-the-perimeter-by-exploiting-routing-based-ssrf-via-a-misconfigured-load-balancer/burp-collaborator.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;In principle, a DNS request to an external server doesn’t mean much. If it were an HTTP request, it would be much more interesting. However, the fact that the request is made using the path and not through the &lt;em&gt;Host&lt;/em&gt; header struck me as unusual. That’s why I decided to dig a little deeper here :mag:.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-3&quot; /&gt;
+
+&lt;h2 id=&quot;3-vulnerability-exploitation&quot;&gt;3. Vulnerability exploitation&lt;/h2&gt;
+
+&lt;div id=&quot;section-id-3-1&quot; /&gt;
+
+&lt;h2 id=&quot;31-steps-of-exploitation&quot;&gt;3.1. Steps of exploitation&lt;/h2&gt;
+
+&lt;div id=&quot;section-id-3-1-1&quot; /&gt;
+
+&lt;h3 id=&quot;311-accessing-the-internal-network&quot;&gt;3.1.1. Accessing the internal network&lt;/h3&gt;
+
+&lt;p&gt;The main risk of this typec of vulnerability is that it could allow making requests to the internal network. Because of this, I continued investigating the target to see if I could find any private IP addresses disclosed in the HTML, JavaScript, comments, or elsewhere but I found nothing. Burpsuite also didn’t flag anything interesting.&lt;/p&gt;
+
+&lt;p&gt;So, I decided to use a tool that I believe isn’t used much in bug bounty hunting: &lt;em&gt;nikto&lt;/em&gt;. I executed the following command&lt;/p&gt;
+
+&lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;nikto -h http://example.com/
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;where the &lt;em&gt;-h&lt;/em&gt; option specifies the host.&lt;/p&gt;
+
+&lt;p&gt;The result was this:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-12-07-breaking-the-perimeter-by-exploiting-routing-based-ssrf-via-a-misconfigured-load-balancer/nikto.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This file is quite interesting because it seems to be the admin interface of a load balancer, specifically for &lt;a href=&quot;https://httpd.apache.org/docs/2.4/mod/mod_proxy_balancer.html&quot;&gt;Apache Module mod_proxy_balancer&lt;/a&gt;. It reveals the following info:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-12-07-breaking-the-perimeter-by-exploiting-routing-based-ssrf-via-a-misconfigured-load-balancer/balancer-manager.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This is the Apache balancer manager interface or &lt;em&gt;mod_proxy_balancer&lt;/em&gt; module. As you can see, there’s a lot of useful information here, such as potential private IPs that could be used for further exploitation. Additionally, there’s a panel to edit the load balancer’s configuration, something I didn’t test since this was a production system. However, I reported it separately and received a bounty of just over $50 for it.&lt;/p&gt;
+
+&lt;p&gt;To confirm whether I could exploit an SSRF, I tested all the private IPs listed. Only one yielded an interesting response, 10.80.3.122, as shown below:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-12-07-breaking-the-perimeter-by-exploiting-routing-based-ssrf-via-a-misconfigured-load-balancer/wildfly-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;WildFly Application Server&lt;/em&gt; is an open-source, Java-based application server developed by the &lt;em&gt;JBoss Community&lt;/em&gt; under the &lt;em&gt;Red Hat umbrella&lt;/em&gt;. It is part of the &lt;em&gt;WildFly&lt;/em&gt; family and serves as a platform for building, deploying, and hosting &lt;em&gt;Java EE&lt;/em&gt; (Enterprise Edition) applications.&lt;/p&gt;
+
+&lt;p&gt;The capture above shows how I was able to make a request to the internal network. This confirmed the existence of a routing-based SSRF vulnerability, likely caused by a misconfiguration in the load balancer. It’s essentially an SSRF vulnerability, but instead of being exploited via the Host header, it works through the HTTP verb’s full URL path.&lt;/p&gt;
+
+&lt;p&gt;While exploring further, I clicked on the &lt;em&gt;Render&lt;/em&gt; tab to get a clearer view of all the possible options. That’s when I discovered there was an admin console available:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-12-07-breaking-the-perimeter-by-exploiting-routing-based-ssrf-via-a-misconfigured-load-balancer/wildfly-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p style=&quot;text-align:center;&quot;&gt;&lt;img src=&quot;/assets/images/general/dwight-excitement.gif&quot; style=&quot;width: 600px;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Inspecting the HTML code revealed that the admin console was located at the path &lt;em&gt;/console&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-12-07-breaking-the-perimeter-by-exploiting-routing-based-ssrf-via-a-misconfigured-load-balancer/wildfly-3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Unfortunately, I didn’t save the request in the burp project, but when I tried to access it, I got a response like&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;You don’t have permission to access this resource&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Damn!&lt;/p&gt;
+
+&lt;p style=&quot;text-align:center;&quot;&gt;&lt;img src=&quot;/assets/images/general/dwight-disappointment.gif&quot; style=&quot;width: 600px;&quot; /&gt;&lt;/p&gt;
+
+&lt;div id=&quot;section-id-3-1-2&quot; /&gt;
+
+&lt;h3 id=&quot;312-scanning-the-internal-network&quot;&gt;3.1.2. Scanning the internal network&lt;/h3&gt;
+
+&lt;p&gt;As you can see, all the IPs found belong to the Class A network (10.X.X.X or 10.0.0.0/8) and appear to be part of the same subnet (10.80.3.X or 10.80.3.0/24). The recon I could have performed in a situation like this is absolutely crazy:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Available IPs.&lt;/li&gt;
+  &lt;li&gt;Open ports and running services.&lt;/li&gt;
+  &lt;li&gt;Specific recon for each service, such as identifying routes and files on HTTP services like the one I found.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Although I conducted some recon across these categories, I honestly don’t think I went as deep as I could have, mainly for 3 reasons:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;This bug was one of my first findings as a bug bounty hunter.&lt;/li&gt;
+  &lt;li&gt;Since I was directly interacting with the internal network, I was concerned about being detected by the company’s internal security measures, such as firewalls, IDSs, IDPs… so I chose not to make too much noise.&lt;/li&gt;
+  &lt;li&gt;The internal network wasn’t explicitly in the program’s scope. While it’s unlikely I would have faced severe consequences, probing too deeply into the internal network might have cjeopardized the bounty or even led to warnings or penalties.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Even so, I did a lot of recon through Burpsuite intruder varying IPs, ports, paths… but it would be unfeasible to show all that recon in this post. An example of this recon is the following port scan I performed on the same IP where the &lt;em&gt;WildFly&lt;/em&gt; service was running, the IP 10.80.3.122:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/2024-12-07-breaking-the-perimeter-by-exploiting-routing-based-ssrf-via-a-misconfigured-load-balancer/port-scan.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Here is some interesting behavior:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;HTTP codes 200, 301 and 502.&lt;/strong&gt; After exploring the responses I came to the conclusion that these responses may correspond to open ports. It is not clear that all the ports associated with this response are open ports but it seems that any open port falls into this category. For example, port 22 has an SSH raised on version &lt;em&gt;SSH-2.0-OpenSSH_5.3&lt;/em&gt;.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;HTTP code 503&lt;/strong&gt;. It seems to be the default HTTP code for closed port and is the code returned by all other ports.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;In conclusion, I demonstrated that it is possible to run a port scan on the internal network. Specifically, the result shows that IP 10.80.3.122 has potentially open ports 22, 111, 1556, 1556, 3237, 3528, 7777, 8009, 8080, 9990, 9999, 10000, 10050, 13782, 36174, 54186 and 55422.&lt;/p&gt;
+
+&lt;p&gt;So since reporting something like&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Exposure of an internal *WildFly&lt;/em&gt; service*&lt;/p&gt;
+
+&lt;p&gt;felt too specific and challenging to explain in terms of impact, I decided to approach the issue from a broader and more impactful perspective. I reported it as&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Routing-based SSRF on the balancer allows access to and scanning of the internal network&lt;/em&gt;&lt;/p&gt;
+
+&lt;div id=&quot;section-id-3-2&quot; /&gt;
+
+&lt;h2 id=&quot;32-why-does-this-vulnerability-exist&quot;&gt;3.2. Why does this vulnerability exist?&lt;/h2&gt;
+
+&lt;p&gt;In summary, the fundamental reason is that the &lt;em&gt;Apache Balancer&lt;/em&gt; is either misconfigured or running with its default configuration. This vulnerability could be broken down into two misconfigurations:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;Exposed Apache balancer manager interface.&lt;/strong&gt; The Apache balancer manager interface is exposed to the internet when its access should be restricted through authentication or limited to internal network or VPN access. This could be mitigated by adding a directive like the following to the Apache configuration:&lt;/p&gt;
+
+    &lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;lt;Location &quot;/balancer-manager&quot;&amp;gt;
+  Require ip 10.0.0.0/8
+  Require all denied
+&amp;lt;/Location&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+
+    &lt;p&gt;This directive allows access to the &lt;em&gt;/balancer-manager&lt;/em&gt; path &lt;strong&gt;only&lt;/strong&gt; from IP addresses in the 10.0.0.0/8 range.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;Incorrect routing to internal assets.&lt;/strong&gt; The balancer allows requests to be made to both external and internal network assets. This could be due to misconfiguration of directives like &lt;em&gt;ProxyRequests&lt;/em&gt;, &lt;em&gt;ProxyPass&lt;/em&gt; or &lt;em&gt;ProxyPassReverse&lt;/em&gt; in the Apache configuration. For instance, when &lt;em&gt;ProxyRequests&lt;/em&gt; is enabled, as shown in the following directive&lt;/p&gt;
+
+    &lt;div class=&quot;code-header&quot;&gt;
+  &lt;button class=&quot;copy-code-button&quot;&gt;
+    Copy
+  &lt;/button&gt;
+&lt;/div&gt;
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ProxyRequests On
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+
+    &lt;p&gt;Apache allows the use of full URLs and acts as an open proxy.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;These are just theories but align with the observed behavior of the vulnerability.&lt;/p&gt;
+
+&lt;div id=&quot;section-id-4&quot; /&gt;
+
+&lt;h2 id=&quot;4-report-resolution&quot;&gt;4. Report resolution&lt;/h2&gt;
+
+&lt;p&gt;As I said before, the subdomain was not important so it was classified as low criticity. In addition, although I was not able to demonstrate a significant impact, the simple fact of gaining access to the internal network was enough for them to classify it as a vulnerability of high severity because of the consequences that it could have in the future if they decide to add other important assets to the network. Therefore, the report was classified as&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;Asset criticity&lt;/strong&gt;: Low&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Vulnerability severity&lt;/strong&gt;: High&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Bounty&lt;/strong&gt;: More than $100&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div id=&quot;section-id-5&quot; /&gt;
+
+&lt;h2 id=&quot;5-lessons-learned&quot;&gt;5. Lessons learned&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;Pay attention to all subdomains, even those that may not seem important&lt;/strong&gt;, because they can still impact other subdomains or key assets. In terms of CVSS, you could say that all subdomains should be considered, since the &lt;em&gt;Scope&lt;/em&gt; component of the vulnerability might be &lt;em&gt;Changed&lt;/em&gt;. For example, in this case I gained access to the internal network through a subdomain with no apparent functionality, where potentially critical assets for the company could be located.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Don’t hesitate to dive deeper into recon when necessary.&lt;/strong&gt; In this case, I did quite a bit of recon, but since I was just starting out as a bug bounty hunter, I probably didn’t do as much as I should have. There was also the risk of being detected during exploitation, as I was interacting with internal network assets, which could lead to the vulnerability being patched before I had a chance to report it. Still, I will never know if I would have found anything important if I had done a more thorough recon.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Sometimes, while searching for or exploiting a vulnerability, you may stumble upon others that you can report separately.&lt;/strong&gt; In this case, the main vulnerability was an SSRF, but along the way I found an exposed load balancer console that allowed modifying its configuration. I considered these to be two separate vulnerabilities with different impacts, even though the second helped me exploit the first, and I ended up getting two separate bounties. I don’t think this is common, but it’s always worth reporting both vulnerabilities properly and giving it a try.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Think carefully about how you want to approach your report.&lt;/strong&gt; In this case, I didn’t find the impact I was hoping for, which was gaining access to one of the internal assets. However, instead of focusing on what I couldn’t do, I decided to focus on what I could do and explain that clearly. So, I reported that I could perform scans on the internal network, rather than a failed attempt to access an admin console. I didn’t get a critical, okay, but I did get a high.&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web" /><category term="portswigger" /><category term="burpsuite" /><category term="burp scanner" /><category term="nikto" /><category term="mod_proxy_balancer" /><category term="ssrf" /><summary type="html">Partial disclosure of a bug bounty report: breaking the perimeter by exploiting routing-based SSRF via a misconfigured load balancer.</summary></entry><entry><title type="html">HackerNight 2024: my first live hacking event</title><link href="https://hackcommander.github.io/posts/2024/06/10/hackernight-2024-my-first-live-hacking-event/" rel="alternate" type="text/html" title="HackerNight 2024: my first live hacking event" /><published>2024-06-10T00:00:00+02:00</published><updated>2024-06-10T00:00:00+02:00</updated><id>https://hackcommander.github.io/posts/2024/06/10/hackernight-2024-my-first-live-hacking-event</id><content type="html" xml:base="https://hackcommander.github.io/posts/2024/06/10/hackernight-2024-my-first-live-hacking-event/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. What is HackerNight?&lt;/a&gt;&lt;/li&gt;
@@ -1495,7 +1740,7 @@ snap
   &lt;li&gt;Automatic tools like sqlmap are quite useful but sometimes they’re not enough. In this report, we saw how sqlmap was unable to retrieve information from the database, but as a hacker, I was able to do it. Perhaps this will change with the advancement of AI, but for now, automatic tools don’t replace the skills of a hacker.&lt;/li&gt;
   &lt;li&gt;Many people say that knowing programming is not necessary to hack, which has always seemed absurd to me. It may not be necessary to know programming to run a ffuf scan or exploit an SQLi with sqlmap, but it is a fundamental skill to understand why vulnerabilities exist and to be able to improvise. In this case, my programming knowledge helped me to bypass the blacklisting of the &lt;em&gt;SUBSTR&lt;/em&gt; function in MySQL by composing the &lt;em&gt;RIGHT&lt;/em&gt; and &lt;em&gt;LEFT&lt;/em&gt; functions. It’s not a big deal, but if you have no idea about programming, you wouldn’t even think that this is possible.&lt;/li&gt;
   &lt;li&gt;When you find a bug, always try to achieve maximum impact even if your report has already been accepted. In this case, I made a mistake because when I finished the PoC to retrieve the database name, I considered the exploitation finished. What I should have done is to continue escalating the vulnerability to dump any row of a table, attempt to upload a file to achieve RCE… but I did not. This way, the CVSS score could have been higher and therefore, the bounty too. Given the complexity of the exploitation, probably none of this was possible, but I should have tried.&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web" /><category term="collaboration" /><category term="osint" /><category term="google dorking" /><category term="portswigger" /><category term="burpsuite" /><category term="0iq" /><category term="sqlmap" /><category term="sql injection" /><category term="mysql" /><category term="bypass" /><summary type="html">Partial disclosure of a bug bounty report: human 1 - sqlmap 0: defeating automation through manual exploitation.</summary></entry><entry><title type="html">Reflected XSS bypassing hidden input tag and auto-submit script in a form</title><link href="https://hackcommander.github.io/posts/2023/12/10/reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script/" rel="alternate" type="text/html" title="Reflected XSS bypassing hidden input tag and auto-submit script in a form" /><published>2023-12-10T00:00:00+01:00</published><updated>2023-12-10T00:00:00+01:00</updated><id>https://hackcommander.github.io/posts/2023/12/10/reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script</id><content type="html" xml:base="https://hackcommander.github.io/posts/2023/12/10/reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web" /><category term="collaboration" /><category term="osint" /><category term="google dorking" /><category term="portswigger" /><category term="burpsuite" /><category term="0iq" /><category term="sqlmap" /><category term="sql injection" /><category term="mysql" /><category term="bypass" /><summary type="html">Partial disclosure of a bug bounty report: human 1 - sqlmap 0, defeating automation through manual exploitation.</summary></entry><entry><title type="html">Reflected XSS bypassing hidden input tag and auto-submit script in a form</title><link href="https://hackcommander.github.io/posts/2023/12/10/reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script/" rel="alternate" type="text/html" title="Reflected XSS bypassing hidden input tag and auto-submit script in a form" /><published>2023-12-10T00:00:00+01:00</published><updated>2023-12-10T00:00:00+01:00</updated><id>https://hackcommander.github.io/posts/2023/12/10/reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script</id><content type="html" xml:base="https://hackcommander.github.io/posts/2023/12/10/reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
@@ -2280,22 +2525,22 @@ username=user123&lt;span class=&quot;err&quot;&gt;&amp;amp;&lt;/span&gt;password
 
 &lt;ul&gt;
   &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;Same-origin policy (SOP)&lt;/strong&gt;: the Same-Origin Policy (SOP) is a web security mechanism implemented by web browsers that restricts web pages from making requests to different domains than the one that served the web page. It helps prevent unauthorized data access and actions by scripts from other origins. For example, if you have a web page hosted at &lt;em&gt;https://www.example.com/&lt;/em&gt;, the SOP prevents JavaScript on that page from making requests to, or interacting with, a different domain like &lt;em&gt;https://malicious.com/&lt;/em&gt;, thus protecting against cross-site request forgery (CSRF) and other security risks. In the same way, it would prevent JavaScript in &lt;em&gt;https://malicious.com/&lt;/em&gt; from making requests to a different domain such as &lt;em&gt;https://www.example.com/&lt;/em&gt;, thus avoiding attacks like the one shown in this post. You can learn more about SOP at the following link&lt;/p&gt;
+    &lt;p&gt;&lt;strong&gt;Same-origin policy (SOP)&lt;/strong&gt;: the Same-Origin Policy (SOP) is a web security mechanism implemented by web browsers that restricts scripts on one origin from accessing data from another origin. It helps prevent unauthorized data access and actions by scripts from other origins. For example, if you have a web page hosted at &lt;em&gt;https://www.example.com/&lt;/em&gt;, the SOP prevents JavaScript on that page from accessing data from a different domain like &lt;em&gt;https://malicious.com/&lt;/em&gt;. In the same way, it would prevent JavaScript in &lt;em&gt;https://malicious.com/&lt;/em&gt; from accessing data from a different domain such as &lt;em&gt;https://www.example.com/&lt;/em&gt;, thus avoiding attacks like the one shown in this post. You can learn more about SOP at the following link&lt;/p&gt;
 
     &lt;p&gt;&lt;a href=&quot;https://portswigger.net/web-security/cors/same-origin-policy&quot;&gt;Same-origin policy (SOP) (PortSwigger)&lt;/a&gt;&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;Cross-Origin Resource Sharing (CORS)&lt;/strong&gt;: the Cross-Origin Resource Sharing (CORS) is a security feature that allows web servers to specify which domains are allowed to access their resources via HTTP requests, relaxing the same-origin policy when necessary. For instance, a web server can send CORS headers to indicate that &lt;em&gt;https://trusted-origin.com/&lt;/em&gt; is permitted to make cross-origin requests. Without CORS, such requests would be blocked by the browser, but with CORS, specific cross-origin requests can be selectively allowed, enhancing the functionality of web applications while maintaining security. You can learn more about CORS at the following link&lt;/p&gt;
+    &lt;p&gt;&lt;strong&gt;Cross-Origin Resource Sharing (CORS)&lt;/strong&gt;: the Cross-Origin Resource Sharing (CORS) is a security feature that allows web servers to specify which domains are allowed to access their resources via HTTP requests, relaxing the same-origin policy when necessary. For instance, a website can send CORS headers to indicate that &lt;em&gt;https://trusted-origin.com/&lt;/em&gt; is allowed to access data of the website. Without CORS, such accesses would be blocked by the browser, but with CORS, specific cross-origin accesses can be selectively allowed, enhancing the functionality of web applications while maintaining security. You can learn more about CORS at the following link&lt;/p&gt;
 
     &lt;p&gt;&lt;a href=&quot;https://portswigger.net/web-security/cors&quot;&gt;Cross-origin resource sharing (CORS) (PortSwigger)&lt;/a&gt;&lt;/p&gt;
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;&lt;strong&gt;SOP came first as a client-side security measure&lt;/strong&gt; to prevent cross-origin requests. &lt;strong&gt;CORS was later introduced as a server side implementation&lt;/strong&gt; to enable controlled cross-origin requests, specifying which domains are allowed access to resources, addressing SOP’s limitations. So we can consider that CORS is for the SOP a kind of…&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;SOP came first as a client-side security measure&lt;/strong&gt; to prevent cross-origin accesses. &lt;strong&gt;CORS was later introduced as a server side implementation&lt;/strong&gt; to enable controlled cross-origin accesses, specifying which domains are allowed access to resources, addressing SOP’s limitations. So we can consider that CORS is for the SOP a kind of…&lt;/p&gt;
 
 &lt;p style=&quot;text-align:center;&quot;&gt;&lt;img src=&quot;/assets/images/general/relax-bro.gif&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;In principle, SOP prevents the browser from making any kind of cross-domain request and this is not something that the developer can modify directly because SOP is implemented in the user’s browser, it is a client-side security measure. However, through an overly flexible CORS policy it is possible to allow some domains, even all domains, to make cross-domain requests to my domain. And this is something that the developer can modify because it is a server-side configuration.&lt;/p&gt;
+&lt;p&gt;In principle, SOP prevents the browser from any kind of cross-domain accesses and this is not something that the developer can modify directly because SOP is implemented in the user’s browser, it is a client-side security measure. However, through an overly flexible CORS policy it is possible to allow some domains, even all domains, to make cross-domain accesses to my domain. And this is something that the developer can modify because it is a server-side configuration.&lt;/p&gt;
 
 &lt;p&gt;So even though I don’t keep the burp project and the vulnerable asset was decommissioned, it is possible to ensure that the asset had a CORS policy that was too lax. The most lax CORS policy possible would be to allow access to web resources from any source, which we could identify by the presence of the following header&lt;/p&gt;
 
@@ -2306,9 +2551,10 @@ username=user123&lt;span class=&quot;err&quot;&gt;&amp;amp;&lt;/span&gt;password
 &lt;/div&gt;
 
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;in an HTTP response from the vulnerable server. This could have allowed the cross-domain request exploiting the POST XSS to be sent from any other domain without problems.&lt;/p&gt;
+&lt;p&gt;in an HTTP response from the vulnerable server. This could have allowed the cross-domain request and subsequent access to the response, exploiting the POST XSS to be sent from any other domain without problems.&lt;/p&gt;
 
 &lt;div id=&quot;section-id-4&quot; /&gt;
 
@@ -2818,285 +3064,4 @@ The HTTP response code was 400 which usually indicates that the request sent is 
   &lt;li&gt;&lt;em&gt;Burp Scanner&lt;/em&gt; is a very important tool that, if conditions permit, should be launched. It performs many tests automatically that can provide very interesting alerts.&lt;/li&gt;
   &lt;li&gt;It is advisable to analyze all alerts received, not only from &lt;em&gt;Burpsuite&lt;/em&gt;, but from any software. The existence of false positives is not a reason to stop manually inspecting alerts.&lt;/li&gt;
   &lt;li&gt;If you have the possibility, it’s good to see the reports of other bug bounty hunters. You will learn from them, you will know the existence of other assets… but try not to step on their work doing pentesting on the same assets at the same time as them.&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web" /><category term="osint" /><category term="amass" /><category term="httpx" /><category term="burpsuite" /><category term="burp scanner" /><category term="portswigger" /><category term="http request smuggling" /><category term="xss" /><summary type="html">Partial disclosure of a bug bounty report: TE.TE HTTP request smuggling obfuscating the TE header.</summary></entry><entry><title type="html">Reflected XSS bypassing a 302 Security Redirect due to the presence of Javascript function calls</title><link href="https://hackcommander.github.io/posts/2023/03/06/reflected-xss-bypassing-redirect-due-to-javascript-function/" rel="alternate" type="text/html" title="Reflected XSS bypassing a 302 Security Redirect due to the presence of Javascript function calls" /><published>2023-03-06T00:00:00+01:00</published><updated>2023-03-06T00:00:00+01:00</updated><id>https://hackcommander.github.io/posts/2023/03/06/reflected-xss-bypassing-redirect-due-to-javascript-function</id><content type="html" xml:base="https://hackcommander.github.io/posts/2023/03/06/reflected-xss-bypassing-redirect-due-to-javascript-function/">&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;#section-id-1&quot;&gt;1. Asset discovery&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;#section-id-2&quot;&gt;2. Vulnerability discovery&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;#section-id-3&quot;&gt;3. Vulnerability exploitation&lt;/a&gt;
-    &lt;ul&gt;
-      &lt;li&gt;&lt;a href=&quot;#section-id-3-1&quot;&gt;3.1. Steps of exploitation&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;#section-id-3-2&quot;&gt;3.2. Why does the payload work?&lt;/a&gt;&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;#section-id-4&quot;&gt;4. Report resolution&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;#section-id-5&quot;&gt;5. Lessons learned&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/general/bug-bounty.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;:warning: &lt;span style=&quot;color:red&quot;&gt;This bug was reported in a private program in which it is not allowed to publish the vulnerabilities found. So this is a partial disclosure, only the essential technical details are exposed.&lt;/span&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;In this post I am going to show an interesting XSS that I reported in a bug bounty program: reflected XSS bypassing a &lt;em&gt;302 Security Redirect&lt;/em&gt; due to the presence of Javascript function calls. As a good novel, it has all the elements to be an interesting report: a bypass, a custom payload, a PortSwigger’s research article… I hope you enjoy it and learn something new!&lt;/p&gt;
-
-&lt;div id=&quot;section-id-1&quot; /&gt;
-
-&lt;h2 id=&quot;1-asset-discovery&quot;&gt;1. Asset discovery&lt;/h2&gt;
-
-&lt;p&gt;I found this asset through amass + httpx. If you are looking for http services on subdomains of the domain example.com and you have your config file in the path &lt;em&gt;/home/user/.config/amass/config.ini&lt;/em&gt;, you can use the following command&lt;/p&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;amass enum -brute -d example.com &apos;/home/user/.config/amass/config.ini&apos; | httpx -title -tech-detect -status-code -ip -p 66,80,81,443,445,457,1080,1100,1241,1352,1433,1434,1521,1944,2301,3000,3128,3306,4000,4001,4002,4100,5000,5432,5800,5801,5802,6082,6346,6347,7001,7002,8080,8443,8888,30821
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://github.com/OWASP/Amass&quot;&gt;Amass&lt;/a&gt; is an OSINT tool to perform network mapping of attack surfaces and external asset discovery which is a very famous tool used in the recon step in bug bounty. The output of the above amass command is a list of subdomains of the given domain, i.e, a list of potential targets.&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://github.com/projectdiscovery/httpx&quot;&gt;Httpx&lt;/a&gt; is a multi-purpose HTTP toolkit allow to run multiple probers. In this case, the input of httpx is a list of subdomains and the output is a list of subdomains that have an http service in any of the ports given as a parameter. Also it shows some additional information about the service such as the title, the detected technologies… that I have specified in the parameters to be displayed.&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;This domain is one of the most important domains of the company in question&lt;/strong&gt;, so it could also be obtained by googling the name of the company without the need to use any specific subdomain discovery tool.&lt;/p&gt;
-
-&lt;div id=&quot;section-id-2&quot; /&gt;
-
-&lt;h2 id=&quot;2-vulnerability-discovery&quot;&gt;2. Vulnerability discovery&lt;/h2&gt;
-
-&lt;p&gt;I found this vulnerability through gau + kxss. If you are looking for XSS in the subdomain www.example.com, you can use the following command&lt;/p&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;gau www.example.com | kxss
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://github.com/lc/gau&quot;&gt;Gau&lt;/a&gt; is a tool used to fetch known URLs from AlienVault’s Open Threat Exchange, the Wayback Machine, Common Crawl, and URLScan for any given domain. This tool does not always find all the URLs of a domain but it is a good starting point to search XSS or other types of vulnerabilities.&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://github.com/Emoe/kxss&quot;&gt;Kxss&lt;/a&gt; is a tool used to find all the “problematic characters” that are reflected in the response of any URL given as a parameter. The reflection of some problematic characters does not mean that an XSS exists but it is an indication that it could exist.&lt;/p&gt;
-
-&lt;p&gt;Both tools are based in other tools of &lt;a href=&quot;https://github.com/tomnomnom&quot;&gt;tomnomnom&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;In this case I got an output like the following&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-reflected-xss-bypassing-redirect-due-to-javascript-function/gau-kxss-output.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;where the blue color is obfuscating unimportant findings and the red color is obfuscating the XSS candidate URLs.&lt;/p&gt;
-
-&lt;p&gt;As you can see, there are 2 parameters that reflect all the dangerous characters: &lt;em&gt;utm_campaign&lt;/em&gt; and &lt;em&gt;utm_source&lt;/em&gt;. Both parameters belong to the same URL and in fact in the URL there were more &lt;a href=&quot;https://en.wikipedia.org/wiki/UTM_parameters&quot;&gt;UTM parameters&lt;/a&gt; in the same situation. It is not the first time I find an XSS in this type of parameters so it is always worth taking a look at them.&lt;/p&gt;
-
-&lt;div id=&quot;section-id-3&quot; /&gt;
-
-&lt;h2 id=&quot;3-vulnerability-exploitation&quot;&gt;3. Vulnerability exploitation&lt;/h2&gt;
-
-&lt;div id=&quot;section-id-3-1&quot; /&gt;
-
-&lt;h2 id=&quot;31-steps-of-exploitation&quot;&gt;3.1. Steps of exploitation&lt;/h2&gt;
-
-&lt;p&gt;Although there are several UTM parameters that may be vulnerable to XSS, I am going to focus on the &lt;em&gt;utm_source&lt;/em&gt; parameter. I have seen that the &lt;em&gt;utm_source&lt;/em&gt; parameter reflects all the dangerous characters but it’s important to see where the parameter is reflected in the response, that is, the context of the XSS. Why is this important? Because it’s essential to build a customized payload.&lt;/p&gt;
-
-&lt;p&gt;By sending the payload &lt;em&gt;HackCommander&lt;/em&gt; through the &lt;em&gt;utm_source&lt;/em&gt; parameter I got the following response&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-reflected-xss-bypassing-redirect-due-to-javascript-function/repeater-exploitation-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;As you can see the payload is reflected inside a Javascript script, so the potential XSS would be in a Javascript context. Within the script, the payload is reflected inside a dictionary that is passed as a parameter to the &lt;em&gt;push&lt;/em&gt; method of the &lt;em&gt;dataLayer&lt;/em&gt; array. The yellow color is obfuscating the value of one of the dictionary keys so the payload &lt;em&gt;HackCommander&lt;/em&gt; is reflected inside one of the dictionary values, not inside one of the keys.&lt;/p&gt;
-
-&lt;p&gt;So if I want to inject Javascript code I have to send a payload with the following characters:&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;&lt;span style=&quot;color:red&quot;&gt;”&lt;/span&gt; to close the string.&lt;/li&gt;
-  &lt;li&gt;&lt;span style=&quot;color:red&quot;&gt;}&lt;/span&gt; to close the dictionary.&lt;/li&gt;
-  &lt;li&gt;&lt;span style=&quot;color:red&quot;&gt;)&lt;/span&gt; to close the call to the &lt;em&gt;push&lt;/em&gt; method.&lt;/li&gt;
-  &lt;li&gt;&lt;span style=&quot;color:red&quot;&gt;;&lt;/span&gt; to close the Javascript line of code which calls the push method of the &lt;em&gt;dataLayer&lt;/em&gt; array.&lt;/li&gt;
-  &lt;li&gt;A Javascript payload such as &lt;span style=&quot;color:red&quot;&gt;alert(1);&lt;/span&gt;.&lt;/li&gt;
-  &lt;li&gt;A &lt;span style=&quot;color:red&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt; tag to close the Javascript script to avoid Javascript syntax errors.&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;Before injecting any Javascript payload, let’s see if I can close the &lt;em&gt;push&lt;/em&gt; method and inject some string into the script. Sending a payload like the following&lt;/p&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&quot;});HackCommander;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;I got the following response&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-reflected-xss-bypassing-redirect-due-to-javascript-function/repeater-exploitation-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;So far so good! Then I tried to send the following payload&lt;/p&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&quot;});alert(1);&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;and I got the following response&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-reflected-xss-bypassing-redirect-due-to-javascript-function/repeater-exploitation-3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;The server didn’t like something because when I changed the &lt;em&gt;HackCommander&lt;/em&gt; payload to the Javascript payload &lt;em&gt;alert(1)&lt;/em&gt; it returned a &lt;em&gt;302 Security Redirect&lt;/em&gt;. It is possible that there was some WAF or server-side configuration implemented to detect potentially dangerous payloads, in this case Javascript function calls.&lt;/p&gt;
-
-&lt;p&gt;Javascript allows to use `` instead of () to call functions such as alert (&lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals&quot;&gt;Template literals&lt;/a&gt;), that is, it allows to use calls of the form alert`1`. Not all security measures take into account this flexibility of Javascript and only blacklist expressions of the form &lt;em&gt;string1(string2)&lt;/em&gt;. Therefore, a typical bypass for this type of situation is to change the () to ``, that is, use a payload of the type&lt;/p&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&quot;});alert`1`;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;In spite of this, I received the following response&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-reflected-xss-bypassing-redirect-due-to-javascript-function/repeater-exploitation-4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;DAMN! It doesn’t work. So… I had to follow another strategy.&lt;/p&gt;
-
-&lt;p&gt;After a while, I remembered a Linkedin post I had seen from the PortSwigger researching team that talked about different ways to call a JavaScript function without parentheses&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://portswigger.net/research/the-seventh-way-to-call-a-javascript-function-without-parentheses&quot;&gt;The seventh way to call a JavaScript function without parentheses (PortSwigger)&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;After taking a look at all the proposed payloads, I thought that the seventh method discovered might fit my needs. Therefore I sent the following payload&lt;/p&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&quot;});[].map.call`${alert}1`;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;and I received the following response&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-reflected-xss-bypassing-redirect-due-to-javascript-function/repeater-exploitation-5.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;The payload is completely reflected! Redirection bypassed!&lt;/p&gt;
-
-&lt;p&gt;After that, clicking in the option &lt;em&gt;Show response in browser&lt;/em&gt; I got the following response&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-reflected-xss-bypassing-redirect-due-to-javascript-function/repeater-exploitation-6.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;with an empty alert. After clicking &lt;em&gt;OK&lt;/em&gt; I got the following response&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-reflected-xss-bypassing-redirect-due-to-javascript-function/repeater-exploitation-7.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;with the &lt;em&gt;alert(1)&lt;/em&gt;. I am not sure why the empty &lt;em&gt;alert&lt;/em&gt; appeared but the important fact is that the &lt;em&gt;alert(1)&lt;/em&gt; was executed.&lt;/p&gt;
-
-&lt;p&gt;This is why it is important to keep up to date in the cybersecurity field and read all the researching articles.&lt;/p&gt;
-
-&lt;div id=&quot;section-id-3-2&quot; /&gt;
-
-&lt;h2 id=&quot;32-why-does-the-payload-work&quot;&gt;3.2. Why does the payload work?&lt;/h2&gt;
-
-&lt;p&gt;It is not the purpose of this section to explain the meaning of the payload as this can be seen in the PortSwigger link above. What this section is intended to explain is… Why did this payload bypass the &lt;em&gt;302 Security Redirect&lt;/em&gt;? &lt;strong&gt;It is impossible to know for sure the answer to this question without having the source code but here is my theory&lt;/strong&gt;.&lt;/p&gt;
-
-&lt;p&gt;If you remember, in the previous section, the following payload&lt;/p&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&quot;});alert(1);&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;returned a &lt;em&gt;302 Security Redirect&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;But… What is the origin of this redirection? The &lt;em&gt;alert&lt;/em&gt; string? The brackets? The combination of both?. The following payload&lt;/p&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&quot;});HackCommander(1);&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;is the same as the previous one but changing the &lt;em&gt;alert&lt;/em&gt; string to the &lt;em&gt;HackCommander&lt;/em&gt; string, and I got the following response&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-reflected-xss-bypassing-redirect-due-to-javascript-function/repeater-demonstration-blacklist-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;so… the problem was the &lt;em&gt;alert&lt;/em&gt; string? To solve this question I sent the following payload&lt;/p&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&quot;});alert;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;and I got the following response&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/images/2023-03-06-reflected-xss-bypassing-redirect-due-to-javascript-function/repeater-demonstration-blacklist-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;so the problem was not the &lt;em&gt;alert&lt;/em&gt; string. As you can see the problem was combination of the &lt;em&gt;alert&lt;/em&gt; string plus the input argument.&lt;/p&gt;
-
-&lt;p&gt;So what I think is causing the redirection is some regex-like mechanism that rejects payloads of the type &lt;em&gt;keyword(inputParams)&lt;/em&gt; or &lt;em&gt;keyword`inputParams`&lt;/em&gt; (calls to Javascript functions and methods, in general) where &lt;em&gt;keyword&lt;/em&gt; is any element of a blacklist composed of Javascript method names, a blacklist of the type&lt;/p&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;alert
-prompt
-...
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;So the following payload&lt;/p&gt;
-
-&lt;div class=&quot;code-header&quot;&gt;
-  &lt;button class=&quot;copy-code-button&quot;&gt;
-    Copy
-  &lt;/button&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&quot;});[].map.call`${alert}1`;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;probably bypass the redirection because the string &lt;em&gt;call&lt;/em&gt; is not in the blacklist.&lt;/p&gt;
-
-&lt;p&gt;In a nutshell, &lt;strong&gt;I think the vulnerability comes from using a blacklist of Javascript methods to reject suspicious payloads instead of using another more robust and general validation method&lt;/strong&gt;.&lt;/p&gt;
-
-&lt;div id=&quot;section-id-4&quot; /&gt;
-
-&lt;h2 id=&quot;4-report-resolution&quot;&gt;4. Report resolution&lt;/h2&gt;
-
-&lt;p&gt;As I said before, the affected domain was one the most important domains of the company so the asset criticity was classified as high. In fact at the time I reported this vulnerability there was a 3X reward multiplier on any vulnerability reported in certain domains of the company, including this one. Also an XSS usually is considered a medium severity vulnerability and because I wasn’t able to sign up and log in the website, I couldn’t demonstrate a high impact such as session hijacking. Therefore, the report was classified as&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;strong&gt;Asset criticity&lt;/strong&gt;: High&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;Vulnerability severity&lt;/strong&gt;: Medium&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;Bounty&lt;/strong&gt;: More than $600 (because of the 3X reward multiplier)&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;div id=&quot;section-id-5&quot; /&gt;
-
-&lt;h2 id=&quot;5-lessons-learned&quot;&gt;5. Lessons learned&lt;/h2&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Scan all the company’s domains, do not stop looking for vulnerabilities in a domain because it is well known and you think that all the vulnerabilities are already reported. In this case I discovered an XSS in a well known domain of the company because the XSS was not obvious, it required a bypass, which although it was simple no one had discovered before. So… be humble with your colleagues but be confident, it is fundamental if you want to dedicate yourself seriously to bug bounty.&lt;/li&gt;
-  &lt;li&gt;Be aware of the multipliers applied to the programs in which you participate. These multipliers can turn a low hanging fruit into a big banana :banana:.&lt;/li&gt;
-  &lt;li&gt;It’s important to keep up to date in the cybersecurity field and read all the researching articles. Today’s discoveries can invalidate yesterday’s security measures.&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web" /><category term="osint" /><category term="amass" /><category term="httpx" /><category term="gau" /><category term="kxss" /><category term="utm parameters" /><category term="burpsuite" /><category term="portswigger" /><category term="xss" /><category term="bypass" /><summary type="html">Partial disclosure of a bug bounty report: reflected XSS bypassing a *302 Security Redirect* due to the presence of Javascript function calls.</summary></entry></feed>
+&lt;/ul&gt;</content><author><name>Iván Santos Malpica&lt;br&gt;(Aka. HackCommander)</name><email>ivansantosmalpica.contact@gmail.com</email></author><category term="bug bounty" /><category term="web" /><category term="osint" /><category term="amass" /><category term="httpx" /><category term="burpsuite" /><category term="burp scanner" /><category term="portswigger" /><category term="http request smuggling" /><category term="xss" /><summary type="html">Partial disclosure of a bug bounty report: TE.TE HTTP request smuggling obfuscating the TE header.</summary></entry></feed>
