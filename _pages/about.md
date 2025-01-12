@@ -16,7 +16,6 @@ These are my titles:
 
 - *Mathematical Engineering* by the *Universidad Complutense de Madrid*.
 - *Computer Engineer* by the *Universidad Nacional de Educación a Distancia (UNED)* with an [academic excellence award for the best academic record](https://www.uned.es/universidad/inicio/en/noticias/mostrarnoticia.html?noticia=premios-del-consejo-social-2024-promover-la-innovacion-metodologica-y-la-excelencia-cientifica-y-academica-para-amplificar-el-impacto-social-de-la-universidad).
-- *eJPT* (eLearnSecurity Junior Penetration Tester) by *eLearnSecurity*.
 
 ## Developed tools
 Creator of the following tools:
