@@ -7,7 +7,7 @@ date: 2023-03-19
 
 ## WHOAMI
 <p align="center">
-<img src="/assets/images/avatar.png">
+<img src="/assets/images/about.jpg" width="300">
 </p>
 
 My name is Iván Santos Malpica (aka **HackCommander**). I am a mathematician, computer engineer and I work as a cybersecurity consultant.
@@ -15,7 +15,7 @@ My name is Iván Santos Malpica (aka **HackCommander**). I am a mathematician, c
 These are my titles:
 
 - *Mathematical Engineering* by the *Universidad Complutense de Madrid*.
-- *Computer Engineer* by the *Universidad Nacional de Educación a Distancia (UNED)* with an [academic excellence award for the best academic record](https://www.uned.es/universidad/inicio/en/dam/jcr:cce5225c-d7ec-4f9b-a0dd-8bb75d26c857/Listado%20PROVISIONAL%20de%20premiados%20titulaci%C3%B3n%202024.v2.pdf).
+- *Computer Engineer* by the *Universidad Nacional de Educación a Distancia (UNED)* with an [academic excellence award for the best academic record](https://www.uned.es/universidad/inicio/en/noticias/mostrarnoticia.html?noticia=premios-del-consejo-social-2024-promover-la-innovacion-metodologica-y-la-excelencia-cientifica-y-academica-para-amplificar-el-impacto-social-de-la-universidad).
 - *eJPT* (eLearnSecurity Junior Penetration Tester) by *eLearnSecurity*.
 
 ## Developed tools
