@@ -54,7 +54,7 @@ amass enum -brute -d example.com '/home/user/.config/amass/config.ini' | httpx -
 
 [Httpx](https://github.com/projectdiscovery/httpx) is a multi-purpose HTTP toolkit allow to run multiple probers. In this case, the input of httpx is a list of subdomains and the output is a list of subdomains that have an http service in any of the ports given as a parameter. Also it shows some additional information about the service such as the title, the detected technologies... that I have specified in the parameters to be displayed.
 
-**This domain is one of the most important domains of the company in question**, so it could also be obtained by googling the name of the company without the need to use any specific subdomain discovery tool.
+**This domain is one of the most important domains of the company**, so it could also be obtained by googling the name of the company without the need to use any specific subdomain discovery tool.
 
 <div id='section-id-2'/>
 ## 2. Vulnerability discovery
@@ -66,7 +66,7 @@ I found this vulnerability through gau + kxss. If you are looking for XSS in the
 gau www.example.com | kxss
 ```
 
-[Gau](https://github.com/lc/gau) is a tool used to fetch known URLs from AlienVault's Open Threat Exchange, the Wayback Machine, Common Crawl, and URLScan for any given domain. This tool does not always find all the URLs of a domain but it is a good starting point to search XSS or other types of vulnerabilities.
+[Gau](https://github.com/lc/gau) is a tool used to fetch known URLs from AlienVault's Open Threat Exchange, the Wayback Machine, Common Crawl and URLScan for any given domain. This tool does not always find all the URLs of a domain but it is a good starting point to search XSS or other types of vulnerabilities.
 
 [Kxss](https://github.com/Emoe/kxss) is a tool used to find all the "problematic characters" that are reflected in the response of any URL given as a parameter. The reflection of some problematic characters does not mean that an XSS exists but it is an indication that it could exist.
 

@@ -1,7 +1,7 @@
 ---
 layout: single
-title: Reflected XSS bypassing hidden input tag and auto-submit script in a form
-excerpt: "Partial disclosure of a bug bounty report: reflected XSS bypassing hidden input tag and auto-submit script in a form."
+title: Defeating XSS filters using unexpected HTML attributes
+excerpt: "Partial disclosure of a bug bounty report: defeating XSS filters using unexpected HTML attributes."
 date: 2023-12-10
 classes: wide
 header:
@@ -64,7 +64,7 @@ I found this vulnerability through gau + kxss. If you are looking for XSS in the
 gau www.example.com | kxss
 ```
 
-[Gau](https://github.com/lc/gau) is a tool used to fetch known URLs from AlienVault's Open Threat Exchange, the Wayback Machine, Common Crawl, and URLScan for any given domain. This tool does not always find all the URLs of a domain but it is a good starting point to search XSS or other types of vulnerabilities.
+[Gau](https://github.com/lc/gau) is a tool used to fetch known URLs from AlienVault's Open Threat Exchange, the Wayback Machine, Common Crawl and URLScan for any given domain. This tool does not always find all the URLs of a domain but it is a good starting point to search XSS or other types of vulnerabilities.
 
 [Kxss](https://github.com/Emoe/kxss) is a tool used to find all the "problematic characters" that are reflected in the response of any URL given as a parameter. The reflection of some problematic characters does not mean that an XSS exists but it is an indication that it could exist.
 

@@ -10,7 +10,7 @@
     <meta charset="utf-8">
 
 <!-- begin _includes/seo.html --><title>Defeating XSS filters using unexpected HTML attributes - hackcommander.github.io</title>
-<meta name="description" content="Partial disclosure of a bug bounty report: defeating XSS filters using unexpected HTML attributes.">
+<meta name="description" content="Partial disclosure of a bug bounty report: breaking the perimeter by exploiting routing-based SSRF via a misconfigured load balancer.">
 
 
 
@@ -18,10 +18,10 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="hackcommander.github.io">
 <meta property="og:title" content="Defeating XSS filters using unexpected HTML attributes">
-<meta property="og:url" content="https://hackcommander.github.io/posts/2023/12/10/reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script/">
+<meta property="og:url" content="https://hackcommander.github.io/posts/2025/03/30/defeating-xss-filters-using-unexpected-html-attributes/">
 
 
-  <meta property="og:description" content="Partial disclosure of a bug bounty report: defeating XSS filters using unexpected HTML attributes.">
+  <meta property="og:description" content="Partial disclosure of a bug bounty report: breaking the perimeter by exploiting routing-based SSRF via a misconfigured load balancer.">
 
 
 
@@ -31,7 +31,7 @@
 
 
 
-  <meta property="article:published_time" content="2023-12-10T00:00:00+01:00">
+  <meta property="article:published_time" content="2025-03-30T00:00:00+01:00">
 
 
 
@@ -42,7 +42,7 @@
   
 
 
-<link rel="canonical" href="https://hackcommander.github.io/posts/2023/12/10/reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script/">
+<link rel="canonical" href="https://hackcommander.github.io/posts/2025/03/30/defeating-xss-filters-using-unexpected-html-attributes/">
 
 
 
@@ -191,7 +191,7 @@
       
         
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="/categories/#2023" itemprop="item"><span itemprop="name">2023</span></a>
+          <a href="/categories/#2025" itemprop="item"><span itemprop="name">2025</span></a>
           <meta itemprop="position" content="3">
         </li>
         <span class="sep">/</span>
@@ -201,7 +201,7 @@
       
         
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="/categories/#12" itemprop="item"><span itemprop="name">12</span></a>
+          <a href="/categories/#03" itemprop="item"><span itemprop="name">03</span></a>
           <meta itemprop="position" content="4">
         </li>
         <span class="sep">/</span>
@@ -211,7 +211,7 @@
       
         
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="/categories/#10" itemprop="item"><span itemprop="name">10</span></a>
+          <a href="/categories/#30" itemprop="item"><span itemprop="name">30</span></a>
           <meta itemprop="position" content="5">
         </li>
         <span class="sep">/</span>
@@ -440,8 +440,8 @@
 
   <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
     <meta itemprop="headline" content="Defeating XSS filters using unexpected HTML attributes">
-    <meta itemprop="description" content="Partial disclosure of a bug bounty report: defeating XSS filters using unexpected HTML attributes.">
-    <meta itemprop="datePublished" content="December 10, 2023">
+    <meta itemprop="description" content="Partial disclosure of a bug bounty report: breaking the perimeter by exploiting routing-based SSRF via a misconfigured load balancer.">
+    <meta itemprop="datePublished" content="March 30, 2025">
     
 
     <div class="page__inner-wrap">
@@ -457,7 +457,7 @@
         
         <p class="page__meta">
           
-            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2023-12-10T00:00:00+01:00">December 10, 2023 </time> 
+            <i class="fa fa-fw fa-calendar" aria-hidden="true"></i> <time datetime="2025-03-30T00:00:00+01:00">March 30, 2025 </time> 
           
           
         </p>
@@ -483,7 +483,16 @@
   <p><img class="emoji" title=":warning:" alt=":warning:" src="https://github.githubassets.com/images/icons/emoji/unicode/26a0.png" height="20" width="20"> <span style="color:red">This bug was reported in a private program in which it is not allowed to publish the vulnerabilities found. So this is a partial disclosure, only the essential technical details are exposed.</span></p>
 </blockquote>
 
-<p>In this post I am going to show one of the strangest XSS I have ever found: reflected XSS bypassing hidden input tag and auto-submit script in a form. I was racking my brain for several days with this XSS, and I almost gave up. I will explain step by step all the difficulties that I found, how I managed to overcome them and also some doubts that arose that I did not know how to answer.</p>
+<p>In this post, I’m going to explain a tricky XSS that I found a few years ago while doing bug bounty. This isn’t a mind-blowing finding, as I simply managed to bypass the filters and execute an <em>alert()</em>. However, I decided to write about it for several reasons:</p>
+
+<ol>
+  <li>
+<strong>It may be useful for bug bounty hunters.</strong> Those who struggle with bypassing WAFs, filters, or sanitization mechanisms when exploiting XSS might find inspiration in this post to develop their own payloads manually and lose less money on collaborations.</li>
+  <li>
+<strong>It may also be valuable for pentesters.</strong> As you can see on my LinkedIn, although I started my career in offensive security as a bug bounty hunter, I later worked as a pentester for cybersecurity consulting firms. During my time as a pentester, I noticed something very interesting: many pentesters who don’t do bug bounty often struggle to bypass WAFs, filters, or sanitization mechanisms. Since audit timelines are usually tight, they are often able to detect the XSS but fail to find a working payload, and because they never have the time to practice, they never truly master the technique. In this post, I will share a general methodology that can help, even when working under time constraints.</li>
+</ol>
+
+<p>I hope you enjoy it!</p>
 
 <div id="section-id-1"></div>
 
@@ -504,13 +513,13 @@
 
 <p><a href="https://github.com/projectdiscovery/httpx">Httpx</a> is a multi-purpose HTTP toolkit allow to run multiple probers. In this case, the input of httpx is a list of subdomains and the output is a list of subdomains that have an http service in any of the ports given as a parameter. Also it shows some additional information about the service such as the title, the detected technologies… that I have specified in the parameters to be displayed.</p>
 
-<p><strong>This domain is one of the most important domains of the company in question</strong>, so it could also be obtained by googling the name of the company without the need to use any specific subdomain discovery tool.</p>
+<p><strong>This domain is one of the most important domains of the company</strong>, so it could also be obtained by googling the name of the company without the need to use any specific subdomain discovery tool.</p>
 
 <div id="section-id-2"></div>
 
 <h2 id="2-vulnerability-discovery">2. Vulnerability discovery</h2>
 
-<p>I found this vulnerability through gau + kxss. If you are looking for XSS in the subdomain www.example.com, you can use the following command</p>
+<p>I found this vulnerability through waymore + kxss. If you are looking for XSS in the subdomain www.example.com, you can execute the following commands</p>
 
 <div class="code-header">
   <button class="copy-code-button">
@@ -518,20 +527,23 @@
   </button>
 </div>
 
-<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">gau www.example.com | kxss
-</span></code></pre></div></div>
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">python3 waymore.py -i www.example.com -mode U
+cd ~/waymore/results/www.example.com
+</span><span class="gp">cat waymore.txt | grep "?" | uro &gt;</span><span class="w"> </span>param.txt
+<span class="gp">cat param.txt | kxss &gt;</span><span class="w"> </span>kxss.txt
+</code></pre></div></div>
 
-<p><a href="https://github.com/lc/gau">Gau</a> is a tool used to fetch known URLs from AlienVault’s Open Threat Exchange, the Wayback Machine, Common Crawl and URLScan for any given domain. This tool does not always find all the URLs of a domain but it is a good starting point to search XSS or other types of vulnerabilities.</p>
+<p><a href="https://github.com/xnl-h4ck3r/waymore">Waymore</a> is a tool used to fetch known URLs from the Wayback Machine, Common Crawl, AlienVault’s Open Threat Exchange, URLScan Virus Total and Intelligence X for any given domain. This tool does not always find all the URLs of a domain but it is a good starting point to search XSS or other types of vulnerabilities. The biggest difference between waymore and other tools is that it can also download the archived responses for URLs on wayback machine so that you can then search these for even more links, developer comments, extra parameters, etc.</p>
 
 <p><a href="https://github.com/Emoe/kxss">Kxss</a> is a tool used to find all the “problematic characters” that are reflected in the response of any URL given as a parameter. The reflection of some problematic characters does not mean that an XSS exists but it is an indication that it could exist.</p>
 
-<p>Both tools are based in other tools of <a href="https://github.com/tomnomnom">tomnomnom</a>.</p>
+<p>The code above runs waymore to gather URLs for www.example.com in “U” mode (URL collection), then filters URLs with parameters (containing “?”) and extracts them into param.txt. Finally, it pipes those URLs into kxss to detect potential XSS reflections, saving the results to kxss.txt.</p>
 
-<p>In this case I got an output like the following</p>
+<p>I no longer have the output file, but the result contained some lines as follows</p>
 
-<p><img src="/assets/images/2023-12-10-reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script/gau-kxss-output.png" alt=""></p>
+<p><img src="/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-attributes/waymore-kxss-output.png" alt=""></p>
 
-<p>The parameter had no special meaning. In fact all the parameters of the URL were vulnerable to XSS.</p>
+<p>where red color is obfuscating the XSS candidate URLs and parameters.</p>
 
 <div id="section-id-3"></div>
 
@@ -541,7 +553,51 @@
 
 <h2 id="31-steps-of-exploitation">3.1. Steps of exploitation</h2>
 
-<p>The first thing I did was to check where the payload was reflected by sending the following payload</p>
+<p>The URL was some sort of resource for redeeming benefits or activating promotions. The vulnerable parameter was the parameter <em>code</em>, which should be the promotion code or something like that. So I first sent the &lt; character and the response was as follows</p>
+
+<p><img src="/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-attributes/burp-repeater-1.png" alt=""></p>
+
+<p>The response was an HTTP 400 code, and considering that the initial scan showed that the &lt; character was reflected, I thought it might be an encoding issue. So, I sent the same &lt; character but URL-encoded and the response was as follows</p>
+
+<p><img src="/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-attributes/burp-repeater-2.png" alt=""></p>
+
+<p>In this case the server responded with HTTP code 200 and the character was reflected correctly.</p>
+
+<p>Then I sent the payload <code class="language-plaintext highlighter-rouge">&lt;script&gt;</code> to check if I could send HTML tags</p>
+
+<p><img src="/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-attributes/burp-repeater-3.png" alt=""></p>
+
+<p>but the server responded with a security redirection, returning HTTP code 302. This could mean that the filter was blocking any type of HTML tag or maybe only script tags. To check it out, I sent the tag <code class="language-plaintext highlighter-rouge">&lt;img src=1&gt;</code> and I got the following response</p>
+
+<p><img src="/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-attributes/burp-repeater-4.png" alt=""></p>
+
+<p>HTTP code 200, great! This means the filter is flexible, and I can send HTML tags with attributes, so I can play a bit <img class="emoji" title=":smiling_imp:" alt=":smiling_imp:" src="https://github.githubassets.com/images/icons/emoji/unicode/1f608.png" height="20" width="20"></p>
+
+<p>Then I sent the payload <code class="language-plaintext highlighter-rouge">&lt;img src=1 onerror=""&gt;</code> to check if I can inject JavaScript code, that means, whether the filter accepts all types of attributes or blocks certain dangerous attributes. The response was the following</p>
+
+<p><img src="/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-attributes/burp-repeater-5.png" alt=""></p>
+
+<p>The server responded with a security redirection, which implies that the server does block certain attributes.</p>
+
+<p>To determine which attributes the filter was blocking, I performed fuzzing on the attribute using all possible events from the <a href="https://portswigger.net/web-security/cross-site-scripting/cheat-sheet">cross-site scripting (XSS) cheat sheet</a>:</p>
+
+<p><img src="/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-attributes/cheat-sheet-1.png" alt=""></p>
+
+<p>The result of performing the fuzzing with burp intruder was as follows:</p>
+
+<p><img src="/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-attributes/burp-intruder.png" alt=""></p>
+
+<p>This fuzzing reveals different events that can be used within an <code class="language-plaintext highlighter-rouge">&lt;img&gt;</code> tag specifically, those associated with an HTTP 200 status code. For example, the filter accepts inputs in the form of <code class="language-plaintext highlighter-rouge">&lt;img src=1 onafterscriptexecute=""&gt;</code>.</p>
+
+<p>However, it’s important to note that the filter may allow these events for the <code class="language-plaintext highlighter-rouge">&lt;img&gt;</code> tag while accepting different events for other tags. This would require a more general fuzzing approach, combining all tags with all possible events, that is, performing a cluster bomb attack using as parameters the tag name and the event. As we will see next, this case is simpler, as it seems to only blacklist events without considering the tag they are in.</p>
+
+<p>At this point I changed strategy and, instead of continuing to use the img tag, I looked for payloads that used the events found in the fuzzing and did not require user interaction to execute. I only had to test the first 3 payloads:</p>
+
+<p><img src="/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-attributes/cheat-sheet-2.png" alt=""></p>
+
+<p>I didn’t even test the payload associated with the <em>onafterscriptexecute</em> event because, as you may remember, the filter blocks <code class="language-plaintext highlighter-rouge">&lt;script&gt;</code> tags, so it’s guaranteed to fail.</p>
+
+<p>Using the payload of the <em>onanimationcancel</em> attribute and changing the payload from <em>print</em> to <em>alert</em>, that is, using the payload</p>
 
 <div class="code-header">
   <button class="copy-code-button">
@@ -549,14 +605,14 @@
   </button>
 </div>
 
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>HackCommander
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;style&gt;</span><span class="k">@keyframes</span> <span class="n">x</span><span class="p">{</span><span class="nt">from</span> <span class="p">{</span><span class="nl">left</span><span class="p">:</span><span class="m">0</span><span class="p">;}</span><span class="nt">to</span> <span class="p">{</span><span class="nl">left</span><span class="p">:</span> <span class="m">1000px</span><span class="p">;}}</span><span class="nd">:target</span> <span class="p">{</span><span class="nl">animation</span><span class="p">:</span><span class="m">10s</span> <span class="n">ease-in-out</span> <span class="m">0s</span> <span class="m">1</span> <span class="n">x</span><span class="p">;}</span><span class="nt">&lt;/style&gt;&lt;xss</span> <span class="na">id=</span><span class="s">x</span> <span class="na">style=</span><span class="s">"position:absolute;"</span> <span class="na">onanimationcancel=</span><span class="s">"alert(1)"</span><span class="nt">&gt;&lt;/xss&gt;</span>
 </code></pre></div></div>
 
-<p>The answer was</p>
+<p>the response was the following</p>
 
-<p><img src="/assets/images/2023-12-10-reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script/burp-repeater-1.png" alt=""></p>
+<p><img src="/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-attributes/burp-repeater-6.png" alt=""></p>
 
-<p>so the payload was reflected in the attribute <em>value</em> of an input tag. After this I tried to send the payload</p>
+<p>This implies that the filter is blocking this payload. The question is… is it blocking any of the tags, any of the attributes or the javascript code? To check if it was blocking the JavaScript code I changed it to the following code</p>
 
 <div class="code-header">
   <button class="copy-code-button">
@@ -564,10 +620,10 @@
   </button>
 </div>
 
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>" autofocus onfocus="alert(1)"&gt;
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[].map.call`${alert}1`
 </code></pre></div></div>
 
-<p>but the WAF stopped the request, so I changed it to the payload.</p>
+<p>which we have already seen in previous posts, resulting in the payload as follows</p>
 
 <div class="code-header">
   <button class="copy-code-button">
@@ -575,18 +631,16 @@
   </button>
 </div>
 
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>" autofocus onfocus="[].map.call`${alert}1`"&gt;
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;style&gt;</span><span class="k">@keyframes</span> <span class="n">x</span><span class="p">{</span><span class="nt">from</span> <span class="p">{</span><span class="nl">left</span><span class="p">:</span><span class="m">0</span><span class="p">;}</span><span class="nt">to</span> <span class="p">{</span><span class="nl">left</span><span class="p">:</span> <span class="m">1000px</span><span class="p">;}}</span><span class="nd">:target</span> <span class="p">{</span><span class="nl">animation</span><span class="p">:</span><span class="m">10s</span> <span class="n">ease-in-out</span> <span class="m">0s</span> <span class="m">1</span> <span class="n">x</span><span class="p">;}</span><span class="nt">&lt;/style&gt;&lt;xss</span> <span class="na">id=</span><span class="s">x</span> <span class="na">style=</span><span class="s">"position:absolute;"</span> <span class="na">onanimationcancel=</span><span class="s">"[].map.call`${alert}1`"</span><span class="nt">&gt;&lt;/xss&gt;</span>
 </code></pre></div></div>
 
-<p>and this was the response</p>
+<p>When I sent the payload, the response was the following</p>
 
-<p><img src="/assets/images/2023-12-10-reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script/burp-repeater-2.png" alt=""></p>
+<p><img src="/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-attributes/burp-repeater-7.png" alt=""></p>
 
-<p>As you can see the problem was the <em>alert(1)</em> function, but this payload bypasses the WAF without problems.</p>
+<p>Great! The answer fully reflects the payload, so the problem was the JavaScript code, but the <em>alert</em> function was not executed. This code defines a CSS animation that moves an element when it becomes the target and the <code class="language-plaintext highlighter-rouge">&lt;xss&gt;</code> element has an onanimationcancel event that, when triggered, executes the JavaScript payload. So I think the JavaScript payload didn’t execute, among other reasons, because I forgot to add #x to the URL <img class="emoji" title=":laughing:" alt=":laughing:" src="https://github.githubassets.com/images/icons/emoji/unicode/1f606.png" height="20" width="20"></p>
 
-<p>However, the alert did not appear on the screen. The above payload is used a lot in XSS in the context of the attributes and that is why I used it. However, looking at the tag in which the payload is injected you can see that it is an input tag with type <em>hidden</em>, which means that the tag is hidden, it is not visible. In these cases it is impossible to focus on the tag so the attribute <em>autofocus</em> has no effect, it is not a valid attribute. That is why the code of the attribute <em>onfocus</em> is never executed and therefore the payload is not valid to exploit the XSS.</p>
-
-<p>So there is not much to do injecting code into the input tag, so it will be necessary to break the tag and inject a new one. That’s why I sent the following payload</p>
+<p>Then I tried the payload of the <em>onanimationend</em> event, but changing the JavaScript code for the one I discovered in the previous payload, resulting in the following payload</p>
 
 <div class="code-header">
   <button class="copy-code-button">
@@ -594,75 +648,24 @@
   </button>
 </div>
 
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"&gt;<span class="nt">&lt;img</span> <span class="na">src=</span><span class="s">1</span> <span class="na">onerror=</span><span class="s">"[].map.call`${alert}1`"</span><span class="nt">&gt;</span>
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;style&gt;</span><span class="k">@keyframes</span> <span class="n">x</span><span class="p">{}</span><span class="nt">&lt;/style&gt;&lt;xss</span> <span class="na">style=</span><span class="s">"animation-name:x"</span> <span class="na">onanimationend=</span><span class="s">"[].map.call`${alert}1`"</span><span class="nt">&gt;&lt;/xss&gt;</span>
 </code></pre></div></div>
 
-<p>to inject an img tag, and this was the response</p>
+<p>I got the following response</p>
 
-<p><img src="/assets/images/2023-12-10-reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script/burp-repeater-3.png" alt=""></p>
+<p><img src="/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-attributes/burp-repeater-8.png" alt=""></p>
 
-<p>Seeing this response, one would expect that the alert should be executed, but it was not. When I enabled the burpsuite proxy and sent the request, I found that another request was sent second. This request was the one associated to the form in which we were injecting code and that has an auto-submit script, that is to say, that it is sent automatically.</p>
+<p>and the alert function is executed</p>
 
-<p>I thought the problem might be that the img tag was being injected into a form so I sent the following payload</p>
-
-<div class="code-header">
-  <button class="copy-code-button">
-    Copy
-  </button>
-</div>
-
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"&gt;<span class="nt">&lt;/FORM&gt;&lt;img</span> <span class="na">src=</span><span class="s">1</span> <span class="na">onerror=</span><span class="s">"[].map.call`${alert}1`"</span><span class="nt">&gt;</span>
-</code></pre></div></div>
-
-<p>to check if removing the img tag from the form would execute the alert. The response was</p>
-
-<p><img src="/assets/images/2023-12-10-reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script/burp-repeater-4.png" alt=""></p>
-
-<p>and the behavior was the same.</p>
-
-<p>In my opinion, this means that it is prioritizing the execution of the auto-submit JavaScript code before the processing of the injected img tag. However, I don’t understand why because the img tag is part of the HTML code as well as the form so it should be processed before the JavaScript code.</p>
-
-<p>From this idea I thought that I should think of an event that could be executed before any JavaScript code and I thought in the payload I used in the following post</p>
-
-<p><a href="https://hackcommander.github.io/posts/2023/06/24/reflected-xss-in-search-filter-clear-button/">Reflected XSS in search filter clear button in an e-commerce website</a></p>
-
-<p>Maybe the focus of an attribute is executed before the auto-submit code so using the payload</p>
-
-<div class="code-header">
-  <button class="copy-code-button">
-    Copy
-  </button>
-</div>
-
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"&gt;<span class="nt">&lt;input</span> <span class="na">id=</span><span class="s">"xss"</span> <span class="na">onfocus=</span><span class="s">"[].map.call`${alert}1`"</span><span class="nt">&gt;</span>
-</code></pre></div></div>
-
-<p>and adding the term <em>#xss</em> at the end of the URL to force the focus to the injected input tag, the alert should be executed.</p>
-
-<p>The response was</p>
-
-<p><img src="/assets/images/2023-12-10-reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script/burp-repeater-5.png" alt=""></p>
-
-<p>and the alert was executed</p>
-
-<p><img src="/assets/images/2023-12-10-reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script/alert.png" alt=""></p>
+<p><img src="/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-attributes/alert.png" alt=""></p>
 
 <div id="section-id-3-2"></div>
 
-<h2 id="32-why-does-the-payload-work">3.2. Why does the payload work??</h2>
+<h2 id="32-why-does-the-payload-work">3.2. Why does the payload work?</h2>
 
-<p>This payload</p>
+<p>The main reason the payload works is because the <strong>XSS filter is deficient</strong>. It implements a blacklist of tags and attributes that it considers dangerous, but it doesn’t cover all possible cases and leaves dangerous tag and attribute combinations unfiltered. Using a blacklist as a filtering method is not secure for this reason, so it’s better to implement a whitelist or a regex that only allows inputs following a specific structure.</p>
 
-<div class="code-header">
-  <button class="copy-code-button">
-    Copy
-  </button>
-</div>
-
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"&gt;<span class="nt">&lt;input</span> <span class="na">id=</span><span class="s">"xss"</span> <span class="na">onfocus=</span><span class="s">"[].map.call`${alert}1`"</span><span class="nt">&gt;</span>
-</code></pre></div></div>
-
-<p>works because the <em>#xss</em> event is processed before the form’s auto-submit, which makes sense. What doesn’t make sense is that payloads such as</p>
+<p>On the other hand, it remains to be explained what the payload used does. First of all, it is defined the CSS animation:</p>
 
 <div class="code-header">
   <button class="copy-code-button">
@@ -670,73 +673,29 @@
   </button>
 </div>
 
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"&gt;<span class="nt">&lt;/FORM&gt;&lt;img</span> <span class="na">src=</span><span class="s">1</span> <span class="na">onerror=</span><span class="s">"[].map.call`${alert}1`"</span><span class="nt">&gt;</span>
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;style&gt;</span><span class="k">@keyframes</span> <span class="n">x</span><span class="p">{}</span><span class="nt">&lt;/style&gt;</span>
 </code></pre></div></div>
 
-<p>don’t work, since the tag</p>
+<p>This code defines an empty animation called <em>x</em>. The fact that it does nothing specific inside the {} doesn’t affect the purpose of the code, as the animation is simply used as a trigger for the <em>onanimationend</em> event in the next step.</p>
 
-<div class="code-header">
-  <button class="copy-code-button">
-    Copy
-  </button>
-</div>
-
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;img</span> <span class="na">src=</span><span class="s">1</span> <span class="na">onerror=</span><span class="s">"[].map.call`${alert}1`"</span><span class="nt">&gt;</span>
-</code></pre></div></div>
-
-<p>should be processed before the auto-submit request. So I must admit that I don’t know why that payload doesn’t work…</p>
-
-<p style="text-align:center;"><img src="/assets/images/general/no-idea.gif" style="width: 600px;"></p>
-
-<p>But we are bug bounty hunters, not monkeys banging on the keyboard, so it is worth at least trying to understand what is going on. So let’s play a little.</p>
-
-<p>If you host the following code</p>
-
-<div class="code-header">
-  <button class="copy-code-button">
-    Copy
-  </button>
-</div>
-
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;html&gt;</span>
-  <span class="nt">&lt;body&gt;</span>
-    <span class="nt">&lt;script&gt;</span><span class="nx">alert</span><span class="p">(</span><span class="dl">"</span><span class="s2">alert from script tag 1</span><span class="dl">"</span><span class="p">)</span><span class="nt">&lt;/script&gt;</span>
-    <span class="nt">&lt;img</span> <span class="na">src=</span><span class="s">1</span> <span class="na">onerror=</span><span class="s">"alert('alert from img tag 1')"</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;form</span> <span class="na">action=</span><span class="s">"http://localhost/form-path/"</span> <span class="na">method=</span><span class="s">"POST"</span><span class="nt">&gt;</span>
-      <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"hidden"</span> <span class="na">name=</span><span class="s">"test1-name"</span> <span class="na">value=</span><span class="s">"test1-value"</span><span class="nt">&gt;</span>
-      <span class="nt">&lt;input</span> <span class="na">id=</span><span class="s">"xss"</span> <span class="na">onfocus=</span><span class="s">"alert('alert from input tag')"</span><span class="nt">&gt;</span>
-      <span class="nt">&lt;script&gt;</span><span class="nx">alert</span><span class="p">(</span><span class="dl">"</span><span class="s2">alert from script tag 2</span><span class="dl">"</span><span class="p">)</span><span class="nt">&lt;/script&gt;</span>
-      <span class="nt">&lt;script </span><span class="na">language=</span><span class="s">"JavaScript"</span><span class="nt">&gt;</span> <span class="nb">document</span><span class="p">.</span><span class="nx">forms</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">submit</span><span class="p">();</span> <span class="nt">&lt;/script&gt;</span>
-      <span class="nt">&lt;script&gt;</span><span class="nx">alert</span><span class="p">(</span><span class="dl">"</span><span class="s2">alert from script tag 3</span><span class="dl">"</span><span class="p">)</span><span class="nt">&lt;/script&gt;</span>
-    <span class="nt">&lt;/form&gt;</span>
-    <span class="nt">&lt;img</span> <span class="na">src=</span><span class="s">1</span> <span class="na">onerror=</span><span class="s">"alert('alert from img tag 2')"</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;script&gt;</span><span class="nx">alert</span><span class="p">(</span><span class="dl">"</span><span class="s2">alert from script tag 4</span><span class="dl">"</span><span class="p">)</span><span class="nt">&lt;/script&gt;</span>
-  <span class="nt">&lt;/body&gt;</span>
-<span class="nt">&lt;/html&gt;</span>
-</code></pre></div></div>
-
-<p>in local and make the request <em>http://localhost/#xss</em>, you will see the following alerts:</p>
+<p>After this, it is defined the xss element:</p>
 
 <ul>
-  <li>Displayed of <em>alert from script tag 1</em>.</li>
-  <li>Displayed of <em>alert from script tag 2</em>.</li>
-  <li>Displayed of <em>alert from img tag 1</em>.</li>
-  <li>Displayed of <em>alert from input tag</em>.</li>
-  <li>Form submit to the path <em>http://localhost/form-path/</em>.</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">&lt;xss&gt;:</code> this is a fictitious element or custom tag, which doesn’t have a specific purpose in standard HTML, but some browsers process it as valid.</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">style="animation-name:x":</code> the animation x defined earlier is applied to the element. Even though the animation doesn’t have any visible effects because it’s empty, it still generates an event when it ends, which is what matters here.</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">onanimationend="[].map.call${alert}1":</code> the onanimationend event fires when the x animation ends, even though it does nothing visually. When this happens, the JavaScript code is executed, displaying the <em>alert</em>.</li>
 </ul>
 
-<p>In a nutshell, this means that the JavaScript code was executed in the following order</p>
+<p>So, this is the execution flow when the victim access to the vulnerable link:</p>
 
-<p><img src="/assets/images/2023-12-10-reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script/execution-priority.png" alt=""></p>
-
-<p>And this is very interesting because we can extracts some conclusions:</p>
-
-<ul>
-  <li>There is sequentiality but within a prioritization. First executes the JavaScript code inside script tags (codes 1 and 2), then the JavaScript code of the events (codes 3 and 4) and finally the code associated with the form submission (code 5), which is also a JavaScript code between script tags but needs to process the form first.</li>
-  <li>No JavaScript code is executed after the form submission.</li>
-</ul>
-
-<p>This does not explain why the img payload did not work, but it does explain why the focus on the input tag is done before the form submission, and therefore works. As this is not a course on JavaScript, it is sufficient to keep in mind that <strong>the execution priority of JavaScript code is not trivial</strong> and it depends on which parts of the response is the JavaScript code.</p>
+<ol>
+  <li>The x animation is applied to the <code class="language-plaintext highlighter-rouge">&lt;xss&gt;</code> element.</li>
+  <li>Even though the animation doesn’t do anything visually, the browser triggers the <em>onanimationend</em> event when the animation finishes.</li>
+  <li>When the <em>onanimationend</em> event is fired, the malicious JavaScript code is executed, displaying an <em>alert</em> in the browser.</li>
+</ol>
 
 <div id="section-id-4"></div>
 
@@ -758,8 +717,12 @@
 <h2 id="5-lessons-learned">5. Lessons learned</h2>
 
 <ul>
-  <li>This XSS was in one of the company’s main domains so it is unlikely that nobody had discovered it before. What probably happened is that they just used automated tools or gave up before finding the right payload. So, when you find the possible existence of a vulnerability, don’t give up, try harder until you find the right payload because it surely exists.</li>
-  <li>If you are struggling with an XSS trying to avoid a redirection, an auto-submit form… try to use the payload that we have seen in this post. As we saw, the focus through the hash in the URL is one of the first tasks that the browser performs when receiving a response, so it will be performed before tasks such as auto-submit form.</li>
+  <li>
+<strong>Don’t base your tests on using predefined payload lists or randomly copying and pasting payloads, as they may require modifications.</strong> As we’ve seen, the payload associated with the <em>onanimationend</em> event worked in the end, but only after modifying the JavaScript payload (which was initially rejected by the filter) with one I discovered during manual testing. If I had used the predefined payload with the original JavaScript, the server would have rejected the request with a security redirect.</li>
+  <li>
+<strong>Take your time, reading and understanding the payloads you’re using.</strong> We saw how I found a valid payload related to the <em>onanimationcancel</em> event, but I couldn’t execute the alert because I didn’t take the time to understand the payload. Instead, I rushed ahead and quickly moved on to the next event. If I had stopped to read and understand the payload, I probably would have realized I needed to add #x to the URL to trigger the alert.</li>
+  <li>
+<strong>Frame your testing within a general strategy, but don’t go overboard with unnecessary tests too early.</strong> In this case, I started with some manual testing and later moved on to some fuzzing to determine which attributes the filter accepted for the img tag. Then, I continued the exploitation, assuming that those attributes would be accepted not just for the img tag, but for all tags, and I was correct. Start with manual testing and some basic fuzzing, and if things don’t go as expected, reassess your hypotheses and perform a more thorough scan or advanced fuzzing.</li>
 </ul>
 
         
@@ -793,10 +756,6 @@
     
       
       
-      <a href="/tags/#gau" class="page__taxonomy-item" rel="tag">gau</a><span class="sep">, </span>
-    
-      
-      
       <a href="/tags/#httpx" class="page__taxonomy-item" rel="tag">httpx</a><span class="sep">, </span>
     
       
@@ -806,6 +765,14 @@
       
       
       <a href="/tags/#osint" class="page__taxonomy-item" rel="tag">osint</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#portswigger" class="page__taxonomy-item" rel="tag">portswigger</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#waymore" class="page__taxonomy-item" rel="tag">waymore</a><span class="sep">, </span>
     
       
       
@@ -841,7 +808,7 @@
 
 
         
-          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2023-12-10T00:00:00+01:00">December 10, 2023</time></p>
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2025-03-30T00:00:00+01:00">March 30, 2025</time></p>
         
       </footer>
 
@@ -850,12 +817,11 @@
       
   <nav class="pagination">
     
-      <a href="/posts/2023/11/13/subdomain-takeover-via-unclaimed-azure-vm/" class="pagination--pager" title="Subdomain takeover via unclaimed Azure VM
+      <a href="/posts/2024/12/07/breaking-the-perimeter-by-exploiting-routing-based-ssrf-via-a-misconfigured-load-balancer/" class="pagination--pager" title="Breaking the perimeter by exploiting routing-based SSRF via a misconfigured load balancer
 ">Previous</a>
     
     
-      <a href="/posts/2024/03/19/human-1-sqlmap-0-defeating-automation-through-manual-exploitation/" class="pagination--pager" title="Human 1 - sqlmap 0: defeating automation through manual exploitation
-">Next</a>
+      <a href="#" class="pagination--pager disabled">Next</a>
     
   </nav>
 

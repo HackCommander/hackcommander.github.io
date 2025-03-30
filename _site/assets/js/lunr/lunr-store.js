@@ -44,7 +44,7 @@ var store = [{
         "tags": ["web","vps","osint","reconftw","nuclei","subdomain takeover"],
         "url": "https://hackcommander.github.io/posts/2023/11/13/subdomain-takeover-via-unclaimed-azure-vm/",
         "teaser":"https://hackcommander.github.io/assets/images/general/bug-bounty.jpg"},{
-        "title": "Reflected XSS bypassing hidden input tag and auto-submit script in a form",
+        "title": "Defeating XSS filters using unexpected HTML attributes",
         "excerpt":"Summary 1. Asset discovery 2. Vulnerability discovery 3. Vulnerability exploitation 3.1. Steps of exploitation 3.2. Why does the payload work? 4. Report resolution 5. Lessons learned :warning: This bug was reported in a private program in which it is not allowed to publish the vulnerabilities found. So this is a...","categories": ["bug bounty"],
         "tags": ["web","osint","amass","httpx","gau","kxss","burpsuite","xss","bypass"],
         "url": "https://hackcommander.github.io/posts/2023/12/10/reflected-xss-bypassing-hidden-input-tag-and-auto-submit-script/",
@@ -73,4 +73,9 @@ var store = [{
         "excerpt":"Summary 1. Asset discovery 2. Vulnerability discovery 3. Vulnerability exploitation 3.1. Steps of exploitation 3.1.1. Accessing the internal network 3.1.2. Scanning the internal network 3.2. Why does this vulnerability exist? 4. Report resolution 5. Lessons learned :warning: This bug was reported in a private program in which it is not...","categories": ["bug bounty"],
         "tags": ["web","portswigger","burpsuite","burp scanner","nikto","mod_proxy_balancer","ssrf"],
         "url": "https://hackcommander.github.io/posts/2024/12/07/breaking-the-perimeter-by-exploiting-routing-based-ssrf-via-a-misconfigured-load-balancer/",
+        "teaser":"https://hackcommander.github.io/assets/images/general/bug-bounty.jpg"},{
+        "title": "Defeating XSS filters using unexpected HTML attributes",
+        "excerpt":"Summary 1. Asset discovery 2. Vulnerability discovery 3. Vulnerability exploitation 3.1. Steps of exploitation 3.2. Why does the payload work? 4. Report resolution 5. Lessons learned :warning: This bug was reported in a private program in which it is not allowed to publish the vulnerabilities found. So this is a...","categories": ["bug bounty"],
+        "tags": ["web","osint","amass","httpx","waymore","kxss","burpsuite","portswigger","xss","bypass"],
+        "url": "https://hackcommander.github.io/posts/2025/03/30/defeating-xss-filters-using-unexpected-html-attributes/",
         "teaser":"https://hackcommander.github.io/assets/images/general/bug-bounty.jpg"}]
