@@ -1,7 +1,7 @@
 ---
 layout: single
-title: Defeating XSS filters using unexpected HTML attributes
-excerpt: "Partial disclosure of a bug bounty report: defeating XSS filters using unexpected HTML attributes."
+title: Defeating XSS filters using unexpected HTML tags and attributes
+excerpt: "Partial disclosure of a bug bounty report: defeating XSS filters using unexpected HTML tags and attributes."
 date: 2025-03-30
 classes: wide
 header:
@@ -82,7 +82,7 @@ The code above runs waymore to gather URLs for www.example.com in "U" mode (URL 
 
 I no longer have the output file, but the result contained some lines as follows
 
-![](/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-attributes/waymore-kxss-output.png)
+![](/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-tags-and-attributes/waymore-kxss-output.png)
 
 where red color is obfuscating the XSS candidate URLs and parameters.
 
@@ -94,37 +94,37 @@ where red color is obfuscating the XSS candidate URLs and parameters.
 
 The URL was some sort of resource for redeeming benefits or activating promotions. The vulnerable parameter was the parameter *code*, which should be the promotion code or something like that. So I first sent the < character and the response was as follows
 
-![](/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-attributes/burp-repeater-1.png)
+![](/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-tags-and-attributes/burp-repeater-1.png)
 
 The response was an HTTP 400 code, and considering that the initial scan showed that the < character was reflected, I thought it might be an encoding issue. So, I sent the same < character but URL-encoded and the response was as follows
 
-![](/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-attributes/burp-repeater-2.png)
+![](/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-tags-and-attributes/burp-repeater-2.png)
 
 In this case the server responded with HTTP code 200 and the character was reflected correctly.
 
 Then I sent the payload `<script>` to check if I could send HTML tags
 
-![](/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-attributes/burp-repeater-3.png)
+![](/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-tags-and-attributes/burp-repeater-3.png)
 
 but the server responded with a security redirection, returning HTTP code 302. This could mean that the filter was blocking any type of HTML tag or maybe only script tags. To check it out, I sent the tag `<img src=1>` and I got the following response
 
-![](/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-attributes/burp-repeater-4.png)
+![](/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-tags-and-attributes/burp-repeater-4.png)
 
 HTTP code 200, great! This means the filter is flexible, and I can send HTML tags with attributes, so I can play a bit :smiling_imp:
 
 Then I sent the payload `<img src=1 onerror="">` to check if I can inject JavaScript code, that means, whether the filter accepts all types of attributes or blocks certain dangerous attributes. The response was the following
 
-![](/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-attributes/burp-repeater-5.png)
+![](/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-tags-and-attributes/burp-repeater-5.png)
 
 The server responded with a security redirection, which implies that the server does block certain attributes.
 
 To determine which attributes the filter was blocking, I performed fuzzing on the attribute using all possible events from the [cross-site scripting (XSS) cheat sheet](https://portswigger.net/web-security/cross-site-scripting/cheat-sheet):
 
-![](/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-attributes/cheat-sheet-1.png)
+![](/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-tags-and-attributes/cheat-sheet-1.png)
 
 The result of performing the fuzzing with burp intruder was as follows:
 
-![](/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-attributes/burp-intruder.png)
+![](/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-tags-and-attributes/burp-intruder.png)
 
 This fuzzing reveals different events that can be used within an `<img>` tag specifically, those associated with an HTTP 200 status code. For example, the filter accepts inputs in the form of `<img src=1 onafterscriptexecute="">`.
 
@@ -132,7 +132,7 @@ However, it’s important to note that the filter may allow these events for the
 
 At this point I changed strategy and, instead of continuing to use the img tag, I looked for payloads that used the events found in the fuzzing and did not require user interaction to execute. I only had to test the first 3 payloads:
 
-![](/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-attributes/cheat-sheet-2.png)
+![](/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-tags-and-attributes/cheat-sheet-2.png)
 
 I didn’t even test the payload associated with the *onafterscriptexecute* event because, as you may remember, the filter blocks `<script>` tags, so it’s guaranteed to fail.
 
@@ -145,7 +145,7 @@ Using the payload of the *onanimationcancel* attribute and changing the payload 
 
 the response was the following
 
-![](/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-attributes/burp-repeater-6.png)
+![](/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-tags-and-attributes/burp-repeater-6.png)
 
 This implies that the filter is blocking this payload. The question is... is it blocking any of the tags, any of the attributes or the javascript code? To check if it was blocking the JavaScript code I changed it to the following code
 
@@ -163,7 +163,7 @@ which we have already seen in previous posts, resulting in the payload as follow
 
 When I sent the payload, the response was the following
 
-![](/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-attributes/burp-repeater-7.png)
+![](/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-tags-and-attributes/burp-repeater-7.png)
 
 Great! The answer fully reflects the payload, so the problem was the JavaScript code, but the *alert* function was not executed. This code defines a CSS animation that moves an element when it becomes the target and the `<xss>` element has an onanimationcancel event that, when triggered, executes the JavaScript payload. So I think the JavaScript payload didn't execute, among other reasons, because I forgot to add #x to the URL :laughing:
 
@@ -176,11 +176,11 @@ Then I tried the payload of the *onanimationend* event, but changing the JavaScr
 
 I got the following response
 
-![](/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-attributes/burp-repeater-8.png)
+![](/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-tags-and-attributes/burp-repeater-8.png)
 
 and the alert function is executed
 
-![](/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-attributes/alert.png)
+![](/assets/images/2025-03-30-defeating-xss-filters-using-unexpected-html-tags-and-attributes/alert.png)
 
 <div id='section-id-3-2'/>
 ## 3.2. Why does the payload work?
