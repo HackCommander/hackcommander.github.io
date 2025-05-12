@@ -25,7 +25,7 @@ Creator of the following tools:
 ## Contributions
 I have made the following contributions:
 
-- [Personal blog about science and technology](https://hackcommander.github.io/).
+- [Personal blog about science and technology](https://blog.hackcommander.com/).
 - Talk called *Pentesting: CTFs as a learning medium* at [Bluetab Company](https://www.bluetab.net/es/).
 - Pull request to HackTricks to add a [method to bypass the HttpOnly during an XSS exploit using the PHP info page](https://book.hacktricks.xyz/pentesting-web/hacking-with-cookies).
 - CTFs in the Capture The Flag Platform [VulNyx](https://vulnyx.com/):

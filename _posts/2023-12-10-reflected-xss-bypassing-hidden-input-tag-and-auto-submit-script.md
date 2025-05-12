@@ -145,7 +145,7 @@ In my opinion, this means that it is prioritizing the execution of the auto-subm
 
 From this idea I thought that I should think of an event that could be executed before any JavaScript code and I thought in the payload I used in the following post
 
-[Reflected XSS in search filter clear button in an e-commerce website](https://hackcommander.github.io/posts/2023/06/24/reflected-xss-in-search-filter-clear-button/)
+[Reflected XSS in search filter clear button in an e-commerce website](https://blog.hackcommander.com/posts/2023/06/24/reflected-xss-in-search-filter-clear-button/)
 
 Maybe the focus of an attribute is executed before the auto-submit code so using the payload
 

@@ -61,7 +61,7 @@ The meaning of each of the elements of the command is:
 
 Depending on the number of subdomains, the execution of this command can take days to finish, so if you launch reconFTW in this mode it is highly recommended to do it from a VPS. After the execution finishes, the subdomains appear in the file *~/reconftw-output/example.com/subdomains/subdomains.txt*.
 
-Remember that if you want to have a VPS like mine you can rent it through my [referral links](https://hackcommander.github.io/advertising/#section-id-1)! You'll pay the same and you'll be helping me!
+Remember that if you want to have a VPS like mine you can rent it through my [referral links](https://blog.hackcommander.com/advertising/#section-id-1)! You'll pay the same and you'll be helping me!
 
 <div id='section-id-2'/>
 ## 2. Vulnerability discovery
@@ -277,5 +277,5 @@ On the other hand, this vulnerability is commonly classified as high or critical
 
 - VPS are a very useful tool for bug bounty. In this case with the report of these subdomain takeovers I already amortized the cost of the VPS for the next 2 years and I had to to practically nothing.
 - When you find a vulnerability in a subdomain, try to look for the same vulnerability in other subdomains with a similar name. As we saw in this post, I found 2 subdomain takeovers in domains with very similar names, possibly because one belonged to the production environment and the other to a pre-production or QA environment.
-- There are some vulnerabilities whose exploitation can be very hard and whose impact is not always very high, as we saw in the post about [HTTP request smuggling](https://hackcommander.github.io/posts/2023/05/03/te-te-http-request-smuggling-obfuscating-te-header/). However, there are also the opposite cases, like this one, in which we have a vulnerability that is very easy to detect and exploit and yet its impact is high. Many bug bounty hunters have fully automated detection, exploitation and reporting of vulnerabilities such as this one.
+- There are some vulnerabilities whose exploitation can be very hard and whose impact is not always very high, as we saw in the post about [HTTP request smuggling](https://blog.hackcommander.com/posts/2023/05/03/te-te-http-request-smuggling-obfuscating-te-header/). However, there are also the opposite cases, like this one, in which we have a vulnerability that is very easy to detect and exploit and yet its impact is high. Many bug bounty hunters have fully automated detection, exploitation and reporting of vulnerabilities such as this one.
 - Try to help content creators you like. For example, the creator of reconFTW, [Alexis](https://es.linkedin.com/in/alexisfdezfdez/es), has a [Buy Me a Coffee](https://www.buymeacoffee.com/six2dez) account where he can make donations. Making a donation of 1 coffee costs nothing and is a sign of recognition and admiration that encourages content creators to continue creating quality content.
